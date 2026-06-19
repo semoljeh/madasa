@@ -1,0 +1,46 @@
+/* css/style.css */
+body {
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Islamic Pattern Background for Login */
+.islamic-bg {
+    background-color: #065f46;
+    background-image: radial-gradient(#059669 2px, transparent 2px), radial-gradient(#059669 2px, transparent 2px);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+}
+
+/* Glassmorphism Panel */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.2);
+}
+
+/* Rounded 16px as requested (Tailwind rounded-2xl is 16px) */
+/* Smooth Transitions */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #059669;
+}

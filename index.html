@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Madrasah Darussalam - Sistem Penilaian</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Konfigurasi Tailwind & Custom CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { emerald: { 600: '#059669', 700: '#047857', 800: '#065f46' }, gold: '#D4AF37' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-font-smoothing: antialiased; }
+        .islamic-bg {
+            background-color: #065f46;
+            background-image: radial-gradient(#059669 2.5px, transparent 2.5px), radial-gradient(#059669 2.5px, transparent 2.5px);
+            background-size: 60px 60px;
+            background-position: 0 0, 30px 30px;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+        }
+        .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #059669; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- LOADING SCREEN -->
+    <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-white/90 backdrop-blur-sm hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600"></div>
+    </div>
+
+    <!-- ================= HALAMAN LOGIN ================= -->
+    <div id="loginPage" class="min-h-screen flex items-center justify-center islamic-bg relative">
+        <div class="absolute inset-0 bg-emerald-900/40 z-0"></div>
+        
+        <div class="glass-panel relative z-10 w-full max-w-md p-8 m-4">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg mb-4 text-emerald-600 text-3xl">
+                    <i class="fas fa-mosque"></i>
+                </div>
+                <h1 class="font-heading text-2xl font-bold text-gray-800">MADRASAH DARUSSALAM</h1>
+                <p class="text-emerald-600 font-medium text-sm mt-1">Sistem Informasi Penilaian Santri</p>
+            </div>
+
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Username</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-user text-gray-400"></i>
+                        </div>
+                        <input type="text" id="username" class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Masukkan Username Anda" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="mt-1 relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input type="password" id="password" class="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Masukkan Password Anda" required>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" onclick="togglePassword()">
+                            <i class="fas fa-eye text-gray-400 hover:text-emerald-600" id="eyeIcon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-all">
+                    Masuk
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= HALAMAN DASHBOARD ================= -->
+    <div id="dashboardPage" class="hidden flex h-screen bg-gray-50 overflow-hidden">
+        
+        <!-- Sidebar Desktop -->
+        <aside class="w-64 bg-emerald-800 text-white hidden md:flex flex-col shadow-xl z-20">
+            <div class="p-6 text-center border-b border-emerald-700 bg-emerald-900/50">
+                <div class="w-12 h-12 mx-auto bg-white rounded-xl flex items-center justify-center shadow-md mb-2 text-emerald-700 text-xl">
+                    <i class="fas fa-mosque"></i>
+                </div>
+                <h2 class="font-heading font-bold text-base tracking-wide">DARUSSALAM</h2>
+            </div>
+            <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+                <button onclick="showView('home')" class="nav-link w-full flex items-center gap-3 px-4 py-3 bg-emerald-700 rounded-xl text-white font-medium transition-all text-sm">
+                    <i class="fas fa-th-large w-5 text-gold"></i> Utama
+                </button>
+                <button onclick="showView('dataSantri')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+                    <i class="fas fa-users w-5"></i> Data Santri
+                </button>
+                <button onclick="showView('inputNilai')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+                    <i class="fas fa-edit w-5"></i> Input Nilai
+                </button>
+                <button onclick="showView('dataNilai')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+                    <i class="fas fa-chart-line w-5"></i> Data Nilai
+                </button>
+                <button onclick="showView('ranking')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+                    <i class="fas fa-trophy w-5"></i> Ranking
+                </button>
+                <button onclick="showView('cetakRapor')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+                    <i class="fas fa-print w-5"></i> Cetak Rapor
+                </button>
+                <button onclick="showView('pengaturan')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+                    <i class="fas fa-cog w-5"></i> Pengaturan
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex flex-col h-screen overflow-hidden">
+            <!-- Header Dashboard -->
+            <header class="bg-white shadow-sm border-b border-gray-100 z-10 flex items-center justify-between p-4 px-6">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-xl font-heading font-bold text-gray-800">Madrasah Darussalam</h2>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block border-r pr-4 border-gray-200">
+                        <p id="userNameDisplay" class="text-sm font-semibold text-gray-800">Nama Pengguna</p>
+                        <p id="userRoleDisplay" class="text-xs font-medium text-emerald-600">Role</p>
+                    </div>
+                    <button onclick="logout()" class="w-10 h-10 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+                
+                <!-- VIEW 0: HOME -->
+                <div id="view-home" class="view-section">
+                    <div class="bg-gradient-to-r from-emerald-700 to-teal-800 rounded-2xl p-8 text-white shadow-md mb-8">
+                        <h1 class="text-3xl font-heading font-bold">Ahlan Wa Sahlan</h1>
+                        <p class="text-emerald-100 mt-2">Selamat datang di Sistem Informasi Penilaian Santri Digital.</p>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+                        <div onclick="showView('dataSantri')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+                            <div class="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-users"></i></div>
+                            <h3 class="font-bold text-gray-800">Data Santri</h3>
+                        </div>
+                        <div onclick="showView('inputNilai')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+                            <div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-book-open"></i></div>
+                            <h3 class="font-bold text-gray-800">Input Nilai</h3>
+                        </div>
+                        <div onclick="showView('dataNilai')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+                            <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-table"></i></div>
+                            <h3 class="font-bold text-gray-800">Data Nilai</h3>
+                        </div>
+                        <div onclick="showView('ranking')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+                            <div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-trophy"></i></div>
+                            <h3 class="font-bold text-gray-800">Ranking</h3>
+                        </div>
+                        <div onclick="showView('cetakRapor')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+                            <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-print"></i></div>
+                            <h3 class="font-bold text-gray-800">Cetak Rapor</h3>
+                        </div>
+                        <div onclick="showView('pengaturan')" class="admin-only bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+                            <div class="w-14 h-14 bg-gray-50 text-gray-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-cog"></i></div>
+                            <h3 class="font-bold text-gray-800">Pengaturan</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 1: DATA SANTRI -->
+                <div id="view-dataSantri" class="view-section hidden">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 border-b border-gray-100 pb-4 gap-4">
+                            <div class="flex items-center gap-4">
+                                <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 hover:text-teal-600 transition-all shadow-sm">
+                                    <i class="fas fa-arrow-left"></i>
+                                </button>
+                                <div>
+                                    <h3 class="text-xl font-heading font-bold text-gray-800">Data Santri</h3>
+                                    <p class="text-xs text-gray-500 mt-1">Manajemen biodata dan penempatan kelas.</p>
+                                </div>
+                            </div>
+                            <button onclick="openModalSantri()" class="admin-only bg-teal-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-teal-700 transition-all shadow-sm flex items-center justify-center gap-2">
+                                <i class="fas fa-plus"></i> Tambah Santri
+                            </button>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-4 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                            <div class="flex-1 relative">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                <input type="text" id="searchSantri" onkeyup="filterSantri()" class="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm transition-all" placeholder="Cari nama atau NIS santri...">
+                            </div>
+                            <div class="sm:w-64">
+                                <select id="filterKelasSantri" onchange="filterSantri()" class="w-full p-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm bg-white cursor-pointer transition-all">
+                                    <option value="Semua">Tampilkan Semua Kelas</option>
+                                    <optgroup label="TK">
+                                        <option value="TK 1">TK 1</option>
+                                        <option value="TK 2">TK 2</option>
+                                        <option value="TK 3">TK 3</option>
+                                        <option value="TK 4">TK 4</option>
+                                        <option value="TK 5">TK 5</option>
+                                    </optgroup>
+                                    <optgroup label="IBTIDAIYAH">
+                                        <option value="Kelas I">Kelas I</option>
+                                        <option value="Kelas II">Kelas II</option>
+                                        <option value="Kelas III">Kelas III</option>
+                                        <option value="Kelas IV">Kelas IV</option>
+                                        <option value="Kelas V">Kelas V</option>
+                                        <option value="Kelas VI">Kelas VI</option>
+                                    </optgroup>
+                                    <optgroup label="SANAWIYAH">
+                                        <option value="Kelas 1">Kelas 1</option>
+                                        <option value="Kelas 2">Kelas 2</option>
+                                        <option value="Kelas 3">Kelas 3</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto rounded-xl border border-gray-200">
+                            <table class="w-full text-left border-collapse" id="tabelSantri">
+                                <thead>
+                                    <tr class="bg-gray-100 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
+                                        <th class="p-4 font-semibold">NIS</th>
+                                        <th class="p-4 font-semibold">Nama Lengkap</th>
+                                        <th class="p-4 font-semibold">L/P</th>
+                                        <th class="p-4 font-semibold">Kelas</th>
+                                        <th class="p-4 font-semibold text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodyTabelSantri" class="text-sm text-gray-700 divide-y divide-gray-100">
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div id="noDataPesan" class="hidden text-center py-12">
+                            <div class="text-gray-300 text-5xl mb-3"><i class="fas fa-folder-open"></i></div>
+                            <p class="text-gray-500 font-medium">Tidak ada santri yang cocok dengan filter atau pencarian Anda.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: INPUT NILAI -->
+                <div id="view-inputNilai" class="view-section hidden">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                        <div class="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
+                            <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shadow-sm">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <div>
+                                <h3 class="text-xl font-heading font-bold text-gray-800">Form Input Nilai</h3>
+                                <p class="text-xs text-gray-500 mt-1 md:hidden">Silakan pilih kelas dan isi nilai santri.</p>
+                            </div>
+                        </div>
+
+                        <select class="w-full md:w-1/3 p-3 bg-gray-50 border rounded-xl mb-6 focus:ring-2 focus:ring-emerald-500 outline-none transition-all">
+                            <option value="" disabled selected>-- Pilih Kelas --</option>
+                            <optgroup label="TK">
+                                <option value="TK 1">TK 1</option>
+                                <option value="TK 2">TK 2</option>
+                                <option value="TK 3">TK 3</option>
+                                <option value="TK 4">TK 4</option>
+                                <option value="TK 5">TK 5</option>
+                            </optgroup>
+                            <optgroup label="IBTIDAIYAH">
+                                <option value="Kelas I">Kelas I</option>
+                                <option value="Kelas II">Kelas II</option>
+                                <option value="Kelas III">Kelas III</option>
+                                <option value="Kelas IV">Kelas IV</option>
+                                <option value="Kelas V">Kelas V</option>
+                                <option value="Kelas VI">Kelas VI</option>
+                            </optgroup>
+                            <optgroup label="SANAWIYAH">
+                                <option value="Kelas 1">Kelas 1</option>
+                                <option value="Kelas 2">Kelas 2</option>
+                                <option value="Kelas 3">Kelas 3</option>
+                            </optgroup>
+                        </select>
+                        <p class="text-gray-500 text-sm">Form input nilai siswa akan ditampilkan di sini.</p>
+                    </div>
+                </div>
+
+                <!-- VIEW LAINNYA -->
+                <div id="view-dataNilai" class="view-section hidden">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
+                            <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-all shadow-sm">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <h3 class="text-xl font-heading font-bold text-gray-800">Tabel Data Nilai</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 text-center py-10">Fitur tabel data nilai akan segera hadir di sini.</p>
+                    </div>
+                </div>
+
+                <div id="view-ranking" class="view-section hidden">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
+                            <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-amber-100 hover:text-amber-600 transition-all shadow-sm">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <h3 class="text-xl font-heading font-bold text-gray-800">Peringkat Santri</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 text-center py-10">Fitur klasemen peringkat santri akan segera hadir di sini.</p>
+                    </div>
+                </div>
+
+                <div id="view-cetakRapor" class="view-section hidden">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
+                            <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-purple-100 hover:text-purple-600 transition-all shadow-sm">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <h3 class="text-xl font-heading font-bold text-gray-800">Cetak Rapor</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 text-center py-10">Fitur generasi rapor PDF akan segera hadir di sini.</p>
+                    </div>
+                </div>
+
+                <div id="view-pengaturan" class="view-section hidden">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
+                            <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800 transition-all shadow-sm">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <h3 class="text-xl font-heading font-bold text-gray-800">Pengaturan Sistem</h3>
+                        </div>
+                        <p class="text-sm text-gray-500 text-center py-10">Menu konfigurasi sistem akan segera hadir di sini.</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODAL TAMBAH SANTRI ================= -->
+    <div id="modalTambahSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 m-4 transform transition-all">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="text-lg font-heading font-bold text-gray-800">Tambah Data Santri</h3>
+                <button onclick="closeModalSantri()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="formTambahSantri" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">NIS</label>
+                    <input type="number" id="add_nis" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required placeholder="Contoh: 2026001">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="add_nama" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required placeholder="Nama lengkap santri">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label>
+                        <select id="add_jk" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required>
+                            <option value="" disabled selected>Pilih...</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label>
+                        <select id="add_kelas" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required>
+                            <option value="" disabled selected>Pilih...</option>
+                            <optgroup label="TK"><option value="TK 1">TK 1</option><option value="TK 2">TK 2</option><option value="TK 3">TK 3</option><option value="TK 4">TK 4</option><option value="TK 5">TK 5</option></optgroup>
+                            <optgroup label="IBTIDAIYAH"><option value="Kelas I">Kelas I</option><option value="Kelas II">Kelas II</option><option value="Kelas III">Kelas III</option><option value="Kelas IV">Kelas IV</option><option value="Kelas V">Kelas V</option><option value="Kelas VI">Kelas VI</option></optgroup>
+                            <optgroup label="SANAWIYAH"><option value="Kelas 1">Kelas 1</option><option value="Kelas 2">Kelas 2</option><option value="Kelas 3">Kelas 3</option></optgroup>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t mt-6">
+                    <button type="button" onclick="closeModalSantri()" class="px-4 py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm">Batal</button>
+                    <button type="submit" class="px-4 py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center gap-2 text-sm">
+                        <i class="fas fa-save"></i> Simpan Data
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================== SCRIPT JAVASCRIPT ================== -->
+    <script>
+        // === URL DARI GOOGLE SHEET AKANG ===
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwYYXwRmmhufgqlaUgOZBAqTW-4dUyqR8BqZkG_teL7FPsBfOVjbUxI7MV-FU2faHSD/exec';
+
+        // Tampilkan/Sembunyikan Password
+        function togglePassword() {
+            const pwd = document.getElementById('password');
+            const icon = document.getElementById('eyeIcon');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                pwd.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Tampilkan Layar Loading
+        function showLoading(show) {
+            document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none';
+        }
+
+        // Transisi Menu & Halaman
+        function showView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            
+            const targetView = document.getElementById('view-' + viewName);
+            if (targetView) targetView.classList.remove('hidden');
+
+            if (viewName === 'dataSantri') {
+                loadDataSantri();
+            }
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.classList.remove('bg-emerald-700', 'text-white', 'font-medium');
+                link.classList.add('text-emerald-100', 'hover:bg-emerald-700/50');
+                
+                if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(`'${viewName}'`)) {
+                    link.classList.add('bg-emerald-700', 'text-white', 'font-medium');
+                    link.classList.remove('text-emerald-100', 'hover:bg-emerald-700/50');
+                }
+            });
+        }
+
+        // Logika Keluar Aplikasi
+        function logout() {
+            Swal.fire({
+                title: 'Keluar?',
+                text: "Anda akan kembali ke halaman login",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#059669',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Keluar',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('dashboardPage').classList.add('hidden');
+                    document.getElementById('loginPage').classList.remove('hidden');
+                    document.getElementById('loginForm').reset();
+                    showView('home');
+                }
+            });
+        }
+
+        // Logika Modal Tambah Santri
+        function openModalSantri() {
+            document.getElementById('modalTambahSantri').classList.remove('hidden');
+        }
+
+        function closeModalSantri() {
+            document.getElementById('modalTambahSantri').classList.add('hidden');
+            document.getElementById('formTambahSantri').reset();
+        }
+
+        // Logika Cari & Filter Kelas Data Santri
+        function filterSantri() {
+            const searchText = document.getElementById('searchSantri').value.toLowerCase();
+            const selectedKelas = document.getElementById('filterKelasSantri').value;
+            const rows = document.querySelectorAll('.santri-row');
+            
+            let visibleCount = 0; 
+
+            rows.forEach(row => {
+                const nama = row.cells[1].innerText.toLowerCase();
+                const nis = row.cells[0].innerText.toLowerCase();
+                const kelas = row.getAttribute('data-kelas');
+
+                const matchSearch = nama.includes(searchText) || nis.includes(searchText);
+                const matchKelas = selectedKelas === 'Semua' || kelas === selectedKelas;
+
+                if (matchSearch && matchKelas) {
+                    row.style.display = ''; 
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none'; 
+                }
+            });
+
+            const tabelContainer = document.getElementById('tabelSantri').parentElement;
+            const noDataPesan = document.getElementById('noDataPesan');
+            
+            if (visibleCount === 0) {
+                tabelContainer.classList.add('hidden');
+                noDataPesan.classList.remove('hidden');
+            } else {
+                tabelContainer.classList.remove('hidden');
+                noDataPesan.classList.add('hidden');
+            }
+        }
+
+        // =========================================================
+        // FUNGSI KOMUNIKASI DENGAN GOOGLE APPS SCRIPT (DATABASE)
+        // =========================================================
+
+        // 1. Fungsi Menarik Data Santri
+        function loadDataSantri() {
+            showLoading(true); 
+            
+            const formData = new URLSearchParams();
+            formData.append('action', 'getSantri');
+
+            fetch(GAS_URL, { method: 'POST', body: formData })
+            .then(response => response.json())
+            .then(res => {
+                showLoading(false);
+                if(res.status === 'success') {
+                    const tbody = document.getElementById('bodyTabelSantri');
+                    tbody.innerHTML = ''; 
+                    
+                    if(res.data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Belum ada data santri di database Google Sheet.</td></tr>';
+                        return;
+                    }
+
+                    res.data.forEach(santri => {
+                        const tr = document.createElement('tr');
+                        tr.className = 'hover:bg-teal-50 transition-all santri-row';
+                        tr.setAttribute('data-kelas', santri.kelas); 
+                        
+                        tr.innerHTML = `
+                            <td class="p-4 font-medium">${santri.nis}</td>
+                            <td class="p-4 font-bold text-gray-800">${santri.nama}</td>
+                            <td class="p-4">${santri.jk}</td>
+                            <td class="p-4"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold">${santri.kelas}</span></td>
+                            <td class="p-4 text-center">
+                                <button class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    filterSantri();
+                }
+            })
+            .catch(err => {
+                showLoading(false);
+                Swal.fire('Koneksi Gagal', 'Gagal menarik data dari database.', 'error');
+            });
+        }
+
+        // 2. Fungsi Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            showLoading(true);
+            
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
+            
+            const formData = new URLSearchParams();
+            formData.append('action', 'login');
+            formData.append('username', user);
+            formData.append('password', pass);
+
+            fetch(GAS_URL, { method: 'POST', body: formData })
+            .then(response => response.json()) 
+            .then(data => {
+                showLoading(false);
+                if (data.status === 'success') {
+                    const name = data.name;
+                    const role = data.role;
+
+                    document.getElementById('userNameDisplay').innerText = name;
+                    document.getElementById('userRoleDisplay').innerText = role;
+
+                    const adminElements = document.querySelectorAll('.admin-only');
+                    if (role === 'Guru Kelas' || role === 'Guru') {
+                        adminElements.forEach(el => el.style.display = 'none');
+                    } else {
+                        adminElements.forEach(el => el.style.display = '');
+                    }
+
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('dashboardPage').classList.remove('hidden');
+                    showView('home');
+                    
+                    Swal.fire({
+                        icon: 'success', title: 'Alhamdulillah', text: `Selamat datang, ${name}!`, timer: 1500, showConfirmButton: false
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error', title: 'Gagal Masuk', text: data.message || 'Username atau Password salah!', confirmButtonColor: '#059669'
+                    });
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                Swal.fire('Error Database', 'Gagal terhubung ke Google Sheet.', 'error');
+            });
+        });
+
+        // 3. Fungsi Tambah Santri
+        document.getElementById('formTambahSantri').addEventListener('submit', function(e) {
+            e.preventDefault();
+            showLoading(true);
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'addSantri');
+            formData.append('nis', document.getElementById('add_nis').value);
+            formData.append('nama', document.getElementById('add_nama').value);
+            formData.append('jk', document.getElementById('add_jk').value);
+            formData.append('kelas', document.getElementById('add_kelas').value);
+
+            fetch(GAS_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                showLoading(false);
+                if(data.status === 'success') {
+                    closeModalSantri();
+                    Swal.fire({
+                        icon: 'success', title: 'Tersimpan!', text: 'Data santri berhasil ditambahkan ke database.', confirmButtonColor: '#0d9488'
+                    });
+                    loadDataSantri(); // Refresh tabel setelah ditambah
+                } else {
+                    Swal.fire('Gagal', 'Terjadi kesalahan di server.', 'error');
+                }
+            })
+            .catch(err => {
+                showLoading(false);
+                Swal.fire('Error Database', 'Gagal mengirim data. Periksa koneksi internet.', 'error');
+            });
+        });
+    </script>
+</body>
+</html>
