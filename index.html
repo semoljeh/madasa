@@ -204,10 +204,29 @@
                                     <thead id="headerTK" class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200" style="display: none;">
                                         <tr>
                                             <th class="p-3 text-center border-r border-gray-200 w-10">No</th>
-                                            <th class="p-3 border-r border-gray-200">Nama Santri</th>
-                                            <th class="p-3 border-r border-gray-200 text-center w-24">N1</th>
-                                            <th class="p-3 border-r border-gray-200 text-center w-24">N2</th>
-                                            <th class="p-3 text-center w-24">N3</th>
+                                            <th class="p-3 border-r border-gray-200 whitespace-nowrap w-1">NIS</th>
+                                            <!-- KOLOM NAMA DIKUNCI (FREEZE) -->
+                                            <th class="p-3 border-r border-gray-200 sticky left-0 bg-gray-100 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">Nama Lengkap Santri</th>
+                                            <th class="p-3 border-r border-gray-200 text-center w-20 sm:w-24">N1</th>
+                                            <th class="p-3 border-r border-gray-200 text-center w-20 sm:w-24">N2</th>
+                                            <th class="p-3 text-center w-20 sm:w-24">N3</th>
+                                        </tr>
+                                    </thead>
+                                    <thead id="headerIBT" class="bg-emerald-600 text-white text-xs uppercase" style="display: none;">
+                                        <tr>
+                                            <th class="p-3 text-center border-r border-emerald-500 w-10">No</th>
+                                            <th class="p-3 border-r border-emerald-500 whitespace-nowrap w-1">NIS</th>
+                                            <!-- KOLOM NAMA DIKUNCI (FREEZE) -->
+                                            <th class="p-3 border-r border-emerald-500 sticky left-0 bg-emerald-600 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.2)]">Nama Lengkap Santri</th>
+                                            <th class="p-3 text-center w-24 sm:w-32" id="judulKolomNilai">NILAI</th>
+                                        </tr>
+                                    </thead>
+                                    <thead id="headerIBT" class="bg-emerald-600 text-white text-xs uppercase" style="display: none;">
+                                        <tr>
+                                            <th class="p-3 text-center border-r border-emerald-500 w-10">No</th>
+                                            <th class="p-3 border-r border-emerald-500 whitespace-nowrap w-1">NIS</th>
+                                            <th class="p-3 border-r border-emerald-500 w-full">Nama Lengkap Santri</th>
+                                            <th class="p-3 text-center w-24 sm:w-32" id="judulKolomNilai">NILAI</th>
                                         </tr>
                                     </thead>
                                     <thead id="headerIBT" class="bg-emerald-600 text-white text-xs uppercase" style="display: none;">
@@ -436,11 +455,12 @@
                     let html = `<tr class="hover:bg-emerald-50 transition-all santri-absen-row">
                         <td class="p-3 text-center text-gray-500 font-medium border-r border-gray-200">${idx + 1}</td>`;
                     
-                    if (kelas.includes('TK')) {
+                 if (kelas.includes('TK')) {
                         html += `
-                            <td class="p-3 border-r border-gray-200 min-w-[200px]">
-                                <p class="font-bold text-gray-800 text-sm whitespace-nowrap">${s.nama}</p>
-                                <p class="text-xs text-gray-400 mt-0.5">NIS: ${s.nis}</p>
+                            <td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td>
+                            <!-- KOLOM NAMA DIKUNCI (FREEZE) -->
+                            <td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                                <p class="font-bold text-gray-800 whitespace-nowrap">${s.nama}</p>
                             </td>
                             <td class="p-2 border-r border-gray-200 bg-gray-50">
                                 <input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)">
@@ -455,8 +475,11 @@
                     } else {
                         document.getElementById('judulKolomNilai').innerText = `NILAI ${subFilterValue}`;
                         html += `
-                            <td class="p-3 text-sm border-r border-gray-200 text-gray-500 min-w-[100px]">${s.nis}</td>
-                            <td class="p-3 border-r border-gray-200"><p class="font-bold text-gray-800">${s.nama}</p></td>
+                            <td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td>
+                            <!-- KOLOM NAMA DIKUNCI (FREEZE) -->
+                            <td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                                <p class="font-bold text-gray-800 whitespace-nowrap">${s.nama}</p>
+                            </td>
                             <td class="p-3 text-center bg-gray-50">
                                 <input type="number" class="input-ibt w-20 sm:w-24 mx-auto block p-2 border-2 border-gray-300 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 shadow-inner outline-none" data-nis="${s.nis}" data-nama="${s.nama}" placeholder="0-100" oninput="validasiInputNilai(this)">
                             </td>
