@@ -15,7 +15,7 @@
     <style>
         body { -webkit-font-smoothing: antialiased; }
         .islamic-bg { background-color: #065f46; background-image: radial-gradient(#059669 2.5px, transparent 2.5px), radial-gradient(#059669 2.5px, transparent 2.5px); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
-        .glass-panel { background: rgba(255, 255, 255, 0.90); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 20px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3); }
+        .glass-panel { background: rgba(255, 255, 255, 0.90); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3); }
         .transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -29,37 +29,37 @@
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600"></div>
     </div>
 
-    <div id="loginPage" class="min-h-screen flex items-center justify-center islamic-bg relative">
+    <div id="loginPage" class="min-h-screen flex items-center justify-center islamic-bg relative px-4">
         <div class="absolute inset-0 bg-emerald-900/40 z-0"></div>
-        <div class="glass-panel relative z-10 w-full max-w-md p-8 m-4">
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg mb-4 text-emerald-600 text-3xl"><i class="fas fa-mosque"></i></div>
-                <h1 class="font-heading text-2xl font-bold text-gray-800">MADRASAH DARUSSALAM</h1>
-                <p class="text-emerald-600 font-medium text-sm mt-1">Sistem Informasi Penilaian Santri</p>
+        <div class="glass-panel relative z-10 w-full max-w-md p-6 sm:p-8 m-2 sm:m-4">
+            <div class="text-center mb-6 sm:mb-8">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto bg-white rounded-full flex items-center justify-center shadow-lg mb-3 sm:mb-4 text-emerald-600 text-2xl sm:text-3xl"><i class="fas fa-mosque"></i></div>
+                <h1 class="font-heading text-xl sm:text-2xl font-bold text-gray-800">MADRASAH DARUSSALAM</h1>
+                <p class="text-emerald-600 font-medium text-xs sm:text-sm mt-1">Sistem Informasi Penilaian Santri</p>
             </div>
-            <form id="loginForm" class="space-y-5">
+            <form id="loginForm" class="space-y-4 sm:space-y-5">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Username</label>
                     <div class="mt-1 relative rounded-md shadow-sm">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fas fa-user text-gray-400"></i></div>
-                        <input type="text" id="username" class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Masukkan Username Anda" required>
+                        <input type="text" id="username" class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Masukkan Username" required>
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Password</label>
                     <div class="mt-1 relative rounded-md shadow-sm">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><i class="fas fa-lock text-gray-400"></i></div>
-                        <input type="password" id="password" class="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Masukkan Password Anda" required>
+                        <input type="password" id="password" class="block w-full pl-10 pr-10 py-3 border border-gray-300 rounded-xl focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm" placeholder="Masukkan Password" required>
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" onclick="togglePassword()"><i class="fas fa-eye text-gray-400 hover:text-emerald-600" id="eyeIcon"></i></div>
                     </div>
                 </div>
-                <button type="submit" class="w-full py-3 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-all">Masuk</button>
+                <button type="submit" class="w-full py-3 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 transition-all">Masuk Aplikasi</button>
             </form>
         </div>
     </div>
 
     <div id="dashboardPage" class="hidden flex h-screen bg-gray-50 overflow-hidden">
-        <aside class="w-64 bg-emerald-800 text-white hidden md:flex flex-col shadow-xl z-20">
+        <aside class="w-64 bg-emerald-800 text-white hidden md:flex flex-col shadow-xl z-20 shrink-0">
             <div class="p-6 text-center border-b border-emerald-700 bg-emerald-900/50">
                 <div class="w-12 h-12 mx-auto bg-white rounded-xl flex items-center justify-center shadow-md mb-2 text-emerald-700 text-xl"><i class="fas fa-mosque"></i></div>
                 <h2 class="font-heading font-bold text-base tracking-wide">DARUSSALAM</h2>
@@ -75,135 +75,132 @@
             </nav>
         </aside>
 
-        <main class="flex-1 flex flex-col h-screen overflow-hidden">
-            <header class="bg-white shadow-sm border-b border-gray-100 z-10 flex items-center justify-between p-4 px-6">
-                <div class="flex items-center gap-4"><h2 class="text-xl font-heading font-bold text-gray-800">Madrasah Darussalam</h2></div>
+        <main class="flex-1 flex flex-col h-screen overflow-hidden w-full">
+            <header class="bg-white shadow-sm border-b border-gray-100 z-10 flex items-center justify-between p-4 sm:px-6">
+                <div class="flex items-center gap-4"><h2 class="text-lg sm:text-xl font-heading font-bold text-gray-800 truncate">Madrasah Darussalam</h2></div>
                 <div class="flex items-center gap-4">
                     <div class="text-right hidden sm:block border-r pr-4 border-gray-200">
                         <p id="userNameDisplay" class="text-sm font-semibold text-gray-800">Nama</p>
                         <p id="userRoleDisplay" class="text-xs font-medium text-emerald-600">Role</p>
                     </div>
-                    <button onclick="logout()" class="w-10 h-10 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"><i class="fas fa-sign-out-alt"></i></button>
+                    <button onclick="logout()" class="w-10 h-10 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center shrink-0"><i class="fas fa-sign-out-alt"></i></button>
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
                 <div id="view-home" class="view-section">
-                    <div class="bg-gradient-to-r from-emerald-700 to-teal-800 rounded-2xl p-8 text-white shadow-md mb-8">
-                        <h1 class="text-3xl font-heading font-bold">Ahlan Wa Sahlan</h1>
-                        <p class="text-emerald-100 mt-2">Selamat datang di Sistem Informasi Penilaian Santri Digital.</p>
+                    <div class="bg-gradient-to-r from-emerald-700 to-teal-800 rounded-2xl p-6 sm:p-8 text-white shadow-md mb-6 sm:mb-8 relative overflow-hidden">
+                        <div class="relative z-10">
+                            <h1 class="text-2xl sm:text-3xl font-heading font-bold">Ahlan Wa Sahlan</h1>
+                            <p class="text-emerald-100 mt-1 sm:mt-2 text-sm sm:text-base">Selamat datang di Sistem Informasi Penilaian Santri Digital.</p>
+                        </div>
+                        <i class="fas fa-mosque absolute -right-6 -bottom-6 text-emerald-900 opacity-20" style="font-size: 8rem;"></i>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-                        <div onclick="showView('dataSantri')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-14 h-14 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-users"></i></div><h3 class="font-bold text-gray-800">Data Santri</h3></div>
-                        <div onclick="showView('inputNilai')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-book-open"></i></div><h3 class="font-bold text-gray-800">Input Nilai</h3></div>
-                        <div onclick="showView('dataNilai')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-table"></i></div><h3 class="font-bold text-gray-800">Data Nilai</h3></div>
-                        <div onclick="showView('ranking')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-14 h-14 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-trophy"></i></div><h3 class="font-bold text-gray-800">Ranking</h3></div>
-                        <div onclick="showView('cetakRapor')" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-print"></i></div><h3 class="font-bold text-gray-800">Cetak Rapor</h3></div>
-                        <div onclick="showView('pengaturan')" class="admin-only bg-white p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-14 h-14 bg-gray-50 text-gray-600 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4"><i class="fas fa-cog"></i></div><h3 class="font-bold text-gray-800">Pengaturan</h3></div>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
+                        <div onclick="showView('dataSantri')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-teal-50 text-teal-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-users"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Data Santri</h3></div>
+                        <div onclick="showView('inputNilai')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-book-open"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Input Nilai</h3></div>
+                        <div onclick="showView('dataNilai')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-table"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Data Nilai</h3></div>
+                        <div onclick="showView('ranking')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-trophy"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Ranking</h3></div>
+                        <div onclick="showView('cetakRapor')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 text-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-print"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Cetak Rapor</h3></div>
+                        <div onclick="showView('pengaturan')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 text-gray-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-cog"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Pengaturan</h3></div>
                     </div>
                 </div>
 
                 <div id="view-dataSantri" class="view-section hidden">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 border-b border-gray-100 pb-4 gap-4">
-                            <div class="flex items-center gap-4">
-                                <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 hover:text-teal-600 transition-all shadow-sm"><i class="fas fa-arrow-left"></i></button>
-                                <div><h3 class="text-xl font-heading font-bold text-gray-800">Data Santri</h3><p class="text-xs text-gray-500 mt-1">Manajemen biodata dan penempatan kelas.</p></div>
+                    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 border-b border-gray-100 pb-4 gap-4">
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 hover:text-teal-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
+                                <div><h3 class="text-lg sm:text-xl font-heading font-bold text-gray-800">Data Santri</h3><p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Manajemen biodata & penempatan.</p></div>
                             </div>
-                            <button onclick="openModalSantri()" class="admin-only bg-teal-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-teal-700 transition-all shadow-sm flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah Santri</button>
+                            <button onclick="openModalSantri()" class="w-full sm:w-auto admin-only bg-teal-600 text-white px-4 py-3 sm:py-2.5 rounded-xl text-sm font-medium hover:bg-teal-700 transition-all shadow-sm flex items-center justify-center gap-2"><i class="fas fa-plus"></i> Tambah Santri</button>
                         </div>
-                        <div class="flex flex-col sm:flex-row gap-4 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            <div class="flex-1 relative">
-                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
-                                <input type="text" id="searchSantri" onkeyup="filterSantri()" class="w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm transition-all" placeholder="Cari nama atau NIS santri...">
+                        
+                        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-5 sm:mb-6 bg-gray-50 p-3 sm:p-4 rounded-xl border border-gray-100">
+                            <div class="flex-1 relative w-full">
+                                <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+                                <input type="text" id="searchSantri" onkeyup="filterSantri()" class="w-full pl-11 pr-3 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm transition-all bg-white" placeholder="Cari nama atau NIS santri...">
                             </div>
-                            <div class="sm:w-64">
-                                <select id="filterKelasSantri" onchange="filterSantri()" class="w-full p-2 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm bg-white cursor-pointer transition-all">
+                            <div class="w-full sm:w-64">
+                                <select id="filterKelasSantri" onchange="filterSantri()" class="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none text-sm bg-white cursor-pointer transition-all">
                                     <option value="Semua">Tampilkan Semua Kelas</option>
-                                    <optgroup label="TK">
-                                        <option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option>
-                                    </optgroup>
-                                    <optgroup label="IBTIDAIYAH">
-                                        <option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option>
-                                    </optgroup>
-                                    <optgroup label="SANAWIYAH">
-                                        <option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option>
-                                    </optgroup>
+                                    <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
+                                    <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
+                                    <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
                                 </select>
                             </div>
                         </div>
-                        <div class="overflow-x-auto rounded-xl border border-gray-200">
-                            <table class="w-full text-left border-collapse" id="tabelSantri">
+
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 w-full shadow-sm">
+                            <table class="w-full text-left border-collapse min-w-max" id="tabelSantri">
                                 <thead>
                                     <tr class="bg-gray-100 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-200">
-                                        <th class="p-4 font-semibold">NIS</th><th class="p-4 font-semibold">Nama Lengkap</th><th class="p-4 font-semibold">L/P</th><th class="p-4 font-semibold">Kelas</th><th class="p-4 font-semibold text-center">Aksi</th>
+                                        <th class="p-3 sm:p-4 font-semibold">NIS</th>
+                                        <th class="p-3 sm:p-4 font-semibold">Nama Lengkap</th>
+                                        <th class="p-3 sm:p-4 font-semibold text-center">L/P</th>
+                                        <th class="p-3 sm:p-4 font-semibold">Kelas</th>
+                                        <th class="p-3 sm:p-4 font-semibold text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="bodyTabelSantri" class="text-sm text-gray-700 divide-y divide-gray-100"></tbody>
                             </table>
                         </div>
-                        <div id="noDataPesan" class="hidden text-center py-12">
-                            <div class="text-gray-300 text-5xl mb-3"><i class="fas fa-folder-open"></i></div>
-                            <p class="text-gray-500 font-medium">Tidak ada santri yang cocok dengan filter atau pencarian Anda.</p>
+                        <div id="noDataPesan" class="hidden text-center py-10 sm:py-12">
+                            <div class="text-gray-300 text-4xl sm:text-5xl mb-3"><i class="fas fa-folder-open"></i></div>
+                            <p class="text-gray-500 font-medium text-sm sm:text-base">Data tidak ditemukan.</p>
                         </div>
                     </div>
                 </div>
 
                 <div id="view-inputNilai" class="view-section hidden">
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <div class="flex items-center gap-4 mb-6 border-b border-gray-100 pb-4">
-                            <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shadow-sm"><i class="fas fa-arrow-left"></i></button>
-                            <div>
-                                <h3 class="text-xl font-heading font-bold text-gray-800">Aplikasi Buku Nilai Digital</h3>
-                                <p class="text-xs text-gray-500 mt-1">Madrasah Darussalam - Sistem Input Real-Time</p>
+                    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 border-b border-gray-100 pb-4 gap-4">
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
+                                <div><h3 class="text-lg sm:text-xl font-heading font-bold text-gray-800">Aplikasi Buku Nilai</h3><p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Sistem Input Real-Time Terpadu</p></div>
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-teal-50 p-5 rounded-xl border border-teal-200">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-6 bg-teal-50 p-4 sm:p-5 rounded-xl border border-teal-200">
                             <div>
-                                <label class="block text-sm font-bold text-teal-800 mb-2">1. Pilih Kelas</label>
-                                <select id="pilihKelasNilai" onchange="aktifkanFilterKedua()" class="w-full p-3 border border-teal-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none font-medium bg-white shadow-sm transition-all">
+                                <label class="block text-xs sm:text-sm font-bold text-teal-800 mb-1.5 sm:mb-2">1. Pilih Kelas</label>
+                                <select id="pilihKelasNilai" onchange="aktifkanFilterKedua()" class="w-full p-3 border border-teal-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none font-medium bg-white shadow-sm transition-all text-sm sm:text-base">
                                     <option value="" disabled selected>-- Silakan Pilih Kelas Dulu --</option>
-                                    <optgroup label="TK">
-                                        <option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option>
-                                    </optgroup>
-                                    <optgroup label="IBTIDAIYAH">
-                                        <option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option>
-                                    </optgroup>
-                                    <optgroup label="SANAWIYAH">
-                                        <option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option>
-                                    </optgroup>
+                                    <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
+                                    <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
+                                    <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
                                 </select>
                             </div>
                             
                             <div id="wadahFilterKedua" class="hidden">
-                                <label id="labelFilterKedua" class="block text-sm font-bold text-teal-800 mb-2">2. Pilihan Kedua</label>
-                                <select id="pilihFilterKedua" onchange="generateTabelAbsen()" class="w-full p-3 border border-teal-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none font-bold bg-white text-emerald-700 shadow-sm transition-all">
-                                    </select>
+                                <label id="labelFilterKedua" class="block text-xs sm:text-sm font-bold text-teal-800 mb-1.5 sm:mb-2">2. Pilihan Kedua</label>
+                                <select id="pilihFilterKedua" onchange="generateTabelAbsen()" class="w-full p-3 border border-teal-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none font-bold bg-white text-emerald-700 shadow-sm transition-all text-sm sm:text-base"></select>
                             </div>
                         </div>
 
                         <form id="formInputNilaiBulk" class="hidden">
-                            
-                            <div id="wadahGlobalMapelTK" class="hidden mb-6 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                            <div id="wadahGlobalMapelTK" class="hidden mb-5 sm:mb-6 bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm">
                                 <div class="mb-3">
                                     <span class="inline-block bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-md tracking-wider">NAMA MATA PELAJARAN</span>
-                                    <p class="text-xs text-gray-500 mt-2"><i class="fas fa-lightbulb text-yellow-500"></i> Ketik nama mapel cukup 1 kali di sini, otomatis teraplikasi ke semua santri.</p>
+                                    <p class="text-xs text-gray-500 mt-1 sm:mt-2"><i class="fas fa-lightbulb text-yellow-500"></i> Ketik nama mapel cukup 1 kali di sini untuk satu kelas.</p>
                                 </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                                    <input type="text" id="global_tk_m1" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none" placeholder="Mapel 1">
-                                    <input type="text" id="global_tk_m2" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none" placeholder="Mapel 2">
-                                    <input type="text" id="global_tk_m3" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none" placeholder="Mapel 3">
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+                                    <input type="text" id="global_tk_m1" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm" placeholder="Mata Pelajaran 1 (Wajib)">
+                                    <input type="text" id="global_tk_m2" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm" placeholder="Mata Pelajaran 2 (Opsional)">
+                                    <input type="text" id="global_tk_m3" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm" placeholder="Mata Pelajaran 3 (Opsional)">
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <span class="inline-block bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-md tracking-wider">DAFTAR SISWA KELAS</span>
-                                <p class="text-xs text-gray-500 mt-2"><i class="fas fa-info-circle text-blue-500"></i> Kosongkan nilai jika anak tidak hadir/tidak ada nilai.</p>
+                            <div class="mb-3 flex items-center justify-between">
+                                <div>
+                                    <span class="inline-block bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-md tracking-wider">DAFTAR SISWA KELAS</span>
+                                    <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle text-blue-500"></i> Kosongkan nilai jika anak absen.</p>
+                                </div>
                             </div>
                             
-                            <div class="overflow-x-auto rounded-xl border border-gray-200 mb-6 shadow-sm">
-                                <table class="w-full text-left border-collapse bg-white whitespace-nowrap">
+                            <div class="overflow-x-auto rounded-xl border border-gray-200 mb-6 shadow-sm w-full">
+                                <table class="w-full text-left border-collapse bg-white whitespace-nowrap min-w-max">
                                     <thead id="headerTK" class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200" style="display: none;">
                                         <tr>
                                             <th class="p-3 text-center border-r border-gray-200 w-10">No</th>
@@ -218,120 +215,90 @@
                                             <th class="p-3 text-center border-r border-emerald-500 w-10">No</th>
                                             <th class="p-3 border-r border-emerald-500">NIS</th>
                                             <th class="p-3 border-r border-emerald-500 w-full">Nama Lengkap Santri</th>
-                                            <th class="p-3 text-center" id="judulKolomNilai">NILAI</th>
+                                            <th class="p-3 text-center w-32" id="judulKolomNilai">NILAI</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="bodyTabelAbsen" class="text-sm divide-y divide-dashed divide-gray-200">
-                                        </tbody>
+                                    <tbody id="bodyTabelAbsen" class="text-sm divide-y divide-dashed divide-gray-200"></tbody>
                                 </table>
                             </div>
 
-                            <button type="submit" class="w-full py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-sm transition-all font-bold text-lg flex justify-center items-center gap-2">
+                            <button type="submit" class="w-full py-3.5 sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-sm transition-all font-bold text-base sm:text-lg flex justify-center items-center gap-2">
                                 <i class="fas fa-save"></i> Simpan Ke Buku Nilai
                             </button>
+                            
+                            <div style="height: 250px;"></div>
                         </form>
                     </div>
                 </div>
 
-                <div id="view-dataNilai" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><h3 class="text-xl font-bold">Tabel Data Nilai</h3></div></div>
-                <div id="view-ranking" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><h3 class="text-xl font-bold">Peringkat Santri</h3></div></div>
-                <div id="view-cetakRapor" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><h3 class="text-xl font-bold">Cetak Rapor</h3></div></div>
-                <div id="view-pengaturan" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><h3 class="text-xl font-bold">Pengaturan Sistem</h3></div></div>
+                <div id="view-dataNilai" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Data Nilai</h3></div></div></div>
+                <div id="view-ranking" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Peringkat Santri</h3></div></div></div>
+                <div id="view-cetakRapor" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Cetak Rapor</h3></div></div></div>
+                <div id="view-pengaturan" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Pengaturan Sistem</h3></div></div></div>
             </div>
         </main>
     </div>
 
-    <div id="modalTambahSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 m-4 transform transition-all max-h-[90vh] overflow-y-auto">
+    <div id="modalTambahSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
-                <h3 class="text-lg font-heading font-bold text-gray-800">Tambah Data Santri</h3>
+                <h3 class="text-base sm:text-lg font-heading font-bold text-gray-800">Tambah Data Santri</h3>
                 <button onclick="closeModalSantri()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <form id="formTambahSantri" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">NIS</label><input type="number" id="add_nis" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required placeholder="Contoh: 2026001"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="add_nama" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required placeholder="Nama lengkap"></div>
+            <form id="formTambahSantri" class="space-y-3 sm:space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS</label><input type="number" id="add_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Contoh: 2026001"></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="add_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Nama lengkap"></div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="add_jk" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required><option value="" disabled selected>Pilih...</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label>
-                        <select id="add_kelas" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required>
-                            <option value="" disabled selected>Pilih...</option>
-                            <optgroup label="TK">
-                                <option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option>
-                            </optgroup>
-                            <optgroup label="IBTIDAIYAH">
-                                <option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option>
-                            </optgroup>
-                            <optgroup label="SANAWIYAH">
-                                <option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option>
-                            </optgroup>
-                        </select>
-                    </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="add_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="add_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
                 </div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label><textarea id="add_alamat" rows="2" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required placeholder="Masukkan alamat lengkap"></textarea></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="add_ayah" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required placeholder="Nama Ayah"></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="add_ibu" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required placeholder="Nama Ibu"></div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label><textarea id="add_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Masukkan alamat lengkap"></textarea></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="add_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Nama Ayah"></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="add_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Nama Ibu"></div>
                 </div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="add_hp" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none" required placeholder="Contoh: 08123456789"></div>
-                <div class="flex justify-end gap-3 pt-4 border-t mt-6">
-                    <button type="button" onclick="closeModalSantri()" class="px-4 py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm">Batal</button>
-                    <button type="submit" class="px-4 py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center gap-2 text-sm"><i class="fas fa-save"></i> Simpan Data</button>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="add_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Contoh: 08123456789"></div>
+                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4 sm:mt-6">
+                    <button type="button" onclick="closeModalSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
+                    <button type="submit" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Simpan Data</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="modalEditSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 m-4 transform transition-all max-h-[90vh] overflow-y-auto">
+    <div id="modalEditSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
-                <h3 class="text-lg font-heading font-bold text-gray-800">Edit Data Santri</h3>
+                <h3 class="text-base sm:text-lg font-heading font-bold text-gray-800">Edit Data Santri</h3>
                 <button onclick="closeModalEditSantri()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <form id="formEditSantri" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">NIS <span class="text-xs text-red-500">(Terkunci)</span></label><input type="number" id="edit_nis" class="w-full p-2.5 border border-gray-300 bg-gray-100 rounded-xl outline-none text-gray-500" readonly></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="edit_nama" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none" required></div>
+            <form id="formEditSantri" class="space-y-3 sm:space-y-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS <span class="text-xs text-red-500">(Terkunci)</span></label><input type="number" id="edit_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 bg-gray-100 rounded-xl outline-none text-gray-500 text-sm" readonly></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="edit_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="edit_jk" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none" required><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label>
-                        <select id="edit_kelas" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none" required>
-                            <optgroup label="TK">
-                                <option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option>
-                            </optgroup>
-                            <optgroup label="IBTIDAIYAH">
-                                <option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option>
-                            </optgroup>
-                            <optgroup label="SANAWIYAH">
-                                <option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option>
-                            </optgroup>
-                        </select>
-                    </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="edit_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="edit_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
                 </div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label><textarea id="edit_alamat" rows="2" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none" required></textarea></div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="edit_ayah" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none" required></div>
-                    <div><label class="block text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="edit_ibu" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none" required></div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label><textarea id="edit_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></textarea></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="edit_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="edit_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></div>
                 </div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="edit_hp" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none" required></div>
-                <div class="flex justify-end gap-3 pt-4 border-t mt-6">
-                    <button type="button" onclick="closeModalEditSantri()" class="px-4 py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm">Batal</button>
-                    <button type="submit" class="px-4 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center gap-2 text-sm"><i class="fas fa-save"></i> Perbarui Data</button>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="edit_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></div>
+                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4 sm:mt-6">
+                    <button type="button" onclick="closeModalEditSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
+                    <button type="submit" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Perbarui Data</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // =========================================================
-        // URL GOOGLE APPS SCRIPT AKANG
-        // =========================================================
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxXRXfZjebvxGNoFTfvSXsOL-hQsF5qCr-5r_FzLQP5Cry9R3LpDpCxE7VnMA9mqETe/exec';
-        
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwyHeGeiCgoarrG9ptRGHh2UA5-OfTToFSOp2eoNLsWBRHL3IYihNMq3785m6oP6WOC/exec';
         let GLOBAL_DATA_SANTRI = [];
 
         const JADWAL_MAPEL = {
@@ -349,9 +316,7 @@
         function togglePassword() { const pwd = document.getElementById('password'); const icon = document.getElementById('eyeIcon'); if (pwd.type === 'password') { pwd.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } else { pwd.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); } }
         function showLoading(show) { document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none'; }
 
-        // =========================================================================
-        // TAMBAHAN MESIN HISTORY AGAR TOMBOL BACK HP / BROWSER BEKERJA (Sistem APK)
-        // =========================================================================
+        // SENSOR HISTORY API (TOMBOL BACK HP)
         function showView(viewName, pushToHistory = true) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             const targetView = document.getElementById('view-' + viewName);
@@ -366,38 +331,18 @@
                 }
             });
 
-            // Menyimpan Jejak Menu (Agar tombol Back HP mengenali rute)
-            if (pushToHistory) {
-                window.history.pushState({ view: viewName }, "", "#" + viewName);
-            }
+            if (pushToHistory) window.history.pushState({ view: viewName }, "", "#" + viewName);
         }
 
-        // Sensor Pendeteksi Tombol Back Ditekan
         window.addEventListener('popstate', function(event) {
-            // Hanya berlaku jika sudah masuk aplikasi (Bukan halaman Login)
             const isDashboard = !document.getElementById('dashboardPage').classList.contains('hidden');
             if (isDashboard) {
-                if (event.state && event.state.view) {
-                    showView(event.state.view, false); // Mundur ke menu sebelumnya tanpa merekam ulang
-                } else {
-                    showView('home', false); // Jika habis history, lempar ke Home
-                }
+                if (event.state && event.state.view) showView(event.state.view, false);
+                else showView('home', false);
             }
         });
 
-        function logout() { 
-            Swal.fire({ title: 'Keluar?', text: "Anda akan kembali ke halaman login", icon: 'question', showCancelButton: true, confirmButtonColor: '#059669', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Keluar' }).then((result) => { 
-                if (result.isConfirmed) { 
-                    document.getElementById('dashboardPage').classList.add('hidden'); 
-                    document.getElementById('loginPage').classList.remove('hidden'); 
-                    document.getElementById('loginForm').reset(); 
-                    
-                    // Membersihkan jejak history (Sangat penting untuk keamanan APK)
-                    window.history.replaceState(null, "", window.location.pathname);
-                } 
-            }); 
-        }
-
+        function logout() { Swal.fire({ title: 'Keluar?', text: "Anda akan kembali ke halaman login", icon: 'question', showCancelButton: true, confirmButtonColor: '#059669', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Keluar' }).then((result) => { if (result.isConfirmed) { document.getElementById('dashboardPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginForm').reset(); window.history.replaceState(null, "", window.location.pathname); } }); }
         function openModalSantri() { document.getElementById('modalTambahSantri').classList.remove('hidden'); }
         function closeModalSantri() { document.getElementById('modalTambahSantri').classList.add('hidden'); document.getElementById('formTambahSantri').reset(); }
         function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp) { document.getElementById('edit_nis').value = nis; document.getElementById('edit_nama').value = nama; document.getElementById('edit_jk').value = jk; document.getElementById('edit_kelas').value = kelas; document.getElementById('edit_alamat').value = alamat; document.getElementById('edit_ayah').value = ayah; document.getElementById('edit_ibu').value = ibu; document.getElementById('edit_hp').value = hp; document.getElementById('modalEditSantri').classList.remove('hidden'); }
@@ -417,10 +362,10 @@
                     GLOBAL_DATA_SANTRI = res.data; const tbody = document.getElementById('bodyTabelSantri');
                     if(tbody) {
                         tbody.innerHTML = ''; 
-                        if(res.data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">Belum ada data santri di database.</td></tr>'; return; }
+                        if(res.data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="p-4 sm:p-6 text-center text-gray-500">Belum ada data santri di database.</td></tr>'; return; }
                         res.data.forEach(s => {
                             const tr = document.createElement('tr'); tr.className = 'hover:bg-teal-50 transition-all santri-row'; tr.setAttribute('data-kelas', s.kelas); 
-                            tr.innerHTML = `<td class="p-4 font-medium">${s.nis}</td><td class="p-4 font-bold text-gray-800">${s.nama}</td><td class="p-4">${s.jk}</td><td class="p-4"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold">${s.kelas}</span></td><td class="p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${s.nama}', '${s.jk}', '${s.kelas}', \`${s.alamat}\`, \`${s.ayah}\`, \`${s.ibu}\`, '${s.hp}')" class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`; tbody.appendChild(tr);
+                            tr.innerHTML = `<td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800">${s.nama}</td><td class="p-3 sm:p-4 text-center">${s.jk}</td><td class="p-3 sm:p-4"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${s.nama}', '${s.jk}', '${s.kelas}', \`${s.alamat}\`, \`${s.ayah}\`, \`${s.ibu}\`, '${s.hp}')" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`; tbody.appendChild(tr);
                         }); filterSantri();
                     }
                 }
@@ -435,10 +380,7 @@
                 if (d.status === 'success') { 
                     document.getElementById('userNameDisplay').innerText = d.name; document.getElementById('userRoleDisplay').innerText = d.role; const adminElements = document.querySelectorAll('.admin-only'); if (d.role === 'Guru Kelas' || d.role === 'Guru') { adminElements.forEach(el => el.style.display = 'none'); } else { adminElements.forEach(el => el.style.display = ''); } 
                     document.getElementById('loginPage').classList.add('hidden'); document.getElementById('dashboardPage').classList.remove('hidden'); 
-                    
-                    // Inisiasi Pintu Masuk untuk History HP
-                    window.history.pushState({ view: 'home' }, "", "#home");
-                    showView('home', false); 
+                    window.history.pushState({ view: 'home' }, "", "#home"); showView('home', false); 
                 } else { Swal.fire('Gagal Masuk', d.message, 'error'); } 
             }).catch(er => { showLoading(false); Swal.fire('Error', 'Gagal terhubung ke database.', 'error'); }); 
         });
@@ -449,11 +391,9 @@
         function validasiInputNilai(el) {
             let val = parseFloat(el.value);
             if (el.value !== "" && (val < 0 || val > 100)) {
-                el.classList.add('border-red-500', 'bg-red-50');
+                el.classList.add('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500');
                 Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'Nilai 0 - 100', showConfirmButton: false, timer: 2000 });
-            } else {
-                el.classList.remove('border-red-500', 'bg-red-50');
-            }
+            } else { el.classList.remove('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500'); }
         }
 
         function aktifkanFilterKedua() {
@@ -498,27 +438,27 @@
                     
                     if (kelas.includes('TK')) {
                         html += `
-                            <td class="p-3 border-r border-gray-200">
+                            <td class="p-3 border-r border-gray-200 min-w-[200px]">
                                 <p class="font-bold text-gray-800 text-sm whitespace-nowrap">${s.nama}</p>
-                                <p class="text-xs text-gray-400">NIS: ${s.nis}</p>
+                                <p class="text-xs text-gray-400 mt-0.5">NIS: ${s.nis}</p>
                             </td>
                             <td class="p-2 border-r border-gray-200 bg-gray-50">
-                                <input type="number" class="input-tk-n1 w-16 md:w-20 mx-auto block p-2 border border-gray-300 rounded font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)">
+                                <input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)">
                             </td>
                             <td class="p-2 border-r border-gray-200 bg-gray-50">
-                                <input type="number" class="input-tk-n2 w-16 md:w-20 mx-auto block p-2 border border-gray-300 rounded font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N2" oninput="validasiInputNilai(this)">
+                                <input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N2" oninput="validasiInputNilai(this)">
                             </td>
                             <td class="p-2 bg-gray-50">
-                                <input type="number" class="input-tk-n3 w-16 md:w-20 mx-auto block p-2 border border-gray-300 rounded font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N3" oninput="validasiInputNilai(this)">
+                                <input type="number" class="input-tk-n3 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N3" oninput="validasiInputNilai(this)">
                             </td>
                         `;
                     } else {
                         document.getElementById('judulKolomNilai').innerText = `NILAI ${subFilterValue}`;
                         html += `
-                            <td class="p-3 text-sm border-r border-gray-200 text-gray-500">${s.nis}</td>
-                            <td class="p-3 border-r border-gray-200"><p class="font-bold text-gray-800">${s.nama}</p></td>
+                            <td class="p-3 text-sm border-r border-gray-200 text-gray-500 min-w-[100px]">${s.nis}</td>
+                            <td class="p-3 border-r border-gray-200 min-w-[200px]"><p class="font-bold text-gray-800">${s.nama}</p></td>
                             <td class="p-3 text-center bg-gray-50">
-                                <input type="number" class="input-ibt w-24 mx-auto block p-2 border-2 border-gray-300 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-500 focus:ring-emerald-500 shadow-inner outline-none" data-nis="${s.nis}" data-nama="${s.nama}" placeholder="0-100" oninput="validasiInputNilai(this)">
+                                <input type="number" class="input-ibt w-20 sm:w-24 mx-auto block p-2 border-2 border-gray-300 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 shadow-inner outline-none" data-nis="${s.nis}" data-nama="${s.nama}" placeholder="0-100" oninput="validasiInputNilai(this)">
                             </td>
                         `;
                     }
@@ -592,7 +532,7 @@
 
             const btnSubmit = this.querySelector('button[type="submit"]'); 
             const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; 
-            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan Massal...'; 
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; 
             showLoading(true);
 
             const formData = new URLSearchParams();
