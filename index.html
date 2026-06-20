@@ -172,7 +172,6 @@
                                     <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
                                 </select>
                             </div>
-                            
                             <div id="wadahFilterKedua" class="hidden">
                                 <label id="labelFilterKedua" class="block text-xs sm:text-sm font-bold text-teal-800 mb-1.5 sm:mb-2">2. Pilihan Kedua</label>
                                 <select id="pilihFilterKedua" onchange="generateTabelAbsen()" class="w-full p-3 border border-teal-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none font-bold bg-white text-emerald-700 shadow-sm transition-all text-sm sm:text-base"></select>
@@ -183,7 +182,6 @@
                             <div id="wadahGlobalMapelTK" class="hidden mb-5 sm:mb-6 bg-white p-4 sm:p-5 rounded-xl border border-gray-200 shadow-sm">
                                 <div class="mb-3">
                                     <span class="inline-block bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-md tracking-wider">NAMA MATA PELAJARAN</span>
-                                    <p class="text-xs text-gray-500 mt-1 sm:mt-2"><i class="fas fa-lightbulb text-yellow-500"></i> Ketik nama mapel cukup 1 kali di sini untuk satu kelas.</p>
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                                     <input type="text" id="global_tk_m1" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm" placeholder="Mata Pelajaran 1 (Wajib)">
@@ -191,21 +189,12 @@
                                     <input type="text" id="global_tk_m3" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm" placeholder="Mata Pelajaran 3 (Opsional)">
                                 </div>
                             </div>
-
-                            <div class="mb-3 flex items-center justify-between">
-                                <div>
-                                    <span class="inline-block bg-gray-800 text-white text-xs font-bold px-3 py-1 rounded-md tracking-wider">DAFTAR SISWA KELAS</span>
-                                    <p class="text-xs text-gray-500 mt-1"><i class="fas fa-info-circle text-blue-500"></i> Kosongkan nilai jika anak absen.</p>
-                                </div>
-                            </div>
-                            
                             <div class="overflow-x-auto rounded-xl border border-gray-200 mb-6 shadow-sm w-full">
                                 <table class="w-full text-left border-collapse bg-white whitespace-nowrap min-w-max">
                                     <thead id="headerTK" class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200" style="display: none;">
                                         <tr>
                                             <th class="p-3 text-center border-r border-gray-200 w-10">No</th>
                                             <th class="p-3 border-r border-gray-200 whitespace-nowrap w-1">NIS</th>
-                                            <!-- KOLOM NAMA DIKUNCI (FREEZE) -->
                                             <th class="p-3 border-r border-gray-200 sticky left-0 bg-gray-100 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">Nama Lengkap Santri</th>
                                             <th class="p-3 border-r border-gray-200 text-center w-20 sm:w-24">N1</th>
                                             <th class="p-3 border-r border-gray-200 text-center w-20 sm:w-24">N2</th>
@@ -216,42 +205,102 @@
                                         <tr>
                                             <th class="p-3 text-center border-r border-emerald-500 w-10">No</th>
                                             <th class="p-3 border-r border-emerald-500 whitespace-nowrap w-1">NIS</th>
-                                            <!-- KOLOM NAMA DIKUNCI (FREEZE) -->
                                             <th class="p-3 border-r border-emerald-500 sticky left-0 bg-emerald-600 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.2)]">Nama Lengkap Santri</th>
                                             <th class="p-3 text-center w-24 sm:w-32" id="judulKolomNilai">NILAI</th>
-                                        </tr>
-                                    </thead>
-                                    <thead id="headerIBT" class="bg-emerald-600 text-white text-xs uppercase" style="display: none;">
-                                        <tr>
-                                            <th class="p-3 text-center border-r border-emerald-500 w-10">No</th>
-                                            <th class="p-3 border-r border-emerald-500 whitespace-nowrap w-1">NIS</th>
-                                            <th class="p-3 border-r border-emerald-500 w-full">Nama Lengkap Santri</th>
-                                            <th class="p-3 text-center w-24 sm:w-32" id="judulKolomNilai">NILAI</th>
-                                        </tr>
-                                    </thead>
-                                    <thead id="headerIBT" class="bg-emerald-600 text-white text-xs uppercase" style="display: none;">
-                                        <tr>
-                                            <th class="p-3 text-center border-r border-emerald-500 w-10">No</th>
-                                            <th class="p-3 border-r border-emerald-500 w-24">NIS</th>
-                                            <th class="p-3 border-r border-emerald-500">Nama Lengkap Santri</th>
-                                            <th class="p-3 text-center w-32" id="judulKolomNilai">NILAI</th>
                                         </tr>
                                     </thead>
                                     <tbody id="bodyTabelAbsen" class="text-sm divide-y divide-dashed divide-gray-200"></tbody>
                                 </table>
                             </div>
-
                             <button type="submit" class="w-full py-3.5 sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-sm transition-all font-bold text-base sm:text-lg flex justify-center items-center gap-2">
                                 <i class="fas fa-save"></i> Simpan Ke Buku Nilai
                             </button>
-                            
                             <div style="height: 250px;"></div>
                         </form>
                     </div>
                 </div>
 
-                <div id="view-dataNilai" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Data Nilai</h3></div></div></div>
-                <div id="view-ranking" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Peringkat Santri</h3></div></div></div>
+                <div id="view-dataNilai" class="view-section hidden">
+                    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 border-b border-gray-100 pb-4 gap-4">
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
+                                <div><h3 class="text-lg sm:text-xl font-heading font-bold text-gray-800">Rekap Data Nilai</h3><p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Pantau hasil input nilai seluruh kelas.</p></div>
+                            </div>
+                        </div>
+                        <div class="bg-blue-50 p-4 sm:p-5 rounded-xl border border-blue-100 mb-6">
+                            <label class="block text-sm font-bold text-blue-800 mb-2">Pilih Kelas Laporan:</label>
+                            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                                <select id="filterKelasDataNilai" class="w-full sm:flex-1 p-3 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white shadow-sm transition-all">
+                                    <option value="" disabled selected>-- Pilih Kelas Terlebih Dahulu --</option>
+                                    <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
+                                    <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
+                                    <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
+                                </select>
+                                <button onclick="loadDataNilaiKelas()" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2">
+                                    <i class="fas fa-search"></i> Tampilkan Laporan
+                                </button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 w-full shadow-sm">
+                            <table class="w-full text-left border-collapse min-w-max" id="tabelDataNilai">
+                                <thead id="headerDataNilai" class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200"></thead>
+                                <tbody id="bodyDataNilai" class="text-sm divide-y divide-dashed divide-gray-200 bg-white">
+                                    <tr><td class="p-10 text-center text-gray-500"><i class="fas fa-table text-4xl mb-3 text-gray-300 block"></i> Silakan pilih kelas dan klik tombol cari.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="view-ranking" class="view-section hidden">
+                    <div class="bg-gradient-to-br from-amber-400 to-yellow-600 rounded-2xl shadow-lg border border-amber-300 p-6 sm:p-8 mb-8 relative overflow-hidden">
+                        <div class="absolute -right-10 -top-10 opacity-20"><i class="fas fa-medal text-9xl text-white"></i></div>
+                        <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-heading font-bold text-white drop-shadow-md"><i class="fas fa-star mr-2 text-yellow-100"></i>Bintang Pelajar</h2>
+                                <p class="text-amber-100 font-medium mt-1 text-sm sm:text-base">Kumpulan santri peraih Peringkat 1 dari seluruh kelas.</p>
+                            </div>
+                            <button onclick="loadBintangPelajar()" class="w-full sm:w-12 h-12 bg-white/20 hover:bg-white/40 text-white rounded-xl backdrop-blur-sm transition-all shadow-sm flex items-center justify-center gap-2 font-bold"><i class="fas fa-sync-alt"></i><span class="sm:hidden">Refresh Data</span></button>
+                        </div>
+                        <div id="wadahBintangPelajar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10"></div>
+                    </div>
+
+                    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3 border-b border-gray-100 pb-4 mb-5 sm:mb-6">
+                            <button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shrink-0"><i class="fas fa-arrow-left"></i></button>
+                            <div><h3 class="text-lg font-heading font-bold text-gray-800">Ranking Per Kelas</h3></div>
+                        </div>
+                        <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 mb-6 flex flex-col sm:flex-row gap-3">
+                            <select id="filterKelasRanking" class="w-full sm:flex-1 p-3 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-white font-medium text-emerald-800">
+                                <option value="" disabled selected>-- Pilih Kelas Untuk Melihat Ranking --</option>
+                                <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
+                                <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
+                                <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
+                            </select>
+                            <button onclick="loadRankingKelas()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm shadow-sm flex items-center justify-center gap-2">
+                                <i class="fas fa-trophy"></i> Lihat Ranking
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200">
+                            <table class="w-full text-left border-collapse min-w-max">
+                                <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
+                                    <tr>
+                                        <th class="p-3 text-center border-r border-gray-200 w-16">Rank</th>
+                                        <th class="p-3 border-r border-gray-200 whitespace-nowrap w-1">NIS</th>
+                                        <th class="p-3 border-r border-gray-200 w-full">Nama & Detail Santri</th>
+                                        <th class="p-3 text-center border-r border-gray-200 w-32">Total Nilai</th>
+                                        <th class="p-3 text-center w-32">Rata-Rata</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bodyTabelRanking" class="text-sm divide-y divide-gray-100 bg-white">
+                                    <tr><td colspan="5" class="p-8 text-center text-gray-400"><i class="fas fa-list-ol text-4xl mb-2 text-gray-200 block"></i>Silakan pilih kelas.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="view-cetakRapor" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Cetak Rapor</h3></div></div></div>
                 <div id="view-pengaturan" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Pengaturan Sistem</h3></div></div></div>
             </div>
@@ -266,19 +315,22 @@
             </div>
             <form id="formTambahSantri" class="space-y-3 sm:space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS</label><input type="number" id="add_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Contoh: 2026001"></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="add_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Nama lengkap"></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS</label><input type="number" id="add_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="add_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="add_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="add_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Tempat, Tgl Lahir</label><input type="text" id="add_ttl" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" placeholder="Bangkalan, 17 Agustus 2011" required></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="add_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
                 </div>
-                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label><textarea id="add_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Masukkan alamat lengkap"></textarea></div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="add_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Nama Ayah"></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="add_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Nama Ibu"></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="add_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="add_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
                 </div>
-                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="add_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 focus:border-teal-500 outline-none text-sm" required placeholder="Contoh: 08123456789"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="add_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="add_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
+                </div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap/Domisili</label><textarea id="add_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></textarea></div>
                 <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4 sm:mt-6">
                     <button type="button" onclick="closeModalSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
                     <button type="submit" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Simpan Data</button>
@@ -295,19 +347,22 @@
             </div>
             <form id="formEditSantri" class="space-y-3 sm:space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS <span class="text-xs text-red-500">(Terkunci)</span></label><input type="number" id="edit_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 bg-gray-100 rounded-xl outline-none text-gray-500 text-sm" readonly></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="edit_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS <span class="text-xs text-red-500">(Terkunci)</span></label><input type="number" id="edit_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 bg-gray-100 rounded-xl outline-none text-sm" readonly></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="edit_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="edit_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="edit_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Tempat, Tgl Lahir</label><input type="text" id="edit_ttl" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="edit_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
                 </div>
-                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label><textarea id="edit_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></textarea></div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="edit_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="edit_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="edit_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="edit_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
                 </div>
-                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="edit_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 focus:border-blue-500 outline-none text-sm" required></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="edit_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
+                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="edit_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
+                </div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label><textarea id="edit_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></textarea></div>
                 <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4 sm:mt-6">
                     <button type="button" onclick="closeModalEditSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
                     <button type="submit" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Perbarui Data</button>
@@ -316,9 +371,29 @@
         </div>
     </div>
 
+    <div id="modalEditNilai" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-5 sm:p-6 transform transition-all max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b pb-3 mb-4 shrink-0">
+                <h3 class="text-base sm:text-lg font-heading font-bold text-blue-800"><i class="fas fa-edit mr-2"></i>Edit Nilai Santri</h3>
+                <button onclick="closeModalEditNilai()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="formEditNilai" class="flex flex-col flex-1 overflow-hidden">
+                <input type="hidden" id="edit_nilai_kelas">
+                <input type="hidden" id="edit_nilai_nis">
+                <div id="wadahInputEditNilai" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 overflow-y-auto p-1"></div>
+                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4 sm:mt-6 shrink-0">
+                    <button type="button" onclick="closeModalEditNilai()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
+                    <button type="submit" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Perbarui Nilai</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwyHeGeiCgoarrG9ptRGHh2UA5-OfTToFSOp2eoNLsWBRHL3IYihNMq3785m6oP6WOC/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxwlHxN2nj3RgQOteRPwAjgy9IIR9AWkxrWRsKiqtLwH3IiNUcZC92IH5IQCJqhAsZd/exec';
         let GLOBAL_DATA_SANTRI = [];
+        let GLOBAL_HEADERS_NILAI = [];
+        let GLOBAL_DATA_NILAI = [];
 
         const JADWAL_MAPEL = {
             "IBT - Kelas I": ["AKHLAQ", "AQIDAH", "PERUKUNAN", "YASIN", "ASAUL MUTTAQIN", "KHATH", "IMLA'", "JUZ'AMMA", "TAJWID", "BAHASA DAERAH", "BAHASA ARAB", "SULLAM", "FIQIH", "P. WUDUK", "P. SHOLAT", "P. NGAJI"],
@@ -335,12 +410,12 @@
         function togglePassword() { const pwd = document.getElementById('password'); const icon = document.getElementById('eyeIcon'); if (pwd.type === 'password') { pwd.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } else { pwd.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); } }
         function showLoading(show) { document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none'; }
 
-        // SENSOR HISTORY API (TOMBOL BACK HP)
         function showView(viewName, pushToHistory = true) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             const targetView = document.getElementById('view-' + viewName);
             if (targetView) targetView.classList.remove('hidden');
             if (viewName === 'dataSantri' || viewName === 'inputNilai') { loadDataSantri(); }
+            if (viewName === 'ranking') { loadBintangPelajar(); } // Otomatis refresh Bintang Pelajar
             
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
@@ -349,7 +424,6 @@
                     link.classList.add('bg-emerald-700', 'text-white', 'font-medium'); link.classList.remove('text-emerald-100', 'hover:bg-emerald-700/50');
                 }
             });
-
             if (pushToHistory) window.history.pushState({ view: viewName }, "", "#" + viewName);
         }
 
@@ -362,9 +436,23 @@
         });
 
         function logout() { Swal.fire({ title: 'Keluar?', text: "Anda akan kembali ke halaman login", icon: 'question', showCancelButton: true, confirmButtonColor: '#059669', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Keluar' }).then((result) => { if (result.isConfirmed) { document.getElementById('dashboardPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginForm').reset(); window.history.replaceState(null, "", window.location.pathname); } }); }
+        
+        // MODAL SANTRI LOGIC (UPDATE DENGAN TTL)
         function openModalSantri() { document.getElementById('modalTambahSantri').classList.remove('hidden'); }
         function closeModalSantri() { document.getElementById('modalTambahSantri').classList.add('hidden'); document.getElementById('formTambahSantri').reset(); }
-        function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp) { document.getElementById('edit_nis').value = nis; document.getElementById('edit_nama').value = nama; document.getElementById('edit_jk').value = jk; document.getElementById('edit_kelas').value = kelas; document.getElementById('edit_alamat').value = alamat; document.getElementById('edit_ayah').value = ayah; document.getElementById('edit_ibu').value = ibu; document.getElementById('edit_hp').value = hp; document.getElementById('modalEditSantri').classList.remove('hidden'); }
+        
+        function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) { 
+            document.getElementById('edit_nis').value = nis; 
+            document.getElementById('edit_nama').value = nama; 
+            document.getElementById('edit_jk').value = jk; 
+            document.getElementById('edit_kelas').value = kelas; 
+            document.getElementById('edit_alamat').value = alamat; 
+            document.getElementById('edit_ayah').value = ayah; 
+            document.getElementById('edit_ibu').value = ibu; 
+            document.getElementById('edit_hp').value = hp; 
+            document.getElementById('edit_ttl').value = ttl; // Set TTL
+            document.getElementById('modalEditSantri').classList.remove('hidden'); 
+        }
         function closeModalEditSantri() { document.getElementById('modalEditSantri').classList.add('hidden'); document.getElementById('formEditSantri').reset(); }
 
         function filterSantri() {
@@ -381,16 +469,17 @@
                     GLOBAL_DATA_SANTRI = res.data; const tbody = document.getElementById('bodyTabelSantri');
                     if(tbody) {
                         tbody.innerHTML = ''; 
-                        if(res.data.length === 0) { tbody.innerHTML = '<tr><td colspan="5" class="p-4 sm:p-6 text-center text-gray-500">Belum ada data santri di database.</td></tr>'; return; }
+                        if(res.data.length === 0) { tbody.innerHTML = '<tr><td colspan=\"5\" class=\"p-4 sm:p-6 text-center text-gray-500\">Belum ada data santri di database.</td></tr>'; return; }
                         res.data.forEach(s => {
                             const tr = document.createElement('tr'); tr.className = 'hover:bg-teal-50 transition-all santri-row'; tr.setAttribute('data-kelas', s.kelas); 
-                            tr.innerHTML = `<td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800">${s.nama}</td><td class="p-3 sm:p-4 text-center">${s.jk}</td><td class="p-3 sm:p-4"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${s.nama}', '${s.jk}', '${s.kelas}', \`${s.alamat}\`, \`${s.ayah}\`, \`${s.ibu}\`, '${s.hp}')" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`; tbody.appendChild(tr);
+                            tr.innerHTML = `<td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800">${s.nama}</td><td class="p-3 sm:p-4 text-center">${s.jk}</td><td class="p-3 sm:p-4"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${s.nama}', '${s.jk}', '${s.kelas}', \`${s.alamat}\`, \`${s.ayah}\`, \`${s.ibu}\`, '${s.hp}', \`${s.ttl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`; tbody.appendChild(tr);
                         }); filterSantri();
                     }
                 }
             }).catch(err => { showLoading(false); Swal.fire('Error', 'Gagal menarik data dari server.', 'error'); });
         }
 
+        // AUTH & API SANTRI
         document.getElementById('loginForm').addEventListener('submit', function(e) { 
             e.preventDefault(); showLoading(true); 
             const formData = new URLSearchParams(); formData.append('action', 'login'); formData.append('username', document.getElementById('username').value); formData.append('password', document.getElementById('password').value); 
@@ -404,15 +493,23 @@
             }).catch(er => { showLoading(false); Swal.fire('Error', 'Gagal terhubung ke database.', 'error'); }); 
         });
 
-        document.getElementById('formTambahSantri').addEventListener('submit', function(e) { e.preventDefault(); const btnSubmit = this.querySelector('button[type="submit"]'); const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; showLoading(true); const formData = new URLSearchParams(); formData.append('action', 'addSantri'); formData.append('nis', document.getElementById('add_nis').value); formData.append('nama', document.getElementById('add_nama').value); formData.append('jk', document.getElementById('add_jk').value); formData.append('kelas', document.getElementById('add_kelas').value); formData.append('alamat', document.getElementById('add_alamat').value); formData.append('ayah', document.getElementById('add_ayah').value); formData.append('ibu', document.getElementById('add_ibu').value); formData.append('hp', document.getElementById('add_hp').value); fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; if(data.status === 'success') { closeModalSantri(); Swal.fire('Berhasil!', data.message, 'success'); loadDataSantri(); } else { Swal.fire('Gagal', data.message, 'error'); } }).catch(err => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal mengirim data.', 'error'); }); });
-        document.getElementById('formEditSantri').addEventListener('submit', function(e) { e.preventDefault(); const btnSubmit = this.querySelector('button[type="submit"]'); const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memperbarui...'; showLoading(true); const formData = new URLSearchParams(); formData.append('action', 'updateSantri'); formData.append('nis', document.getElementById('edit_nis').value); formData.append('nama', document.getElementById('edit_nama').value); formData.append('jk', document.getElementById('edit_jk').value); formData.append('kelas', document.getElementById('edit_kelas').value); formData.append('alamat', document.getElementById('edit_alamat').value); formData.append('ayah', document.getElementById('edit_ayah').value); formData.append('ibu', document.getElementById('edit_ibu').value); formData.append('hp', document.getElementById('edit_hp').value); fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; if(data.status === 'success') { closeModalEditSantri(); Swal.fire('Berhasil!', data.message, 'success'); loadDataSantri(); } else { Swal.fire('Gagal', data.message, 'error'); } }).catch(err => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal update data.', 'error'); }); });
+        document.getElementById('formTambahSantri').addEventListener('submit', function(e) { 
+            e.preventDefault(); const btnSubmit = this.querySelector('button[type="submit"]'); const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; showLoading(true); 
+            const formData = new URLSearchParams(); formData.append('action', 'addSantri'); formData.append('nis', document.getElementById('add_nis').value); formData.append('nama', document.getElementById('add_nama').value); formData.append('jk', document.getElementById('add_jk').value); formData.append('kelas', document.getElementById('add_kelas').value); formData.append('alamat', document.getElementById('add_alamat').value); formData.append('ayah', document.getElementById('add_ayah').value); formData.append('ibu', document.getElementById('add_ibu').value); formData.append('hp', document.getElementById('add_hp').value); formData.append('ttl', document.getElementById('add_ttl').value); // Kirim TTL
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; if(data.status === 'success') { closeModalSantri(); Swal.fire('Berhasil!', data.message, 'success'); loadDataSantri(); } else { Swal.fire('Gagal', data.message, 'error'); } }).catch(err => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal mengirim data.', 'error'); }); 
+        });
 
+        document.getElementById('formEditSantri').addEventListener('submit', function(e) { 
+            e.preventDefault(); const btnSubmit = this.querySelector('button[type="submit"]'); const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memperbarui...'; showLoading(true); 
+            const formData = new URLSearchParams(); formData.append('action', 'updateSantri'); formData.append('nis', document.getElementById('edit_nis').value); formData.append('nama', document.getElementById('edit_nama').value); formData.append('jk', document.getElementById('edit_jk').value); formData.append('kelas', document.getElementById('edit_kelas').value); formData.append('alamat', document.getElementById('edit_alamat').value); formData.append('ayah', document.getElementById('edit_ayah').value); formData.append('ibu', document.getElementById('edit_ibu').value); formData.append('hp', document.getElementById('edit_hp').value); formData.append('ttl', document.getElementById('edit_ttl').value); // Kirim TTL
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; if(data.status === 'success') { closeModalEditSantri(); Swal.fire('Berhasil!', data.message, 'success'); loadDataSantri(); } else { Swal.fire('Gagal', data.message, 'error'); } }).catch(err => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal update data.', 'error'); }); 
+        });
+
+        // MESIN INPUT NILAI MASSAL
         function validasiInputNilai(el) {
             let val = parseFloat(el.value);
-            if (el.value !== "" && (val < 0 || val > 100)) {
-                el.classList.add('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500');
-                Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'Nilai 0 - 100', showConfirmButton: false, timer: 2000 });
-            } else { el.classList.remove('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500'); }
+            if (el.value !== "" && (val < 0 || val > 100)) { el.classList.add('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500'); Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'Nilai 0 - 100', showConfirmButton: false, timer: 2000 }); } 
+            else { el.classList.remove('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500'); }
         }
 
         function aktifkanFilterKedua() {
@@ -420,13 +517,11 @@
             const wadahFilter2 = document.getElementById('wadahFilterKedua');
             const selectFilter2 = document.getElementById('pilihFilterKedua');
             const labelFilter2 = document.getElementById('labelFilterKedua');
-            
             document.getElementById('formInputNilaiBulk').classList.add('hidden');
             
             if (kelas) {
                 wadahFilter2.classList.remove('hidden');
                 selectFilter2.innerHTML = '<option value="" disabled selected>-- Pilih --</option>';
-                
                 if (kelas.includes('TK')) {
                     labelFilter2.innerHTML = '<i class="fas fa-calendar-alt text-emerald-600 mr-2"></i> Penilaian Hari Apa?';
                     const hari = ['Sabtu', 'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis'];
@@ -445,7 +540,6 @@
             const santriKelasIni = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelas);
             const tbody = document.getElementById('bodyTabelAbsen');
             const wadahGlobalMapelTK = document.getElementById('wadahGlobalMapelTK');
-            
             tbody.innerHTML = '';
             
             if (santriKelasIni.length === 0) {
@@ -455,58 +549,38 @@
                     let html = `<tr class="hover:bg-emerald-50 transition-all santri-absen-row">
                         <td class="p-3 text-center text-gray-500 font-medium border-r border-gray-200">${idx + 1}</td>`;
                     
-                 if (kelas.includes('TK')) {
+                    if (kelas.includes('TK')) {
                         html += `
                             <td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td>
-                            <!-- KOLOM NAMA DIKUNCI (FREEZE) -->
                             <td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                                 <p class="font-bold text-gray-800 whitespace-nowrap">${s.nama}</p>
                             </td>
-                            <td class="p-2 border-r border-gray-200 bg-gray-50">
-                                <input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)">
-                            </td>
-                            <td class="p-2 border-r border-gray-200 bg-gray-50">
-                                <input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N2" oninput="validasiInputNilai(this)">
-                            </td>
-                            <td class="p-2 bg-gray-50">
-                                <input type="number" class="input-tk-n3 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N3" oninput="validasiInputNilai(this)">
-                            </td>
+                            <td class="p-2 border-r border-gray-200 bg-gray-50"><input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)"></td>
+                            <td class="p-2 border-r border-gray-200 bg-gray-50"><input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N2" oninput="validasiInputNilai(this)"></td>
+                            <td class="p-2 bg-gray-50"><input type="number" class="input-tk-n3 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N3" oninput="validasiInputNilai(this)"></td>
                         `;
                     } else {
                         document.getElementById('judulKolomNilai').innerText = `NILAI ${subFilterValue}`;
                         html += `
                             <td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td>
-                            <!-- KOLOM NAMA DIKUNCI (FREEZE) -->
                             <td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                                 <p class="font-bold text-gray-800 whitespace-nowrap">${s.nama}</p>
                             </td>
-                            <td class="p-3 text-center bg-gray-50">
-                                <input type="number" class="input-ibt w-20 sm:w-24 mx-auto block p-2 border-2 border-gray-300 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 shadow-inner outline-none" data-nis="${s.nis}" data-nama="${s.nama}" placeholder="0-100" oninput="validasiInputNilai(this)">
-                            </td>
+                            <td class="p-3 text-center bg-gray-50"><input type="number" class="input-ibt w-20 sm:w-24 mx-auto block p-2 border-2 border-gray-300 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 shadow-inner outline-none" data-nis="${s.nis}" data-nama="${s.nama}" placeholder="0-100" oninput="validasiInputNilai(this)"></td>
                         `;
                     }
-                    html += `</tr>`;
-                    tbody.innerHTML += html;
+                    html += `</tr>`; tbody.innerHTML += html;
                 });
             }
             
-            if (kelas.includes('TK')) {
-                document.getElementById('headerTK').style.display = 'table-header-group';
-                document.getElementById('headerIBT').style.display = 'none';
-                wadahGlobalMapelTK.classList.remove('hidden');
-            } else {
-                document.getElementById('headerTK').style.display = 'none';
-                document.getElementById('headerIBT').style.display = 'table-header-group';
-                wadahGlobalMapelTK.classList.add('hidden');
-            }
-            
+            if (kelas.includes('TK')) { document.getElementById('headerTK').style.display = 'table-header-group'; document.getElementById('headerIBT').style.display = 'none'; wadahGlobalMapelTK.classList.remove('hidden'); } 
+            else { document.getElementById('headerTK').style.display = 'none'; document.getElementById('headerIBT').style.display = 'table-header-group'; wadahGlobalMapelTK.classList.add('hidden'); }
             document.getElementById('formInputNilaiBulk').classList.remove('hidden');
         }
 
         document.getElementById('formInputNilaiBulk').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            if (this.querySelectorAll('.border-red-500').length > 0) { Swal.fire({ icon: 'error', title: 'Data Invalid', text: 'Pastikan semua nilai di antara 0 sampai 100.' }); return; }
+            if (this.querySelectorAll('.border-red-500').length > 0) { Swal.fire({ icon: 'error', title: 'Data Invalid', text: 'Pastikan angka nilai 0 - 100.' }); return; }
             
             const kelasPilih = document.getElementById('pilihKelasNilai').value;
             const filterKedua = document.getElementById('pilihFilterKedua').value;
@@ -518,69 +592,209 @@
                 const globalM3 = document.getElementById('global_tk_m3').value;
                 let adaIsianNilai = false;
 
-                const barisTk = document.querySelectorAll('#bodyTabelAbsen tr.santri-absen-row');
-                barisTk.forEach(tr => {
+                document.querySelectorAll('#bodyTabelAbsen tr.santri-absen-row').forEach(tr => {
                     const n1Input = tr.querySelector('.input-tk-n1');
                     if (n1Input) {
                         const nis = n1Input.getAttribute('data-nis');
                         const nama = tr.querySelector('.font-bold.text-gray-800').innerText;
-                        
-                        const n1 = n1Input.value;
-                        const n2 = tr.querySelector('.input-tk-n2').value;
-                        const n3 = tr.querySelector('.input-tk-n3').value;
+                        const n1 = n1Input.value; const n2 = tr.querySelector('.input-tk-n2').value; const n3 = tr.querySelector('.input-tk-n3').value;
                         
                         if(n1 !== "" || n2 !== "" || n3 !== "") {
                             adaIsianNilai = true;
                             let total = (parseFloat(n1)||0) + (parseFloat(n2)||0) + (parseFloat(n3)||0);
                             let count = 0; if(n1!=="")count++; if(n2!=="")count++; if(n3!=="")count++;
                             let rata = count > 0 ? (total/count).toFixed(1) : 0;
-                            
                             paketBulk.push({ nis: nis, nama: nama, m1: globalM1, n1: n1, m2: globalM2, n2: n2, m3: globalM3, n3: n3, total: total, rata: rata });
                         }
                     }
                 });
-
-                if (adaIsianNilai && globalM1 === "") { Swal.fire({ icon: 'warning', title: 'Mapel 1 Kosong', text: 'Tolong isi Nama Mata Pelajaran di kotak Mapel 1 terlebih dahulu.'}); return; }
+                if (adaIsianNilai && globalM1 === "") { Swal.fire({ icon: 'warning', title: 'Mapel 1 Kosong', text: 'Tolong isi Nama Mapel 1.'}); return; }
 
             } else {
-                const inputIbt = document.querySelectorAll('.input-ibt');
-                inputIbt.forEach(input => {
-                    if (input.value !== "") {
-                        paketBulk.push({ nis: input.getAttribute('data-nis'), nama: input.getAttribute('data-nama'), nilai: input.value });
-                    }
+                document.querySelectorAll('.input-ibt').forEach(input => {
+                    if (input.value !== "") { paketBulk.push({ nis: input.getAttribute('data-nis'), nama: input.getAttribute('data-nama'), nilai: input.value }); }
                 });
             }
 
-            if (paketBulk.length === 0) { Swal.fire({ icon: 'warning', title: 'Tabel Kosong', text: 'Anda belum memasukkan nilai satupun.'}); return; }
+            if (paketBulk.length === 0) { Swal.fire({ icon: 'warning', title: 'Tabel Kosong', text: 'Belum memasukkan nilai satupun.'}); return; }
 
-            const btnSubmit = this.querySelector('button[type="submit"]'); 
-            const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; 
-            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; 
-            showLoading(true);
-
-            const formData = new URLSearchParams();
-            formData.append('action', 'simpanNilai');
-            formData.append('kelas', kelasPilih);
-            formData.append('list_nilai', JSON.stringify(paketBulk));
-            
-            if (kelasPilih.includes('TK')) {
-                formData.append('hari', filterKedua);
-            } else {
-                formData.append('mapel', filterKedua);
-                formData.append('semua_mapel', JSON.stringify(JADWAL_MAPEL[kelasPilih]));
-            }
+            const btnSubmit = this.querySelector('button[type="submit"]'); const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; showLoading(true);
+            const formData = new URLSearchParams(); formData.append('action', 'simpanNilai'); formData.append('kelas', kelasPilih); formData.append('list_nilai', JSON.stringify(paketBulk));
+            if (kelasPilih.includes('TK')) { formData.append('hari', filterKedua); } else { formData.append('mapel', filterKedua); formData.append('semua_mapel', JSON.stringify(JADWAL_MAPEL[kelasPilih])); }
 
             fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
                 showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
                 if(data.status === 'success') { 
-                    Swal.fire({ icon: 'success', title: 'Sukses!', text: data.message, confirmButtonColor: '#059669' }); 
-                    document.getElementById('formInputNilaiBulk').classList.add('hidden');
-                    document.getElementById('pilihKelasNilai').value = "";
-                    document.getElementById('wadahFilterKedua').classList.add('hidden');
+                    Swal.fire({ icon: 'success', title: 'Sukses!', text: data.message, confirmButtonColor: '#059669' }); document.getElementById('formInputNilaiBulk').classList.add('hidden'); document.getElementById('pilihKelasNilai').value = ""; document.getElementById('wadahFilterKedua').classList.add('hidden');
                     if(kelasPilih.includes('TK')) { document.getElementById('global_tk_m1').value = ""; document.getElementById('global_tk_m2').value = ""; document.getElementById('global_tk_m3').value = ""; }
                 } else { Swal.fire('Ditolak!', data.message, 'error'); }
             }).catch(e => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal kirim.', 'error'); });
         });
+
+        // MESIN DATA NILAI (REKAP LAPORAN & EDIT)
+        function loadDataNilaiKelas() {
+            const kelasPilih = document.getElementById('filterKelasDataNilai').value;
+            if (!kelasPilih) { Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' }); return; }
+            showLoading(true);
+            const formData = new URLSearchParams(); formData.append('action', 'getDataNilai'); formData.append('kelas', kelasPilih);
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
+                showLoading(false);
+                if (res.status === 'success') { renderTabelDataNilai(res.headers, res.data); } 
+                else { Swal.fire('Gagal', res.message || 'Gagal memuat data nilai.', 'error'); }
+            }).catch(err => { showLoading(false); Swal.fire('Error', 'Koneksi ke server gagal.', 'error'); });
+        }
+
+        function renderTabelDataNilai(headers, data) {
+            GLOBAL_HEADERS_NILAI = headers; GLOBAL_DATA_NILAI = data;
+            const thead = document.getElementById('headerDataNilai'); const tbody = document.getElementById('bodyDataNilai');
+            thead.innerHTML = ''; tbody.innerHTML = '';
+
+            if (!headers || headers.length === 0 || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="15" class="p-10 text-center text-red-500 font-medium"><i class="fas fa-folder-open text-4xl mb-3 block text-red-300"></i> Belum ada data nilai yang diinput oleh Guru untuk kelas ini.</td></tr>`; return;
+            }
+
+            let trHead = '<tr>'; trHead += `<th class="p-3 text-center border-r border-gray-200 w-10 bg-gray-100">No</th>`;
+            headers.forEach((h) => {
+                let namaKolom = h.toLowerCase();
+                if (namaKolom.includes('nama')) { trHead += `<th class="p-3 border-r border-gray-200 sticky left-0 bg-gray-100 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] whitespace-nowrap">${h}</th>`; } 
+                else if (namaKolom.includes('nis')) { trHead += `<th class="p-3 border-r border-gray-200 whitespace-nowrap w-1 bg-gray-100">${h}</th>`; } 
+                else { trHead += `<th class="p-3 border-r border-gray-200 text-center whitespace-nowrap bg-gray-100">${h}</th>`; }
+            });
+            trHead += `<th class="p-3 text-center bg-gray-100 w-24">AKSI</th></tr>`; thead.innerHTML = trHead;
+
+            data.forEach((row, rowIndex) => {
+                let trBody = `<tr class="hover:bg-blue-50 transition-all">`;
+                trBody += `<td class="p-3 text-center text-gray-500 border-r border-gray-200">${rowIndex + 1}</td>`;
+                row.forEach((cell, cellIndex) => {
+                    const headerName = headers[cellIndex].toLowerCase();
+                    if (headerName.includes('nama')) { trBody += `<td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] font-bold text-gray-800 whitespace-nowrap">${cell}</td>`; } 
+                    else if (headerName.includes('nis')) { let textNIS = cell.toString().replace("'", ""); trBody += `<td class="p-3 border-r border-gray-200 text-gray-600 whitespace-nowrap">${textNIS}</td>`; } 
+                    else { const isNumber = !isNaN(cell) && cell !== ""; trBody += `<td class="p-3 border-r border-gray-200 text-center ${isNumber ? 'font-bold text-emerald-700' : 'text-gray-400'} whitespace-nowrap">${cell}</td>`; }
+                });
+                trBody += `<td class="p-3 text-center whitespace-nowrap"><button onclick="openModalEditNilai(${rowIndex})" class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition-all shadow-sm border border-blue-200" title="Edit Data"><i class="fas fa-edit"></i> Edit</button></td></tr>`;
+                tbody.innerHTML += trBody;
+            });
+        }
+
+        // FUNGSI MODAL EDIT NILAI 
+        function openModalEditNilai(index) {
+            const headers = GLOBAL_HEADERS_NILAI; const row = GLOBAL_DATA_NILAI[index]; const container = document.getElementById('wadahInputEditNilai'); container.innerHTML = '';
+            document.getElementById('edit_nilai_kelas').value = document.getElementById('filterKelasDataNilai').value;
+            for(let i = 0; i < headers.length; i++) {
+                let h = headers[i]; let val = row[i] === "" ? "" : row[i];
+                let isReadOnly = ['NIS', 'Nama Lengkap', 'Kelas', 'Hari', 'Total Nilai', 'Rata-rata'].includes(h);
+                if(h === 'NIS') document.getElementById('edit_nilai_nis').value = val.toString().replace("'", "");
+                let inputType = (h.includes('Mapel') || isReadOnly) ? 'text' : 'number';
+                let html = `<div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 truncate">${h} ${isReadOnly ? '<span class="text-xs text-red-500">(Terkunci)</span>' : ''}</label><input type="${inputType}" name="${h}" value="${val}" class="input-edit-nilai-dinamis w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm ${isReadOnly ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'font-bold text-blue-700'}" ${isReadOnly ? 'readonly' : ''} ${inputType === 'number' && !isReadOnly ? 'oninput="validasiInputNilai(this)"' : ''}></div>`;
+                container.innerHTML += html;
+            }
+            document.getElementById('modalEditNilai').classList.remove('hidden');
+        }
+
+        function closeModalEditNilai() { document.getElementById('modalEditNilai').classList.add('hidden'); }
+
+        document.getElementById('formEditNilai').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (this.querySelectorAll('.border-red-500').length > 0) { Swal.fire({ icon: 'error', title: 'Data Invalid', text: 'Pastikan angka nilai 0 - 100.' }); return; }
+            const btnSubmit = this.querySelector('button[type="submit"]'); const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...'; showLoading(true);
+
+            let payload = {};
+            this.querySelectorAll('.input-edit-nilai-dinamis').forEach(inp => { if(!inp.readOnly) { payload[inp.name] = inp.value; } });
+
+            const formData = new URLSearchParams(); formData.append('action', 'updateDataNilai'); formData.append('kelas', document.getElementById('edit_nilai_kelas').value); formData.append('nis', document.getElementById('edit_nilai_nis').value); formData.append('data_nilai', JSON.stringify(payload));
+
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => {
+                showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
+                if(data.status === 'success') { closeModalEditNilai(); Swal.fire('Berhasil!', data.message, 'success'); loadDataNilaiKelas(); } 
+                else { Swal.fire('Gagal', data.message, 'error'); }
+            }).catch(err => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal update data.', 'error'); });
+        });
+
+        // =========================================================
+        // MESIN RANKING & BINTANG PELAJAR (DENGAN BIODATA)
+        // =========================================================
+        function loadBintangPelajar() {
+            const wadah = document.getElementById('wadahBintangPelajar');
+            wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Memuat kandidat juara...</div>';
+            
+            const formData = new URLSearchParams(); 
+            formData.append('action', 'getBintangPelajar');
+            
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
+                wadah.innerHTML = '';
+                if (res.status === 'success' && res.data.length > 0) {
+                    res.data.sort((a,b) => b.total - a.total); 
+
+                    res.data.forEach((santri, idx) => {
+                        let isTop1 = idx === 0;
+                        let html = `
+                        <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group">
+                            ${isTop1 ? '<div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>' : ''}
+                            <div class="flex items-center gap-4 mb-3">
+                                <div class="w-14 h-14 rounded-full ${isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400'} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative">
+                                    <i class="fas fa-user-graduate"></i>
+                                    <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-400 text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">1</div>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p>
+                                    <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${santri.nama}</h4>
+                                    <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata: <span class="font-bold text-gray-800">${santri.rata}</span></p>
+                                </div>
+                            </div>
+                            <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1">
+                                <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p>
+                                <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p>
+                                <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p>
+                            </div>
+                        </div>`;
+                        wadah.innerHTML += html;
+                    });
+                } else {
+                    wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-info-circle text-2xl mb-2 block"></i>Belum ada data nilai yang diinput di kelas mana pun.</div>';
+                }
+            }).catch(e => { wadah.innerHTML = '<div class="text-white">Gagal memuat data.</div>'; });
+        }
+
+        function loadRankingKelas() {
+            const kelasPilih = document.getElementById('filterKelasRanking').value;
+            if (!kelasPilih) { Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' }); return; }
+            
+            showLoading(true);
+            const formData = new URLSearchParams(); 
+            formData.append('action', 'getRankingKelas'); formData.append('kelas', kelasPilih);
+            
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
+                showLoading(false);
+                const tbody = document.getElementById('bodyTabelRanking'); tbody.innerHTML = '';
+                
+                if (res.status === 'success' && res.data.length > 0) {
+                    res.data.forEach((s) => {
+                        let rankStyle = "text-gray-500 font-bold text-lg"; let bgStyle = "hover:bg-gray-50"; let icon = s.rank;
+                        if(s.rank === 1) { rankStyle = "text-amber-500 text-2xl font-black"; bgStyle = "bg-amber-50 border-l-4 border-amber-400"; }
+                        else if(s.rank === 2) { rankStyle = "text-gray-400 text-xl font-black"; bgStyle = "bg-gray-50"; }
+                        else if(s.rank === 3) { rankStyle = "text-orange-400 text-xl font-black"; bgStyle = "bg-orange-50/50"; }
+
+                        tbody.innerHTML += `
+                        <tr class="transition-all ${bgStyle} border-b border-gray-50 last:border-0">
+                            <td class="p-3 text-center border-r border-gray-100 ${rankStyle}">${icon}</td>
+                            <td class="p-3 text-gray-500 border-r border-gray-100 text-xs whitespace-nowrap">${s.nis}</td>
+                            <td class="p-3 border-r border-gray-100 min-w-[250px]">
+                                <p class="font-bold text-gray-800 ${s.rank <= 3 ? 'text-base' : 'text-sm'}">${s.nama}</p>
+                                <div class="text-[11px] text-gray-500 mt-1.5 space-y-0.5">
+                                    <p><span class="font-semibold text-gray-600">TTL:</span> ${s.ttl}</p>
+                                    <p><span class="font-semibold text-gray-600">Ortu:</span> ${s.ayah} & ${s.ibu}</p>
+                                    <p><span class="font-semibold text-gray-600">Alamat:</span> ${s.alamat}</p>
+                                </div>
+                            </td>
+                            <td class="p-3 text-center border-r border-gray-100 font-bold text-emerald-700 align-middle">${s.total}</td>
+                            <td class="p-3 text-center font-bold text-blue-600 align-middle">${s.rata}</td>
+                        </tr>`;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400 font-medium"><i class="fas fa-folder-open text-4xl mb-3 block text-red-300"></i> Belum ada data nilai di kelas ini.</td></tr>`;
+                }
+            }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal memuat ranking.', 'error'); });
+        }
     </script>
 </body>
 </html>
