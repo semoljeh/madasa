@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <script>
         tailwind.config = { theme: { extend: { colors: { emerald: { 600: '#059669', 700: '#047857', 800: '#065f46' }, gold: '#D4AF37' }, fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] } } } }
@@ -25,10 +26,12 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
+    <!-- LOADING SCREEN -->
     <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-white/90 backdrop-blur-sm hidden">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600"></div>
     </div>
 
+    <!-- HALAMAN LOGIN -->
     <div id="loginPage" class="min-h-screen flex items-center justify-center islamic-bg relative px-4">
         <div class="absolute inset-0 bg-emerald-900/40 z-0"></div>
         <div class="glass-panel relative z-10 w-full max-w-md p-6 sm:p-8 m-2 sm:m-4">
@@ -58,7 +61,10 @@
         </div>
     </div>
 
+    <!-- HALAMAN DASHBOARD -->
     <div id="dashboardPage" class="hidden flex h-screen bg-gray-50 overflow-hidden">
+        
+        <!-- SIDEBAR -->
         <aside class="w-64 bg-emerald-800 text-white hidden md:flex flex-col shadow-xl z-20 shrink-0">
             <div class="p-6 text-center border-b border-emerald-700 bg-emerald-900/50">
                 <div class="w-12 h-12 mx-auto bg-white rounded-xl flex items-center justify-center shadow-md mb-2 text-emerald-700 text-xl"><i class="fas fa-mosque"></i></div>
@@ -70,12 +76,13 @@
                 <button onclick="showView('inputNilai')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-edit w-5"></i> Input Nilai</button>
                 <button onclick="showView('dataNilai')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-chart-line w-5"></i> Data Nilai</button>
                 <button onclick="showView('ranking')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-trophy w-5"></i> Ranking</button>
-                <button onclick="showView('cetakRapor')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-print w-5"></i> Cetak Rapor</button>
+              <a href="rapor.html" target="_blank" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-print w-5"></i> Cetak Rapor</a>
                 <button onclick="showView('pengaturan')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-cog w-5"></i> Pengaturan</button>
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col h-screen overflow-hidden w-full">
+            <!-- HEADER -->
             <header class="bg-white shadow-sm border-b border-gray-100 z-10 flex items-center justify-between p-4 sm:px-6">
                 <div class="flex items-center gap-4"><h2 class="text-lg sm:text-xl font-heading font-bold text-gray-800 truncate">Madrasah Darussalam</h2></div>
                 <div class="flex items-center gap-4">
@@ -88,6 +95,8 @@
             </header>
 
             <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
+                
+                <!-- VIEW: HOME -->
                 <div id="view-home" class="view-section">
                     <div class="bg-gradient-to-r from-emerald-700 to-teal-800 rounded-2xl p-6 sm:p-8 text-white shadow-md mb-6 sm:mb-8 relative overflow-hidden">
                         <div class="relative z-10">
@@ -102,11 +111,12 @@
                         <div onclick="showView('inputNilai')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-book-open"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Input Nilai</h3></div>
                         <div onclick="showView('dataNilai')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-table"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Data Nilai</h3></div>
                         <div onclick="showView('ranking')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-trophy"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Ranking</h3></div>
-                        <div onclick="showView('cetakRapor')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 text-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-print"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Cetak Rapor</h3></div>
+                       <a href="rapor.html" target="_blank" class="block bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 text-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-print"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Cetak Rapor</h3></a>
                         <div onclick="showView('pengaturan')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 text-gray-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-cog"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Pengaturan</h3></div>
                     </div>
                 </div>
 
+                <!-- VIEW: DATA SANTRI -->
                 <div id="view-dataSantri" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 border-b border-gray-100 pb-4 gap-4">
@@ -153,6 +163,7 @@
                     </div>
                 </div>
 
+                <!-- VIEW: INPUT NILAI -->
                 <div id="view-inputNilai" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 border-b border-gray-100 pb-4 gap-4">
@@ -220,6 +231,7 @@
                     </div>
                 </div>
 
+                <!-- VIEW: DATA NILAI -->
                 <div id="view-dataNilai" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 border-b border-gray-100 pb-4 gap-4">
@@ -231,7 +243,7 @@
                         <div class="bg-blue-50 p-4 sm:p-5 rounded-xl border border-blue-100 mb-6">
                             <label class="block text-sm font-bold text-blue-800 mb-2">Pilih Kelas Laporan:</label>
                             <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-                                <select id="filterKelasDataNilai" class="w-full sm:flex-1 p-3 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white shadow-sm transition-all">
+                                <select id="filterKelasDataNilai" class="w-full sm:flex-1 p-3 border border-blue-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-sm bg-white shadow-sm transition-all text-gray-700 font-medium">
                                     <option value="" disabled selected>-- Pilih Kelas Terlebih Dahulu --</option>
                                     <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
                                     <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
@@ -239,6 +251,9 @@
                                 </select>
                                 <button onclick="loadDataNilaiKelas()" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2">
                                     <i class="fas fa-search"></i> Tampilkan Laporan
+                                </button>
+                                <button onclick="exportDataNilaiPDF()" class="w-full sm:w-auto px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2">
+                                    <i class="fas fa-file-pdf"></i> Export PDF
                                 </button>
                             </div>
                         </div>
@@ -253,6 +268,7 @@
                     </div>
                 </div>
 
+                <!-- VIEW: RANKING -->
                 <div id="view-ranking" class="view-section hidden">
                     <div class="bg-gradient-to-br from-amber-400 to-yellow-600 rounded-2xl shadow-lg border border-amber-300 p-6 sm:p-8 mb-8 relative overflow-hidden">
                         <div class="absolute -right-10 -top-10 opacity-20"><i class="fas fa-medal text-9xl text-white"></i></div>
@@ -261,7 +277,14 @@
                                 <h2 class="text-2xl sm:text-3xl font-heading font-bold text-white drop-shadow-md"><i class="fas fa-star mr-2 text-yellow-100"></i>Bintang Pelajar</h2>
                                 <p class="text-amber-100 font-medium mt-1 text-sm sm:text-base">Kumpulan santri peraih Peringkat 1 dari seluruh kelas.</p>
                             </div>
-                            <button onclick="loadBintangPelajar()" class="w-full sm:w-12 h-12 bg-white/20 hover:bg-white/40 text-white rounded-xl backdrop-blur-sm transition-all shadow-sm flex items-center justify-center gap-2 font-bold"><i class="fas fa-sync-alt"></i><span class="sm:hidden">Refresh Data</span></button>
+                            <div class="flex flex-row gap-2 w-full sm:w-auto">
+                                <button onclick="loadBintangPelajar()" class="flex-1 sm:w-12 h-12 bg-white/20 hover:bg-white/40 text-white rounded-xl backdrop-blur-sm transition-all shadow-sm flex items-center justify-center gap-2 font-bold" title="Refresh Data">
+                                    <i class="fas fa-sync-alt"></i><span class="sm:hidden">Refresh</span>
+                                </button>
+                                <button onclick="exportBintangPelajarPDF()" class="flex-1 sm:w-auto px-4 h-12 bg-red-500 hover:bg-red-600 text-white rounded-xl backdrop-blur-sm transition-all shadow-sm flex items-center justify-center gap-2 font-bold">
+                                    <i class="fas fa-file-pdf"></i><span>Export PDF</span>
+                                </button>
+                            </div>
                         </div>
                         <div id="wadahBintangPelajar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10"></div>
                     </div>
@@ -272,41 +295,162 @@
                             <div><h3 class="text-lg font-heading font-bold text-gray-800">Ranking Per Kelas</h3></div>
                         </div>
                         <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 mb-6 flex flex-col sm:flex-row gap-3">
-                            <select id="filterKelasRanking" class="w-full sm:flex-1 p-3 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-white font-medium text-emerald-800">
+                            <select id="filterKelasRanking" class="w-full sm:flex-1 p-3 border border-emerald-200 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm bg-white font-medium text-gray-700">
                                 <option value="" disabled selected>-- Pilih Kelas Untuk Melihat Ranking --</option>
                                 <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
                                 <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
                                 <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
                             </select>
-                            <button onclick="loadRankingKelas()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm shadow-sm flex items-center justify-center gap-2">
+                            <button onclick="loadRankingKelas()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all">
                                 <i class="fas fa-trophy"></i> Lihat Ranking
                             </button>
+                            <button onclick="exportRankingPDF()" class="w-full sm:w-auto px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all">
+                                <i class="fas fa-file-pdf"></i> Export PDF
+                            </button>
                         </div>
-                        <div class="overflow-x-auto rounded-xl border border-gray-200">
-                            <table class="w-full text-left border-collapse min-w-max">
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                            <table class="w-full text-left border-collapse">
                                 <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
                                     <tr>
                                         <th class="p-3 text-center border-r border-gray-200 w-16">Rank</th>
-                                        <th class="p-3 border-r border-gray-200 whitespace-nowrap w-1">NIS</th>
-                                        <th class="p-3 border-r border-gray-200 w-full">Nama & Detail Santri</th>
-                                        <th class="p-3 text-center border-r border-gray-200 w-32">Total Nilai</th>
-                                        <th class="p-3 text-center w-32">Rata-Rata</th>
+                                        <th class="p-3 border-r border-gray-200 whitespace-nowrap w-20">NIS</th>
+                                        <th class="p-3 border-r border-gray-200">Nama & Detail Santri</th>
+                                        <th class="p-3 text-center border-r border-gray-200 w-24">Total Nilai</th>
+                                        <th class="p-3 text-center w-24">Rata-Rata</th>
                                     </tr>
                                 </thead>
                                 <tbody id="bodyTabelRanking" class="text-sm divide-y divide-gray-100 bg-white">
-                                    <tr><td colspan="5" class="p-8 text-center text-gray-400"><i class="fas fa-list-ol text-4xl mb-2 text-gray-200 block"></i>Silakan pilih kelas.</td></tr>
+                                    <tr>
+                                        <td colspan="5" class="p-8 text-center text-gray-400">
+                                            <i class="fas fa-list-ol text-4xl mb-2 text-gray-200 block"></i>Silakan pilih kelas.
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <div id="view-cetakRapor" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Cetak Rapor</h3></div></div></div>
-                <div id="view-pengaturan" class="view-section hidden"><div class="bg-white p-6 rounded-2xl shadow-sm"><div class="flex items-center gap-4 border-b pb-4 mb-4"><button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100"><i class="fas fa-arrow-left"></i></button><h3 class="text-xl font-bold">Pengaturan Sistem</h3></div></div></div>
+               <!-- VIEW PENGATURAN -->
+                <div id="view-pengaturan" class="view-section hidden">
+                    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
+                        <div class="flex items-center gap-3 border-b border-gray-100 pb-4 mb-5">
+                            <button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 transition-all"><i class="fas fa-arrow-left"></i></button>
+                            <div><h3 class="text-xl font-heading font-bold text-gray-800">Pengaturan Rapor Kelas</h3></div>
+                        </div>
+
+                        <!-- Filter Kelas -->
+                        <div class="bg-teal-50 p-4 rounded-xl border border-teal-100 mb-6">
+                            <label class="block text-sm font-bold text-teal-800 mb-2">Pilih Kelas yang Akan Diatur:</label>
+                            <select id="settingKelas" onchange="loadSettingRapor()" class="w-full p-3 border border-teal-300 rounded-xl font-bold bg-white text-teal-700 outline-none focus:ring-2 focus:ring-teal-500 shadow-sm cursor-pointer">
+                                <option value="" disabled selected>-- Pilih Kelas --</option>
+                                <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
+                                <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
+                                <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
+                            </select>
+                        </div>
+
+                        <form id="formSettingRapor" class="hidden">
+                            <!-- Form Umum -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-inner">
+                                    <h4 class="font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2"><i class="fas fa-school mr-2 text-emerald-600"></i>Identitas Rapor</h4>
+                                    <div class="space-y-3">
+                                       <div>
+       <label class="text-xs font-bold text-gray-600">Semester</label>
+       <select id="set_semester" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-emerald-500 outline-none cursor-pointer">
+           <option value="1 (Ganjil)">1 (Ganjil)</option>
+           <option value="2 (Genap)" selected>2 (Genap)</option>
+       </select>
+   </div>
+                                        <div><label class="text-xs font-bold text-gray-600">Tahun Pelajaran</label><input type="text" id="set_tahun" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-emerald-500 outline-none" placeholder="Ex: 2025/2026"></div>
+                                        <div><label class="text-xs font-bold text-gray-600">Tanggal Rapor</label><input type="text" id="set_tanggal" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-emerald-500 outline-none" placeholder="Ex: Bangkalan, 5 April 2026"></div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-inner">
+                                    <h4 class="font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2"><i class="fas fa-user-tie mr-2 text-blue-600"></i>Pejabat Madrasah</h4>
+                                    <div class="space-y-3">
+                                        <div><label class="text-xs font-bold text-gray-600">Nama Kepala Madrasah</label><input type="text" id="set_kepala" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 outline-none" placeholder="Ex: KH. Umar Faruq"></div>
+                                        <div><label class="text-xs font-bold text-gray-600">Nama Wali Kelas</label><input type="text" id="set_wali" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 outline-none" placeholder="Ex: Ust. Muhtarom"></div>
+                                        <p class="text-[10px] text-gray-400 italic mt-2">*Catatan: Untuk gambar stempel dan tanda tangan akan ditanam otomatis di aplikasi cetak.</p>
+                                    </div>
+                                </div>
+                            </div>
+							
+							<!-- Upload TTD & Stempel -->
+                            <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-inner mb-6">
+                                <h4 class="font-bold text-gray-700 mb-2 border-b border-gray-200 pb-2"><i class="fas fa-image mr-2 text-purple-600"></i>Upload Stempel & Tanda Tangan</h4>
+                              <p class="text-[11px] text-red-500 mb-4 font-medium">* Aturan: Format <b>WAJIB .PNG</b> (Latar Belakang Transparan). Ukuran maksimal <b>5 MB</b> per gambar.</p>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    
+                                    <!-- Upload TTD Wali -->
+                                    <div class="border border-dashed border-gray-400 rounded-lg p-3 text-center bg-white hover:bg-purple-50 transition-all">
+                                        <label class="block text-xs font-bold text-gray-600 mb-2">TTD Guru Wali Kelas</label>
+                                        <div class="h-16 flex items-center justify-center mb-2 border border-gray-100 rounded bg-gray-50 overflow-hidden">
+                                            <img id="preview_wali" class="h-full object-contain mix-blend-multiply hidden" alt="Preview Wali">
+                                            <span id="teks_wali" class="text-xs text-gray-400 italic">Belum ada gambar</span>
+                                        </div>
+                                        <input type="file" id="upload_wali" accept="image/png" class="text-[10px] w-full file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:font-semibold file:bg-purple-100 file:text-purple-700 cursor-pointer outline-none">
+                                    </div>
+
+                                    <!-- Upload TTD Kepala -->
+                                    <div class="border border-dashed border-gray-400 rounded-lg p-3 text-center bg-white hover:bg-blue-50 transition-all">
+                                        <label class="block text-xs font-bold text-gray-600 mb-2">TTD Kepala Madrasah</label>
+                                        <div class="h-16 flex items-center justify-center mb-2 border border-gray-100 rounded bg-gray-50 overflow-hidden">
+                                            <img id="preview_kepala" class="h-full object-contain mix-blend-multiply hidden" alt="Preview Kepala">
+                                            <span id="teks_kepala" class="text-xs text-gray-400 italic">Belum ada gambar</span>
+                                        </div>
+                                        <input type="file" id="upload_kepala" accept="image/png" class="text-[10px] w-full file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:font-semibold file:bg-blue-100 file:text-blue-700 cursor-pointer outline-none">
+                                    </div>
+
+                                    <!-- Upload Stempel -->
+                                    <div class="border border-dashed border-gray-400 rounded-lg p-3 text-center bg-white hover:bg-emerald-50 transition-all">
+                                        <label class="block text-xs font-bold text-gray-600 mb-2">Stempel Madrasah</label>
+                                        <div class="h-16 flex items-center justify-center mb-2 border border-gray-100 rounded bg-gray-50 overflow-hidden">
+                                            <img id="preview_stempel" class="h-full object-contain mix-blend-multiply hidden" alt="Preview Stempel">
+                                            <span id="teks_stempel" class="text-xs text-gray-400 italic">Belum ada gambar</span>
+                                        </div>
+                                        <input type="file" id="upload_stempel" accept="image/png" class="text-[10px] w-full file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:font-semibold file:bg-emerald-100 file:text-emerald-700 cursor-pointer outline-none">
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <!-- Tabel Santri -->
+                            <h4 class="font-bold text-gray-800 mb-3"><i class="fas fa-users mr-2 text-orange-500"></i>Detail Kepribadian & Absensi Santri</h4>
+                            <div class="overflow-x-auto rounded-xl border border-gray-200 mb-6 shadow-sm">
+                                <table class="w-full text-left border-collapse bg-white whitespace-nowrap text-sm min-w-max">
+                                    <thead class="bg-gray-100 text-gray-600 text-xs border-b border-gray-200">
+                                        <tr>
+                                            <th rowspan="2" class="p-3 border-r text-center sticky left-0 bg-gray-100 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">Nama Santri</th>
+                                            <th colspan="4" class="p-2 border-r border-b text-center bg-blue-50 text-blue-800">Kepribadian (A/B/C/D)</th>
+                                            <th colspan="3" class="p-2 border-r border-b text-center bg-orange-50 text-orange-800">Absensi (Angka)</th>
+                                            <th rowspan="2" class="p-3 border-r text-center bg-emerald-50 text-emerald-800">Keputusan Naik/Tinggal</th>
+                                            <th rowspan="2" class="p-3 text-center bg-purple-50 text-purple-800">Catatan Wali Kelas</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="p-2 border-r text-center bg-blue-50">Akhlaq</th>
+                                            <th class="p-2 border-r text-center bg-blue-50">Rajin</th>
+                                            <th class="p-2 border-r text-center bg-blue-50">Disiplin</th>
+                                            <th class="p-2 border-r text-center bg-blue-50">Rapi</th>
+                                            <th class="p-2 border-r text-center bg-orange-50">Sakit</th>
+                                            <th class="p-2 border-r text-center bg-orange-50">Izin</th>
+                                            <th class="p-2 border-r text-center bg-orange-50">Alpa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bodySettingSantri" class="divide-y divide-gray-200"></tbody>
+                                </table>
+                            </div>
+                            <button type="submit" class="w-full py-4 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md text-lg"><i class="fas fa-save mr-2"></i> Simpan Pengaturan Rapor</button>
+                            <div style="height: 100px;"></div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </main>
     </div>
 
+    <!-- MODAL TAMBAH SANTRI -->
     <div id="modalTambahSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
@@ -339,6 +483,7 @@
         </div>
     </div>
 
+    <!-- MODAL EDIT SANTRI -->
     <div id="modalEditSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
@@ -371,6 +516,7 @@
         </div>
     </div>
 
+    <!-- MODAL EDIT NILAI -->
     <div id="modalEditNilai" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-5 sm:p-6 transform transition-all max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3 mb-4 shrink-0">
@@ -389,22 +535,23 @@
         </div>
     </div>
 
+    <!-- JAVASCRIPT UTAMA -->
     <script>
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxwlHxN2nj3RgQOteRPwAjgy9IIR9AWkxrWRsKiqtLwH3IiNUcZC92IH5IQCJqhAsZd/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzI0bHd62u6ercUlHgSWIzmP381b8smyQdbgehnrbLJvdvIDBSZlr1Gh1ThnKzgjZYZ/exec';
         let GLOBAL_DATA_SANTRI = [];
         let GLOBAL_HEADERS_NILAI = [];
         let GLOBAL_DATA_NILAI = [];
 
-        const JADWAL_MAPEL = {
-            "IBT - Kelas I": ["AKHLAQ", "AQIDAH", "PERUKUNAN", "YASIN", "ASAUL MUTTAQIN", "KHATH", "IMLA'", "JUZ'AMMA", "TAJWID", "BAHASA DAERAH", "BAHASA ARAB", "SULLAM", "FIQIH", "P. WUDUK", "P. SHOLAT", "P. NGAJI"],
-            "IBT - Kelas II": ["AQOID", "KHOLASOH", "FIQIH", "BAHASA ARAB", "HADIST", "DO'A", "NAHWU", "SORROF", "AKHALAQ", "KHATH", "IMLA", "TAJWID", "JUZ 'AMMA", "P. WUDUK", "P. SHOLAT", "P. NGAJI"],
-            "IBT - Kelas III": ["TAJWID", "JUZ 'AMMA", "FIQIH", "BAHASA ARAB", "HADIST", "DO'A", "NAHWU", "SORROF", "KHATH", "IMLA'", "AQIDAH", "KHOLASOH", "AKHALAQ", "P. WUDUK", "P. SHOLAT", "P. NGAJI"],
-            "IBT - Kelas IV": ["HADIST", "JUZ AMMA", "TAJWID", "KHOLASOH", "NAHWU", "I'ROB", "I'LAL", "SORROF", "AQOID", "AKHALAQ", "FIQIH", "BAHASA ARAB", "P. WUDUK", "P. SHOLAT", "P. NGAJI", "P. TAYAMUM", "S. JENAZAH", "DZIKIR"],
-            "IBT - Kelas V": ["NAHWU", "I'ROB", "SULLAM", "JAWAHIR", "MAQSUD", "FIQIH", "TAFSIR", "HADIST", "TAJWID", "KHOLASOH", "AKHALAQ", "BAHASA ARAB", "P. WUDUK", "P. SHOLAT", "P. NGAJI", "P. TAYAMUM", "S. JENAZAH", "DZIKIR"],
-            "IBT - Kelas VI": ["NAHWU", "I'ROB", "TAJWID", "TA'LIM", "USUL", "MAQSUD", "JAWAHIR", "BAHASA ARAB", "TAFSIR", "HADIST", "FIQIH", "SULLAM", "P. WUDUK", "P. SHOLAT", "P. NGAJI", "P. TAYAMUM", "S. JENAZAH", "DZIKIR"],
-            "SANA - Kelas 1": ["BIDAYAH", "SULLAM", "TAFSIR", "HADIST", "JAWAHIR", "FIQIH", "NAHWU", "I'ROB", "IBAD. USUL", "TA'LIM", "MAQSUD", "P. WUDUK", "P. SHOLAT", "P. NGAJI", "P. TAYAMUM", "S. JENAZAH", "DZIKIR"],
-            "SANA - Kelas 2": ["BIDAYAH", "SULLAM", "TAFSIR", "HADIST", "JAWAHIR", "FIQIH", "NAHWU", "I'ROB", "IBAD. USUL", "TA'LIM", "MAQSUD", "P. WUDUK", "P. SHOLAT", "P. NGAJI", "P. TAYAMUM", "S. JENAZAH", "DZIKIR"],
-            "SANA - Kelas 3": ["BIDAYAH", "SULLAM", "TAFSIR", "HADIST", "JAWAHIR", "FIQIH", "NAHWU", "I'ROB", "IBAD. USUL", "TA'LIM", "MAQSUD", "P. WUDUK", "P. SHOLAT", "P. NGAJI", "P. TAYAMUM", "S. JENAZAH", "DZIKIR"]
+const JADWAL_MAPEL = {
+            "IBT - Kelas I": ["AKHLAQ", "AQIDAH", "PERUKUNAN", "YASIN", "ASAUL MUTTAQIN", "KHATH", "IMLA'", "JUZ'AMMA", "TAJWID", "BAHASA DAERAH", "BAHASA ARAB", "SULLAM", "FIQIH", "WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL", "MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"],
+            "IBT - Kelas II": ["AQOID", "KHOLASOH", "FIQIH", "BAHASA ARAB", "HADIST", "DO'A", "NAHWU", "SORROF", "AKHALAQ", "KHATH", "IMLA", "TAJWID", "JUZ 'AMMA", "WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL", "MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"],
+            "IBT - Kelas III": ["TAJWID", "JUZ 'AMMA", "FIQIH", "BAHASA ARAB", "HADIST", "DO'A", "NAHWU", "SORROF", "KHATH", "IMLA'", "AQIDAH", "KHOLASOH", "AKHALAQ", "WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL", "MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"],
+            "IBT - Kelas IV": ["HADIST", "JUZ AMMA", "TAJWID", "KHOLASOH", "NAHWU", "I'ROB", "I'LAL", "SORROF", "AQOID", "AKHALAQ", "FIQIH", "BAHASA ARAB", "WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL", "MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"],
+            "IBT - Kelas V": ["NAHWU", "I'ROB", "SULLAM", "JAWAHIR", "MAQSUD", "FIQIH", "TAFSIR", "HADIST", "TAJWID", "KHOLASOH", "AKHALAQ", "BAHASA ARAB", "WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL", "MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"],
+            "IBT - Kelas VI": ["NAHWU", "I'ROB", "TAJWID", "TA'LIM", "USUL", "MAQSUD", "JAWAHIR", "BAHASA ARAB", "TAFSIR", "HADIST", "FIQIH", "SULLAM", "WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL", "MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"],
+            "SANA - Kelas 1": ["BIDAYAH", "SULLAM", "TAFSIR", "HADIST", "JAWAHIR", "FIQIH", "NAHWU", "I'ROB", "IBAD. USUL", "TA'LIM", "MAQSUD", "WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL", "MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"],
+            "SANA - Kelas 2": ["BIDAYAH", "SULLAM", "TAFSIR", "HADIST", "JAWAHIR", "FIQIH", "NAHWU", "I'ROB", "IBAD. USUL", "TA'LIM", "MAQSUD", "WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL", "MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"],
+            "SANA - Kelas 3": ["BIDAYAH", "SULLAM", "TAFSIR", "HADIST", "JAWAHIR", "FIQIH", "NAHWU", "I'ROB", "IBAD. USUL", "TA'LIM", "MAQSUD", "WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL", "MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"]
         };
 
         function togglePassword() { const pwd = document.getElementById('password'); const icon = document.getElementById('eyeIcon'); if (pwd.type === 'password') { pwd.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } else { pwd.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); } }
@@ -414,8 +561,8 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             const targetView = document.getElementById('view-' + viewName);
             if (targetView) targetView.classList.remove('hidden');
-            if (viewName === 'dataSantri' || viewName === 'inputNilai') { loadDataSantri(); }
-            if (viewName === 'ranking') { loadBintangPelajar(); } // Otomatis refresh Bintang Pelajar
+           if (viewName === 'dataSantri' || viewName === 'inputNilai' || viewName === 'pengaturan') { loadDataSantri(); }
+            if (viewName === 'ranking') { loadBintangPelajar(); }
             
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
@@ -437,7 +584,6 @@
 
         function logout() { Swal.fire({ title: 'Keluar?', text: "Anda akan kembali ke halaman login", icon: 'question', showCancelButton: true, confirmButtonColor: '#059669', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Keluar' }).then((result) => { if (result.isConfirmed) { document.getElementById('dashboardPage').classList.add('hidden'); document.getElementById('loginPage').classList.remove('hidden'); document.getElementById('loginForm').reset(); window.history.replaceState(null, "", window.location.pathname); } }); }
         
-        // MODAL SANTRI LOGIC (UPDATE DENGAN TTL)
         function openModalSantri() { document.getElementById('modalTambahSantri').classList.remove('hidden'); }
         function closeModalSantri() { document.getElementById('modalTambahSantri').classList.add('hidden'); document.getElementById('formTambahSantri').reset(); }
         
@@ -450,7 +596,7 @@
             document.getElementById('edit_ayah').value = ayah; 
             document.getElementById('edit_ibu').value = ibu; 
             document.getElementById('edit_hp').value = hp; 
-            document.getElementById('edit_ttl').value = ttl; // Set TTL
+            document.getElementById('edit_ttl').value = ttl; 
             document.getElementById('modalEditSantri').classList.remove('hidden'); 
         }
         function closeModalEditSantri() { document.getElementById('modalEditSantri').classList.add('hidden'); document.getElementById('formEditSantri').reset(); }
@@ -479,7 +625,6 @@
             }).catch(err => { showLoading(false); Swal.fire('Error', 'Gagal menarik data dari server.', 'error'); });
         }
 
-        // AUTH & API SANTRI
         document.getElementById('loginForm').addEventListener('submit', function(e) { 
             e.preventDefault(); showLoading(true); 
             const formData = new URLSearchParams(); formData.append('action', 'login'); formData.append('username', document.getElementById('username').value); formData.append('password', document.getElementById('password').value); 
@@ -495,24 +640,23 @@
 
         document.getElementById('formTambahSantri').addEventListener('submit', function(e) { 
             e.preventDefault(); const btnSubmit = this.querySelector('button[type="submit"]'); const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; showLoading(true); 
-            const formData = new URLSearchParams(); formData.append('action', 'addSantri'); formData.append('nis', document.getElementById('add_nis').value); formData.append('nama', document.getElementById('add_nama').value); formData.append('jk', document.getElementById('add_jk').value); formData.append('kelas', document.getElementById('add_kelas').value); formData.append('alamat', document.getElementById('add_alamat').value); formData.append('ayah', document.getElementById('add_ayah').value); formData.append('ibu', document.getElementById('add_ibu').value); formData.append('hp', document.getElementById('add_hp').value); formData.append('ttl', document.getElementById('add_ttl').value); // Kirim TTL
+            const formData = new URLSearchParams(); formData.append('action', 'addSantri'); formData.append('nis', document.getElementById('add_nis').value); formData.append('nama', document.getElementById('add_nama').value); formData.append('jk', document.getElementById('add_jk').value); formData.append('kelas', document.getElementById('add_kelas').value); formData.append('alamat', document.getElementById('add_alamat').value); formData.append('ayah', document.getElementById('add_ayah').value); formData.append('ibu', document.getElementById('add_ibu').value); formData.append('hp', document.getElementById('add_hp').value); formData.append('ttl', document.getElementById('add_ttl').value); 
             fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; if(data.status === 'success') { closeModalSantri(); Swal.fire('Berhasil!', data.message, 'success'); loadDataSantri(); } else { Swal.fire('Gagal', data.message, 'error'); } }).catch(err => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal mengirim data.', 'error'); }); 
         });
 
         document.getElementById('formEditSantri').addEventListener('submit', function(e) { 
             e.preventDefault(); const btnSubmit = this.querySelector('button[type="submit"]'); const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memperbarui...'; showLoading(true); 
-            const formData = new URLSearchParams(); formData.append('action', 'updateSantri'); formData.append('nis', document.getElementById('edit_nis').value); formData.append('nama', document.getElementById('edit_nama').value); formData.append('jk', document.getElementById('edit_jk').value); formData.append('kelas', document.getElementById('edit_kelas').value); formData.append('alamat', document.getElementById('edit_alamat').value); formData.append('ayah', document.getElementById('edit_ayah').value); formData.append('ibu', document.getElementById('edit_ibu').value); formData.append('hp', document.getElementById('edit_hp').value); formData.append('ttl', document.getElementById('edit_ttl').value); // Kirim TTL
+            const formData = new URLSearchParams(); formData.append('action', 'updateSantri'); formData.append('nis', document.getElementById('edit_nis').value); formData.append('nama', document.getElementById('edit_nama').value); formData.append('jk', document.getElementById('edit_jk').value); formData.append('kelas', document.getElementById('edit_kelas').value); formData.append('alamat', document.getElementById('edit_alamat').value); formData.append('ayah', document.getElementById('edit_ayah').value); formData.append('ibu', document.getElementById('edit_ibu').value); formData.append('hp', document.getElementById('edit_hp').value); formData.append('ttl', document.getElementById('edit_ttl').value); 
             fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; if(data.status === 'success') { closeModalEditSantri(); Swal.fire('Berhasil!', data.message, 'success'); loadDataSantri(); } else { Swal.fire('Gagal', data.message, 'error'); } }).catch(err => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal update data.', 'error'); }); 
         });
 
-        // MESIN INPUT NILAI MASSAL
         function validasiInputNilai(el) {
             let val = parseFloat(el.value);
             if (el.value !== "" && (val < 0 || val > 100)) { el.classList.add('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500'); Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'Nilai 0 - 100', showConfirmButton: false, timer: 2000 }); } 
             else { el.classList.remove('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500'); }
         }
 
-        function aktifkanFilterKedua() {
+function aktifkanFilterKedua() {
             const kelas = document.getElementById('pilihKelasNilai').value;
             const wadahFilter2 = document.getElementById('wadahFilterKedua');
             const selectFilter2 = document.getElementById('pilihFilterKedua');
@@ -529,7 +673,33 @@
                 } else {
                     labelFilter2.innerHTML = '<i class="fas fa-book text-blue-600 mr-2"></i> Untuk Pelajaran Apa?';
                     const mapelList = JADWAL_MAPEL[kelas] || [];
-                    mapelList.forEach(m => selectFilter2.innerHTML += `<option value="${m}">${m}</option>`);
+                    
+                    // DAFTAR KATA KUNCI UNTUK KATEGORI (Tulis dengan huruf KAPITAL)
+                    const kategoriPraktek = ["WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL"];
+                    const kategoriMembaca = ["MEMBACA ALQUR'ANUL KARIM", "MEMBACA KITAB"];
+                    
+                    let htmlTulis = '';
+                    let htmlPraktek = '';
+                    let htmlMembaca = '';
+                    
+                    // Mesin pemisah otomatis
+                    mapelList.forEach(m => {
+                        let namaMapel = m.toUpperCase();
+                        
+                        if (kategoriPraktek.includes(namaMapel)) {
+                            htmlPraktek += `<option value="${m}">${m}</option>`;
+                        } else if (kategoriMembaca.includes(namaMapel)) {
+                            htmlMembaca += `<option value="${m}">${m}</option>`;
+                        } else {
+                            // Jika tidak ada di daftar Praktek/Membaca, otomatis masuk ke Ujian Tertulis
+                            htmlTulis += `<option value="${m}">${m}</option>`;
+                        }
+                    });
+                    
+                    // Render kelompok menu ke dalam Dropdown HTML
+                    if(htmlTulis) selectFilter2.innerHTML += `<optgroup label="A. UJIAN TERTULIS">${htmlTulis}</optgroup>`;
+                    if(htmlPraktek) selectFilter2.innerHTML += `<optgroup label="B. UJIAN PRAKTEK">${htmlPraktek}</optgroup>`;
+                    if(htmlMembaca) selectFilter2.innerHTML += `<optgroup label="C. MEMBACA">${htmlMembaca}</optgroup>`;
                 }
             }
         }
@@ -631,7 +801,6 @@
             }).catch(e => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal kirim.', 'error'); });
         });
 
-        // MESIN DATA NILAI (REKAP LAPORAN & EDIT)
         function loadDataNilaiKelas() {
             const kelasPilih = document.getElementById('filterKelasDataNilai').value;
             if (!kelasPilih) { Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' }); return; }
@@ -676,7 +845,6 @@
             });
         }
 
-        // FUNGSI MODAL EDIT NILAI 
         function openModalEditNilai(index) {
             const headers = GLOBAL_HEADERS_NILAI; const row = GLOBAL_DATA_NILAI[index]; const container = document.getElementById('wadahInputEditNilai'); container.innerHTML = '';
             document.getElementById('edit_nilai_kelas').value = document.getElementById('filterKelasDataNilai').value;
@@ -711,20 +879,18 @@
         });
 
         // =========================================================
-        // MESIN RANKING & BINTANG PELAJAR (DENGAN BIODATA)
+        // MESIN RANKING & BINTANG PELAJAR
         // =========================================================
         function loadBintangPelajar() {
             const wadah = document.getElementById('wadahBintangPelajar');
             wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Memuat kandidat juara...</div>';
             
-            const formData = new URLSearchParams(); 
-            formData.append('action', 'getBintangPelajar');
+            const formData = new URLSearchParams(); formData.append('action', 'getBintangPelajar');
             
             fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
                 wadah.innerHTML = '';
                 if (res.status === 'success' && res.data.length > 0) {
                     res.data.sort((a,b) => b.total - a.total); 
-
                     res.data.forEach((santri, idx) => {
                         let isTop1 = idx === 0;
                         let html = `
@@ -742,6 +908,7 @@
                                 </div>
                             </div>
                             <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1">
+                                <p class="truncate" title="${santri.jk}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${santri.jk}</b></p>
                                 <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p>
                                 <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p>
                                 <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p>
@@ -760,27 +927,34 @@
             if (!kelasPilih) { Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' }); return; }
             
             showLoading(true);
-            const formData = new URLSearchParams(); 
-            formData.append('action', 'getRankingKelas'); formData.append('kelas', kelasPilih);
+            const formData = new URLSearchParams(); formData.append('action', 'getRankingKelas'); formData.append('kelas', kelasPilih);
             
             fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => {
                 showLoading(false);
                 const tbody = document.getElementById('bodyTabelRanking'); tbody.innerHTML = '';
                 
                 if (res.status === 'success' && res.data.length > 0) {
-                    res.data.forEach((s) => {
-                        let rankStyle = "text-gray-500 font-bold text-lg"; let bgStyle = "hover:bg-gray-50"; let icon = s.rank;
-                        if(s.rank === 1) { rankStyle = "text-amber-500 text-2xl font-black"; bgStyle = "bg-amber-50 border-l-4 border-amber-400"; }
-                        else if(s.rank === 2) { rankStyle = "text-gray-400 text-xl font-black"; bgStyle = "bg-gray-50"; }
-                        else if(s.rank === 3) { rankStyle = "text-orange-400 text-xl font-black"; bgStyle = "bg-orange-50/50"; }
+                    res.data.sort((a, b) => {
+                        if (a.rank && b.rank) return a.rank - b.rank;
+                        return (b.rata || 0) - (a.rata || 0) || (b.total || 0) - (a.total || 0);
+                    });
+
+                    res.data.forEach((s, index) => {
+                        let rankNomor = s.rank ? parseInt(s.rank) : (index + 1);
+                        let rankStyle = "text-gray-500 font-bold text-lg"; let bgStyle = "hover:bg-gray-50"; let icon = rankNomor;
+                        
+                        if(rankNomor === 1) { rankStyle = "text-amber-500 text-2xl font-black"; bgStyle = "bg-amber-50 border-l-4 border-amber-400"; }
+                        else if(rankNomor === 2) { rankStyle = "text-gray-400 text-xl font-black"; bgStyle = "bg-gray-50"; }
+                        else if(rankNomor === 3) { rankStyle = "text-orange-400 text-xl font-black"; bgStyle = "bg-orange-50/50"; }
 
                         tbody.innerHTML += `
                         <tr class="transition-all ${bgStyle} border-b border-gray-50 last:border-0">
                             <td class="p-3 text-center border-r border-gray-100 ${rankStyle}">${icon}</td>
                             <td class="p-3 text-gray-500 border-r border-gray-100 text-xs whitespace-nowrap">${s.nis}</td>
                             <td class="p-3 border-r border-gray-100 min-w-[250px]">
-                                <p class="font-bold text-gray-800 ${s.rank <= 3 ? 'text-base' : 'text-sm'}">${s.nama}</p>
+                                <p class="font-bold text-gray-800 ${rankNomor <= 3 ? 'text-base' : 'text-sm'}">${s.nama}</p>
                                 <div class="text-[11px] text-gray-500 mt-1.5 space-y-0.5">
+                                    <p><span class="font-semibold text-gray-600">L/P:</span> ${s.jk}</p>
                                     <p><span class="font-semibold text-gray-600">TTL:</span> ${s.ttl}</p>
                                     <p><span class="font-semibold text-gray-600">Ortu:</span> ${s.ayah} & ${s.ibu}</p>
                                     <p><span class="font-semibold text-gray-600">Alamat:</span> ${s.alamat}</p>
@@ -795,6 +969,269 @@
                 }
             }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal memuat ranking.', 'error'); });
         }
+
+        // =========================================================
+        // MESIN EXPORT PDF UNTUK SEMUA LAPORAN
+        // =========================================================
+        function exportRankingPDF() {
+            const kelas = document.getElementById('filterKelasRanking').value;
+            if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan ranking kelas terlebih dahulu sebelum melakukan export.' });
+
+            const elemenTabel = document.getElementById('bodyTabelRanking').closest('.overflow-x-auto');
+            if (elemenTabel.innerText.includes('Silakan pilih kelas') || elemenTabel.innerText.includes('Belum ada data')) {
+                 return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data santri yang bisa diexport ke PDF.' });
+            }
+
+            showLoading(true);
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.padding = '30px'; pdfContainer.style.backgroundColor = 'white';
+
+            pdfContainer.innerHTML = `
+                <div style="text-align: center; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 25px;">
+                    <h2 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #065f46; margin: 0; text-transform: uppercase;">Madrasah Darussalam</h2>
+                    <p style="font-family: 'Inter', sans-serif; margin: 5px 0 0 0; color: #4b5563; font-size: 14px; font-weight: 500;">Laporan Peringkat Akademik Santri - Kelas: <span style="color: #059669; font-weight: bold;">${kelas}</span></p>
+                </div>
+            `;
+
+            const tabelClone = elemenTabel.cloneNode(true);
+            tabelClone.classList.remove('overflow-x-auto', 'border', 'rounded-xl', 'border-gray-200');
+            pdfContainer.appendChild(tabelClone);
+
+            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            pdfContainer.innerHTML += `
+                <div style="margin-top: 40px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic; font-family: 'Inter', sans-serif;">
+                    <p style="margin: 0;">Dokumen ini diterbitkan dan dicetak secara otomatis melalui Sistem Informasi Penilaian Santri - Madrasah Darussalam.</p>
+                    <p style="margin: 4px 0 0 0;">Dicetak pada: <b>${tanggalCetak}</b></p>
+                </div>
+            `;
+
+            const opt = { margin: [0.3, 0.3, 0.5, 0.3], filename: `Data_Ranking_${kelas.replace(/\s+/g, '_')}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+
+            html2pdf().set(opt).from(pdfContainer).save().then(() => {
+                showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'File PDF berhasil dibuat!', timer: 2000, showConfirmButton: false });
+            }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat memproses PDF.' }); });
+        }
+
+        function exportBintangPelajarPDF() {
+            const wadah = document.getElementById('wadahBintangPelajar');
+            if (wadah.innerText.includes('Memuat') || wadah.innerText.includes('Belum ada data')) {
+                 return Swal.fire({ icon: 'error', title: 'Data Kosong', text: 'Tidak ada data Bintang Pelajar yang bisa diexport saat ini.' });
+            }
+
+            showLoading(true);
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.padding = '30px'; pdfContainer.style.backgroundColor = '#f8fafc';
+
+            pdfContainer.innerHTML = `
+                <div style="text-align: center; border-bottom: 3px solid #d97706; padding-bottom: 15px; margin-bottom: 25px;">
+                    <h2 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #b45309; margin: 0; text-transform: uppercase;">Madrasah Darussalam</h2>
+                    <p style="font-family: 'Inter', sans-serif; margin: 5px 0 0 0; color: #78350f; font-size: 14px; font-weight: 500;">Laporan Eksekutif: Daftar Bintang Pelajar (Juara Umum Per Kelas)</p>
+                </div>
+            `;
+
+            const clone = wadah.cloneNode(true);
+            clone.className = 'grid grid-cols-2 gap-4'; 
+            pdfContainer.appendChild(clone);
+
+            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            pdfContainer.innerHTML += `
+                <div style="margin-top: 40px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; color: #64748b; font-size: 11px; font-style: italic; font-family: 'Inter', sans-serif;">
+                    <p style="margin: 0;">Dokumen ini diterbitkan dan dicetak secara otomatis melalui Sistem Informasi Penilaian Santri - Madrasah Darussalam.</p>
+                    <p style="margin: 4px 0 0 0;">Dicetak pada: <b>${tanggalCetak}</b></p>
+                </div>
+            `;
+
+            const opt = { margin: [0.3, 0.3, 0.5, 0.3], filename: `Bintang_Pelajar_Darussalam.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+
+            html2pdf().set(opt).from(pdfContainer).save().then(() => {
+                showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'Laporan Bintang Pelajar berhasil diunduh!', timer: 2000, showConfirmButton: false });
+            }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }); });
+        }
+
+        function exportDataNilaiPDF() {
+            const kelas = document.getElementById('filterKelasDataNilai').value;
+            if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan laporan data nilai terlebih dahulu.' });
+
+            const elemenTabel = document.getElementById('tabelDataNilai');
+            const teksTabel = document.getElementById('bodyDataNilai').innerText;
+            if (teksTabel.includes('Silakan pilih kelas') || teksTabel.includes('Belum ada data')) {
+                 return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data nilai yang bisa diexport.' });
+            }
+
+            showLoading(true);
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.padding = '20px'; pdfContainer.style.backgroundColor = 'white';
+
+            pdfContainer.innerHTML = `
+                <div style="text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 15px; margin-bottom: 25px;">
+                    <h2 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #1e3a8a; margin: 0; text-transform: uppercase;">Madrasah Darussalam</h2>
+                    <p style="font-family: 'Inter', sans-serif; margin: 5px 0 0 0; color: #475569; font-size: 14px; font-weight: 500;">Laporan Rekapitulasi Nilai Santri - Kelas: <span style="color: #2563eb; font-weight: bold;">${kelas}</span></p>
+                </div>
+            `;
+
+            const tabelClone = elemenTabel.cloneNode(true);
+            tabelClone.classList.remove('min-w-max'); 
+            tabelClone.style.width = '100%'; tabelClone.style.fontSize = '11px';
+
+            const headerRow = tabelClone.querySelector('thead tr');
+            if (headerRow && headerRow.lastElementChild.innerText.includes('AKSI')) headerRow.removeChild(headerRow.lastElementChild);
+            const bodyRows = tabelClone.querySelectorAll('tbody tr');
+            bodyRows.forEach(tr => { if (tr.lastElementChild) tr.removeChild(tr.lastElementChild); });
+
+            pdfContainer.appendChild(tabelClone);
+
+            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            pdfContainer.innerHTML += `
+                <div style="margin-top: 30px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; color: #64748b; font-size: 11px; font-style: italic; font-family: 'Inter', sans-serif;">
+                    <p style="margin: 0;">Dokumen ini diterbitkan dan dicetak secara otomatis melalui Sistem Informasi Penilaian Santri - Madrasah Darussalam.</p>
+                    <p style="margin: 4px 0 0 0;">Dicetak pada: <b>${tanggalCetak}</b></p>
+                </div>
+            `;
+
+            const opt = { margin: [0.3, 0.3, 0.4, 0.3], filename: `Rekap_Nilai_${kelas.replace(/\s+/g, '_')}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } };
+
+            html2pdf().set(opt).from(pdfContainer).save().then(() => {
+                showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'File PDF Rekap Nilai berhasil diunduh!', timer: 2000, showConfirmButton: false });
+            }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat memproses PDF.' }); });
+        }
+		
+		// =========================================================
+        // MESIN PENGATURAN RAPOR (FRONTEND)
+        // =========================================================
+        function loadSettingRapor() {
+            const kelas = document.getElementById('settingKelas').value;
+            if(!kelas) return;
+            showLoading(true);
+            const formData = new URLSearchParams(); formData.append('action', 'getPengaturan'); formData.append('kelas', kelas);
+            
+            fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => {
+                showLoading(false);
+                document.getElementById('formSettingRapor').classList.remove('hidden');
+                
+                // Isi Form Umum
+                let u = res.umum || {};
+                document.getElementById('set_semester').value = u.semester || '';
+                document.getElementById('set_tahun').value = u.tahun || '';
+                document.getElementById('set_tanggal').value = u.tanggal || '';
+                document.getElementById('set_kepala').value = u.kepala || '';
+                document.getElementById('set_wali').value = u.wali || '';
+				
+				// Munculkan Gambar Preview dari Google Drive
+                const mapImg = [{url: u.url_wali, imgId: 'preview_wali', teksId: 'teks_wali'}, {url: u.url_kepala, imgId: 'preview_kepala', teksId: 'teks_kepala'}, {url: u.url_stempel, imgId: 'preview_stempel', teksId: 'teks_stempel'}];
+                mapImg.forEach(m => {
+                    const imgEl = document.getElementById(m.imgId); const txtEl = document.getElementById(m.teksId);
+                    if(m.url) { imgEl.src = m.url; imgEl.classList.remove('hidden'); txtEl.classList.add('hidden'); }
+                    else { imgEl.src = ''; imgEl.classList.add('hidden'); txtEl.classList.remove('hidden'); }
+                });
+
+                // Generate Tabel Santri
+                const santriKelas = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelas);
+                const tbody = document.getElementById('bodySettingSantri');
+                tbody.innerHTML = '';
+                
+                let det = res.detail || {};
+                
+                santriKelas.forEach(s => {
+                    let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''};
+                    tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}">
+                        <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800">${s.nama}</td>
+                        <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.akhlaq}" maxlength="1"></td>
+                        <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.kerajinan}" maxlength="1"></td>
+                        <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-disiplin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.disiplin}" maxlength="1"></td>
+                        <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rapi w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.rapi}" maxlength="1"></td>
+                        
+                        <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-sakit w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.sakit}"></td>
+                        <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-izin w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.izin}"></td>
+                        <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.alpa}"></td>
+                        
+                        <td class="p-2 border-r bg-emerald-50/30"><input type="text" class="inp-keputusan w-48 border-2 border-emerald-200 rounded p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Ex: Naik Ke Kelas II"></td>
+                        <td class="p-2 bg-purple-50/30"><input type="text" class="inp-catatan w-72 border-2 border-purple-200 rounded p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Ex: Tingkatkan prestasimu..."></td>
+                    </tr>`;
+                });
+            });
+        }
+
+        document.getElementById('formSettingRapor').addEventListener('submit', function(e){
+            e.preventDefault();
+            showLoading(true);
+            const kelas = document.getElementById('settingKelas').value;
+            
+            let setUmum = { semester: document.getElementById('set_semester').value, tahun: document.getElementById('set_tahun').value, tanggal: document.getElementById('set_tanggal').value, kepala: document.getElementById('set_kepala').value, wali: document.getElementById('set_wali').value };
+
+            let detSantri = [];
+            document.querySelectorAll('.set-santri-row').forEach(tr => {
+                detSantri.push({
+                    nis: tr.getAttribute('data-nis'),
+                    akhlaq: tr.querySelector('.inp-akhlaq').value, kerajinan: tr.querySelector('.inp-rajin').value, disiplin: tr.querySelector('.inp-disiplin').value, rapi: tr.querySelector('.inp-rapi').value,
+                    sakit: tr.querySelector('.inp-sakit').value, izin: tr.querySelector('.inp-izin').value, alpa: tr.querySelector('.inp-alpa').value,
+                    keputusan: tr.querySelector('.inp-keputusan').value, catatan: tr.querySelector('.inp-catatan').value
+                });
+            });
+
+            const formData = new URLSearchParams(); formData.append('action', 'simpanPengaturan'); formData.append('kelas', kelas); formData.append('set_umum', JSON.stringify(setUmum)); formData.append('det_santri', JSON.stringify(detSantri));
+
+            fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => {
+                showLoading(false);
+                if(res.status === 'success') Swal.fire('Berhasil', res.message, 'success'); else Swal.fire('Gagal', res.message, 'error');
+            });
+        });
+		
+		
+		
+		// =========================================================
+        // MESIN UPLOAD GAMBAR KE GOOGLE DRIVE
+        // =========================================================
+        function prosesUploadDrive(inputId, previewId, teksId, jenisKode) {
+            const fileInput = document.getElementById(inputId);
+            const previewImg = document.getElementById(previewId);
+            const teksKosong = document.getElementById(teksId);
+
+            fileInput.addEventListener('change', function(e) {
+                const kelas = document.getElementById('settingKelas').value;
+                if(!kelas) {
+                    Swal.fire('Tahan Dulu!', 'Silakan pilih KELAS di paling atas sebelum meng-upload stempel/ttd.', 'warning');
+                    fileInput.value = ''; return;
+                }
+
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (file.type !== "image/png") { Swal.fire('Ditolak', 'Harap masukkan format .PNG transparan!', 'error'); fileInput.value = ''; return; }
+                if (file.size > 5242880) { Swal.fire('Terlalu Besar', 'Maksimal ukuran gambar 5 MB.', 'error'); fileInput.value = ''; return; }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64String = event.target.result;
+                    previewImg.src = base64String;
+                    previewImg.classList.remove('hidden');
+                    teksKosong.classList.add('hidden');
+
+                    showLoading(true);
+                    const formData = new URLSearchParams();
+                    formData.append('action', 'uploadGambar');
+                    formData.append('kelas', kelas);
+                    formData.append('jenis', jenisKode); // 'wali', 'kepala', 'stempel'
+                    formData.append('data', base64String);
+
+                    fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => {
+                        showLoading(false);
+                        if(res.status === 'success') {
+                            Swal.fire({toast:true, position:'top-end', icon:'success', title: 'Tersimpan di Drive!', showConfirmButton:false, timer:2000});
+                        } else {
+                            Swal.fire('Gagal Upload', res.message, 'error');
+                        }
+                    }).catch(err => { showLoading(false); Swal.fire('Error', 'Jaringan terputus.', 'error'); });
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Aktifkan sensornya
+        prosesUploadDrive('upload_wali', 'preview_wali', 'teks_wali', 'wali');
+        prosesUploadDrive('upload_kepala', 'preview_kepala', 'teks_kepala', 'kepala');
+        prosesUploadDrive('upload_stempel', 'preview_stempel', 'teks_stempel', 'stempel');
+		
     </script>
 </body>
 </html>
