@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cetak Rapor TPQ (K13)</title>
+    <title>Cetak Rapor TK (K13)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -31,18 +31,46 @@
         }
     </style>
 </head>
-<body class="p-8 text-gray-800">
+<body class="p-4 sm:p-8 text-gray-800">
 
     <div id="loadingState">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600 mb-4"></div>
-        <h2 class="text-xl font-bold text-gray-800">Menarik Data Rapor...</h2>
+        <h2 id="teksLoading" class="text-xl font-bold text-gray-800">Memuat Sistem...</h2>
         <p class="text-gray-500">Mohon tunggu sebentar.</p>
     </div>
 
-    <div class="max-w-[210mm] mx-auto mb-6 text-right no-print hidden" id="wadahTombolCetak">
-        <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition-all">
-            <i class="fas fa-print mr-2"></i> Cetak Rapor TK
-        </button>
+    <!-- PANEL KONTROL PILIHAN KELAS (Otomatis hilang saat diprint) -->
+    <div class="max-w-[215mm] mx-auto bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 no-print" id="panelKontrol">
+        <div class="flex items-center gap-4 mb-4">
+            <div class="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center text-xl shadow-sm"><i class="fas fa-child"></i></div>
+            <div>
+                <h1 class="text-xl font-heading font-bold text-gray-800">Sistem Cetak Rapor TK</h1>
+                <p class="text-sm text-gray-500">Madrasah Darussalam</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">1. Pilih Kelas TK</label>
+                <select id="raporKelas" onchange="populateSantriRapor()" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium">
+                    <option value="" disabled selected>-- Pilih Kelas TK --</option>
+                    <option value="TK - TK 1">TK 1</option>
+                    <option value="TK - TK 2">TK 2</option>
+                    <option value="TK - TK 3">TK 3</option>
+                    <option value="TK - TK 4">TK 4</option>
+                    <option value="TK - TK 5">TK 5</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">2. Pilih Santri</label>
+                <select id="raporSantri" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium disabled:bg-gray-100" disabled>
+                    <option value="" disabled selected>-- Pilih Santri --</option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button onclick="lihatRaporTKLangsung()" class="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm font-bold text-sm transition-all"><i class="fas fa-eye mr-1"></i> Tampilkan</button>
+                <button onclick="window.print()" class="w-full py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-sm font-bold text-sm transition-all"><i class="fas fa-print mr-1"></i> Cetak</button>
+            </div>
+        </div>
     </div>
 
     <div id="kertasRapor" class="bg-white mx-auto shadow-2xl relative box-border hidden" style="width: 215mm; min-height: 330mm; padding: 15mm 15mm;">
@@ -51,7 +79,7 @@
             <img id="val_stempel" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 opacity-20 hidden object-contain" alt="">
             
             <div class="w-20 text-center">
-                <div class="w-[70px] h-[70px] rounded-full border-2 border-emerald-800 flex items-center justify-center text-emerald-800 text-2xl font-bold bg-gray-50"><i class="fas fa-mosque"></i></div>
+                <img src="asset/logo.png" class="w-[70px] h-[70px] object-contain mx-auto" onerror="this.outerHTML='<div class=\\'w-[70px] h-[70px] rounded-full border-2 border-emerald-800 flex items-center justify-center text-emerald-800 text-2xl font-bold bg-gray-50\\'><i class=\\'fas fa-mosque\\'></i></div>'" alt="Logo TK">
             </div>
             <div class="flex-1 text-center relative z-10">
                 <h1 class="text-xl font-heading font-bold text-emerald-800 uppercase tracking-widest mb-1">TK RA</h1>
@@ -102,7 +130,7 @@
                 </tbody>
         </table>
 
-       <div class="flex justify-between items-stretch mt-6 text-[11px] w-full">
+        <div class="flex justify-between items-stretch mt-6 text-[11px] w-full">
             <div class="w-[48%]">
                 <table class="w-full h-full">
                     <thead>
@@ -141,7 +169,7 @@
             </tr>
         </table>
 
-       <div class="flex justify-between text-center font-bold text-black mt-8 text-[12px] relative z-10">
+        <div class="flex justify-between text-center font-bold text-black mt-8 text-[12px] relative z-10">
             <div class="w-1/3 flex flex-col justify-between items-center" style="height: 100px;">
                 <div><p>Mengetahui,</p><p>Orang Tua / Wali</p></div>
                 <div class="border-b border-black w-[150px]"></div>
@@ -161,11 +189,55 @@
     </div>
 
 <script>
-        // PASTIKAN LINK INI SAMA DENGAN YANG ADA DI INDEX.HTML DAN RAPOR.HTML
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbwOfpgJovqpplG8tuq_hqkrmniSeuM7dK1UajlyOHYXF2HdvP9dFnFld5xbGRlcuL3m/exec';
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const nisSantri = urlParams.get('nis');
+        let GLOBAL_DATA_SANTRI = [];
+
+        window.onload = async () => {
+            // 1. Narik data santri secara background
+            document.getElementById('teksLoading').innerText = "Memuat Database Santri...";
+            document.getElementById('loadingState').style.display = 'flex';
+
+            try {
+                const formData = new URLSearchParams(); 
+                formData.append('action', 'getSantri');
+                const res = await fetch(GAS_URL, { method: 'POST', body: formData });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    GLOBAL_DATA_SANTRI = data.data;
+                }
+            } catch (e) {
+                console.log("Gagal memuat list santri");
+            }
+            
+            document.getElementById('loadingState').style.display = 'none';
+
+            // 2. Jika ada parameter url (dari halaman ibtidaiyah), langsung render
+            const urlParams = new URLSearchParams(window.location.search);
+            const nisCari = urlParams.get('nis');
+            if(nisCari) {
+                muatDataRapor(nisCari);
+            }
+        };
+
+        function populateSantriRapor() {
+            const kelasPilih = document.getElementById('raporKelas').value;
+            const selectSantri = document.getElementById('raporSantri');
+            selectSantri.innerHTML = '<option value="" disabled selected>-- Pilih Santri --</option>';
+            const santriKelasIni = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelasPilih);
+            santriKelasIni.forEach(s => { 
+                selectSantri.innerHTML += `<option value="${s.nis}">${s.nis} - ${s.nama}</option>`; 
+            });
+            selectSantri.disabled = false;
+        }
+
+        function lihatRaporTKLangsung() {
+            const nisPilih = document.getElementById('raporSantri').value;
+            if(!nisPilih) {
+                alert("Silakan pilih Kelas dan Nama Santri terlebih dahulu!");
+                return;
+            }
+            muatDataRapor(nisPilih);
+        }
 
         function terbilang(angka) {
             angka = Math.round(angka); 
@@ -183,7 +255,6 @@
         function konversiHuruf(predikatHuruf) {
             if (!predikatHuruf) return '-';
             let p = predikatHuruf.toString().toUpperCase().trim(); 
-            
             if(p === 'A') return 'Sangat Baik (A)';
             if(p === 'B') return 'Baik (B)';
             if(p === 'C') return 'Cukup (C)';
@@ -200,11 +271,10 @@
             return { predikat, deskripsi };
         }
 
-       async function muatDataRapor() {
-            if(!nisSantri) {
-                document.getElementById('loadingState').innerHTML = '<div class="text-red-500 text-5xl mb-4"><i class="fas fa-exclamation-triangle"></i></div><h2 class="text-xl font-bold">Data Tidak Ditemukan!</h2><p class="text-gray-600 mt-2">Buka rapor ini dengan menekan tombol Cetak Rapor di dalam Dashboard Aplikasi.</p>';
-                return;
-            }
+       async function muatDataRapor(nisSantri) {
+            document.getElementById('teksLoading').innerText = "Menarik Data Rapor...";
+            document.getElementById('loadingState').style.display = 'flex';
+            document.getElementById('kertasRapor').classList.add('hidden');
 
             try {
                 const formData = new URLSearchParams();
@@ -233,11 +303,15 @@
                     
                     document.getElementById('loadingState').style.display = 'none';
                     document.getElementById('kertasRapor').classList.remove('hidden');
-                    document.getElementById('wadahTombolCetak').classList.remove('hidden');
+                    
+                    // Update judul halaman untuk nama file PDF
+                    document.title = `Rapor_TK_${dataRes.biodata.nama.replace(/\s+/g,"_")}`;
                 } else {
-                    alert("Gagal memuat: " + dataRes.message);
+                    document.getElementById('loadingState').style.display = 'none';
+                    alert("Gagal memuat data rapor dari database.");
                 }
             } catch (error) {
+                document.getElementById('loadingState').style.display = 'none';
                 alert("Koneksi gagal.");
             }
         }
@@ -284,28 +358,37 @@
             tbody.innerHTML = '';
             let totalNilai = 0;
 
-            if(d.nilai.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 italic text-red-500">Belum ada nilai yang diinput oleh Guru Wali Kelas.</td></tr>';
-                return;
+            // LOGIKA 7 BARIS STATIS
+            for (let i = 0; i < 7; i++) {
+                if (d.nilai && d.nilai[i]) {
+                    const item = d.nilai[i];
+                    const k13 = generateK13Logic(item.mapel, item.nilai);
+                    totalNilai += parseFloat(item.nilai);
+                    let warnaPredikat = k13.predikat === 'A' ? "text-emerald-600" : k13.predikat === 'B' ? "text-blue-600" : k13.predikat === 'C' ? "text-orange-500" : "text-red-600";
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="text-center font-bold">${i + 1}</td>
+                            <td class="font-bold text-gray-800 px-2 py-3">${item.mapel}</td>
+                            <td class="text-center font-bold text-[13px]">${item.nilai}</td>
+                            <td class="text-center font-black text-[14px] ${warnaPredikat}">${k13.predikat}</td>
+                            <td class="text-justify px-2 leading-relaxed text-[10px]">${k13.deskripsi}</td>
+                        </tr>
+                    `;
+                } else {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="text-center font-bold">${i + 1}</td>
+                            <td class="px-2 py-3">&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    `;
+                }
             }
 
-            d.nilai.forEach((item, index) => {
-                const k13 = generateK13Logic(item.mapel, item.nilai);
-                totalNilai += parseFloat(item.nilai);
-                let warnaPredikat = k13.predikat === 'A' ? "text-emerald-600" : k13.predikat === 'B' ? "text-blue-600" : k13.predikat === 'C' ? "text-orange-500" : "text-red-600";
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="text-center font-bold">${index + 1}</td>
-                        <td class="font-bold text-gray-800 px-2 py-3">${item.mapel}</td>
-                        <td class="text-center font-bold text-[13px]">${item.nilai}</td>
-                        <td class="text-center font-black text-[14px] ${warnaPredikat}">${k13.predikat}</td>
-                        <td class="text-justify px-2 leading-relaxed text-[10px]">${k13.deskripsi}</td>
-                    </tr>
-                `;
-            });
-
-            let rataRata = (totalNilai / d.nilai.length).toFixed(1);
+            let rataRata = d.nilai.length > 0 ? (totalNilai / d.nilai.length).toFixed(1) : "0.0";
             
             tbody.innerHTML += `
                 <tr class="font-bold border-t-[2px] border-black">
@@ -325,8 +408,6 @@
                 </tr>
             `;
         }
-
-        window.onload = muatDataRapor;
 </script>
 </body>
 </html>

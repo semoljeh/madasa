@@ -13,6 +13,10 @@
     <script>
         tailwind.config = { theme: { extend: { colors: { emerald: { 600: '#059669', 700: '#047857', 800: '#065f46' }, gold: '#D4AF37' }, fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] } } } }
     </script>
+	
+	
+	
+	
     <style>
         body { -webkit-font-smoothing: antialiased; }
         .islamic-bg { background-color: #065f46; background-image: radial-gradient(#059669 2.5px, transparent 2.5px), radial-gradient(#059669 2.5px, transparent 2.5px); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
@@ -76,7 +80,7 @@
                 <button onclick="showView('inputNilai')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-edit w-5"></i> Input Nilai</button>
                 <button onclick="showView('dataNilai')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-chart-line w-5"></i> Data Nilai</button>
                 <button onclick="showView('ranking')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-trophy w-5"></i> Ranking</button>
-              <a href="rapor.html" target="_blank" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-print w-5"></i> Cetak Rapor</a>
+            <button onclick="showView('cetakRapor')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-print w-5"></i> Cetak Rapor</button>
                 <button onclick="showView('pengaturan')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-cog w-5"></i> Pengaturan</button>
             </nav>
         </aside>
@@ -111,7 +115,7 @@
                         <div onclick="showView('inputNilai')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-book-open"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Input Nilai</h3></div>
                         <div onclick="showView('dataNilai')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-table"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Data Nilai</h3></div>
                         <div onclick="showView('ranking')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-trophy"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Ranking</h3></div>
-                       <a href="rapor.html" target="_blank" class="block bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 text-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-print"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Cetak Rapor</h3></a>
+               <div onclick="showView('cetakRapor')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 text-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-print"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Cetak Rapor</h3></div>
                         <div onclick="showView('pengaturan')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 text-gray-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-cog"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Pengaturan</h3></div>
                     </div>
                 </div>
@@ -330,6 +334,53 @@
                         </div>
                     </div>
                 </div>
+				
+				
+				<!-- VIEW: CETAK RAPOR -->
+<div id="view-cetakRapor" class="view-section hidden">
+    <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
+        <div class="flex items-center gap-3 border-b border-gray-100 pb-4 mb-5">
+            <button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shrink-0"><i class="fas fa-arrow-left"></i></button>
+            <div>
+                <h3 class="text-xl font-heading font-bold text-gray-800">Cetak Dokumen Rapor</h3>
+                <p class="text-xs text-gray-500">Pilih tingkat pendidikan untuk mencetak rapor</p>
+            </div>
+        </div>
+
+        <style>
+            @keyframes napas-pantul {
+                0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+                50% { transform: translateY(-8px) scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15); }
+            }
+            .animasi-klik-saya { animation: napas-pantul 2.5s infinite ease-in-out; }
+            .animasi-klik-saya:hover { animation: none; transform: translateY(-10px) scale(1.05); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); }
+        </style>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+            <!-- Tombol TK -->
+            <a href="rapor_tpq.html" target="_blank" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-emerald-50 to-emerald-100 rounded-2xl border-2 border-emerald-200 hover:border-emerald-500 transition-all cursor-pointer text-emerald-800 relative overflow-hidden" style="animation-delay: 0s;">
+                <i class="fas fa-child text-5xl mb-4 group-hover:scale-110 group-hover:text-emerald-600 transition-transform duration-300"></i>
+                <h3 class="text-xl font-bold font-heading mb-1">Rapor TK / RA</h3>
+                <p class="text-xs text-center text-emerald-600 font-medium px-2">Masuk ke sistem cetak rapor khusus Taman Kanak-Kanak</p>
+            </a>
+
+            <!-- Tombol Ibtidaiyah -->
+            <a href="rapor_ibtidaiyah.html" target="_blank" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 hover:border-blue-500 transition-all cursor-pointer text-blue-800 relative overflow-hidden" style="animation-delay: 0.4s;">
+                <i class="fas fa-book-open text-5xl mb-4 group-hover:scale-110 group-hover:text-blue-600 transition-transform duration-300"></i>
+                <h3 class="text-xl font-bold font-heading mb-1">Ibtidaiyah</h3>
+                <p class="text-xs text-center text-blue-600 font-medium px-2">Masuk ke cetak rapor Madrasah Ibtidaiyah</p>
+            </a>
+
+            <!-- Tombol Sanawiyah -->
+            <a href="rapor_sanawiyah.html" target="_blank" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-200 hover:border-purple-500 transition-all cursor-pointer text-purple-800 relative overflow-hidden" style="animation-delay: 0.8s;">
+                <i class="fas fa-graduation-cap text-5xl mb-4 group-hover:scale-110 group-hover:text-purple-600 transition-transform duration-300"></i>
+                <h3 class="text-xl font-bold font-heading mb-1">Sanawiyah</h3>
+                <p class="text-xs text-center text-purple-600 font-medium px-2">Masuk ke cetak rapor Madrasah Sanawiyah</p>
+            </a>
+        </div>
+    </div>
+</div>
+				
 
                <!-- VIEW PENGATURAN -->
                 <div id="view-pengaturan" class="view-section hidden">
