@@ -50,7 +50,6 @@
         /* Perintah khusus untuk mematikan garis pada bagian Identitas Santri */
         .no-border th, .no-border td { border: none !important; }
 		
-		
 		@media print {
             body { background-color: #fff !important; margin: 0; padding: 0 !important; }
             /* Sembunyikan header, form pilih santri, dan background abu-abu */
@@ -106,8 +105,8 @@
         </div>
     </div>
 
-    <div id="wadahKertasRapor" class="hidden max-w-6xl mx-auto flex justify-center overflow-x-auto bg-gray-200 p-4 sm:p-8 rounded-2xl border border-gray-300 shadow-inner">
-        <div id="kertasRapor" class="bg-white p-6 sm:p-8 w-full max-w-[210mm] min-h-[330mm] shadow-2xl text-gray-800 font-sans relative mx-auto"></div>
+    <div id="wadahKertasRapor" class="hidden w-full py-4 sm:py-8">
+        <div id="kertasRapor" class="bg-white shadow-2xl text-gray-800 font-sans relative mx-auto shrink-0" style="width: 210mm; min-width: 210mm; min-height: 330mm; margin: 0 auto;"></div>
     </div>
 
     <script>
@@ -163,7 +162,7 @@
             if(h==='A') return 'ممتاز'; if(h==='B') return 'جيد'; if(h==='C') return 'كافي'; if(h==='D') return 'ناقص'; return '-';
         }
 
-   const kamusArab = { 
+        const kamusArab = { 
             "AKHLAQ": "أخلاق", "AQIDAH": "عقيدة", "PERUKUNAN": "فروكونان", "YASIN": "يس", "ASAUL MUTTAQIN": "أصول المتقين", 
             "KHATH": "خط", "IMLA'": "إملاء", "IMLA": "إملاء", "JUZ'AMMA": "جزء عم", "JUZ 'AMMA": "جزء عم", "TAJWID": "تجويد", 
             "BAHASA DAERAH": "اللغة المحلية", "BAHASA ARAB": "لغة عربية", "SULLAM": "سلم", "FIQIH": "فقه", 
@@ -176,24 +175,16 @@
 
         function toArabicNumeral(str) { return str.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]); }
 
-function previewRapor() {
+        function previewRapor() {
             const kelas = document.getElementById('raporKelas').value;
             const nis = document.getElementById('raporSantri').value;
             if(!kelas || !nis) return Swal.fire('Perhatian', 'Pilih kelas dan nama santri terlebih dahulu.', 'warning');
 
-            // =========================================================
-            // 🚨 POLISI LALU LINTAS: CEK APAKAH INI KELAS TK?
-            // =========================================================
             if (kelas.includes('TK')) {
-                // 1. Buka tab baru untuk Rapor TK
                 window.open('rapor_tpq.html?nis=' + nis, '_blank');
-                
-                // 2. STOP DI SINI! Jangan lanjutkan menggambar rapor Ibtidaiyah
                 return; 
             }
-            // =========================================================
 
-            // JIKA BUKAN TK (IBTIDAIYAH/SANAWIYAH), LANJUTKAN PROSES DI BAWAH INI:
             showLoading(true);
             const fdNilai = new URLSearchParams(); fdNilai.append('action', 'getDataNilai'); fdNilai.append('kelas', kelas);
             const fdRank = new URLSearchParams(); fdRank.append('action', 'getRankingKelas'); fdRank.append('kelas', kelas);
@@ -230,8 +221,11 @@ function previewRapor() {
             document.getElementById('btnExportRapor').classList.remove('hidden');
             
             const kertas = document.getElementById('kertasRapor');
-            kertas.className = "bg-white mx-auto shadow-2xl text-black font-sans relative box-border";
+            
+            // PERBAIKAN: Kunci class ini dengan shrink-0 agar kertas tidak hancur mengecil di HP!
+            kertas.className = "bg-white mx-auto shadow-2xl text-black font-sans relative box-border shrink-0";
             kertas.style.width = "210mm";      
+            kertas.style.minWidth = "210mm";  // KUNCI UTAMA ANTI SQUISH
             kertas.style.height = "327mm";    
             kertas.style.padding = "8mm"; 
             kertas.style.overflow = "hidden";  
@@ -251,9 +245,6 @@ function previewRapor() {
             let barisIndo = ''; let barisArab = ''; 
             let total = 0, rata = 0;
 
-          // =========================================================================================
-            // PENGATURAN KATEGORI (Sesuaikan nama kolom Google Sheets di sini)
-            // =========================================================================================
             const katPraktek = ["WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL"]; 
             const katMembaca = ["ALQUR'ANUL KARIM", "KITAB"];
 
@@ -263,7 +254,6 @@ function previewRapor() {
                  total = nilaiRow[4] || 0; rata = nilaiRow[5] || 0;
                  let dataTK = [{m: nilaiRow[6]||'-', n: nilaiRow[7]||0}, {m: nilaiRow[8]||'-', n: nilaiRow[9]||0}, {m: nilaiRow[10]||'-', n: nilaiRow[11]||0}];
                  dataTK.forEach(x => { 
-                     // Hanya rekam mapel jika nilainya tidak kosong
                      if(x.m !== '-' && x.n !== "" && x.n !== null && x.n !== undefined) {
                          mapelTertulis.push({nama: x.m, nilai: parseFloat(x.n)}); 
                      }
@@ -272,7 +262,6 @@ function previewRapor() {
                  total = nilaiRow[3] || 0; rata = nilaiRow[4] || 0;
                  for(let i = 5; i < headers.length; i++) {
                       let nilaiMapel = nilaiRow[i];
-                      // KUNCI UTAMA: Hanya proses mapel yang ADA NILAINYA
                       if (nilaiMapel !== "" && nilaiMapel !== undefined && nilaiMapel !== null) {
                           let obj = { nama: headers[i], nilai: parseFloat(nilaiMapel) };
                           let upper = obj.nama.toUpperCase();
@@ -284,10 +273,7 @@ function previewRapor() {
                  }
             }
 
-            // =========================================================================================
-            // FUNGSI RENDER BARIS YANG MENANGANI KEKOSONGAN (PLACEHOLDER)
-            // =========================================================================================
-           function buildRow(no, item) {
+            function buildRow(no, item) {
                 let nama = item && item.nama ? item.nama : '';
                 let nilai = item && item.nilai !== '' && !isNaN(item.nilai) ? item.nilai : '';
                 
@@ -296,7 +282,6 @@ function previewRapor() {
                 let mArab = nama !== '' ? (kamusArab[nama.toUpperCase()] || nama) : '';
                 let numStr = nilai !== '' ? toArabicNumeral(nilai) : '';
 
-                // Sembunyikan Nomor Urut jika baris ini kosong
                 let dNo = nama !== '' ? no : '&nbsp;';
                 let dNoArab = nama !== '' ? toArabicNumeral(no) : '&nbsp;';
 
@@ -334,9 +319,6 @@ function previewRapor() {
                 </tr>`;
             }
 
-            // =========================================================================================
-            // LOOPING DIPAKSA STATIS (A:15 Baris, B:4 Baris, C:2 Baris)
-            // =========================================================================================
             buildHeader('A', 'Tertulis', 'أ', 'تحريري');
             for (let i = 0; i < 15; i++) { buildRow(i + 1, mapelTertulis[i]); }
 
@@ -568,23 +550,15 @@ function previewRapor() {
         }
 
        function exportRaporPDF() {
-            // Ambil data NIS dan Nama santri yang sedang dipilih
             const nis = document.getElementById('raporSantri').value;
             const info = GLOBAL_DATA_SANTRI.find(x => x.nis == nis);
-            
-            // Format nama agar rapi untuk nama file (spasi diganti garis bawah)
             const nama = info ? info.nama.replace(/\s+/g,"_") : "Santri";
 
-            // 1. Simpan judul halaman yang asli
             const judulAsli = document.title;
-
-            // 2. Ubah judul halaman menjadi format nama file yang kita inginkan
             document.title = `Rapor_${nama}_${nis}`;
 
-            // 3. Panggil fitur Print bawaan browser (otomatis pakai judul baru untuk nama file)
             window.print();
 
-            // 4. Kembalikan judul halaman seperti semula setelah jeda 1 detik
             setTimeout(() => {
                 document.title = judulAsli;
             }, 1000);
