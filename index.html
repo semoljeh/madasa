@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Madrasah Darussalam - Sistem Penilaian</title>
+	
+	<link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#065f46">
+    <link rel="apple-touch-icon" href="asset/logo-192.png">
+	
+	
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -29,6 +35,28 @@
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
+
+<!-- NOTIFIKASI INSTALL PWA KUSTOM (Pojok Kanan Atas) -->
+    <div id="pwaInstallPrompt" class="fixed top-4 right-4 z-[100] w-[calc(100%-2rem)] sm:w-80 bg-white/90 backdrop-blur-xl border border-emerald-100 shadow-2xl rounded-2xl p-4 transition-all duration-700 transform translate-x-[150%] opacity-0 flex items-start gap-4">
+        <!-- Tombol X (Close) -->
+        <button onclick="tutupNotifPWA()" class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all cursor-pointer">
+            <i class="fas fa-times text-sm"></i>
+        </button>
+        
+        <!-- Ikon -->
+        <div class="w-12 h-12 shrink-0 bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl shadow-inner border border-white">
+            <i class="fas fa-download"></i>
+        </div>
+        
+        <!-- Teks & Tombol Aksi -->
+        <div class="flex-1 pt-0.5">
+            <h4 class="font-heading font-bold text-gray-800 text-sm mb-1">Install Aplikasi</h4>
+            <p class="text-[11px] text-gray-500 leading-relaxed mb-3">Tambahkan Madasa ke layar utama HP Anda untuk akses lebih cepat & ringan.</p>
+            <button onclick="installPWA()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all transform hover:-translate-y-0.5">
+                Install Sekarang
+            </button>
+        </div>
+    </div>
 
     <!-- LOADING SCREEN -->
     <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-white/90 backdrop-blur-sm hidden">
@@ -1320,5 +1348,63 @@ function aktifkanFilterKedua() {
         prosesUploadDrive('upload_stempel', 'preview_stempel', 'teks_stempel', 'stempel');
 		
     </script>
+	
+	<!-- SCRIPT AKTIVASI & NOTIFIKASI PWA -->
+    <script>
+        // 1. Daftarkan Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('PWA aktif!'))
+                    .catch(err => console.log('PWA gagal: ', err));
+            });
+        }
+
+        // 2. Mesin Notifikasi Kustom
+        let deferredPrompt;
+        const installPrompt = document.getElementById('pwaInstallPrompt');
+
+        // Sensor ini otomatis menyala jika browser mendeteksi aplikasi belum diinstall
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Mencegah munculnya pop-up bawaan browser yang kurang bagus
+            e.preventDefault();
+            // Simpan event ke variabel untuk dieksekusi saat tombol diklik
+            deferredPrompt = e;
+            
+            // Tampilkan notifikasi kustom kita dengan animasi slide-in setelah jeda 1 detik
+            setTimeout(() => {
+                installPrompt.classList.remove('translate-x-[150%]', 'opacity-0');
+                installPrompt.classList.add('translate-x-0', 'opacity-100');
+            }, 1000);
+        });
+
+        // Fungsi ketika tombol X ditekan
+        function tutupNotifPWA() {
+            installPrompt.classList.remove('translate-x-0', 'opacity-100');
+            installPrompt.classList.add('translate-x-[150%]', 'opacity-0');
+        }
+
+        // Fungsi ketika tombol "Install Sekarang" ditekan
+        function installPWA() {
+            if (deferredPrompt) {
+                // Munculkan dialog instalasi asli dari sistem HP/Komputer
+                deferredPrompt.prompt();
+                
+                // Cek apakah pengguna menekan tombol "Ya, Install" atau "Batal"
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        tutupNotifPWA(); // Tutup notif kita jika berhasil
+                    }
+                    deferredPrompt = null; // Kosongkan mesin
+                });
+            }
+        }
+
+        // Otomatis hilangkan notif jika aplikasi ternyata sudah berhasil terinstall
+        window.addEventListener('appinstalled', (evt) => {
+            tutupNotifPWA();
+        });
+    </script>
+	
 </body>
 </html>
