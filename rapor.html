@@ -111,7 +111,7 @@
     </div>
 
     <script>
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzI0bHd62u6ercUlHgSWIzmP381b8smyQdbgehnrbLJvdvIDBSZlr1Gh1ThnKzgjZYZ/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwOfpgJovqpplG8tuq_hqkrmniSeuM7dK1UajlyOHYXF2HdvP9dFnFld5xbGRlcuL3m/exec';
         let GLOBAL_DATA_SANTRI = [];
 
         function showLoading(show) { document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none'; }
@@ -176,11 +176,24 @@
 
         function toArabicNumeral(str) { return str.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]); }
 
-        function previewRapor() {
+function previewRapor() {
             const kelas = document.getElementById('raporKelas').value;
             const nis = document.getElementById('raporSantri').value;
             if(!kelas || !nis) return Swal.fire('Perhatian', 'Pilih kelas dan nama santri terlebih dahulu.', 'warning');
 
+            // =========================================================
+            // 🚨 POLISI LALU LINTAS: CEK APAKAH INI KELAS TK?
+            // =========================================================
+            if (kelas.includes('TK')) {
+                // 1. Buka tab baru untuk Rapor TK
+                window.open('rapor_tpq.html?nis=' + nis, '_blank');
+                
+                // 2. STOP DI SINI! Jangan lanjutkan menggambar rapor Ibtidaiyah
+                return; 
+            }
+            // =========================================================
+
+            // JIKA BUKAN TK (IBTIDAIYAH/SANAWIYAH), LANJUTKAN PROSES DI BAWAH INI:
             showLoading(true);
             const fdNilai = new URLSearchParams(); fdNilai.append('action', 'getDataNilai'); fdNilai.append('kelas', kelas);
             const fdRank = new URLSearchParams(); fdRank.append('action', 'getRankingKelas'); fdRank.append('kelas', kelas);

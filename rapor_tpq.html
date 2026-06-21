@@ -20,42 +20,40 @@
         .no-border th, .no-border td { border: none !important; padding: 4px 0; }
         
         @media print {
-            /* Hapus kuncian 'size' agar menu dropdown pilihan kertas muncul kembali */
             @page { margin: 10mm; } 
-            
             body { background-color: #fff !important; margin: 0; padding: 0 !important; }
             .no-print { display: none !important; }
-            
-            /* Biarkan kertas mengikuti pilihan di browser dan atasi masalah 2 halaman */
-            #kertasRapor { 
-                box-shadow: none !important; 
-                margin: 0 auto !important; 
-                width: 100% !important; 
-                min-height: auto !important; 
-                padding: 0 !important; 
-            }
+            #kertasRapor { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; min-height: auto !important; padding: 0 !important; }
+        }
+
+        #loadingState {
+            position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 50; display: flex; flex-direction: column; justify-content: center; align-items: center; font-family: 'Inter', sans-serif;
         }
     </style>
 </head>
 <body class="p-8 text-gray-800">
 
-    <!-- Tombol Cetak -->
-    <div class="max-w-[210mm] mx-auto mb-6 text-right no-print">
+    <div id="loadingState">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600 mb-4"></div>
+        <h2 class="text-xl font-bold text-gray-800">Menarik Data Rapor...</h2>
+        <p class="text-gray-500">Mohon tunggu sebentar.</p>
+    </div>
+
+    <div class="max-w-[210mm] mx-auto mb-6 text-right no-print hidden" id="wadahTombolCetak">
         <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition-all">
-            <i class="fas fa-print mr-2"></i> Cetak Rapor TPQ
+            <i class="fas fa-print mr-2"></i> Cetak Rapor TK
         </button>
     </div>
 
-<!-- Kertas Rapor (Ukuran Kertas F4 Presisi) -->
-    <div id="kertasRapor" class="bg-white mx-auto shadow-2xl relative box-border" style="width: 215mm; min-height: 330mm; padding: 15mm 15mm;">
+    <div id="kertasRapor" class="bg-white mx-auto shadow-2xl relative box-border hidden" style="width: 215mm; min-height: 330mm; padding: 15mm 15mm;">
         
-       
-        <!-- KOP RAPOR -->
-        <div class="flex items-center justify-between pb-2 border-b-[3px] border-black mb-1">
+        <div class="flex items-center justify-between pb-2 border-b-[3px] border-black mb-1 relative">
+            <img id="val_stempel" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 opacity-20 hidden object-contain" alt="">
+            
             <div class="w-20 text-center">
-                <img src="asset/logo.png" alt="Logo TPQ" class="w-[70px] h-auto object-contain">
+                <div class="w-[70px] h-[70px] rounded-full border-2 border-emerald-800 flex items-center justify-center text-emerald-800 text-2xl font-bold bg-gray-50"><i class="fas fa-mosque"></i></div>
             </div>
-            <div class="flex-1 text-center">
+            <div class="flex-1 text-center relative z-10">
                 <h1 class="text-xl font-heading font-bold text-emerald-800 uppercase tracking-widest mb-1">TK RA</h1>
                 <h2 class="text-2xl font-black uppercase tracking-widest text-black mb-1">DARUSSALAM</h2>
                 <p class="text-[11px] font-medium text-gray-800">Batukessel Bandang Laok Kokop Bangkalan | Website: www.madasa.ponpes.id</p>
@@ -66,32 +64,30 @@
 
         <h3 class="text-center text-[14px] font-bold uppercase mb-6 tracking-widest underline underline-offset-4">PENCAPAIAN KOMPETENSI SANTRI</h3>
 
-        <!-- IDENTITAS SANTRI -->
         <div class="flex justify-between items-start mb-6 text-[12px] font-bold">
             <div class="w-[48%]">
                 <table class="w-full no-border">
-                    <tr><td class="w-28">Nama Santri</td><td class="w-3">:</td><td class="uppercase text-emerald-700">KA' MANSUR</td></tr>
-                    <tr><td>Nomor Induk / NIS</td><td>:</td><td>0012345</td></tr>
-                    <tr><td>Alamat</td><td>:</td><td>Ds. Bandang Laok</td></tr>
+                    <tr><td class="w-28">Nama Santri</td><td class="w-3">:</td><td id="val_nama" class="uppercase text-emerald-700">...</td></tr>
+                    <tr><td>Nomor Induk / NIS</td><td>:</td><td id="val_nis">...</td></tr>
+                    <tr><td>Alamat</td><td>:</td><td id="val_alamat">...</td></tr>
                 </table>
             </div>
             <div class="w-[48%]">
                 <table class="w-full no-border">
-                    <tr><td class="w-28">Kelas</td><td class="w-3">:</td><td>TK - II</td></tr>
-                    <tr><td>Semester</td><td>:</td><td>Genap (2)</td></tr>
-                    <tr><td>Tahun Pelajaran</td><td>:</td><td>2025/2026</td></tr>
+                    <tr><td class="w-28">Kelas</td><td class="w-3">:</td><td id="val_kelas">...</td></tr>
+                    <tr><td>Semester</td><td>:</td><td id="val_semester">...</td></tr>
+                    <tr><td>Tahun Pelajaran</td><td>:</td><td id="val_tahun">...</td></tr>
                 </table>
             </div>
         </div>
 
-        <!-- TABEL NILAI K13 -->
         <table class="w-full text-left text-[11px]" style="table-layout: fixed;">
             <colgroup>
-                <col style="width: 5%;">  <!-- No -->
-                <col style="width: 25%;"> <!-- Mapel -->
-                <col style="width: 10%;"> <!-- Nilai -->
-                <col style="width: 10%;"> <!-- Predikat -->
-                <col style="width: 50%;"> <!-- Deskripsi -->
+                <col style="width: 5%;">  
+                <col style="width: 25%;"> 
+                <col style="width: 10%;"> 
+                <col style="width: 10%;"> 
+                <col style="width: 50%;"> 
             </colgroup>
             <thead>
                 <tr class="bg-gray-100 font-bold text-center">
@@ -103,21 +99,20 @@
                 </tr>
             </thead>
             <tbody id="bodyTabelNilai">
-                <!-- Data digenerate oleh JavaScript -->
-            </tbody>
+                </tbody>
         </table>
 
-   <!-- TABEL ABSENSI & KEPRIBADIAN (Dibuat Bersebelahan agar Hemat Tempat) -->
-        <div class="flex justify-between items-stretch mt-6 text-[11px] w-full">
+       <div class="flex justify-between items-stretch mt-6 text-[11px] w-full">
             <div class="w-[48%]">
                 <table class="w-full h-full">
                     <thead>
                         <tr class="bg-gray-100 font-bold"><th colspan="2" class="text-center py-2">KEPRIBADIAN</th></tr>
                     </thead>
                     <tbody class="font-bold">
-                        <tr><td class="w-1/2 px-2 py-1.5">Akhlaq</td><td class="px-2 text-left w-1/2">Sangat Baik (A)</td></tr>
-                        <tr><td class="px-2 py-1.5">Kedisiplinan</td><td class="px-2 text-left">Baik (B)</td></tr>
-                        <tr><td class="px-2 py-1.5">Kerapihan</td><td class="px-2 text-left">Sangat Baik (A)</td></tr>
+                        <tr><td class="w-1/2 px-2 py-1.5">Akhlaq</td><td class="px-2 text-center w-1/2" id="val_akhlaq">...</td></tr>
+                        <tr><td class="px-2 py-1.5">Kerajinan</td><td class="px-2 text-center" id="val_rajin">...</td></tr>
+                        <tr><td class="px-2 py-1.5">Kedisiplinan</td><td class="px-2 text-center" id="val_disiplin">...</td></tr>
+                        <tr><td class="px-2 py-1.5">Kerapihan</td><td class="px-2 text-center" id="val_rapi">...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -127,57 +122,51 @@
                         <tr class="bg-gray-100 font-bold"><th colspan="2" class="text-center py-2">KETIDAKHADIRAN</th></tr>
                     </thead>
                     <tbody class="font-bold">
-                        <tr><td class="w-1/2 px-2 py-1.5">Sakit</td><td class="px-2 text-left w-1/2">1 Hari</td></tr>
-                        <tr><td class="px-2 py-1.5">Izin</td><td class="px-2 text-left">0 Hari</td></tr>
-                        <tr><td class="px-2 py-1.5">Tanpa Keterangan</td><td class="px-2 text-left">0 Hari</td></tr>
+                        <tr><td class="w-1/2 px-2 py-1.5">Sakit</td><td class="px-2 text-center w-1/2"><span id="val_sakit">...</span> Hari</td></tr>
+                        <tr><td class="px-2 py-1.5">Izin</td><td class="px-2 text-center"><span id="val_izin">...</span> Hari</td></tr>
+                        <tr><td class="px-2 py-1.5">Tanpa Keterangan</td><td class="px-2 text-center"><span id="val_alpa">...</span> Hari</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- CATATAN & KEPUTUSAN -->
         <table class="w-full mt-6 text-[11px] font-bold">
             <tr>
-                <td class="w-[15%] bg-gray-100 text-center py-3">Catatan</td>
-                <td class="py-3 px-4 italic text-gray-700">"Alhamdulillah, perkembangan ananda sangat pesat semester ini. Terus rajin muroja'ah hafalan di rumah ya!"</td>
+                <td class="w-[15%] bg-gray-100 text-center py-3">Catatan Wali Kelas</td>
+                <td class="py-3 px-4 italic text-gray-700" id="val_catatan">...</td>
             </tr>
             <tr>
                 <td class="bg-gray-100 text-center py-3">Keputusan</td>
-                <td class="py-3 px-4 text-emerald-700 uppercase">Dinyatakan Naik ke Kelas  TK III</td>
+                <td class="py-3 px-4 text-emerald-700 uppercase" id="val_keputusan">...</td>
             </tr>
         </table>
 
-        <!-- TANDA TANGAN -->
-        <div class="flex justify-between text-center font-bold text-black mt-8 text-[12px]">
+       <div class="flex justify-between text-center font-bold text-black mt-8 text-[12px] relative z-10">
             <div class="w-1/3 flex flex-col justify-between items-center" style="height: 100px;">
                 <div><p>Mengetahui,</p><p>Orang Tua / Wali</p></div>
                 <div class="border-b border-black w-[150px]"></div>
             </div>
-            <div class="w-1/3 flex flex-col justify-between items-center" style="height: 100px;">
+            <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 100px;">
+                <img id="img_wali" class="absolute top-2 w-24 h-24 object-contain mix-blend-multiply hidden" alt="">
                 <div><p>&nbsp;</p><p>Wali Kelas</p></div>
-                <div class="border-b border-black w-[150px]">Ka'Upron</div>
+                <div class="border-b border-black w-[150px] relative z-10" id="val_wali">...</div>
             </div>
-            <div class="w-1/3 flex flex-col justify-between items-center" style="height: 100px;">
-                <div><p>Bangkalan, 20 Juni 2026</p><p>Kepala TK RA Darussalam</p></div>
-                <div class="border-b border-black w-[150px]">BDR. ASRORI HM</div>
+            <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 100px;">
+                <img id="img_kepala" class="absolute top-2 w-24 h-24 object-contain mix-blend-multiply hidden" alt="">
+                <div><p id="val_tanggal">Bangkalan, ...</p><p>Kepala Madrasah</p></div>
+                <div class="border-b border-black w-[150px] relative z-10" id="val_kepala">...</div>
             </div>
         </div>
 
     </div>
 
 <script>
-        // Data 7 Mapel Contoh & Nilai Dummy yang diinput Guru
-        const dataNilaiTPQ = [
-            { mapel: "Membaca Al-Qur'an / Iqro'", nilai: 92 },
-            { mapel: "Hafalan Surat Pendek", nilai: 85 },
-            { mapel: "Hafalan Doa Sehari-hari", nilai: 88 },
-            { mapel: "Praktek Wudhu & Sholat", nilai: 95 },
-            { mapel: "Aqidah & Akhlaq", nilai: 80 },
-            { mapel: "Sejarah Nabi (Kisah Islami)", nilai: 75 },
-            { mapel: "Menulis Huruf Hijaiyah", nilai: 65 }
-        ];
+        // PASTIKAN LINK INI SAMA DENGAN YANG ADA DI INDEX.HTML DAN RAPOR.HTML
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwOfpgJovqpplG8tuq_hqkrmniSeuM7dK1UajlyOHYXF2HdvP9dFnFld5xbGRlcuL3m/exec';
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const nisSantri = urlParams.get('nis');
 
-        // Fungsi mengubah angka menjadi huruf (Terbilang)
         function terbilang(angka) {
             angka = Math.round(angka); 
             const bilangan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
@@ -191,84 +180,153 @@
             return angka.toString();
         }
 
-        // Mesin Otomatis K13 (Menentukan Predikat & Deskripsi)
+        function konversiHuruf(predikatHuruf) {
+            if (!predikatHuruf) return '-';
+            let p = predikatHuruf.toString().toUpperCase().trim(); 
+            
+            if(p === 'A') return 'Sangat Baik (A)';
+            if(p === 'B') return 'Baik (B)';
+            if(p === 'C') return 'Cukup (C)';
+            if(p === 'D') return 'Kurang (D)';
+            return predikatHuruf; 
+        }
+
         function generateK13Logic(mapel, angka) {
-            let predikat = "";
-            let deskripsi = "";
-
-            if (angka >= 90) {
-                predikat = "A";
-                deskripsi = `Sangat baik dan menguasai materi <b>${mapel}</b>. Mampu mempraktekkan dengan sempurna tanpa bimbingan.`;
-            } else if (angka >= 80) {
-                predikat = "B";
-                deskripsi = `Baik dalam memahami materi <b>${mapel}</b>. Pertahankan semangat belajar dan tingkatkan lagi di rumah.`;
-            } else if (angka >= 70) {
-                predikat = "C";
-                deskripsi = `Cukup mampu mengikuti materi <b>${mapel}</b>. Masih membutuhkan sedikit bimbingan dan pembiasaan.`;
-            } else {
-                predikat = "D";
-                deskripsi = `Masih kesulitan dalam materi <b>${mapel}</b>. Perlu pendampingan khusus dan lebih sering berlatih.`;
-            }
-
+            let predikat = ""; let deskripsi = "";
+            if (angka >= 90) { predikat = "A"; deskripsi = `Sangat baik dan menguasai materi <b>${mapel}</b>. Mampu mempraktekkan dengan sempurna tanpa bimbingan.`; } 
+            else if (angka >= 80) { predikat = "B"; deskripsi = `Baik dalam memahami materi <b>${mapel}</b>. Pertahankan semangat belajar dan tingkatkan lagi di rumah.`; } 
+            else if (angka >= 70) { predikat = "C"; deskripsi = `Cukup mampu mengikuti materi <b>${mapel}</b>. Masih membutuhkan sedikit bimbingan dan pembiasaan.`; } 
+            else { predikat = "D"; deskripsi = `Masih kesulitan dalam materi <b>${mapel}</b>. Perlu pendampingan khusus dan lebih sering berlatih.`; }
             return { predikat, deskripsi };
         }
 
-        // Render Data ke Tabel
-        const tbody = document.getElementById('bodyTabelNilai');
-        let totalNilai = 0; // Variabel untuk menyimpan total nilai
+       async function muatDataRapor() {
+            if(!nisSantri) {
+                document.getElementById('loadingState').innerHTML = '<div class="text-red-500 text-5xl mb-4"><i class="fas fa-exclamation-triangle"></i></div><h2 class="text-xl font-bold">Data Tidak Ditemukan!</h2><p class="text-gray-600 mt-2">Buka rapor ini dengan menekan tombol Cetak Rapor di dalam Dashboard Aplikasi.</p>';
+                return;
+            }
 
-        dataNilaiTPQ.forEach((item, index) => {
-            const k13 = generateK13Logic(item.mapel, item.nilai);
-            
-            // Tambahkan nilai ke total
-            totalNilai += parseFloat(item.nilai);
-            
-            // Pewarnaan Predikat untuk visualisasi
-            let warnaPredikat = "";
-            if(k13.predikat === 'A') warnaPredikat = "text-emerald-600";
-            else if(k13.predikat === 'B') warnaPredikat = "text-blue-600";
-            else if(k13.predikat === 'C') warnaPredikat = "text-orange-500";
-            else warnaPredikat = "text-red-600";
+            try {
+                const formData = new URLSearchParams();
+                formData.append('action', 'getRaporTK');
+                formData.append('nis', nisSantri);
 
+                const response = await fetch(GAS_URL, { method: 'POST', body: formData });
+                const dataRes = await response.json();
+
+                if(dataRes.status === 'success') {
+                    let peringkatKelas = "-";
+                    try {
+                        const fdRank = new URLSearchParams();
+                        fdRank.append('action', 'getRankingKelas');
+                        fdRank.append('kelas', dataRes.biodata.kelas);
+                        const resRank = await fetch(GAS_URL, { method: 'POST', body: fdRank });
+                        const dataRank = await resRank.json();
+                        
+                        if(dataRank.status === 'success') {
+                            const cariRank = dataRank.data.find(s => s.nis.toString() === nisSantri.toString());
+                            if(cariRank) peringkatKelas = cariRank.rank;
+                        }
+                    } catch(e) { console.log("Gagal menarik data ranking"); }
+
+                    renderRapor(dataRes, peringkatKelas);
+                    
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('kertasRapor').classList.remove('hidden');
+                    document.getElementById('wadahTombolCetak').classList.remove('hidden');
+                } else {
+                    alert("Gagal memuat: " + dataRes.message);
+                }
+            } catch (error) {
+                alert("Koneksi gagal.");
+            }
+        }
+
+        function renderRapor(d, peringkat) {
+            document.getElementById('val_nama').innerText = d.biodata.nama;
+            document.getElementById('val_nis').innerText = d.biodata.nis;
+            document.getElementById('val_alamat').innerText = d.biodata.alamat;
+            document.getElementById('val_kelas').innerText = d.biodata.kelas;
+
+            document.getElementById('val_semester').innerText = d.pengaturan.semester;
+            document.getElementById('val_tahun').innerText = d.pengaturan.tahun;
+            document.getElementById('val_tanggal').innerText = d.pengaturan.tanggal;
+            document.getElementById('val_wali').innerText = d.pengaturan.wali;
+            document.getElementById('val_kepala').innerText = d.pengaturan.kepala;
+
+            function pasangGambar(idElemen, urlGambar) {
+                const imgEl = document.getElementById(idElemen);
+                if (urlGambar && urlGambar.trim() !== '' && urlGambar.includes('http')) {
+                    imgEl.src = urlGambar; imgEl.classList.remove('hidden');
+                    imgEl.onerror = function() { this.classList.add('hidden'); };
+                } else { imgEl.classList.add('hidden'); }
+            }
+
+            pasangGambar('val_stempel', d.pengaturan.url_stempel);
+            pasangGambar('img_wali', d.pengaturan.url_wali);
+            pasangGambar('img_kepala', d.pengaturan.url_kepala);
+
+            document.getElementById('val_akhlaq').innerText = konversiHuruf(d.detail.akhlaq);
+            document.getElementById('val_rajin').innerText = konversiHuruf(d.detail.kerajinan);
+            document.getElementById('val_disiplin').innerText = konversiHuruf(d.detail.disiplin);
+            document.getElementById('val_rapi').innerText = konversiHuruf(d.detail.rapi);
+            
+            document.getElementById('val_sakit').innerText = d.detail.sakit;
+            document.getElementById('val_izin').innerText = d.detail.izin;
+            document.getElementById('val_alpa').innerText = d.detail.alpa;
+            
+            let teksCatatan = (d.detail.catatan || '').trim();
+            if (teksCatatan === '-' || teksCatatan === '') { document.getElementById('val_catatan').innerText = '-'; } 
+            else { document.getElementById('val_catatan').innerText = `"${teksCatatan}"`; }
+            document.getElementById('val_keputusan').innerText = d.detail.keputusan;
+
+            const tbody = document.getElementById('bodyTabelNilai');
+            tbody.innerHTML = '';
+            let totalNilai = 0;
+
+            if(d.nilai.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 italic text-red-500">Belum ada nilai yang diinput oleh Guru Wali Kelas.</td></tr>';
+                return;
+            }
+
+            d.nilai.forEach((item, index) => {
+                const k13 = generateK13Logic(item.mapel, item.nilai);
+                totalNilai += parseFloat(item.nilai);
+                let warnaPredikat = k13.predikat === 'A' ? "text-emerald-600" : k13.predikat === 'B' ? "text-blue-600" : k13.predikat === 'C' ? "text-orange-500" : "text-red-600";
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="text-center font-bold">${index + 1}</td>
+                        <td class="font-bold text-gray-800 px-2 py-3">${item.mapel}</td>
+                        <td class="text-center font-bold text-[13px]">${item.nilai}</td>
+                        <td class="text-center font-black text-[14px] ${warnaPredikat}">${k13.predikat}</td>
+                        <td class="text-justify px-2 leading-relaxed text-[10px]">${k13.deskripsi}</td>
+                    </tr>
+                `;
+            });
+
+            let rataRata = (totalNilai / d.nilai.length).toFixed(1);
+            
             tbody.innerHTML += `
-                <tr>
-                    <td class="text-center font-bold">${index + 1}</td>
-                    <td class="font-bold text-gray-800 px-2 py-3">${item.mapel}</td>
-                    <td class="text-center font-bold text-[13px]">${item.nilai}</td>
-                    <td class="text-center font-black text-[14px] ${warnaPredikat}">${k13.predikat}</td>
-                    <td class="text-justify px-2 leading-relaxed text-[10px]">${k13.deskripsi}</td>
+                <tr class="font-bold border-t-[2px] border-black">
+                    <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Jumlah Nilai</td>
+                    <td class="text-center text-[13px] text-emerald-800">${totalNilai}</td>
+                    <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">${terbilang(totalNilai)}</td>
+                </tr>
+                <tr class="font-bold border-t border-gray-300">
+                    <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Rata-Rata</td>
+                    <td class="text-center text-[13px] text-blue-700">${rataRata}</td>
+                    <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">${terbilang(rataRata)}</td>
+                </tr>
+                <tr class="font-bold border-t border-black border-b-[2px]">
+                    <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Peringkat Kelas</td>
+                    <td class="text-center text-[14px] text-purple-700">${peringkat}</td>
+                    <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">Dari seluruh santri di kelas ini</td>
                 </tr>
             `;
-        });
+        }
 
-        // Hitung Rata-rata & Tentukan Ranking (Dummy sementara)
-        let rataRata = (totalNilai / dataNilaiTPQ.length).toFixed(1);
-        let rankingKelas = 1; // Nanti ini ditarik dari database/Google Sheets
-
-        // Tambahkan baris Jumlah, Rata-rata, dan Ranking di bawah tabel
-        tbody.innerHTML += `
-            <tr class="font-bold border-t-[2px] border-black">
-                <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Jumlah Nilai</td>
-                <td class="text-center text-[13px] text-emerald-800">${totalNilai}</td>
-                <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">
-                    ${terbilang(totalNilai)}
-                </td>
-            </tr>
-            <tr class="font-bold">
-                <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Rata-Rata</td>
-                <td class="text-center text-[13px] text-blue-700">${rataRata}</td>
-                <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">
-                    ${terbilang(rataRata)}
-                </td>
-            </tr>
-            <tr class="font-bold border-b-[2px] border-black">
-                <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Peringkat Kelas</td>
-                <td class="text-center text-[13px] text-orange-600">${rankingKelas}</td>
-                <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">
-                    ${terbilang(rankingKelas)}
-                </td>
-            </tr>
-        `;
-    </script>
+        window.onload = muatDataRapor;
+</script>
 </body>
 </html>
