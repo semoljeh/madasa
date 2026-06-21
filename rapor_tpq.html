@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cetak Rapor TPQ (K13)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = { theme: { extend: { colors: { emerald: { 600: '#059669', 700: '#047857' } }, fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] } } } }
+    </script>
+    
+<style>
+        body { background-color: #f3f4f6; -webkit-font-smoothing: antialiased; }
+        *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+        table { border-collapse: collapse; width: 100%; }
+        table th, table td { border: 1.5px solid #000; padding: 8px; }
+        .no-border th, .no-border td { border: none !important; padding: 4px 0; }
+        
+        @media print {
+            /* Hapus kuncian 'size' agar menu dropdown pilihan kertas muncul kembali */
+            @page { margin: 10mm; } 
+            
+            body { background-color: #fff !important; margin: 0; padding: 0 !important; }
+            .no-print { display: none !important; }
+            
+            /* Biarkan kertas mengikuti pilihan di browser dan atasi masalah 2 halaman */
+            #kertasRapor { 
+                box-shadow: none !important; 
+                margin: 0 auto !important; 
+                width: 100% !important; 
+                min-height: auto !important; 
+                padding: 0 !important; 
+            }
+        }
+    </style>
+</head>
+<body class="p-8 text-gray-800">
+
+    <!-- Tombol Cetak -->
+    <div class="max-w-[210mm] mx-auto mb-6 text-right no-print">
+        <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold shadow-md transition-all">
+            <i class="fas fa-print mr-2"></i> Cetak Rapor TPQ
+        </button>
+    </div>
+
+<!-- Kertas Rapor (Ukuran Kertas F4 Presisi) -->
+    <div id="kertasRapor" class="bg-white mx-auto shadow-2xl relative box-border" style="width: 215mm; min-height: 330mm; padding: 15mm 15mm;">
+        
+       
+        <!-- KOP RAPOR -->
+        <div class="flex items-center justify-between pb-2 border-b-[3px] border-black mb-1">
+            <div class="w-20 text-center">
+                <img src="asset/logo.png" alt="Logo TPQ" class="w-[70px] h-auto object-contain">
+            </div>
+            <div class="flex-1 text-center">
+                <h1 class="text-xl font-heading font-bold text-emerald-800 uppercase tracking-widest mb-1">TK RA</h1>
+                <h2 class="text-2xl font-black uppercase tracking-widest text-black mb-1">DARUSSALAM</h2>
+                <p class="text-[11px] font-medium text-gray-800">Batukessel Bandang Laok Kokop Bangkalan | Website: www.madasa.ponpes.id</p>
+            </div>
+            <div class="w-20"></div>
+        </div>
+        <div class="w-full border-b border-black mb-6 mt-[2px]"></div>
+
+        <h3 class="text-center text-[14px] font-bold uppercase mb-6 tracking-widest underline underline-offset-4">PENCAPAIAN KOMPETENSI SANTRI</h3>
+
+        <!-- IDENTITAS SANTRI -->
+        <div class="flex justify-between items-start mb-6 text-[12px] font-bold">
+            <div class="w-[48%]">
+                <table class="w-full no-border">
+                    <tr><td class="w-28">Nama Santri</td><td class="w-3">:</td><td class="uppercase text-emerald-700">KA' MANSUR</td></tr>
+                    <tr><td>Nomor Induk / NIS</td><td>:</td><td>0012345</td></tr>
+                    <tr><td>Alamat</td><td>:</td><td>Ds. Bandang Laok</td></tr>
+                </table>
+            </div>
+            <div class="w-[48%]">
+                <table class="w-full no-border">
+                    <tr><td class="w-28">Kelas</td><td class="w-3">:</td><td>TK - II</td></tr>
+                    <tr><td>Semester</td><td>:</td><td>Genap (2)</td></tr>
+                    <tr><td>Tahun Pelajaran</td><td>:</td><td>2025/2026</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- TABEL NILAI K13 -->
+        <table class="w-full text-left text-[11px]" style="table-layout: fixed;">
+            <colgroup>
+                <col style="width: 5%;">  <!-- No -->
+                <col style="width: 25%;"> <!-- Mapel -->
+                <col style="width: 10%;"> <!-- Nilai -->
+                <col style="width: 10%;"> <!-- Predikat -->
+                <col style="width: 50%;"> <!-- Deskripsi -->
+            </colgroup>
+            <thead>
+                <tr class="bg-gray-100 font-bold text-center">
+                    <th class="py-2">No</th>
+                    <th class="py-2">Mata Pelajaran</th>
+                    <th class="py-2">Nilai<br>Angka</th>
+                    <th class="py-2">Predikat</th>
+                    <th class="py-2">Deskripsi Kemampuan Santri</th>
+                </tr>
+            </thead>
+            <tbody id="bodyTabelNilai">
+                <!-- Data digenerate oleh JavaScript -->
+            </tbody>
+        </table>
+
+   <!-- TABEL ABSENSI & KEPRIBADIAN (Dibuat Bersebelahan agar Hemat Tempat) -->
+        <div class="flex justify-between items-stretch mt-6 text-[11px] w-full">
+            <div class="w-[48%]">
+                <table class="w-full h-full">
+                    <thead>
+                        <tr class="bg-gray-100 font-bold"><th colspan="2" class="text-center py-2">KEPRIBADIAN</th></tr>
+                    </thead>
+                    <tbody class="font-bold">
+                        <tr><td class="w-1/2 px-2 py-1.5">Akhlaq</td><td class="px-2 text-left w-1/2">Sangat Baik (A)</td></tr>
+                        <tr><td class="px-2 py-1.5">Kedisiplinan</td><td class="px-2 text-left">Baik (B)</td></tr>
+                        <tr><td class="px-2 py-1.5">Kerapihan</td><td class="px-2 text-left">Sangat Baik (A)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="w-[48%]">
+                <table class="w-full h-full">
+                    <thead>
+                        <tr class="bg-gray-100 font-bold"><th colspan="2" class="text-center py-2">KETIDAKHADIRAN</th></tr>
+                    </thead>
+                    <tbody class="font-bold">
+                        <tr><td class="w-1/2 px-2 py-1.5">Sakit</td><td class="px-2 text-left w-1/2">1 Hari</td></tr>
+                        <tr><td class="px-2 py-1.5">Izin</td><td class="px-2 text-left">0 Hari</td></tr>
+                        <tr><td class="px-2 py-1.5">Tanpa Keterangan</td><td class="px-2 text-left">0 Hari</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CATATAN & KEPUTUSAN -->
+        <table class="w-full mt-6 text-[11px] font-bold">
+            <tr>
+                <td class="w-[15%] bg-gray-100 text-center py-3">Catatan</td>
+                <td class="py-3 px-4 italic text-gray-700">"Alhamdulillah, perkembangan ananda sangat pesat semester ini. Terus rajin muroja'ah hafalan di rumah ya!"</td>
+            </tr>
+            <tr>
+                <td class="bg-gray-100 text-center py-3">Keputusan</td>
+                <td class="py-3 px-4 text-emerald-700 uppercase">Dinyatakan Naik ke Kelas  TK III</td>
+            </tr>
+        </table>
+
+        <!-- TANDA TANGAN -->
+        <div class="flex justify-between text-center font-bold text-black mt-8 text-[12px]">
+            <div class="w-1/3 flex flex-col justify-between items-center" style="height: 100px;">
+                <div><p>Mengetahui,</p><p>Orang Tua / Wali</p></div>
+                <div class="border-b border-black w-[150px]"></div>
+            </div>
+            <div class="w-1/3 flex flex-col justify-between items-center" style="height: 100px;">
+                <div><p>&nbsp;</p><p>Wali Kelas</p></div>
+                <div class="border-b border-black w-[150px]">Ka'Upron</div>
+            </div>
+            <div class="w-1/3 flex flex-col justify-between items-center" style="height: 100px;">
+                <div><p>Bangkalan, 20 Juni 2026</p><p>Kepala TK RA Darussalam</p></div>
+                <div class="border-b border-black w-[150px]">BDR. ASRORI HM</div>
+            </div>
+        </div>
+
+    </div>
+
+<script>
+        // Data 7 Mapel Contoh & Nilai Dummy yang diinput Guru
+        const dataNilaiTPQ = [
+            { mapel: "Membaca Al-Qur'an / Iqro'", nilai: 92 },
+            { mapel: "Hafalan Surat Pendek", nilai: 85 },
+            { mapel: "Hafalan Doa Sehari-hari", nilai: 88 },
+            { mapel: "Praktek Wudhu & Sholat", nilai: 95 },
+            { mapel: "Aqidah & Akhlaq", nilai: 80 },
+            { mapel: "Sejarah Nabi (Kisah Islami)", nilai: 75 },
+            { mapel: "Menulis Huruf Hijaiyah", nilai: 65 }
+        ];
+
+        // Fungsi mengubah angka menjadi huruf (Terbilang)
+        function terbilang(angka) {
+            angka = Math.round(angka); 
+            const bilangan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+            if (angka === 0) return "Nol"; 
+            if (angka < 12) return bilangan[angka]; 
+            if (angka < 20) return terbilang(angka - 10) + " Belas";
+            if (angka < 100) return terbilang(Math.floor(angka / 10)) + " Puluh " + (angka % 10 > 0 ? " " + terbilang(angka % 10) : "");
+            if (angka === 100) return "Seratus";
+            if (angka > 100 && angka < 1000) return terbilang(Math.floor(angka / 100)) + " Ratus " + (angka % 100 > 0 ? terbilang(angka % 100) : "");
+            if (angka >= 1000 && angka < 1000000) return terbilang(Math.floor(angka / 1000)) + " Ribu " + (angka % 1000 > 0 ? terbilang(angka % 1000) : "");
+            return angka.toString();
+        }
+
+        // Mesin Otomatis K13 (Menentukan Predikat & Deskripsi)
+        function generateK13Logic(mapel, angka) {
+            let predikat = "";
+            let deskripsi = "";
+
+            if (angka >= 90) {
+                predikat = "A";
+                deskripsi = `Sangat baik dan menguasai materi <b>${mapel}</b>. Mampu mempraktekkan dengan sempurna tanpa bimbingan.`;
+            } else if (angka >= 80) {
+                predikat = "B";
+                deskripsi = `Baik dalam memahami materi <b>${mapel}</b>. Pertahankan semangat belajar dan tingkatkan lagi di rumah.`;
+            } else if (angka >= 70) {
+                predikat = "C";
+                deskripsi = `Cukup mampu mengikuti materi <b>${mapel}</b>. Masih membutuhkan sedikit bimbingan dan pembiasaan.`;
+            } else {
+                predikat = "D";
+                deskripsi = `Masih kesulitan dalam materi <b>${mapel}</b>. Perlu pendampingan khusus dan lebih sering berlatih.`;
+            }
+
+            return { predikat, deskripsi };
+        }
+
+        // Render Data ke Tabel
+        const tbody = document.getElementById('bodyTabelNilai');
+        let totalNilai = 0; // Variabel untuk menyimpan total nilai
+
+        dataNilaiTPQ.forEach((item, index) => {
+            const k13 = generateK13Logic(item.mapel, item.nilai);
+            
+            // Tambahkan nilai ke total
+            totalNilai += parseFloat(item.nilai);
+            
+            // Pewarnaan Predikat untuk visualisasi
+            let warnaPredikat = "";
+            if(k13.predikat === 'A') warnaPredikat = "text-emerald-600";
+            else if(k13.predikat === 'B') warnaPredikat = "text-blue-600";
+            else if(k13.predikat === 'C') warnaPredikat = "text-orange-500";
+            else warnaPredikat = "text-red-600";
+
+            tbody.innerHTML += `
+                <tr>
+                    <td class="text-center font-bold">${index + 1}</td>
+                    <td class="font-bold text-gray-800 px-2 py-3">${item.mapel}</td>
+                    <td class="text-center font-bold text-[13px]">${item.nilai}</td>
+                    <td class="text-center font-black text-[14px] ${warnaPredikat}">${k13.predikat}</td>
+                    <td class="text-justify px-2 leading-relaxed text-[10px]">${k13.deskripsi}</td>
+                </tr>
+            `;
+        });
+
+        // Hitung Rata-rata & Tentukan Ranking (Dummy sementara)
+        let rataRata = (totalNilai / dataNilaiTPQ.length).toFixed(1);
+        let rankingKelas = 1; // Nanti ini ditarik dari database/Google Sheets
+
+        // Tambahkan baris Jumlah, Rata-rata, dan Ranking di bawah tabel
+        tbody.innerHTML += `
+            <tr class="font-bold border-t-[2px] border-black">
+                <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Jumlah Nilai</td>
+                <td class="text-center text-[13px] text-emerald-800">${totalNilai}</td>
+                <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">
+                    ${terbilang(totalNilai)}
+                </td>
+            </tr>
+            <tr class="font-bold">
+                <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Rata-Rata</td>
+                <td class="text-center text-[13px] text-blue-700">${rataRata}</td>
+                <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">
+                    ${terbilang(rataRata)}
+                </td>
+            </tr>
+            <tr class="font-bold border-b-[2px] border-black">
+                <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Peringkat Kelas</td>
+                <td class="text-center text-[13px] text-orange-600">${rankingKelas}</td>
+                <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">
+                    ${terbilang(rankingKelas)}
+                </td>
+            </tr>
+        `;
+    </script>
+</body>
+</html>
