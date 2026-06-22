@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Madrasah Darussalam - Sistem Penilaian</title>
+	
+	<!-- META SEO & SOCIAL MEDIA SHARE (WhatsApp, FB, Telegram) -->
+    <meta name="description" content="Sistem Informasi Penilaian Santri Digital Madrasah Darussalam. Memudahkan dewan guru dalam mengelola data induk, input nilai, ranking, hingga cetak rapor santri secara real-time.">
+    
+    <!-- Open Graph (Facebook & WhatsApp) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Madrasah Darussalam - Sistem Penilaian">
+    <meta property="og:description" content="Sistem Informasi Penilaian Santri Digital Madrasah Darussalam. Memudahkan dewan guru dalam mengelola data induk, input nilai, ranking, hingga cetak rapor santri secara real-time.">
+    <meta property="og:image" content="asset/logoweb.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Madrasah Darussalam - Sistem Penilaian">
+    <meta name="twitter:description" content="Sistem Informasi Penilaian Santri Digital Madrasah Darussalam. Memudahkan dewan guru dalam mengelola data induk, input nilai, ranking, hingga cetak rapor santri secara real-time.">
+    <meta name="twitter:image" content="asset/logoweb.png">
     
     <!-- PENGATURAN PWA -->
     <link rel="manifest" href="manifest.json">
@@ -166,7 +181,14 @@
                                 <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 hover:text-teal-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
                                 <div><h3 class="text-lg sm:text-xl font-heading font-bold text-gray-800">Data Induk Santri</h3><p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Manajemen biodata seluruh santri aktif</p></div>
                             </div>
-                            <button onclick="openModalSantri()" class="admin-only w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-user-plus"></i> Tambah Santri</button>
+                            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+    <button onclick="cetakDataSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
+        <i class="fas fa-print"></i> Cetak / Print
+    </button>
+    <button onclick="openModalSantri()" class="admin-only w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
+        <i class="fas fa-user-plus"></i> Tambah Santri
+    </button>
+</div>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-5 sm:mb-6">
                             <div class="relative flex-1">
@@ -291,9 +313,9 @@
                                 <button onclick="loadDataNilaiKelas()" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2">
                                     <i class="fas fa-search"></i> Tampilkan Laporan
                                 </button>
-                                <button onclick="exportDataNilaiPDF()" class="w-full sm:w-auto px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2">
-                                    <i class="fas fa-file-pdf"></i> Export PDF
-                                </button>
+                                <button onclick="cetakDataNilai()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2">
+    <i class="fas fa-print"></i> Cetak / Print
+</button>
                             </div>
                         </div>
                         <div class="overflow-x-auto rounded-xl border border-gray-200 w-full shadow-sm">
@@ -1282,23 +1304,292 @@
             html2pdf().set(opt).from(pdfContainer).save().then(() => { showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'Laporan Bintang Pelajar berhasil diunduh!', timer: 2000, showConfirmButton: false }); }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }); }); 
         }
 
-        function exportDataNilaiPDF() { 
-            const kelas = document.getElementById('filterKelasDataNilai').value; 
-            if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan laporan data nilai terlebih dahulu.' }); 
-            const elemenTabel = document.getElementById('tabelDataNilai'); const teksTabel = document.getElementById('bodyDataNilai').innerText; 
-            if (teksTabel.includes('Silakan pilih kelas') || teksTabel.includes('Belum ada data')) { return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data nilai yang bisa diexport.' }); } 
-            showLoading(true); 
-            const pdfContainer = document.createElement('div'); pdfContainer.style.padding = '20px'; pdfContainer.style.backgroundColor = 'white'; 
-            pdfContainer.innerHTML = ` <div style="text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 15px; margin-bottom: 25px;"> <h2 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #1e3a8a; margin: 0; text-transform: uppercase;">Madrasah Darussalam</h2> <p style="font-family: 'Inter', sans-serif; margin: 5px 0 0 0; color: #475569; font-size: 14px; font-weight: 500;">Laporan Rekapitulasi Nilai Santri - Kelas: <span style="color: #2563eb; font-weight: bold;">${kelas}</span></p> </div> `; 
-            const tabelClone = elemenTabel.cloneNode(true); tabelClone.classList.remove('min-w-max'); tabelClone.style.width = '100%'; tabelClone.style.fontSize = '11px'; 
-            const headerRow = tabelClone.querySelector('thead tr'); if (headerRow && headerRow.lastElementChild.innerText.includes('AKSI')) headerRow.removeChild(headerRow.lastElementChild); 
-            const bodyRows = tabelClone.querySelectorAll('tbody tr'); bodyRows.forEach(tr => { if (tr.lastElementChild) tr.removeChild(tr.lastElementChild); }); 
-            pdfContainer.appendChild(tabelClone); 
-            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); 
-            pdfContainer.innerHTML += ` <div style="margin-top: 30px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; color: #64748b; font-size: 11px; font-style: italic; font-family: 'Inter', sans-serif;"> <p style="margin: 0;">Dokumen ini diterbitkan dan dicetak secara otomatis melalui Sistem Informasi Penilaian Santri - Madrasah Darussalam.</p> <p style="margin: 4px 0 0 0;">Dicetak pada: <b>${tanggalCetak}</b></p> </div> `; 
-            const opt = { margin: [0.3, 0.3, 0.4, 0.3], filename: `Rekap_Nilai_${kelas.replace(/\s+/g, '_')}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } }; 
-            html2pdf().set(opt).from(pdfContainer).save().then(() => { showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'File PDF Rekap Nilai berhasil diunduh!', timer: 2000, showConfirmButton: false }); }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan saat memproses PDF.' }); }); 
+       function cetakDataNilai() {
+            const kelas = document.getElementById('filterKelasDataNilai').value;
+            if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan laporan data nilai terlebih dahulu.' });
+            
+            const elemenTabel = document.getElementById('tabelDataNilai');
+            const teksTabel = document.getElementById('bodyDataNilai').innerText;
+            if (teksTabel.includes('Silakan pilih kelas') || teksTabel.includes('Belum ada data')) {
+                return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data nilai yang bisa dicetak.' });
+            }
+            
+            // Kloning (copy) tabel agar tampilan asli di layar tidak rusak
+            const tabelClone = elemenTabel.cloneNode(true);
+            
+            // Bersihkan semua class CSS Tailwind agar tabel murni diatur oleh CSS Print
+            tabelClone.removeAttribute('class');
+            tabelClone.querySelectorAll('th, td, tr, thead, tbody').forEach(el => el.removeAttribute('class'));
+            
+            // Hapus kolom AKSI (kolom paling kanan) dari header
+            const headerRow = tabelClone.querySelector('thead tr');
+            if (headerRow && headerRow.lastElementChild) headerRow.removeChild(headerRow.lastElementChild);
+            
+            // Hapus tombol AKSI dari isi datanya
+            const bodyRows = tabelClone.querySelectorAll('tbody tr');
+            bodyRows.forEach(tr => { if (tr.lastElementChild) tr.removeChild(tr.lastElementChild); });
+            
+            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            // Buka Jendela/Tab Baru khusus untuk mode Print
+            const printWindow = window.open('', '_blank');
+            
+            // Peringatan jika Pop-up diblokir oleh browser
+            if (!printWindow) {
+                return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser Anda memblokir tab baru. Silakan izinkan pop-up (Always allow pop-ups) pada address bar.' });
+            }
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="id">
+                <head>
+                    <title>Cetak_Nilai_${kelas.replace(/\s+/g, '_')}</title>
+                    <style>
+                        /* Setingan Kertas Miring (Landscape) dan Margin */
+                        @page { size: landscape; margin: 10mm; }
+                        body { font-family: 'Arial', sans-serif; font-size: 11px; color: #000; background: #fff; margin: 0; padding: 0; }
+                        
+                        /* Kop Laporan */
+                        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+                        .header h2 { margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold; }
+                        .header p { margin: 5px 0 0 0; font-size: 13px; }
+                        
+                        /* Tabel Nilai (Garis Hitam Tegas) */
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        th, td { border: 1px solid #000; padding: 6px 4px; font-size: 10px; text-align: center; white-space: nowrap; }
+                        th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
+                        td:nth-child(3) { text-align: left; /* Nama Santri Dibuat Rata Kiri */ }
+                        
+                        /* Footer Bawah */
+                        .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h2>Madrasah Darussalam</h2>
+                        <p>Laporan Rekapitulasi Nilai Santri - Kelas: <b>${kelas}</b></p>
+                    </div>
+                    
+                    ${tabelClone.outerHTML}
+                    
+                    <div class="footer">
+                        Dokumen ini dicetak secara otomatis dari Sistem Informasi Penilaian Santri<br>
+                        Tanggal Cetak: ${tanggalCetak}
+                    </div>
+                    
+                    <script>
+                        // Beri jeda 0.5 detik agar halaman ke-render penuh sebelum dialog print muncul
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                                // Otomatis tutup tab jika jendela print disilang/selesai
+                                window.close();
+                            }, 500);
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
         }
+		
+		// =========================================================
+        // 1. FUNGSI CETAK DATA SANTRI (Kop Berlogo)
+        // =========================================================
+        function cetakDataSantri() {
+            const filterKelas = document.getElementById('filterKelasSantri').value;
+            const teksKelas = filterKelas === 'Semua' ? 'Semua Kelas' : filterKelas;
+            let dataCetak = GLOBAL_DATA_SANTRI;
+            
+            if (filterKelas !== 'Semua') { dataCetak = dataCetak.filter(s => s.kelas === filterKelas); }
+            if (!dataCetak || dataCetak.length === 0) {
+                return Swal.fire({ icon: 'error', title: 'Data Kosong', text: 'Tidak ada data santri di kelas ini.' });
+            }
+
+            const tabelPrint = document.createElement('table');
+            tabelPrint.innerHTML = `
+                <thead>
+                    <tr>
+                        <th style="width: 3%;">NO</th><th style="width: 8%;">NIS</th>
+                        <th style="text-align: left; width: 15%;">NAMA LENGKAP</th>
+                        <th style="width: 5%;">L/P</th><th style="width: 10%;">KELAS</th>
+                        <th style="width: 15%;">TEMPAT, TGL LAHIR</th><th style="width: 15%;">NAMA ORTU</th>
+                        <th style="width: 10%;">NO. HP/WA</th><th style="text-align: left; width: 19%;">ALAMAT LENGKAP</th>
+                    </tr>
+                </thead><tbody></tbody>`;
+            const tbodyPrint = tabelPrint.querySelector('tbody');
+
+            dataCetak.forEach((s, index) => {
+                let jenisKelamin = s.jk === 'Laki-laki' ? 'L' : (s.jk === 'Perempuan' ? 'P' : s.jk);
+                const trBaru = document.createElement('tr');
+                trBaru.innerHTML = `<td>${index + 1}</td><td>${s.nis}</td><td style="text-align: left; font-weight: bold;">${s.nama}</td><td>${jenisKelamin}</td><td>${s.kelas}</td><td>${s.ttl}</td><td>${s.ayah} & ${s.ibu}</td><td>${s.hp}</td><td style="text-align: left;">${s.alamat}</td>`;
+                tbodyPrint.appendChild(trBaru);
+            });
+
+            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
+
+            printWindow.document.write(`
+                <!DOCTYPE html><html lang="id"><head><title>Data_Santri_${teksKelas.replace(/\s+/g, '_')}</title>
+                <style>
+                    @page { size: landscape; margin: 10mm; }
+                    body { font-family: 'Arial', sans-serif; font-size: 10px; color: #000; background: #fff; margin: 0; padding: 0; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    th, td { border: 1px solid #000; padding: 6px 4px; text-align: center; vertical-align: middle; }
+                    th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; }
+                    .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
+                </style></head><body>
+                    <div style="display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                        <img src="${logoUrl}" style="width: 65px; height: 65px; object-fit: contain; margin-right: 15px;">
+                        <div style="flex: 1; text-align: center; padding-right: 80px;">
+                            <h2 style="margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold;">Madrasah Darussalam</h2>
+                            <p style="margin: 5px 0 0 0; font-size: 13px;">Laporan Data Induk Santri Lengkap - Kelas: <b>${teksKelas}</b></p>
+                        </div>
+                    </div>
+                    ${tabelPrint.outerHTML}
+                    <div class="footer">Dokumen ini dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
+                    <script>window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 600); };<\/script>
+                </body></html>
+            `);
+            printWindow.document.close();
+        }
+
+        // =========================================================
+        // 2. FUNGSI CETAK DATA NILAI (Kop Berlogo)
+        // =========================================================
+        function cetakDataNilai() {
+            const kelas = document.getElementById('filterKelasDataNilai').value;
+            if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan laporan terlebih dahulu.' });
+            
+            const elemenTabel = document.getElementById('tabelDataNilai');
+            const teksTabel = document.getElementById('bodyDataNilai').innerText;
+            if (teksTabel.includes('Silakan pilih kelas') || teksTabel.includes('Belum ada data')) return Swal.fire({ icon: 'error', title: 'Kosong', text: 'Tidak ada data nilai.' });
+            
+            const tabelClone = elemenTabel.cloneNode(true);
+            tabelClone.removeAttribute('class'); tabelClone.querySelectorAll('th, td, tr, thead, tbody').forEach(el => el.removeAttribute('class'));
+            
+            const headerRow = tabelClone.querySelector('thead tr');
+            if (headerRow && headerRow.lastElementChild) headerRow.removeChild(headerRow.lastElementChild);
+            const bodyRows = tabelClone.querySelectorAll('tbody tr');
+            bodyRows.forEach(tr => { if (tr.lastElementChild) tr.removeChild(tr.lastElementChild); });
+            
+            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
+            
+            printWindow.document.write(`
+                <!DOCTYPE html><html lang="id"><head><title>Cetak_Nilai_${kelas.replace(/\s+/g, '_')}</title>
+                <style>
+                    @page { size: landscape; margin: 10mm; }
+                    body { font-family: 'Arial', sans-serif; font-size: 11px; color: #000; background: #fff; margin: 0; padding: 0; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    th, td { border: 1px solid #000; padding: 6px 4px; font-size: 10px; text-align: center; white-space: nowrap; }
+                    th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
+                    td:nth-child(3) { text-align: left; }
+                    .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
+                </style></head><body>
+                    <div style="display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                        <img src="${logoUrl}" style="width: 65px; height: 65px; object-fit: contain; margin-right: 15px;">
+                        <div style="flex: 1; text-align: center; padding-right: 80px;">
+                            <h2 style="margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold;">Madrasah Darussalam</h2>
+                            <p style="margin: 5px 0 0 0; font-size: 13px;">Laporan Rekapitulasi Nilai Santri - Kelas: <b>${kelas}</b></p>
+                        </div>
+                    </div>
+                    ${tabelClone.outerHTML}
+                    <div class="footer">Dokumen ini dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
+                    <script>window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 600); };<\/script>
+                </body></html>
+            `);
+            printWindow.document.close();
+        }
+
+        // =========================================================
+        // 3. FUNGSI EXPORT PDF RANKING (Kop Berlogo)
+        // =========================================================
+        function exportRankingPDF() {
+            const kelas = document.getElementById('filterKelasRanking').value;
+            if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan ranking terlebih dahulu.' });
+
+            const elemenTabel = document.getElementById('bodyTabelRanking').closest('.overflow-x-auto');
+            if (elemenTabel.innerText.includes('Silakan pilih kelas') || elemenTabel.innerText.includes('Belum ada data')) {
+                 return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data untuk diexport.' });
+            }
+
+            showLoading(true);
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.padding = '30px'; pdfContainer.style.backgroundColor = 'white';
+            const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+
+            pdfContainer.innerHTML = `
+                <div style="display: flex; align-items: center; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 25px;">
+                    <img src="${logoUrl}" style="width: 70px; height: 70px; object-fit: contain; margin-right: 15px;">
+                    <div style="flex: 1; text-align: center; padding-right: 85px;">
+                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #065f46; margin: 0; text-transform: uppercase;">Madrasah Darussalam</h2>
+                        <p style="font-family: 'Inter', sans-serif; margin: 5px 0 0 0; color: #4b5563; font-size: 14px; font-weight: 500;">Laporan Peringkat Akademik Santri - Kelas: <span style="color: #059669; font-weight: bold;">${kelas}</span></p>
+                    </div>
+                </div>
+            `;
+
+            const tabelClone = elemenTabel.cloneNode(true);
+            tabelClone.classList.remove('overflow-x-auto', 'border', 'rounded-xl', 'border-gray-200');
+            pdfContainer.appendChild(tabelClone);
+
+            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            pdfContainer.innerHTML += `
+                <div style="margin-top: 40px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic; font-family: 'Inter', sans-serif;">
+                    <p style="margin: 0;">Dokumen ini diterbitkan otomatis melalui Sistem Informasi Penilaian Santri.</p>
+                    <p style="margin: 4px 0 0 0;">Dicetak pada: <b>${tanggalCetak}</b></p>
+                </div>
+            `;
+
+            const opt = { margin: [0.3, 0.3, 0.5, 0.3], filename: `Data_Ranking_${kelas.replace(/\s+/g, '_')}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(pdfContainer).save().then(() => { showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'File PDF berhasil dibuat!', timer: 2000, showConfirmButton: false }); }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }); });
+        }
+
+        // =========================================================
+        // 4. FUNGSI EXPORT PDF BINTANG PELAJAR (Kop Berlogo)
+        // =========================================================
+        function exportBintangPelajarPDF() {
+            const wadah = document.getElementById('wadahBintangPelajar');
+            if (wadah.innerText.includes('Memuat') || wadah.innerText.includes('Belum ada data')) {
+                 return Swal.fire({ icon: 'error', title: 'Data Kosong', text: 'Tidak ada data Bintang Pelajar saat ini.' });
+            }
+
+            showLoading(true);
+            const pdfContainer = document.createElement('div');
+            pdfContainer.style.padding = '30px'; pdfContainer.style.backgroundColor = '#f8fafc';
+            const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+
+            pdfContainer.innerHTML = `
+                <div style="display: flex; align-items: center; border-bottom: 3px solid #d97706; padding-bottom: 15px; margin-bottom: 25px;">
+                    <img src="${logoUrl}" style="width: 70px; height: 70px; object-fit: contain; margin-right: 15px;">
+                    <div style="flex: 1; text-align: center; padding-right: 85px;">
+                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #b45309; margin: 0; text-transform: uppercase;">Madrasah Darussalam</h2>
+                        <p style="font-family: 'Inter', sans-serif; margin: 5px 0 0 0; color: #78350f; font-size: 14px; font-weight: 500;">Laporan Eksekutif: Daftar Bintang Pelajar (Juara Umum Per Kelas)</p>
+                    </div>
+                </div>
+            `;
+
+            const clone = wadah.cloneNode(true);
+            clone.className = 'grid grid-cols-2 gap-4'; 
+            pdfContainer.appendChild(clone);
+
+            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            pdfContainer.innerHTML += `
+                <div style="margin-top: 40px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; color: #64748b; font-size: 11px; font-style: italic; font-family: 'Inter', sans-serif;">
+                    <p style="margin: 0;">Dokumen ini diterbitkan otomatis melalui Sistem Informasi Penilaian Santri.</p>
+                    <p style="margin: 4px 0 0 0;">Dicetak pada: <b>${tanggalCetak}</b></p>
+                </div>
+            `;
+
+            const opt = { margin: [0.3, 0.3, 0.5, 0.3], filename: `Bintang_Pelajar.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(pdfContainer).save().then(() => { showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'File PDF berhasil diunduh!', timer: 2000, showConfirmButton: false }); }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }); });
+        }
+		
+		
     </script>
     
 </body>
