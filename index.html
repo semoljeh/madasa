@@ -1537,9 +1537,9 @@
                         </div>
                     </div>
                     ${tabelPrint.outerHTML}
-                    <div class="footer">Dokumen ini dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
-                    <script>window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 600); };<\/script>
-                </body></html>
+                   <div class="footer">Dokumen ini dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
+<script>window.onload = function() { setTimeout(function() { window.print(); }, 1000); };<\/script>
+</body></html>
             `);
             printWindow.document.close();
         }
@@ -1588,8 +1588,8 @@
                     </div>
                     ${tabelClone.outerHTML}
                     <div class="footer">Dokumen ini dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
-                    <script>window.onload = function() { setTimeout(function() { window.print(); window.close(); }, 600); };<\/script>
-                </body></html>
+<script>window.onload = function() { setTimeout(function() { window.print(); }, 1000); };<\/script>
+</body></html>
             `);
             printWindow.document.close();
         }
