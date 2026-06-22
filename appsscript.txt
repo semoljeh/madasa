@@ -1,0 +1,708 @@
+// =================================================================
+// TERMINAL UTAMA (ROUTER)
+// =================================================================
+function doPost(e) {
+  try {
+    var action = e.parameter.action;
+
+    switch (action) {
+      case 'login': return prosesLogin(e);
+      case 'getSantri': return ambilDataSantri();
+      case 'addSantri': return tambahDataSantri(e);
+      case 'updateSantri': return updateDataSantri(e);
+      case 'simpanNilai': return simpanDataNilai(e);
+      case 'getDataNilai': return getDataNilai(e); 
+      case 'updateDataNilai': return updateDataNilai(e);
+      case 'getRankingKelas': return getRankingKelas(e);
+      case 'getBintangPelajar': return getBintangPelajar();
+      case 'getRaporTK': return getRaporTK(e);
+      
+      // --- PINTU MASUK PENGATURAN & UPLOAD ---
+      case 'getPengaturan': return getPengaturan(e);
+      case 'simpanPengaturan': return simpanPengaturan(e);
+      case 'uploadGambar': return uploadGambarDrive(e); 
+      
+      // ==========================================
+      // FITUR BARU: ROUTER NOTIFIKASI LOGIN (EMAIL)
+      // ==========================================
+      case 'notifLogin': return kirimNotifLogin(e);
+      
+      default: return responError('Aksi tidak dikenali oleh server.');
+    }
+  } catch (error) {
+    return responError('Terjadi kesalahan server: ' + error.message);
+  }
+}
+
+// =================================================================
+// 1. FUNGSI LOGIN
+// =================================================================
+function prosesLogin(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('LOGIN');
+  var user = e.parameter.username;
+  var pass = e.parameter.password;
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] == user && data[i][1] == pass) {
+      return responSukses({ role: data[i][2], name: data[i][3] });
+    }
+  }
+  return responError('Username atau Password salah!');
+}
+
+// =================================================================
+// 2. FUNGSI AMBIL DATA SANTRI
+// =================================================================
+function ambilDataSantri() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('SANTRI');
+  var data = sheet.getDataRange().getValues();
+  var result = [];
+  for (var i = 1; i < data.length; i++) {
+    result.push({
+      nis: data[i][0], 
+      nama: data[i][1], 
+      jk: data[i][2], 
+      ttl: data[i][3] || '',     // <-- POSISI BARU (Indeks 3)
+      kelas: data[i][4],         // <-- Bergeser jadi indeks 4
+      alamat: data[i][5] || '',  // <-- Bergeser jadi indeks 5
+      ayah: data[i][6] || '',    // <-- Bergeser jadi indeks 6
+      ibu: data[i][7] || '',     // <-- Bergeser jadi indeks 7
+      hp: data[i][8] || ''       // <-- Bergeser jadi indeks 8
+    });
+  }
+  return responSukses({ data: result });
+}
+
+// =================================================================
+// 3. FUNGSI TAMBAH DATA SANTRI 
+// =================================================================
+function tambahDataSantri(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('SANTRI');
+  var inputNis = e.parameter.nis;
+  var existingData = sheet.getDataRange().getValues();
+  
+  for (var i = 1; i < existingData.length; i++) {
+    if (existingData[i][0] == inputNis) return responError('Gagal! NIS ' + inputNis + ' sudah terdaftar.');
+  }
+  
+  var saveNis = "'" + inputNis;
+  var saveHp = "'" + e.parameter.hp;
+  
+  // <-- POSISI BARU: e.parameter.ttl ditaruh setelah jk
+  sheet.appendRow([
+    saveNis, e.parameter.nama, e.parameter.jk, e.parameter.ttl, 
+    e.parameter.kelas, e.parameter.alamat, e.parameter.ayah, e.parameter.ibu, saveHp
+  ]);
+  
+  return responSukses({ message: 'Data santri berhasil ditambahkan!' });
+}
+
+// =================================================================
+// 4. FUNGSI UPDATE/EDIT DATA SANTRI
+// =================================================================
+function updateDataSantri(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('SANTRI');
+  var inputNis = e.parameter.nis;
+  var data = sheet.getDataRange().getValues();
+  var isUpdated = false;
+  var saveHp = "'" + e.parameter.hp;
+
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] == inputNis) {
+      sheet.getRange(i + 1, 2).setValue(e.parameter.nama);
+      sheet.getRange(i + 1, 3).setValue(e.parameter.jk);
+      sheet.getRange(i + 1, 4).setValue(e.parameter.ttl);    // <-- Kolom 4 (TTL Baru)
+      sheet.getRange(i + 1, 5).setValue(e.parameter.kelas);  // <-- Geser ke 5
+      sheet.getRange(i + 1, 6).setValue(e.parameter.alamat); // <-- Geser ke 6
+      sheet.getRange(i + 1, 7).setValue(e.parameter.ayah);   // <-- Geser ke 7
+      sheet.getRange(i + 1, 8).setValue(e.parameter.ibu);    // <-- Geser ke 8
+      sheet.getRange(i + 1, 9).setValue(saveHp);             // <-- Geser ke 9
+      isUpdated = true; break;
+    }
+  }
+  if (isUpdated) return responSukses({ message: 'Data santri berhasil diperbarui!' });
+  else return responError('Gagal: Data santri tidak ditemukan.');
+}
+
+// =================================================================
+// 5. FUNGSI SIMPAN BUKU NILAI MASSAL (BULK INPUT)
+// =================================================================
+function simpanDataNilai(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var kelasPilih = e.parameter.kelas;
+  var listNilai = JSON.parse(e.parameter.list_nilai);
+  var sheetName = 'NILAI ' + kelasPilih;
+  var sheet = ss.getSheetByName(sheetName);
+
+  if (kelasPilih.includes('TK')) {
+    var hari = e.parameter.hari;
+    if (!sheet) {
+      sheet = ss.insertSheet(sheetName);
+      sheet.appendRow(['NIS', 'Nama Lengkap', 'Kelas', 'Hari', 'Total Nilai', 'Rata-rata', 'Mapel 1', 'Nilai 1', 'Mapel 2', 'Nilai 2', 'Mapel 3', 'Nilai 3']);
+      sheet.getRange(1, 1, 1, 12).setFontWeight("bold").setBackground("#d1fae5");
+    }
+    var dataTK = sheet.getDataRange().getValues();
+    for (var n = 0; n < listNilai.length; n++) {
+      for (var i = 1; i < dataTK.length; i++) {
+        if (dataTK[i][0].toString() === listNilai[n].nis.toString() && dataTK[i][3].toString() === hari.toString()) {
+          return responError('GAGAL: Santri bernama ' + listNilai[n].nama + ' sudah pernah dinilai di hari ' + hari);
+        }
+      }
+    }
+    for (var n = 0; n < listNilai.length; n++) {
+      sheet.appendRow(["'" + listNilai[n].nis, listNilai[n].nama, kelasPilih, hari, listNilai[n].total, listNilai[n].rata, listNilai[n].m1, listNilai[n].n1, listNilai[n].m2, listNilai[n].n2, listNilai[n].m3, listNilai[n].n3]);
+    }
+    return responSukses({ message: 'Nilai TK berhasil disimpan.' });
+  } else {
+    var mapel = e.parameter.mapel;
+    var semuaMapel = JSON.parse(e.parameter.semua_mapel);
+    var headersBase = ['NIS', 'Nama Lengkap', 'Kelas', 'Total Nilai', 'Rata-rata'];
+    var fullHeaders = headersBase.concat(semuaMapel);
+    if (!sheet) {
+      sheet = ss.insertSheet(sheetName);
+      sheet.appendRow(fullHeaders);
+      sheet.getRange(1, 1, 1, fullHeaders.length).setFontWeight("bold").setBackground("#d1fae5");
+    }
+    var data = sheet.getDataRange().getValues();
+    var sheetHeaders = data[0];
+    var colIndex = sheetHeaders.indexOf(mapel);
+    
+    for (var n = 0; n < listNilai.length; n++) {
+      var student = listNilai[n];
+      var existingRowIndex = -1;
+      for (var i = 1; i < data.length; i++) {
+        if (data[i][0].toString() === student.nis.toString()) { existingRowIndex = i + 1; break; }
+      }
+      
+      if (existingRowIndex > -1) {
+        sheet.getRange(existingRowIndex, colIndex + 1).setValue(student.nilai);
+        var currentRowData = sheet.getRange(existingRowIndex, 1, 1, sheetHeaders.length).getValues()[0];
+        var total = 0; var count = 0;
+        for (var h = 5; h < sheetHeaders.length; h++) {
+          var val = currentRowData[h];
+          if (val !== "" && !isNaN(val)) { total += parseFloat(val); count++; }
+        }
+        var rata = count > 0 ? (total / count).toFixed(1) : 0;
+        sheet.getRange(existingRowIndex, 4).setValue(total);
+        sheet.getRange(existingRowIndex, 5).setValue(rata);
+      } else {
+        var newRow = ["'" + student.nis, student.nama, kelasPilih, student.nilai, student.nilai];
+        for (var h = 5; h < sheetHeaders.length; h++) {
+          if (sheetHeaders[h] === mapel) newRow.push(student.nilai); else newRow.push("");
+        }
+        sheet.appendRow(newRow);
+        data = sheet.getDataRange().getValues();
+      }
+    }
+    return responSukses({ message: 'Nilai mapel berhasil dimasukkan.' });
+  }
+}
+
+// =================================================================
+// 6. FUNGSI TARIK DATA NILAI & UPDATE NILAI INDIVIDU
+// =================================================================
+function getDataNilai(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('NILAI ' + e.parameter.kelas);
+  if (!sheet) return responSukses({ data: [], headers: [] });
+  var data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return responSukses({ data: [], headers: data[0] || [] });
+  var rows = [];
+  for (var i = 1; i < data.length; i++) rows.push(data[i]);
+  return responSukses({ data: rows, headers: data[0] });
+}
+
+function updateDataNilai(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var kelas = e.parameter.kelas; var nis = e.parameter.nis;
+  var newData = JSON.parse(e.parameter.data_nilai); 
+  var sheet = ss.getSheetByName('NILAI ' + kelas);
+  if (!sheet) return responError("Sheet tidak ditemukan.");
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0]; var rowIndex = -1;
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0].toString() === nis.toString() || data[i][0].toString() === "'" + nis) { rowIndex = i + 1; break; }
+  }
+  if (rowIndex === -1) return responError("Data tidak ditemukan.");
+  var total = 0; var count = 0;
+  for(var key in newData) {
+    var colIndex = headers.indexOf(key);
+    if (colIndex > -1) {
+       sheet.getRange(rowIndex, colIndex + 1).setValue(newData[key]);
+       if (key !== 'NIS' && key !== 'Nama Lengkap' && key !== 'Kelas' && key !== 'Hari' && key !== 'Total Nilai' && key !== 'Rata-rata' && !key.includes('Mapel')) {
+          var val = parseFloat(newData[key]); if (!isNaN(val)) { total += val; count++; }
+       }
+    }
+  }
+  var totalCol = headers.indexOf('Total Nilai'); var rataCol = headers.indexOf('Rata-rata');
+  if (totalCol > -1) sheet.getRange(rowIndex, totalCol + 1).setValue(total);
+  if (rataCol > -1) sheet.getRange(rowIndex, rataCol + 1).setValue(count > 0 ? (total/count).toFixed(1) : 0);
+  return responSukses({message: "Data nilai berhasil diperbarui."});
+}
+
+// =================================================================
+// 7. FUNGSI RANKING & BINTANG PELAJAR DENGAN DATA BIODATA
+// =================================================================
+function ambilKamusSantri(ss) {
+  var sheetSantri = ss.getSheetByName('SANTRI');
+  var kamus = {};
+  if (sheetSantri) {
+    var data = sheetSantri.getDataRange().getValues();
+    for(var k=1; k<data.length; k++) {
+      var nisStr = data[k][0].toString().replace("'", "");
+      kamus[nisStr] = { alamat: data[k][4] || '-', ayah: data[k][5] || '-', ibu: data[k][6] || '-', ttl: data[k][8] || '-' };
+    }
+  }
+  return kamus;
+}
+
+function getRankingKelas(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('NILAI ' + e.parameter.kelas);
+  if (!sheet) return responSukses({ data: [] });
+  var data = sheet.getDataRange().getValues();
+  if (data.length <= 1) return responSukses({ data: [] });
+  
+  var kamusBiodata = ambilKamusSantri(ss);
+  var headers = data[0];
+  var totalIdx = headers.indexOf('Total Nilai');
+  var rataIdx = headers.indexOf('Rata-rata');
+  
+  var rows = [];
+  for (var i = 1; i < data.length; i++) {
+    var nisStr = data[i][0].toString().replace("'", "");
+    var bio = kamusBiodata[nisStr] || {ttl:'-', ayah:'-', ibu:'-', alamat:'-'};
+    rows.push({
+      nis: nisStr, nama: data[i][1], total: parseFloat(data[i][totalIdx]) || 0, rata: parseFloat(data[i][rataIdx]) || 0,
+      ttl: bio.ttl, ayah: bio.ayah, ibu: bio.ibu, alamat: bio.alamat
+    });
+  }
+  rows.sort(function(a, b) { return b.total - a.total; });
+  for (var j = 0; j < rows.length; j++) { rows[j].rank = j + 1; }
+  return responSukses({ data: rows });
+}
+
+function getBintangPelajar(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheets = ss.getSheets();
+  var bintang = [];
+  var kamusBiodata = ambilKamusSantri(ss);
+  
+  for (var i = 0; i < sheets.length; i++) {
+    var sheetName = sheets[i].getName();
+    if (sheetName.indexOf('NILAI ') === 0) {
+      var data = sheets[i].getDataRange().getValues();
+      if (data.length > 1) {
+        var totalIdx = data[0].indexOf('Total Nilai');
+        var rataIdx = data[0].indexOf('Rata-rata');
+        if (totalIdx > -1) {
+          var highestRow = null; var maxTotal = -1;
+          for (var r = 1; r < data.length; r++) {
+            var currentTotal = parseFloat(data[r][totalIdx]) || 0;
+            if (currentTotal > maxTotal) { maxTotal = currentTotal; highestRow = data[r]; }
+          }
+          if (highestRow && maxTotal > 0) {
+            var nisStr = highestRow[0].toString().replace("'", "");
+            var bio = kamusBiodata[nisStr] || {ttl:'-', ayah:'-', ibu:'-', alamat:'-'};
+            bintang.push({
+              kelas: sheetName.replace('NILAI ', ''), nis: nisStr, nama: highestRow[1], total: maxTotal, rata: highestRow[rataIdx] || 0,
+              ttl: bio.ttl, ayah: bio.ayah, ibu: bio.ibu, alamat: bio.alamat
+            });
+          }
+        }
+      }
+    }
+  }
+  return responSukses({ data: bintang });
+}
+
+function responSukses(dataObj) { dataObj.status = 'success'; return ContentService.createTextOutput(JSON.stringify(dataObj)).setMimeType(ContentService.MimeType.JSON); }
+function responError(pesan) { return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: pesan })).setMimeType(ContentService.MimeType.JSON); }
+
+// =================================================================
+// 8. FUNGSI RANKING KELAS (DIPERBARUI UNTUK AGREGASI TK)
+// =================================================================
+function getRankingKelas(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var kelasPilih = e.parameter.kelas;
+  
+  var sheetSantri = ss.getSheetByName('SANTRI');
+  var dataSantri = sheetSantri ? sheetSantri.getDataRange().getValues() : [];
+  var santriMap = {};
+  for (var i = 1; i < dataSantri.length; i++) {
+    var nisBersih = dataSantri[i][0].toString().replace(/'/g, "").trim();
+    santriMap[nisBersih] = { jk: dataSantri[i][2] || '-', ttl: dataSantri[i][3] || '-', alamat: dataSantri[i][5] || '-', ayah: dataSantri[i][6] || '-', ibu: dataSantri[i][7] || '-' };
+  }
+
+  var sheetNilai = ss.getSheetByName('NILAI ' + kelasPilih);
+  if (!sheetNilai) return responSukses({ data: [] });
+  var dataNilai = sheetNilai.getDataRange().getValues();
+  if (dataNilai.length <= 1) return responSukses({ data: [] });
+  
+  var headers = dataNilai[0];
+  var totalCol = headers.indexOf('Total Nilai');
+  var rataCol = headers.indexOf('Rata-rata');
+  var namaCol = headers.indexOf('Nama Lengkap');
+  var nisCol = headers.indexOf('NIS');
+  
+  var agregasiRanking = {};
+  
+  // Menggabungkan nilai harian khusus untuk perhitungan TK
+  for (var i = 1; i < dataNilai.length; i++) {
+    var nisStr = dataNilai[i][nisCol].toString().replace(/'/g, "").trim();
+    var totalRow = parseFloat(dataNilai[i][totalCol]) || 0;
+    
+    if (!agregasiRanking[nisStr]) {
+        var biodata = santriMap[nisStr] || {jk: '-', ttl: '-', ayah: '-', ibu: '-', alamat: '-'};
+        agregasiRanking[nisStr] = {
+            nis: nisStr, nama: dataNilai[i][namaCol], total: 0, hitungBaris: 0,
+            jk: biodata.jk, ttl: biodata.ttl, ayah: biodata.ayah, ibu: biodata.ibu, alamat: biodata.alamat
+        };
+    }
+    agregasiRanking[nisStr].total += totalRow;
+    agregasiRanking[nisStr].hitungBaris++;
+  }
+  
+  var rankingList = [];
+  for (var key in agregasiRanking) {
+     var r = agregasiRanking[key];
+     r.rata = (r.total / r.hitungBaris).toFixed(1);
+     rankingList.push(r);
+  }
+  
+  // Mengurutkan dari total terbesar
+  rankingList.sort(function(a, b) { return b.total - a.total; });
+  for (var k = 0; k < rankingList.length; k++) { rankingList[k].rank = k + 1; }
+  
+  return responSukses({ data: rankingList });
+}
+
+// =================================================================
+// 9. FUNGSI BINTANG PELAJAR (LENGKAP DENGAN JENIS KELAMIN)
+// =================================================================
+function getBintangPelajar() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheets = ss.getSheets();
+  
+  // 1. Map Biodata Santri
+  var sheetSantri = ss.getSheetByName('SANTRI');
+  var dataSantri = sheetSantri ? sheetSantri.getDataRange().getValues() : [];
+  var santriMap = {};
+  for (var i = 1; i < dataSantri.length; i++) {
+    var nisBersih = dataSantri[i][0].toString().replace(/'/g, "").trim();
+    santriMap[nisBersih] = {
+      jk: dataSantri[i][2] || '-',     
+      ttl: dataSantri[i][3] || '-',     
+      alamat: dataSantri[i][5] || '-',  
+      ayah: dataSantri[i][6] || '-',    
+      ibu: dataSantri[i][7] || '-'      
+    };
+  }
+
+  var juaraList = [];
+
+  // 2. Loop ke seluruh sheet mencari awalan "NILAI "
+  for (var s = 0; s < sheets.length; s++) {
+    var sheetName = sheets[s].getName();
+    if (sheetName.indexOf('NILAI ') === 0) { 
+      var dataNilai = sheets[s].getDataRange().getValues();
+      if (dataNilai.length > 1) {
+        var headers = dataNilai[0];
+        var totalCol = headers.indexOf('Total Nilai');
+        var rataCol = headers.indexOf('Rata-rata');
+        var namaCol = headers.indexOf('Nama Lengkap');
+        var nisCol = headers.indexOf('NIS');
+        var kelasVal = sheetName.replace('NILAI ', '');
+        
+        var kelasRanking = [];
+        for (var i = 1; i < dataNilai.length; i++) {
+          var nisStr = dataNilai[i][nisCol].toString().replace(/'/g, "").trim();
+          kelasRanking.push({
+            nis: nisStr,
+            nama: dataNilai[i][namaCol], total: parseFloat(dataNilai[i][totalCol]) || 0,
+            rata: parseFloat(dataNilai[i][rataCol]) || 0, kelas: kelasVal
+          });
+        }
+        
+        // Cari juara 1 di kelas ini
+        kelasRanking.sort(function(a, b) { return b.total - a.total; });
+        
+        if (kelasRanking.length > 0) {
+          var juara1 = kelasRanking[0];
+          var biodata = santriMap[juara1.nis] || {jk: '-', ttl: '-', ayah: '-', ibu: '-', alamat: '-'};
+          juara1.jk = biodata.jk;
+          juara1.ttl = biodata.ttl; juara1.ayah = biodata.ayah; 
+          juara1.ibu = biodata.ibu; juara1.alamat = biodata.alamat;
+          
+          juaraList.push(juara1);
+        }
+      }
+    }
+  }
+  
+  return responSukses({ data: juaraList });
+}
+
+// =================================================================
+// 10. MESIN PENGATURAN RAPOR (ABSENSI, SIKAP, IDENTITAS)
+// =================================================================
+function getPengaturan(e) {
+     var ss = SpreadsheetApp.getActiveSpreadsheet();
+     var kelas = e.parameter.kelas;
+     
+     var sheetSet = ss.getSheetByName('SETTING_RAPOR');
+     var setUmum = {};
+     if(sheetSet) {
+       var dSet = sheetSet.getDataRange().getValues();
+       for(var i=1; i<dSet.length; i++) {
+         if(dSet[i][0] == kelas) {
+           setUmum = { 
+             semester: dSet[i][1], tahun: dSet[i][2], tanggal: dSet[i][3], wali: dSet[i][4], kepala: dSet[i][5],
+             url_wali: dSet[i][6] || '', url_kepala: dSet[i][7] || '', url_stempel: dSet[i][8] || ''
+           }; break;
+         }
+       }
+     }
+     
+     var sheetDet = ss.getSheetByName('DETAIL_RAPOR');
+     var detSantri = {};
+     if(sheetDet) {
+       var dDet = sheetDet.getDataRange().getValues();
+       for(var i=1; i<dDet.length; i++) {
+         if(dDet[i][1] == kelas) { 
+           var nisStr = dDet[i][0].toString().replace(/'/g, "").trim();
+           detSantri[nisStr] = { 
+             akhlaq: dDet[i][2], kerajinan: dDet[i][3], disiplin: dDet[i][4], rapi: dDet[i][5],
+             sakit: dDet[i][6], izin: dDet[i][7], alpa: dDet[i][8], catatan: dDet[i][9], keputusan: dDet[i][10]
+           };
+         }
+       }
+     }
+     return responSukses({ umum: setUmum, detail: detSantri });
+   }
+
+function simpanPengaturan(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var kelas = e.parameter.kelas;
+  
+  // 1. Simpan Setting Umum
+  var setUmum = JSON.parse(e.parameter.set_umum);
+  var sheetSet = ss.getSheetByName('SETTING_RAPOR');
+  if(!sheetSet) {
+    sheetSet = ss.insertSheet('SETTING_RAPOR');
+    sheetSet.appendRow(['KELAS', 'SEMESTER', 'TAHUN', 'TANGGAL', 'WALI KELAS', 'KEPALA MADRASAH']);
+  }
+  var dSet = sheetSet.getDataRange().getValues();
+  var foundSet = false;
+  for(var i=1; i<dSet.length; i++) {
+    if(dSet[i][0] == kelas) {
+      sheetSet.getRange(i+1, 2, 1, 5).setValues([[setUmum.semester, setUmum.tahun, setUmum.tanggal, setUmum.wali, setUmum.kepala]]);
+      foundSet = true; break;
+    }
+  }
+  if(!foundSet) sheetSet.appendRow([kelas, setUmum.semester, setUmum.tahun, setUmum.tanggal, setUmum.wali, setUmum.kepala]);
+
+  // 2. Simpan Detail Santri
+  var detSantri = JSON.parse(e.parameter.det_santri); 
+  var sheetDet = ss.getSheetByName('DETAIL_RAPOR');
+  if(!sheetDet) {
+    sheetDet = ss.insertSheet('DETAIL_RAPOR');
+    sheetDet.appendRow(['NIS', 'KELAS', 'AKHLAQ', 'KERAJINAN', 'DISIPLIN', 'RAPI', 'SAKIT', 'IZIN', 'ALPA', 'CATATAN', 'KEPUTUSAN']);
+  }
+  var dDet = sheetDet.getDataRange().getValues();
+  
+  for(var k=0; k<detSantri.length; k++) {
+    var snt = detSantri[k];
+    var nisStr = snt.nis.toString().replace(/'/g, "").trim();
+    var foundDet = false;
+    for(var i=1; i<dDet.length; i++) {
+      var sheetNis = dDet[i][0].toString().replace(/'/g, "").trim();
+      if(sheetNis == nisStr && dDet[i][1] == kelas) {
+        sheetDet.getRange(i+1, 3, 1, 9).setValues([[snt.akhlaq, snt.kerajinan, snt.disiplin, snt.rapi, snt.sakit, snt.izin, snt.alpa, snt.catatan, snt.keputusan]]);
+        foundDet = true; break;
+      }
+    }
+    if(!foundDet) sheetDet.appendRow(["'"+nisStr, kelas, snt.akhlaq, snt.kerajinan, snt.disiplin, snt.rapi, snt.sakit, snt.izin, snt.alpa, snt.catatan, snt.keputusan]);
+  }
+  return responSukses({message: 'Pengaturan rapor kelas berhasil disimpan!'});
+}
+// =================================================================
+// 11. MESIN UPLOAD GAMBAR KE GOOGLE DRIVE
+// =================================================================
+function uploadGambarDrive(e) {
+  try {
+    var kelas = e.parameter.kelas;
+    var jenis = e.parameter.jenis; // 'wali', 'kepala', 'stempel'
+    var base64Data = e.parameter.data;
+
+    // 1. Ekstrak data base64
+    var cleanBase64 = base64Data.split(',')[1];
+    var decoded = Utilities.base64Decode(cleanBase64);
+    var fileName = jenis.toUpperCase() + "_" + kelas + ".png"; // Nama otomatis
+    var blob = Utilities.newBlob(decoded, 'image/png', fileName);
+
+    // 2. Buat atau Cari Folder Khusus di Drive
+    var folderName = "ASET_RAPOR_MADRASAH";
+    var folders = DriveApp.getFoldersByName(folderName);
+    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+    folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    // 3. Hapus file lama jika ada (Agar Drive tidak penuh)
+    var existingFiles = folder.getFilesByName(fileName);
+    while (existingFiles.hasNext()) { existingFiles.next().setTrashed(true); }
+
+    // 4. Simpan File Baru
+    var file = folder.createFile(blob);
+    // Gunakan link lh3 googleusercontent agar lolos sistem keamanan Cetak PDF (CORS)
+    var fileUrl = "https://lh3.googleusercontent.com/d/" + file.getId(); 
+
+    // 5. Catat URL ke Database (Kolom G, H, I)
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheetSet = ss.getSheetByName('SETTING_RAPOR');
+    var dSet = sheetSet.getDataRange().getValues();
+    var rowIndex = -1;
+    for(var i=1; i<dSet.length; i++) { if(dSet[i][0] == kelas) { rowIndex = i + 1; break; } }
+
+    if (rowIndex === -1) {
+      sheetSet.appendRow([kelas, '', '', '', '', '', '', '', '']);
+      rowIndex = sheetSet.getLastRow();
+    }
+
+    if (jenis === 'wali') sheetSet.getRange(rowIndex, 7).setValue(fileUrl);
+    else if (jenis === 'kepala') sheetSet.getRange(rowIndex, 8).setValue(fileUrl);
+    else if (jenis === 'stempel') sheetSet.getRange(rowIndex, 9).setValue(fileUrl);
+
+    return responSukses({ url: fileUrl, message: 'File ' + fileName + ' berhasil disimpan ke Drive!' });
+  } catch(err) {
+    return responError('Gagal Upload: ' + err.toString());
+  }
+}
+
+function mintaIzinDrive() {
+  // Pancingan tingkat lanjut agar Google memberikan izin Edit, Buat, dan Hapus
+  var folder = DriveApp.createFolder("TEST_IZIN_SEMENTARA");
+  folder.setTrashed(true); // Langsung dibuang ke tong sampah agar Drive Anda tidak kotor
+}
+
+// =================================================================
+// 12. FUNGSI TARIK DATA RAPOR TK
+// =================================================================
+function getRaporTK(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var inputNis = e.parameter.nis;
+  if (!inputNis) return responError("NIS tidak diberikan.");
+
+  var nisBersih = inputNis.toString().replace(/'/g, "").trim();
+
+  // 1. Cari Biodata Santri
+  var sheetSantri = ss.getSheetByName('SANTRI');
+  if (!sheetSantri) return responError("Database Santri tidak ditemukan.");
+  var dataSantri = sheetSantri.getDataRange().getValues();
+  var biodata = null;
+  var kelasSantri = "";
+
+  for (var i = 1; i < dataSantri.length; i++) {
+    var nSheet = dataSantri[i][0].toString().replace(/'/g, "").trim();
+    if (nSheet === nisBersih) {
+      kelasSantri = dataSantri[i][4]; 
+      biodata = {
+        nis: nisBersih,
+        nama: dataSantri[i][1],
+        alamat: dataSantri[i][5] || '-',
+        kelas: kelasSantri
+      };
+      break;
+    }
+  }
+
+  if (!biodata) return responError("Santri dengan NIS " + inputNis + " tidak ditemukan.");
+
+  // 2. Cari Pengaturan Umum & Detail Rapor
+  var sheetSet = ss.getSheetByName('SETTING_RAPOR');
+  var setUmum = { semester: "-", tahun: "-", tanggal: "-", wali: "-", kepala: "-", url_wali: "", url_kepala: "", url_stempel: "" };
+  if (sheetSet) {
+    var dSet = sheetSet.getDataRange().getValues();
+    for (var i = 1; i < dSet.length; i++) {
+      if (dSet[i][0] == kelasSantri) {
+        setUmum = {
+          semester: dSet[i][1] || "-", tahun: dSet[i][2] || "-", tanggal: dSet[i][3] || "-",
+          wali: dSet[i][4] || "-", kepala: dSet[i][5] || "-",
+          url_wali: dSet[i][6] || "", url_kepala: dSet[i][7] || "", url_stempel: dSet[i][8] || ""
+        };
+        break;
+      }
+    }
+  }
+
+  var sheetDet = ss.getSheetByName('DETAIL_RAPOR');
+  var detRapor = { akhlaq: "-", kerajinan: "-", disiplin: "-", rapi: "-", sakit: "0", izin: "0", alpa: "0", catatan: "-", keputusan: "-" };
+  if (sheetDet) {
+    var dDet = sheetDet.getDataRange().getValues();
+    for (var i = 1; i < dDet.length; i++) {
+      var nDet = dDet[i][0].toString().replace(/'/g, "").trim();
+      if (nDet === nisBersih && dDet[i][1] == kelasSantri) {
+        detRapor = {
+          akhlaq: dDet[i][2] || "-", kerajinan: dDet[i][3] || "-", disiplin: dDet[i][4] || "-", rapi: dDet[i][5] || "-",
+          sakit: dDet[i][6] || "0", izin: dDet[i][7] || "0", alpa: dDet[i][8] || "0",
+          catatan: dDet[i][9] || "-", keputusan: dDet[i][10] || "-"
+        };
+        break;
+      }
+    }
+  }
+
+  // 3. Kumpulkan Nilai TK dari semua Hari
+  var sheetNilai = ss.getSheetByName('NILAI ' + kelasSantri);
+  var daftarNilai = [];
+  if (sheetNilai) {
+    var dataNilai = sheetNilai.getDataRange().getValues();
+    for (var i = 1; i < dataNilai.length; i++) {
+      var nNilai = dataNilai[i][0].toString().replace(/'/g, "").trim();
+      if (nNilai === nisBersih) {
+        if (dataNilai[i][6]) daftarNilai.push({ mapel: dataNilai[i][6], nilai: dataNilai[i][7] || 0 });
+        if (dataNilai[i][8]) daftarNilai.push({ mapel: dataNilai[i][8], nilai: dataNilai[i][9] || 0 });
+        if (dataNilai[i][10]) daftarNilai.push({ mapel: dataNilai[i][10], nilai: dataNilai[i][11] || 0 });
+      }
+    }
+  }
+
+  return responSukses({ biodata: biodata, pengaturan: setUmum, detail: detRapor, nilai: daftarNilai });
+}
+
+// =================================================================
+// FUNGSI PENGIRIM NOTIFIKASI KE EMAIL
+// =================================================================
+function kirimNotifLogin(e) {
+  try {
+      var nama = e.parameter.nama;
+      var role = e.parameter.role;
+      var perangkat = e.parameter.perangkat;
+      
+      // Waktu WIB
+      var waktu = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
+      
+      var emailTujuan = "aromtemplate@gmail.com";
+      var subjekEmail = "🚨 Peringatan Keamanan: Login Sistem Madasa";
+      
+      var isiPesan = "Pemberitahuan Sistem Madrasah Darussalam,\n\n" +
+                     "Telah terjadi aktivitas login pada aplikasi dengan rincian:\n\n" +
+                     "👤 Nama Pengguna : " + nama + "\n" +
+                     "🔰 Hak Akses     : " + role + "\n" +
+                     "⏰ Waktu Masuk   : " + waktu + " WIB\n\n" +
+                     "📱 Lacak Perangkat :\n" + perangkat + "\n\n" +
+                     "Jika ini bukan aktivitas yang sah, segera periksa sistem Anda.";
+      
+      // Perintah sakti untuk mengirim email otomatis
+      MailApp.sendEmail({
+          to: emailTujuan,
+          subject: subjekEmail,
+          body: isiPesan
+      });
+
+      return ContentService.createTextOutput(JSON.stringify({status: 'success'}))
+          .setMimeType(ContentService.MimeType.JSON);
+          
+  } catch (error) {
+      return responError('Gagal kirim email: ' + error.message);
+  }
+}

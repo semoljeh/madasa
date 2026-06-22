@@ -662,7 +662,7 @@
         // ---------------------------------------------------------
         // 1. PENGATURAN GLOBAL & DATABASE
         // ---------------------------------------------------------
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbwOfpgJovqpplG8tuq_hqkrmniSeuM7dK1UajlyOHYXF2HdvP9dFnFld5xbGRlcuL3m/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyCMW36-hQTFIvEAN-9fE1CzezlWBmiJVpVt6AAJqDp21V0wsucCLNmFDJn4xACKf9v/exec';
         let GLOBAL_DATA_SANTRI = [];
         let GLOBAL_HEADERS_NILAI = [];
         let GLOBAL_DATA_NILAI = [];
@@ -719,7 +719,7 @@
         // ---------------------------------------------------------
         // 3. FUNGSI AUTENTIKASI (LOGIN & LOGOUT)
         // ---------------------------------------------------------
-        document.getElementById('loginForm').addEventListener('submit', function(e) { 
+       document.getElementById('loginForm').addEventListener('submit', function(e) { 
             e.preventDefault(); showLoading(true); 
             const formData = new URLSearchParams(); 
             formData.append('action', 'login'); 
@@ -743,6 +743,21 @@
                     document.getElementById('dashboardPage').classList.remove('hidden'); 
                     window.history.pushState({ view: 'home' }, "", "#home"); 
                     showView('home', false); 
+
+                    // =========================================================
+                    // MENGIRIM DATA PELACAK KE GOOGLE APPS SCRIPT SETELAH LOGIN
+                    // =========================================================
+                    const infoPerangkat = navigator.userAgent; 
+                    const notifData = new URLSearchParams();
+                    notifData.append('action', 'notifLogin');
+                    notifData.append('nama', d.name);  // Mengambil nama dari respon database
+                    notifData.append('role', d.role);  // Mengambil jabatan dari respon database
+                    notifData.append('perangkat', infoPerangkat);
+
+                    // Kirim diam-diam di background
+                    fetch(GAS_URL, { method: 'POST', body: notifData }).catch(err => console.log(err));
+                    // =========================================================
+
                 } else { 
                     Swal.fire('Gagal Masuk', d.message, 'error'); 
                 } 
