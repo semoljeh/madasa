@@ -364,9 +364,9 @@
                                 <button onclick="loadBintangPelajar()" class="flex-1 sm:w-12 h-12 bg-white/20 hover:bg-white/40 text-white rounded-xl backdrop-blur-sm transition-all shadow-sm flex items-center justify-center gap-2 font-bold" title="Refresh Data">
                                     <i class="fas fa-sync-alt"></i><span class="sm:hidden">Refresh</span>
                                 </button>
-                                <button onclick="exportBintangPelajarPDF()" class="flex-1 sm:w-auto px-4 h-12 bg-red-500 hover:bg-red-600 text-white rounded-xl backdrop-blur-sm transition-all shadow-sm flex items-center justify-center gap-2 font-bold">
-                                    <i class="fas fa-file-pdf"></i><span>Export PDF</span>
-                                </button>
+                               <button onclick="cetakBintangPelajar()" class="flex-1 sm:w-auto px-4 h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-xl backdrop-blur-sm transition-all shadow-sm flex items-center justify-center gap-2 font-bold">
+    <i class="fas fa-print"></i><span>Cetak / Print</span>
+</button>
                             </div>
                         </div>
                         <div id="wadahBintangPelajar" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10"></div>
@@ -387,9 +387,9 @@
                             <button onclick="loadRankingKelas()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all">
                                 <i class="fas fa-trophy"></i> Lihat Ranking
                             </button>
-                            <button onclick="exportRankingPDF()" class="w-full sm:w-auto px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all">
-                                <i class="fas fa-file-pdf"></i> Export PDF
-                            </button>
+                          <button onclick="cetakRanking()" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-bold text-sm shadow-sm flex items-center justify-center gap-2 transition-all">
+    <i class="fas fa-print"></i> Cetak / Print
+</button>
                         </div>
                         <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
                             <table class="w-full text-left border-collapse">
@@ -1279,17 +1279,51 @@
             }).catch(err => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal update data.', 'error'); }); 
         });
 
-        function loadBintangPelajar() { 
+       function loadBintangPelajar() { 
             const wadah = document.getElementById('wadahBintangPelajar'); 
             wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Memuat kandidat juara...</div>'; 
-            const formData = new URLSearchParams(); formData.append('action', 'getBintangPelajar'); 
-            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
-                wadah.innerHTML = ''; 
+            
+            const formData = new URLSearchParams(); 
+            formData.append('action', 'getBintangPelajar'); 
+            
+            fetch(GAS_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(async res => {  // <-- Penambahan async di sini
                 if (res.status === 'success' && res.data.length > 0) { 
                     res.data.sort((a,b) => b.total - a.total); 
+                    
+                    // --- SINKRONISASI NAMA WALI KELAS DARI PENGATURAN ---
+                    wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Sinkronisasi Wali Kelas...</div>';
+                    
+                    // Mencari kelas apa saja yang masuk ranking
+                    let kelasUnik = [...new Set(res.data.map(s => s.kelas))];
+                    let mapWali = {};
+                    
+                    // Tarik nama wali kelas dari menu Pengaturan masing-masing kelas secara bersamaan
+                    let ambilWali = kelasUnik.map(kls => {
+                        let fd = new URLSearchParams(); 
+                        fd.append('action', 'getPengaturan'); 
+                        fd.append('kelas', kls);
+                        return fetch(GAS_URL, {method:'POST', body:fd})
+                            .then(r => r.json())
+                            .then(d => {
+                                mapWali[kls] = (d.status === 'success' && d.umum && d.umum.wali) ? d.umum.wali : 'Belum Diatur';
+                            })
+                            .catch(() => { mapWali[kls] = 'Gagal Memuat'; });
+                    });
+                    
+                    // Tunggu semua nama wali kelas selesai ditarik
+                    await Promise.all(ambilWali);
+                    // ---------------------------------------------------
+
+                    wadah.innerHTML = ''; 
                     res.data.forEach((santri, idx) => { 
                         let isTop1 = idx === 0; 
-                        let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${isTop1 ? '<div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>' : ''} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400'} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-400 text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">1</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${santri.nama}</h4> <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata: <span class="font-bold text-gray-800">${santri.rata}</span></p> </div> </div> <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1"> <p class="truncate" title="${santri.jk}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${santri.jk}</b></p> <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p> <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p> <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p> </div> </div>`; 
+                        
+                        // Memanggil nama wali kelas yang sudah ditarik sesuai kelas santri
+                        let namaWali = mapWali[santri.kelas];
+
+                        let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${isTop1 ? '<div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>' : ''} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400'} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-400 text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">1</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${santri.nama}</h4> <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata: <span class="font-bold text-gray-800">${santri.rata}</span></p> </div> </div> <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1"> <p class="truncate" title="${santri.jk}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${santri.jk}</b></p> <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p> <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p> <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p> <p class="truncate mt-1 pt-1" title="Wali Kelas"><i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${namaWali}</b></p> </div> </div>`; 
                         wadah.innerHTML += html; 
                     }); 
                 } else { 
@@ -1298,22 +1332,66 @@
             }).catch(e => { wadah.innerHTML = '<div class="text-white">Gagal memuat data.</div>'; }); 
         }
 
-        function loadRankingKelas() { 
+       function loadRankingKelas() { 
             const kelasPilih = document.getElementById('filterKelasRanking').value; 
             if (!kelasPilih) { Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' }); return; } 
+            
             showLoading(true); 
-            const formData = new URLSearchParams(); formData.append('action', 'getRankingKelas'); formData.append('kelas', kelasPilih); 
-            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
-                showLoading(false); const tbody = document.getElementById('bodyTabelRanking'); tbody.innerHTML = ''; 
-                if (res.status === 'success' && res.data.length > 0) { 
-                    res.data.sort((a, b) => { if (a.rank && b.rank) return a.rank - b.rank; return (b.rata || 0) - (a.rata || 0) || (b.total || 0) - (a.total || 0); }); 
-                    res.data.forEach((s, index) => { 
+            
+            // Siapkan pemanggilan data Ranking
+            const formDataRanking = new URLSearchParams(); 
+            formDataRanking.append('action', 'getRankingKelas'); 
+            formDataRanking.append('kelas', kelasPilih); 
+
+            // Siapkan pemanggilan data Pengaturan (untuk ambil Wali Kelas)
+            const formDataPengaturan = new URLSearchParams(); 
+            formDataPengaturan.append('action', 'getPengaturan'); 
+            formDataPengaturan.append('kelas', kelasPilih);
+
+            // Jalankan dua-duanya secara bersamaan
+            Promise.all([
+                fetch(GAS_URL, { method: 'POST', body: formDataRanking }).then(r => r.json()),
+                fetch(GAS_URL, { method: 'POST', body: formDataPengaturan }).then(r => r.json())
+            ]).then(([resRanking, resPengaturan]) => { 
+                showLoading(false); 
+                const tbody = document.getElementById('bodyTabelRanking'); 
+                tbody.innerHTML = ''; 
+
+                // Ekstrak nama Wali Kelas
+                let namaWali = 'Belum Diatur';
+                if (resPengaturan.status === 'success' && resPengaturan.umum && resPengaturan.umum.wali) {
+                    namaWali = resPengaturan.umum.wali;
+                }
+
+                if (resRanking.status === 'success' && resRanking.data.length > 0) { 
+                    resRanking.data.sort((a, b) => { if (a.rank && b.rank) return a.rank - b.rank; return (b.rata || 0) - (a.rata || 0) || (b.total || 0) - (a.total || 0); }); 
+                    
+                    resRanking.data.forEach((s, index) => { 
                         let rankNomor = s.rank ? parseInt(s.rank) : (index + 1); 
                         let rankStyle = "text-gray-500 font-bold text-lg"; let bgStyle = "hover:bg-gray-50"; let icon = rankNomor; 
+                        
                         if(rankNomor === 1) { rankStyle = "text-amber-500 text-2xl font-black"; bgStyle = "bg-amber-50 border-l-4 border-amber-400"; } 
                         else if(rankNomor === 2) { rankStyle = "text-gray-400 text-xl font-black"; bgStyle = "bg-gray-50"; } 
                         else if(rankNomor === 3) { rankStyle = "text-orange-400 text-xl font-black"; bgStyle = "bg-orange-50/50"; } 
-                        tbody.innerHTML += ` <tr class="transition-all ${bgStyle} border-b border-gray-50 last:border-0"> <td class="p-3 text-center border-r border-gray-100 ${rankStyle}">${icon}</td> <td class="p-3 text-gray-500 border-r border-gray-100 text-xs whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-100 min-w-[250px]"> <p class="font-bold text-gray-800 ${rankNomor <= 3 ? 'text-base' : 'text-sm'}">${s.nama}</p> <div class="text-[11px] text-gray-500 mt-1.5 space-y-0.5"> <p><span class="font-semibold text-gray-600">L/P:</span> ${s.jk}</p> <p><span class="font-semibold text-gray-600">TTL:</span> ${s.ttl}</p> <p><span class="font-semibold text-gray-600">Ortu:</span> ${s.ayah} & ${s.ibu}</p> <p><span class="font-semibold text-gray-600">Alamat:</span> ${s.alamat}</p> </div> </td> <td class="p-3 text-center border-r border-gray-100 font-bold text-emerald-700 align-middle">${s.total}</td> <td class="p-3 text-center font-bold text-blue-600 align-middle">${s.rata}</td> </tr>`; 
+                        
+                        tbody.innerHTML += ` 
+                        <tr class="transition-all ${bgStyle} border-b border-gray-50 last:border-0"> 
+                            <td class="p-3 text-center border-r border-gray-100 ${rankStyle}">${icon}</td> 
+                            <td class="p-3 text-gray-500 border-r border-gray-100 text-xs whitespace-nowrap">${s.nis}</td> 
+                            <td class="p-3 border-r border-gray-100 min-w-[250px]"> 
+                                <p class="font-bold text-gray-800 ${rankNomor <= 3 ? 'text-base' : 'text-sm'}">${s.nama}</p> 
+                                <div class="text-[11px] text-gray-500 mt-1.5 space-y-0.5"> 
+                                    <p><span class="font-semibold text-gray-600">L/P:</span> ${s.jk}</p> 
+                                    <p><span class="font-semibold text-gray-600">TTL:</span> ${s.ttl}</p> 
+                                    <p><span class="font-semibold text-gray-600">Ortu:</span> ${s.ayah} & ${s.ibu}</p> 
+                                    <p><span class="font-semibold text-gray-600">Alamat:</span> ${s.alamat}</p> 
+                                    <!-- TAMBAHAN WALI KELAS -->
+                                    <p class="mt-1 pt-1 border-t border-gray-200/60"><span class="font-semibold text-gray-600">Wali Kelas:</span> <span class="font-bold text-gray-800">${namaWali}</span></p> 
+                                </div> 
+                            </td> 
+                            <td class="p-3 text-center border-r border-gray-100 font-bold text-emerald-700 align-middle">${s.total}</td> 
+                            <td class="p-3 text-center font-bold text-blue-600 align-middle">${s.rata}</td> 
+                        </tr>`; 
                     }); 
                 } else { 
                     tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400 font-medium"><i class="fas fa-folder-open text-4xl mb-3 block text-red-300"></i> Belum ada data nilai di kelas ini.</td></tr>`; 
@@ -1594,89 +1672,169 @@
             printWindow.document.close();
         }
 
+  // =========================================================
+        // 3. FUNGSI CETAK RANKING KELAS (Kertas Legal)
         // =========================================================
-        // 3. FUNGSI EXPORT PDF RANKING (Kop Berlogo)
-        // =========================================================
-        function exportRankingPDF() {
+        function cetakRanking() {
             const kelas = document.getElementById('filterKelasRanking').value;
-            if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan ranking terlebih dahulu.' });
+            if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan ranking terlebih dahulu sebelum mencetak.' });
 
-            const elemenTabel = document.getElementById('bodyTabelRanking').closest('.overflow-x-auto');
-            if (elemenTabel.innerText.includes('Silakan pilih kelas') || elemenTabel.innerText.includes('Belum ada data')) {
-                 return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data untuk diexport.' });
+            const tbody = document.getElementById('bodyTabelRanking');
+            if (tbody.innerText.includes('Silakan pilih kelas') || tbody.innerText.includes('Belum ada data')) {
+                 return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data untuk dicetak.' });
             }
 
-            showLoading(true);
-            const pdfContainer = document.createElement('div');
-            pdfContainer.style.padding = '30px'; pdfContainer.style.backgroundColor = 'white';
-            const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
-
-            pdfContainer.innerHTML = `
-                <div style="display: flex; align-items: center; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 25px;">
-                    <img src="${logoUrl}" style="width: 70px; height: 70px; object-fit: contain; margin-right: 15px;">
-                    <div style="flex: 1; text-align: center; padding-right: 85px;">
-                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #065f46; margin: 0; text-transform: uppercase;">Madrasah Darussalam</h2>
-                        <p style="font-family: 'Inter', sans-serif; margin: 5px 0 0 0; color: #4b5563; font-size: 14px; font-weight: 500;">Laporan Peringkat Akademik Santri - Kelas: <span style="color: #059669; font-weight: bold;">${kelas}</span></p>
-                    </div>
-                </div>
+            // Menyusun ulang tabel agar rapi saat dicetak
+            const barisData = tbody.querySelectorAll('tr');
+            let tabelPrintHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 8%;">Rank</th>
+                            <th style="width: 15%;">NIS</th>
+                            <th style="width: 47%; text-align: left;">Nama & Detail Santri</th>
+                            <th style="width: 15%;">Total Nilai</th>
+                            <th style="width: 15%;">Rata-Rata</th>
+                        </tr>
+                    </thead>
+                    <tbody>
             `;
 
-            const tabelClone = elemenTabel.cloneNode(true);
-            tabelClone.classList.remove('overflow-x-auto', 'border', 'rounded-xl', 'border-gray-200');
-            pdfContainer.appendChild(tabelClone);
+            barisData.forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length === 5) {
+                    const rank = tds[0].innerText;
+                    const nis = tds[1].innerText;
+                    
+                    // Ekstrak nama dan detail
+                    const nama = tds[2].querySelector('p.font-bold').innerText;
+                    const detailLines = tds[2].querySelectorAll('.space-y-0\\.5 p');
+                    let detailStr = '';
+                    detailLines.forEach(p => { detailStr += `<div style="font-size: 11px; color: #444; margin-top: 3px;">${p.innerHTML}</div>`; });
+
+                    const total = tds[3].innerText;
+                    const rata = tds[4].innerText;
+
+                    tabelPrintHTML += `
+                        <tr>
+                            <td style="text-align: center; font-weight: bold; font-size: 16px;">${rank}</td>
+                            <td style="text-align: center;">${nis}</td>
+                            <td style="text-align: left;">
+                                <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">${nama}</div>
+                                ${detailStr}
+                            </td>
+                            <td style="text-align: center; font-weight: bold; font-size: 14px;">${total}</td>
+                            <td style="text-align: center; font-weight: bold; font-size: 14px;">${rata}</td>
+                        </tr>
+                    `;
+                }
+            });
+            tabelPrintHTML += `</tbody></table>`;
 
             const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            pdfContainer.innerHTML += `
-                <div style="margin-top: 40px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; color: #94a3b8; font-size: 11px; font-style: italic; font-family: 'Inter', sans-serif;">
-                    <p style="margin: 0;">Dokumen ini diterbitkan otomatis melalui Sistem Informasi Penilaian Santri.</p>
-                    <p style="margin: 4px 0 0 0;">Dicetak pada: <b>${tanggalCetak}</b></p>
-                </div>
-            `;
+            const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
 
-            const opt = { margin: [0.3, 0.3, 0.5, 0.3], filename: `Data_Ranking_${kelas.replace(/\s+/g, '_')}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
-            html2pdf().set(opt).from(pdfContainer).save().then(() => { showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'File PDF berhasil dibuat!', timer: 2000, showConfirmButton: false }); }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }); });
+            printWindow.document.write(`
+                <!DOCTYPE html><html lang="id"><head><title>Cetak_Ranking_${kelas.replace(/\s+/g, '_')}</title>
+                <style>
+               
+                   /* PENGATURAN KERTAS DIBEBASKAN KE BROWSER */
+@page { margin: 15mm; }
+body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    th, td { border: 1px solid #000; padding: 10px 8px; vertical-align: top; }
+                    th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
+                    .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
+                </style></head><body>
+                    <div style="display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                        <img src="${logoUrl}" style="width: 70px; height: 70px; object-fit: contain; margin-right: 15px;" onerror="this.style.display='none'">
+                        <div style="flex: 1; text-align: center; padding-right: 85px;">
+                            <h2 style="margin: 0; font-size: 24px; text-transform: uppercase; font-weight: bold;">Madrasah Darussalam</h2>
+                            <p style="margin: 5px 0 0 0; font-size: 14px;">Laporan Peringkat Akademik Santri - Kelas: <b>${kelas}</b></p>
+                        </div>
+                    </div>
+                    ${tabelPrintHTML}
+                    <div class="footer">Dokumen ini dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
+                    <script>window.onload = function() { setTimeout(function() { window.print(); }, 1000); };<\/script>
+                </body></html>
+            `);
+            printWindow.document.close();
         }
 
         // =========================================================
-        // 4. FUNGSI EXPORT PDF BINTANG PELAJAR (Kop Berlogo)
+        // 4. FUNGSI CETAK BINTANG PELAJAR (Kertas Legal)
         // =========================================================
-        function exportBintangPelajarPDF() {
+        function cetakBintangPelajar() {
             const wadah = document.getElementById('wadahBintangPelajar');
             if (wadah.innerText.includes('Memuat') || wadah.innerText.includes('Belum ada data')) {
                  return Swal.fire({ icon: 'error', title: 'Data Kosong', text: 'Tidak ada data Bintang Pelajar saat ini.' });
             }
 
-            showLoading(true);
-            const pdfContainer = document.createElement('div');
-            pdfContainer.style.padding = '30px'; pdfContainer.style.backgroundColor = '#f8fafc';
-            const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+            // Menyusun ulang kartu juara menjadi grid print
+            const cards = wadah.querySelectorAll('.bg-white.rounded-xl');
+            let gridHTML = `<div style="display: flex; flex-wrap: wrap; gap: 2%; justify-content: flex-start;">`;
+            
+            // Tambahkan parameter 'index' untuk mendapatkan nomor urut
+            cards.forEach((card, index) => {
+                const isJuaraUmum = card.innerHTML.includes('JUARA UMUM');
+                const nomorUrut = index + 1; // Menghitung dari angka 1
+                
+                const kelas = card.querySelector('p.uppercase').innerText;
+                const nama = card.querySelector('h4').innerText;
+                const totalRata = card.querySelector('p.text-xs.text-gray-500').innerText; 
+                
+                const detailLines = card.querySelectorAll('.border-t p');
+                let detailStr = '';
+                detailLines.forEach(p => { detailStr += `<div style="margin-bottom: 4px; font-size: 11px;">• ${p.innerText}</div>`; });
 
-            pdfContainer.innerHTML = `
-                <div style="display: flex; align-items: center; border-bottom: 3px solid #d97706; padding-bottom: 15px; margin-bottom: 25px;">
-                    <img src="${logoUrl}" style="width: 70px; height: 70px; object-fit: contain; margin-right: 15px;">
-                    <div style="flex: 1; text-align: center; padding-right: 85px;">
-                        <h2 style="font-family: 'Poppins', sans-serif; font-size: 26px; font-weight: 700; color: #b45309; margin: 0; text-transform: uppercase;">Madrasah Darussalam</h2>
-                        <p style="font-family: 'Inter', sans-serif; margin: 5px 0 0 0; color: #78350f; font-size: 14px; font-weight: 500;">Laporan Eksekutif: Daftar Bintang Pelajar (Juara Umum Per Kelas)</p>
+                gridHTML += `
+                    <div style="border: 2px solid ${isJuaraUmum ? '#d97706' : '#000'}; padding: 15px; width: 49%; box-sizing: border-box; border-radius: 12px; margin-bottom: 15px; position: relative;">
+                        
+                        ${isJuaraUmum ? '<div style="position: absolute; top: 0; right: 0; background: #d97706; color: white; padding: 4px 8px; font-size: 10px; font-weight: bold; border-bottom-left-radius: 8px;">JUARA UMUM</div>' : ''}
+                        
+                        <!-- ELEMEN BARU: NOMOR URUT DI POJOK KIRI ATAS KOTAK -->
+                        <div style="position: absolute; top: 12px; left: 15px; font-size: 22px; font-weight: 900; color: ${isJuaraUmum ? '#d97706' : '#64748b'};">#${nomorUrut}</div>
+
+                        <div style="text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px;">
+                            <div style="font-size: 11px; font-weight: bold; background: #e5e7eb; display: inline-block; padding: 4px 12px; border-radius: 15px; margin-bottom: 8px;">${kelas}</div>
+                            <h3 style="margin: 0; font-size: 18px; font-weight: bold;">${nama}</h3>
+                            <div style="font-size: 12px; margin-top: 8px; font-weight: bold;">${totalRata}</div>
+                        </div>
+                        <div style="color: #333;">${detailStr}</div>
                     </div>
-                </div>
-            `;
-
-            const clone = wadah.cloneNode(true);
-            clone.className = 'grid grid-cols-2 gap-4'; 
-            pdfContainer.appendChild(clone);
+                `;
+            });
+            gridHTML += `</div>`;
 
             const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            pdfContainer.innerHTML += `
-                <div style="margin-top: 40px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; color: #64748b; font-size: 11px; font-style: italic; font-family: 'Inter', sans-serif;">
-                    <p style="margin: 0;">Dokumen ini diterbitkan otomatis melalui Sistem Informasi Penilaian Santri.</p>
-                    <p style="margin: 4px 0 0 0;">Dicetak pada: <b>${tanggalCetak}</b></p>
-                </div>
-            `;
+            const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
 
-            const opt = { margin: [0.3, 0.3, 0.5, 0.3], filename: `Bintang_Pelajar.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
-            html2pdf().set(opt).from(pdfContainer).save().then(() => { showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'File PDF berhasil diunduh!', timer: 2000, showConfirmButton: false }); }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }); });
+            printWindow.document.write(`
+                <!DOCTYPE html><html lang="id"><head><title>Cetak_Bintang_Pelajar</title>
+                <style>
+                  /* PENGATURAN KERTAS DIBEBASKAN KE BROWSER */
+@page { margin: 15mm; }
+body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
+                    .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 30px; border-top: 1px dashed #aaa; padding-top: 10px; }
+                </style></head><body>
+                    <div style="display: flex; align-items: center; border-bottom: 3px solid #d97706; padding-bottom: 10px; margin-bottom: 25px;">
+                        <img src="${logoUrl}" style="width: 70px; height: 70px; object-fit: contain; margin-right: 15px;" onerror="this.style.display='none'">
+                        <div style="flex: 1; text-align: center; padding-right: 85px;">
+                            <h2 style="margin: 0; font-size: 24px; text-transform: uppercase; font-weight: bold; color: #b45309;">Madrasah Darussalam</h2>
+                            <p style="margin: 5px 0 0 0; font-size: 14px; font-weight: bold;">Laporan Eksekutif: Daftar Bintang Pelajar (Juara Umum Per Kelas)</p>
+                        </div>
+                    </div>
+                    ${gridHTML}
+                    <div class="footer">Dokumen ini dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
+                    <script>window.onload = function() { setTimeout(function() { window.print(); }, 1000); };<\/script>
+                </body></html>
+            `);
+            printWindow.document.close();
         }
-		
 		
 		// =========================================================
         // PENGGERAK JAM & KALENDER HIJRIYAH, MASEHI, PASARAN JAWA
