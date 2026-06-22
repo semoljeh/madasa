@@ -403,10 +403,12 @@
                                         <th class="p-3 text-center w-24">Rata-Rata</th>
                                     </tr>
                                 </thead>
-                                <tbody id="bodyTabelRanking" class="text-sm divide-y divide-gray-100 bg-white">
+                               <tbody id="bodyTabelRanking" class="text-sm divide-y divide-gray-100 bg-white">
                                     <tr>
-                                        <td colspan="5" class="p-8 text-center text-gray-400">
-                                            <i class="fas fa-list-ol text-4xl mb-2 text-gray-200 block"></i>Silakan pilih kelas.
+                                        <td colspan="5" class="p-8 text-left sm:text-center border-none">
+                                            <div class="sticky left-6 inline-block text-center text-gray-400">
+                                                <i class="fas fa-list-ol text-4xl mb-2 text-gray-200 block"></i>Silakan pilih kelas.
+                                            </div>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -671,7 +673,7 @@
     </div>
 
     <!-- WIDGET KONSULTASI WA DRAGGABLE -->
-    <div id="wa-widget" class="fixed bottom-6 right-6 z-[9999] flex flex-col items-center cursor-grab select-none" style="touch-action: none;">
+   <div id="wa-widget" class="fixed bottom-6 right-6 z-40 flex flex-col items-center cursor-grab select-none" style="touch-action: none;">
         <!-- Tombol WA (Diperkecil dan tanpa teks) -->
         <!-- UBAH NOMOR WA DI BAWAH INI (Gunakan awalan 62 tanpa + atau 0) -->
         <a id="wa-link" href="https://wa.me/6282333166659?text=Assalamu'alaikum%20Admin,%20saya%20butuh%20bantuan%20terkait%20Sistem%20Madasa." target="_blank" class="relative flex items-center justify-center w-12 h-12 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full shadow-2xl transition-transform transform hover:scale-105 pointer-events-auto">
@@ -689,7 +691,7 @@
         // ---------------------------------------------------------
         // 1. PENGATURAN GLOBAL & DATABASE
         // ---------------------------------------------------------
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxfCwCoZwzvZ3okYEIlEKHgqSWHwjayjzvbplCK1Y51i-Ft9GhttG64wbUz0eeDkJ10/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyeeYMPHrdsBCdtwRS9ssZR6HaB9dHm7-9WNYcu9ZA0DHdOt3Ptjrp1jr4kV4QbbLYf/exec';
         let GLOBAL_DATA_SANTRI = [];
         let GLOBAL_HEADERS_NILAI = [];
         let GLOBAL_DATA_NILAI = [];
@@ -1280,7 +1282,7 @@
             }).catch(err => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal update data.', 'error'); }); 
         });
 
-       function loadBintangPelajar() { 
+      function loadBintangPelajar() { 
             const wadah = document.getElementById('wadahBintangPelajar'); 
             wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Memuat kandidat juara...</div>'; 
             
@@ -1289,18 +1291,15 @@
             
             fetch(GAS_URL, { method: 'POST', body: formData })
             .then(res => res.json())
-            .then(async res => {  // <-- Penambahan async di sini
+            .then(async res => {
                 if (res.status === 'success' && res.data.length > 0) { 
                     res.data.sort((a,b) => b.total - a.total); 
                     
-                    // --- SINKRONISASI NAMA WALI KELAS DARI PENGATURAN ---
                     wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Sinkronisasi Wali Kelas...</div>';
                     
-                    // Mencari kelas apa saja yang masuk ranking
                     let kelasUnik = [...new Set(res.data.map(s => s.kelas))];
                     let mapWali = {};
                     
-                    // Tarik nama wali kelas dari menu Pengaturan masing-masing kelas secara bersamaan
                     let ambilWali = kelasUnik.map(kls => {
                         let fd = new URLSearchParams(); 
                         fd.append('action', 'getPengaturan'); 
@@ -1313,18 +1312,23 @@
                             .catch(() => { mapWali[kls] = 'Gagal Memuat'; });
                     });
                     
-                    // Tunggu semua nama wali kelas selesai ditarik
                     await Promise.all(ambilWali);
-                    // ---------------------------------------------------
 
                     wadah.innerHTML = ''; 
                     res.data.forEach((santri, idx) => { 
                         let isTop1 = idx === 0; 
-                        
-                        // Memanggil nama wali kelas yang sudah ditarik sesuai kelas santri
                         let namaWali = mapWali[santri.kelas];
 
-                        let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${isTop1 ? '<div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>' : ''} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400'} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-400 text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">1</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${santri.nama}</h4> <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata: <span class="font-bold text-gray-800">${santri.rata}</span></p> </div> </div> <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1"> <p class="truncate" title="${santri.jk}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${santri.jk}</b></p> <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p> <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p> <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p> <p class="truncate mt-1 pt-1" title="Wali Kelas"><i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${namaWali}</b></p> </div> </div>`; 
+                        // --- KALKULATOR RATA-RATA OTOMATIS ANTI SALAH ---
+                        let rataBenar = santri.rata;
+                        if (!santri.kelas.includes('TK')) {
+                            let jmlMapel = JADWAL_MAPEL[santri.kelas] ? JADWAL_MAPEL[santri.kelas].length : 1;
+                            rataBenar = (parseFloat(santri.total) / jmlMapel).toFixed(1);
+                        }
+
+                        // --- KODE HTML YANG SUDAH DIPERBAIKI NOMOR URUTNYA (1, 2, 3) ---
+                        let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${isTop1 ? '<div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>' : ''} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400'} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 ${isTop1 ? 'bg-red-500' : 'bg-gray-500'} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${idx + 1}</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${santri.nama}</h4> <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata: <span class="font-bold text-gray-800">${rataBenar}</span></p> </div> </div> <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1"> <p class="truncate" title="${santri.jk}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${santri.jk}</b></p> <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p> <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p> <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p> <p class="truncate mt-1 pt-1" title="Wali Kelas"><i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${namaWali}</b></p> </div> </div>`; 
+                        
                         wadah.innerHTML += html; 
                     }); 
                 } else { 
@@ -1390,8 +1394,8 @@
                         </tr>`; 
                     }); 
                 } else { 
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-400 font-medium whitespace-nowrap"><i class="fas fa-folder-open text-4xl mb-3 block text-red-300"></i> Belum ada data nilai di kelas ini.</td></tr>`; 
-                } 
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-left sm:text-center border-none"><div class="sticky left-6 inline-block text-center text-red-400 font-medium"><i class="fas fa-folder-open text-4xl mb-3 block text-red-300"></i> Belum ada data nilai di kelas ini.</div></td></tr>`; 
+                }
             }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal memuat ranking.', 'error'); }); 
         }
 
@@ -1540,13 +1544,11 @@
                     </div>
                     
                     <script>
-                        // Beri jeda 0.5 detik agar halaman ke-render penuh sebelum dialog print muncul
+                        // Beri jeda 1 detik agar halaman ke-render penuh sebelum dialog print muncul (Anti-Error HP)
                         window.onload = function() {
                             setTimeout(function() {
                                 window.print();
-                                // Otomatis tutup tab jika jendela print disilang/selesai
-                                window.close();
-                            }, 500);
+                            }, 1000);
                         };
                     <\/script>
                 </body>
