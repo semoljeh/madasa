@@ -1005,7 +1005,9 @@
                         res.data.forEach(s => { 
                             const tr = document.createElement('tr'); 
                             tr.className = 'hover:bg-teal-50 transition-all santri-row'; tr.setAttribute('data-kelas', s.kelas); 
-                            tr.innerHTML = `<td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800">${s.nama}</td><td class="p-3 sm:p-4 text-center">${s.jk}</td><td class="p-3 sm:p-4"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${s.nama}', '${s.jk}', '${s.kelas}', \`${s.alamat}\`, \`${s.ayah}\`, \`${s.ibu}\`, '${s.hp}', \`${s.ttl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`; 
+                    
+				tr.innerHTML = `<td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td><td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td><td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${s.nama}', '${s.jk}', '${s.kelas}', \`${s.alamat}\`, \`${s.ayah}\`, \`${s.ibu}\`, '${s.hp}', \`${s.ttl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`;
+					
                             tbody.appendChild(tr); 
                         }); 
                         filterSantri(); 
