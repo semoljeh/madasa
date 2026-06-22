@@ -269,13 +269,25 @@
         }
 
         function generateK13Logic(mapel, angka) {
-            let predikat = ""; let deskripsi = "";
-            if (angka >= 90) { predikat = "A"; deskripsi = `Sangat baik dan menguasai materi <b>${mapel}</b>. Mampu mempraktekkan dengan sempurna tanpa bimbingan.`; } 
-            else if (angka >= 80) { predikat = "B"; deskripsi = `Baik dalam memahami materi <b>${mapel}</b>. Pertahankan semangat belajar dan tingkatkan lagi di rumah.`; } 
-            else if (angka >= 70) { predikat = "C"; deskripsi = `Cukup mampu mengikuti materi <b>${mapel}</b>. Masih membutuhkan sedikit bimbingan dan pembiasaan.`; } 
-            else { predikat = "D"; deskripsi = `Masih kesulitan dalam materi <b>${mapel}</b>. Perlu pendampingan khusus dan lebih sering berlatih.`; }
-            return { predikat, deskripsi };
-        }
+    let predikat = ""; let deskripsi = "";
+    if (angka >= 90) { 
+        predikat = "A"; 
+        deskripsi = `Alhamdulillah, ananda sangat baik dan menguasai materi <b>${mapel}</b>. Masya Allah, mampu mempraktekkan dengan sempurna tanpa bimbingan. Barakallah fiik.`; 
+    } 
+    else if (angka >= 80) { 
+        predikat = "B"; 
+        deskripsi = `Insya Allah ananda sudah baik dalam memahami materi <b>${mapel}</b>. Tetap istiqomah, pertahankan semangat belajar, dan tingkatkan lagi di rumah.`; 
+    } 
+    else if (angka >= 70) { 
+        predikat = "C"; 
+        deskripsi = `Ananda cukup mampu mengikuti materi <b>${mapel}</b>. Membutuhkan sedikit bimbingan dan pembiasaan agar kelak menjadi lebih baik, bi idznillah.`; 
+    } 
+    else { 
+        predikat = "D"; 
+        deskripsi = `Ananda masih membutuhkan pendampingan khusus dalam materi <b>${mapel}</b>. Semoga Allah mudahkan ananda untuk lebih giat belajar dan terus berlatih.`; 
+    }
+    return { predikat, deskripsi };
+}
 
        async function muatDataRapor(nisSantri) {
             document.getElementById('teksLoading').innerText = "Menarik Data Rapor...";
