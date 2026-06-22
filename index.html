@@ -662,7 +662,7 @@
         // ---------------------------------------------------------
         // 1. PENGATURAN GLOBAL & DATABASE
         // ---------------------------------------------------------
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyCMW36-hQTFIvEAN-9fE1CzezlWBmiJVpVt6AAJqDp21V0wsucCLNmFDJn4xACKf9v/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbxfCwCoZwzvZ3okYEIlEKHgqSWHwjayjzvbplCK1Y51i-Ft9GhttG64wbUz0eeDkJ10/exec';
         let GLOBAL_DATA_SANTRI = [];
         let GLOBAL_HEADERS_NILAI = [];
         let GLOBAL_DATA_NILAI = [];
@@ -745,18 +745,55 @@
                     showView('home', false); 
 
                     // =========================================================
-                    // MENGIRIM DATA PELACAK KE GOOGLE APPS SCRIPT SETELAH LOGIN
-                    // =========================================================
-                    const infoPerangkat = navigator.userAgent; 
-                    const notifData = new URLSearchParams();
-                    notifData.append('action', 'notifLogin');
-                    notifData.append('nama', d.name);  // Mengambil nama dari respon database
-                    notifData.append('role', d.role);  // Mengambil jabatan dari respon database
-                    notifData.append('perangkat', infoPerangkat);
+        // FITUR BARU: LACAK PERANGKAT & GPS AKURAT -> EMAIL
+        // =========================================================
+        
+        // 1. Saring Nama Perangkat
+        let mentahanPerangkat = navigator.userAgent;
+        let namaPerangkatRapi = mentahanPerangkat;
+        if (/Android/i.test(mentahanPerangkat)) {
+            let match = mentahanPerangkat.match(/Android\s[0-9\.]+(?:;\s([^;]+))?/);
+            let modelPabrik = match && match[1] ? match[1].split(')')[0] : "Tidak Diketahui";
+            namaPerangkatRapi = "📱 HP Android (Model: " + modelPabrik + ")";
+        } else if (/iPhone/i.test(mentahanPerangkat)) { namaPerangkatRapi = "🍎 Apple iPhone";
+        } else if (/iPad/i.test(mentahanPerangkat)) { namaPerangkatRapi = "🍎 Apple iPad";
+        } else if (/Windows NT/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 Laptop/PC (Windows)";
+        } else if (/Mac/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 MacBook/iMac (Mac OS)";
+        }
 
-                    // Kirim diam-diam di background
-                    fetch(GAS_URL, { method: 'POST', body: notifData }).catch(err => console.log(err));
-                    // =========================================================
+        // 2. Fungsi Pengirim Data ke GAS
+        const kirimDataKeServer = (dataLokasi) => {
+            const notifData = new URLSearchParams();
+            notifData.append('action', 'notifLogin');
+            notifData.append('nama', d.name);  
+            notifData.append('role', d.role);  
+            notifData.append('perangkat', namaPerangkatRapi); 
+            notifData.append('lokasi', dataLokasi); // <-- Tambahan data lokasi
+
+            fetch(GAS_URL, { method: 'POST', body: notifData }).catch(err => console.log(err));
+        };
+
+        // 3. Minta Akses GPS (Geolocation)
+        if (navigator.geolocation) {
+            // Aktifkan mode High Accuracy untuk hasil yang presisi
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    // Jika diizinkan, buat link Google Maps
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    const linkMaps = `https://www.google.com/maps?q=${lat},${lon}`;
+                    kirimDataKeServer(linkMaps);
+                },
+                (err) => {
+                    // Jika user menolak popup izin lokasi
+                    kirimDataKeServer("Akses GPS Ditolak oleh Pengguna (" + err.message + ")");
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        } else {
+            kirimDataKeServer("Perangkat/Browser tidak mendukung fitur GPS");
+        }
+        // =========================================================
 
                 } else { 
                     Swal.fire('Gagal Masuk', d.message, 'error'); 
