@@ -21,10 +21,10 @@
         .no-border th, .no-border td { border: none !important; }
 		
 		@media print {
+            @page { margin: 10mm; } 
             body { background-color: #fff !important; margin: 0; padding: 0 !important; }
             .no-print { display: none !important; }
-            #wadahKertasRapor { background: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
-            #kertasRapor { box-shadow: none !important; margin: 0 auto !important; }
+            #kertasRapor { box-shadow: none !important; margin: 0 auto !important; width: 100% !important; min-height: auto !important; padding: 0 !important; }
         }
     </style>
 </head>
@@ -73,10 +73,8 @@
         </div>
     </div>
 
-    <!-- WADAH KERTAS RAPOR (Dilepas kunciannya agar bisa di-zoom out) -->
-    <div id="wadahKertasRapor" class="hidden w-full py-4">
-        <div id="kertasRapor" class="bg-white shadow-2xl text-black font-sans relative box-border mx-auto shrink-0" style="width: 210mm; min-width: 210mm; min-height: 330mm; padding: 8mm;"></div>
-    </div>
+    <!-- KERTAS RAPOR (Langsung ditempatkan tanpa wadah, sama persis dengan versi TK) -->
+    <div id="kertasRapor" class="bg-white shadow-2xl text-black font-sans relative box-border mx-auto hidden mt-4 mb-10" style="width: 210mm; min-height: 330mm; padding: 8mm;"></div>
 
     <script>
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbxfCwCoZwzvZ3okYEIlEKHgqSWHwjayjzvbplCK1Y51i-Ft9GhttG64wbUz0eeDkJ10/exec';
@@ -152,6 +150,9 @@
             const nis = document.getElementById('raporSantri').value;
             if(!kelas || !nis) return Swal.fire('Perhatian', 'Pilih kelas dan nama santri terlebih dahulu.', 'warning');
 
+            // Sembunyikan kertas sebelum ditarik ulang (PENTING)
+            document.getElementById('kertasRapor').classList.add('hidden');
+            
             showLoading(true, "Menarik Data Rapor...");
             const fdNilai = new URLSearchParams(); fdNilai.append('action', 'getDataNilai'); fdNilai.append('kelas', kelas);
             const fdRank = new URLSearchParams(); fdRank.append('action', 'getRankingKelas'); fdRank.append('kelas', kelas);
@@ -184,7 +185,6 @@
         }
 
         function renderKertasRapor(kelas, info, headers, nilaiRow, rank, pengaturan) {
-            document.getElementById('wadahKertasRapor').classList.remove('hidden');
             const kertas = document.getElementById('kertasRapor');
             
             let setUmum = pengaturan.umum || {};
@@ -469,6 +469,9 @@
                     </div>
                 </div>
             `;
+            
+            // Perbaikan kunci: Langsung tampilkan id kertasRapor tanpa perlu mencari wadahKertasRapor
+            kertas.classList.remove('hidden');
         }
 
         function cetakRapor() { window.print(); }
