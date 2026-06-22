@@ -268,26 +268,27 @@
             return predikatHuruf; 
         }
 
+        // DESKRIPSI SUDAH DIPERBARUI MENJADI VERSI ISLAMI 100%
         function generateK13Logic(mapel, angka) {
-    let predikat = ""; let deskripsi = "";
-    if (angka >= 90) { 
-        predikat = "A"; 
-        deskripsi = `Alhamdulillah, ananda sangat baik dan menguasai materi <b>${mapel}</b>. Masya Allah, mampu mempraktekkan dengan sempurna tanpa bimbingan. Barakallah fiik.`; 
-    } 
-    else if (angka >= 80) { 
-        predikat = "B"; 
-        deskripsi = `Insya Allah ananda sudah baik dalam memahami materi <b>${mapel}</b>. Tetap istiqomah, pertahankan semangat belajar, dan tingkatkan lagi di rumah.`; 
-    } 
-    else if (angka >= 70) { 
-        predikat = "C"; 
-        deskripsi = `Ananda cukup mampu mengikuti materi <b>${mapel}</b>. Membutuhkan sedikit bimbingan dan pembiasaan agar kelak menjadi lebih baik, bi idznillah.`; 
-    } 
-    else { 
-        predikat = "D"; 
-        deskripsi = `Ananda masih membutuhkan pendampingan khusus dalam materi <b>${mapel}</b>. Semoga Allah mudahkan ananda untuk lebih giat belajar dan terus berlatih.`; 
-    }
-    return { predikat, deskripsi };
-}
+            let predikat = ""; let deskripsi = "";
+            if (angka >= 90) { 
+                predikat = "A"; 
+                deskripsi = `Alhamdulillah, ananda sangat baik dan menguasai materi <b>${mapel}</b>. Masya Allah, mampu mempraktekkan dengan sempurna tanpa bimbingan. Barakallah fiik.`; 
+            } 
+            else if (angka >= 80) { 
+                predikat = "B"; 
+                deskripsi = `Insya Allah ananda sudah baik dalam memahami materi <b>${mapel}</b>. Tetap istiqomah, pertahankan semangat belajar, dan tingkatkan lagi di rumah.`; 
+            } 
+            else if (angka >= 70) { 
+                predikat = "C"; 
+                deskripsi = `Ananda cukup mampu mengikuti materi <b>${mapel}</b>. Membutuhkan sedikit bimbingan dan pembiasaan agar kelak menjadi lebih baik, bi idznillah.`; 
+            } 
+            else { 
+                predikat = "D"; 
+                deskripsi = `Ananda masih membutuhkan pendampingan khusus dalam materi <b>${mapel}</b>. Semoga Allah mudahkan ananda untuk lebih giat belajar dan terus berlatih.`; 
+            }
+            return { predikat, deskripsi };
+        }
 
        async function muatDataRapor(nisSantri) {
             document.getElementById('teksLoading').innerText = "Menarik Data Rapor...";
@@ -376,7 +377,7 @@
             tbody.innerHTML = '';
             let totalNilai = 0;
 
-            // LOGIKA 7 BARIS STATIS
+           // LOGIKA 7 BARIS STATIS
             for (let i = 0; i < 7; i++) {
                 if (d.nilai && d.nilai[i]) {
                     const item = d.nilai[i];
@@ -384,23 +385,24 @@
                     totalNilai += parseFloat(item.nilai);
                     let warnaPredikat = k13.predikat === 'A' ? "text-emerald-600" : k13.predikat === 'B' ? "text-blue-600" : k13.predikat === 'C' ? "text-orange-500" : "text-red-600";
                     
+                    // PERUBAHAN: Padding (py-3) diubah jadi (py-1.5) dan jarak baris (leading-relaxed) jadi (leading-tight)
                     tbody.innerHTML += `
                         <tr>
-                            <td class="text-center font-bold">${i + 1}</td>
-                            <td class="font-bold text-gray-800 px-2 py-3">${item.mapel}</td>
-                            <td class="text-center font-bold text-[13px]">${item.nilai}</td>
-                            <td class="text-center font-black text-[14px] ${warnaPredikat}">${k13.predikat}</td>
-                            <td class="text-justify px-2 leading-relaxed text-[10px]">${k13.deskripsi}</td>
+                            <td class="text-center font-bold py-1.5">${i + 1}</td>
+                            <td class="font-bold text-gray-800 px-2 py-1.5">${item.mapel}</td>
+                            <td class="text-center font-bold text-[13px] py-1.5">${item.nilai}</td>
+                            <td class="text-center font-black text-[14px] ${warnaPredikat} py-1.5">${k13.predikat}</td>
+                            <td class="text-justify px-2 py-1.5 leading-tight text-[10px]">${k13.deskripsi}</td>
                         </tr>
                     `;
                 } else {
                     tbody.innerHTML += `
                         <tr>
-                            <td class="text-center font-bold">${i + 1}</td>
-                            <td class="px-2 py-3">&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
+                            <td class="text-center font-bold py-1.5">${i + 1}</td>
+                            <td class="px-2 py-1.5">&nbsp;</td>
+                            <td class="py-1.5">&nbsp;</td>
+                            <td class="py-1.5">&nbsp;</td>
+                            <td class="py-1.5">&nbsp;</td>
                         </tr>
                     `;
                 }
