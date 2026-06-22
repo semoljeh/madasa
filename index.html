@@ -159,13 +159,25 @@
 
             <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
                 
-                <!-- VIEW: HOME -->
+               
+                  <!-- VIEW: HOME -->
                 <div id="view-home" class="view-section">
-                    <div class="bg-gradient-to-r from-emerald-700 to-teal-800 rounded-2xl p-6 sm:p-8 text-white shadow-md mb-6 sm:mb-8 relative overflow-hidden">
+                    <div class="bg-gradient-to-r from-emerald-700 to-teal-800 rounded-2xl p-6 sm:p-8 text-white shadow-md mb-6 sm:mb-8 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        
                         <div class="relative z-10">
                             <h1 class="text-2xl sm:text-3xl font-heading font-bold">Ahlan Wa Sahlan</h1>
                             <p class="text-emerald-100 mt-1 sm:mt-2 text-sm sm:text-base">Selamat datang di Sistem Informasi Penilaian Santri Digital.</p>
                         </div>
+
+                        <!-- KOTAK WAKTU & TANGGAL (Adaptasi gaya Al-Mukhtar) -->
+                        <div class="relative z-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-4 text-center md:text-right min-w-[200px]">
+                            <h2 id="waktu-jam" class="text-3xl sm:text-4xl font-bold font-mono tracking-tighter text-gold leading-none drop-shadow-sm">00:00</h2>
+                            <div class="mt-2 pt-2 border-t border-white/20 border-dashed">
+                                <p id="waktu-hijriyah" class="text-[12px] text-emerald-200 font-bold tracking-wide mb-0.5">Memuat Hijriyah...</p>
+                                <p id="waktu-masehi" class="text-[10px] font-bold text-emerald-50 uppercase tracking-widest">Memuat Masehi...</p>
+                            </div>
+                        </div>
+
                         <i class="fas fa-mosque absolute -right-6 -bottom-6 text-emerald-900 opacity-20" style="font-size: 8rem;"></i>
                     </div>
                     
@@ -1649,6 +1661,55 @@
             html2pdf().set(opt).from(pdfContainer).save().then(() => { showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'File PDF berhasil diunduh!', timer: 2000, showConfirmButton: false }); }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }); });
         }
 		
+		
+		// =========================================================
+        // PENGGERAK JAM & KALENDER HIJRIYAH, MASEHI, PASARAN JAWA
+        // =========================================================
+        function updateWaktuLokal() {
+            const sekarang = new Date();
+            
+            // 1. Update Jam dan Menit (Format: 08:30)
+            const jam = sekarang.getHours().toString().padStart(2, '0');
+            const menit = sekarang.getMinutes().toString().padStart(2, '0');
+            const elemenJam = document.getElementById('waktu-jam');
+            if (elemenJam) elemenJam.innerText = `${jam}:${menit}`;
+
+            // 2. Update Tanggal Masehi & Pasaran Jawa
+            // Rumus menghitung hari Pasaran berdasarkan waktu Unix (Epoch 1970)
+            const offsetWIB = 7 * 60 * 60 * 1000; // Penyesuaian Zona Waktu Indonesia (+7)
+            const totalHari = Math.floor((sekarang.getTime() + offsetWIB) / 86400000);
+            
+            const arrPasaran = ['Legi', 'Pahing', 'Pon', 'Wage', 'Kliwon'];
+            const pasaranJawa = arrPasaran[(totalHari + 3) % 5]; // +3 adalah konstanta sinkronisasi kalender
+
+            const opsiMasehi = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+            let teksMasehi = sekarang.toLocaleDateString('id-ID', opsiMasehi);
+            
+            // Menyisipkan nama pasaran Jawa setelah nama Hari (Misal: Senin -> Senin Kliwon)
+            let bagianTeks = teksMasehi.split(','); 
+            teksMasehi = `${bagianTeks[0]} ${pasaranJawa}, ${bagianTeks[1]} M`;
+
+            const elemenMasehi = document.getElementById('waktu-masehi');
+            if (elemenMasehi) elemenMasehi.innerText = teksMasehi.toUpperCase();
+
+            // 3. Update Tanggal Hijriyah
+            try {
+                const opsiHijriyah = { day: 'numeric', month: 'long', year: 'numeric' };
+                let teksHijriyah = new Intl.DateTimeFormat('id-TN-u-ca-islamic', opsiHijriyah).format(sekarang);
+                teksHijriyah = teksHijriyah.replace('AH', 'H'); // Ubah ejaan bahasa inggris ke indonesia
+                
+                const elemenHijriyah = document.getElementById('waktu-hijriyah');
+                if (elemenHijriyah) elemenHijriyah.innerText = teksHijriyah;
+            } catch (e) {
+                console.log("Kalender Hijriyah tidak didukung.");
+            }
+        }
+
+        // Jalankan saat web dibuka, lalu perbarui setiap detik
+        document.addEventListener("DOMContentLoaded", () => {
+            updateWaktuLokal();
+            setInterval(updateWaktuLokal, 1000);
+        });
 		
     </script>
     
