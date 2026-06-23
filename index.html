@@ -42,6 +42,9 @@
     <script>
         tailwind.config = { theme: { extend: { colors: { emerald: { 600: '#059669', 700: '#047857', 800: '#065f46' }, gold: '#D4AF37' }, fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] } } } }
     </script>
+	
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <style>
         body { -webkit-font-smoothing: antialiased; }
@@ -209,11 +212,15 @@
                                 <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 hover:text-teal-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
                                 <div><h3 class="text-lg sm:text-xl font-heading font-bold text-gray-800">Data Induk Santri</h3><p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Manajemen biodata seluruh santri aktif</p></div>
                             </div>
-                            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+							
+                           <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
     <button onclick="cetakDataSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
         <i class="fas fa-print"></i> Cetak / Print
     </button>
-   <button onclick="openModalSantri()" class="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
+    <button onclick="openModalImportSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-amber-500 text-white rounded-xl hover:bg-amber-600 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
+        <i class="fas fa-file-import"></i> Import
+    </button>
+    <button onclick="openModalSantri()" class="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
         <i class="fas fa-user-plus"></i> Tambah Santri
     </button>
 </div>
@@ -771,6 +778,40 @@
             <i class="fab fa-whatsapp text-2xl relative z-10"></i>
         </a>
     </div>
+	
+	
+	
+	
+	
+	<div id="modalImportSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-5 sm:p-6 transform transition-all">
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+            <h3 class="text-base sm:text-lg font-heading font-bold text-gray-800"><i class="fas fa-file-excel text-green-600 mr-2"></i>Import Data Santri</h3>
+            <button onclick="closeModalImportSantri()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        
+        <div class="bg-amber-50 border border-amber-200 text-amber-800 p-3 rounded-xl text-xs mb-4">
+            <b>ATURAN IMPORT:</b><br>
+            1. Buat file Excel dengan urutan kolom persis seperti urutan di database: <b>NIS, Nama, L/P, TTL, Kelas, Alamat, Ayah, Ibu, HP</b>.<br>
+            2. Simpan file Excel (Save As) menjadi format <b>CSV (Comma delimited)</b>.<br>
+            3. Upload file CSV tersebut ke area di bawah ini.
+        </div>
+
+        <form id="formImportSantri">
+            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition-all cursor-pointer relative">
+                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                <p class="text-sm font-bold text-gray-600">Klik Untuk Memilih File CSV</p>
+                <input type="file" id="fileImportCSV" accept=".csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required onchange="document.getElementById('namaFileCsv').innerText = this.files[0].name">
+            </div>
+            <p id="namaFileCsv" class="text-center text-xs text-green-600 font-bold mt-2"></p>
+            
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4">
+                <button type="button" onclick="closeModalImportSantri()" class="w-full sm:w-auto px-4 py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
+                <button type="submit" class="w-full sm:w-auto px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Proses Import</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 
     <!-- =========================================================================
@@ -780,7 +821,7 @@
         // ---------------------------------------------------------
         // 1. PENGATURAN GLOBAL & DATABASE
         // ---------------------------------------------------------
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzs9QRRZaibqxcabQyn9Ry1BQ0mgrSftBs33Dhn06Wgt-MsgC0NqKqo5wQAOOZWR8oP/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbw0FVt3AC99sCl1qiZL36RpjxKVnPcTzjbA8gGhf4Q7DGK2huXivf2z0DJ2x2BnmsyD/exec';
         let GLOBAL_DATA_SANTRI = [];
         let GLOBAL_HEADERS_NILAI = [];
         let GLOBAL_DATA_NILAI = [];
@@ -1114,6 +1155,66 @@
             document.getElementById('modalTambahSantri').classList.remove('hidden'); 
         }
         function closeModalSantri() { document.getElementById('modalTambahSantri').classList.add('hidden'); document.getElementById('formTambahSantri').reset(); }
+		
+		// --- FUNGSI IMPORT SANTRI VIA CSV ---
+function openModalImportSantri() {
+    document.getElementById('modalImportSantri').classList.remove('hidden');
+    document.getElementById('fileImportCSV').value = '';
+    document.getElementById('namaFileCsv').innerText = '';
+}
+
+function closeModalImportSantri() {
+    document.getElementById('modalImportSantri').classList.add('hidden');
+}
+
+document.getElementById('formImportSantri').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('fileImportCSV');
+    if (!fileInput.files.length) return Swal.fire('Perhatian', 'Pilih file CSV terlebih dahulu!', 'warning');
+
+    const btnSubmit = this.querySelector('button[type="submit"]');
+    const originalText = btnSubmit.innerHTML;
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membaca File...';
+
+    // Parse CSV menggunakan library PapaParse
+    Papa.parse(fileInput.files[0], {
+        header: false, 
+        skipEmptyLines: true,
+        complete: function(results) {
+            if(results.errors.length) {
+                btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
+                return Swal.fire('Error CSV', 'Format file CSV rusak.', 'error');
+            }
+
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim Data...';
+            showLoading(true);
+
+            const formData = new URLSearchParams();
+            formData.append('action', 'importSantriBulk');
+            formData.append('data_import', JSON.stringify(results.data));
+
+            fetch(GAS_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => {
+                showLoading(false);
+                btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
+                if(data.status === 'success') {
+                    closeModalImportSantri();
+                    Swal.fire('Berhasil!', data.message, 'success');
+                    loadDataSantri(); // Refresh tabel setelah sukses
+                } else {
+                    Swal.fire('Gagal', data.message, 'error');
+                }
+            }).catch(err => {
+                showLoading(false);
+                btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
+                Swal.fire('Error', 'Gagal terhubung ke database.', 'error');
+            });
+        }
+    });
+});
+		
         
         function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) { 
             document.getElementById('edit_nis').value = nis; document.getElementById('edit_nama').value = nama; 
@@ -2312,6 +2413,9 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
                 }
             });
         }
+		
+		
+		
 		
     </script>
     
