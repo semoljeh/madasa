@@ -827,25 +827,13 @@
             if (pushToHistory) window.history.pushState({ view: viewName }, "", "#" + viewName);
         }
 
-       window.addEventListener('popstate', function(event) {
-            // 1. Setiap kali tombol back ditekan, paksa tutup semua form yang sedang terbuka
-            document.getElementById('modalTambahSantri').classList.add('hidden');
-            document.getElementById('modalEditSantri').classList.add('hidden');
-            document.getElementById('modalEditNilai').classList.add('hidden');
-
-            // 2. Atur perpindahan halaman menu
+        window.addEventListener('popstate', function(event) {
             const isDashboard = !document.getElementById('dashboardPage').classList.contains('hidden');
             if (isDashboard) {
-                if (event.state && event.state.view) {
-                    showView(event.state.view, false);
-                } else if (event.state && event.state.modal) {
-                    // Abaikan perpindahan halaman jika yang baru ditutup adalah form
-                } else {
-                    showView('home', false);
-                }
+                if (event.state && event.state.view) showView(event.state.view, false);
+                else showView('home', false);
             }
         });
-
 
         // ---------------------------------------------------------
         // 3. FUNGSI AUTENTIKASI (LOGIN & LOGOUT)
@@ -1055,16 +1043,27 @@
         
         window.addEventListener('appinstalled', (evt) => { tutupNotifPWA(); });
 
-function openModalSantri() { 
-            let nextNis = "001";
+        // ---------------------------------------------------------
+        // 6. FUNGSI DATABASE (SANTRI, NILAI, RANKING, PENGATURAN)
+        // ---------------------------------------------------------
+       function openModalSantri() { 
+            // --- SISTEM NIS OTOMATIS ---
+            let nextNis = "001"; // Default awal jika database kosong
             if (GLOBAL_DATA_SANTRI && GLOBAL_DATA_SANTRI.length > 0) {
-                let maxNis = 0; let panjangKarakter = 3; 
+                let maxNis = 0;
+                let panjangKarakter = 3; // Standar panjang karakter (contoh: 001)
+                
                 GLOBAL_DATA_SANTRI.forEach(s => {
                     let nisStr = s.nis.toString().trim();
                     if(nisStr.length > panjangKarakter) panjangKarakter = nisStr.length;
-                    let nisAngka = parseInt(nisStr.replace(/\D/g, ''));
-                    if (!isNaN(nisAngka) && nisAngka > maxNis) maxNis = nisAngka;
+                    
+                    let nisAngka = parseInt(nisStr.replace(/\D/g, '')); // Ambil angkanya saja
+                    if (!isNaN(nisAngka) && nisAngka > maxNis) {
+                        maxNis = nisAngka;
+                    }
                 });
+                
+                // Tambah 1 dan pertahankan angka nol di depannya
                 nextNis = (maxNis + 1).toString().padStart(panjangKarakter, '0');
             }
 
@@ -1072,38 +1071,304 @@ function openModalSantri() {
             const labelNis = document.getElementById('labelNisRole');
             inputNis.value = nextNis;
 
+            // --- KUNCI INPUT KHUSUS UNTUK GURU ---
             const userRole = document.getElementById('userRoleDisplay').innerText;
             if (userRole.includes('Guru')) {
-                inputNis.readOnly = true; inputNis.classList.add('bg-gray-100', 'text-gray-500', 'cursor-not-allowed'); labelNis.innerText = "(Otomatis)";
+                inputNis.readOnly = true;
+                inputNis.classList.add('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
+                labelNis.innerText = "(Otomatis)";
             } else {
-                inputNis.readOnly = false; inputNis.classList.remove('bg-gray-100', 'text-gray-500', 'cursor-not-allowed'); labelNis.innerText = "(Bisa diedit Admin)";
+                inputNis.readOnly = false;
+                inputNis.classList.remove('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
+                labelNis.innerText = "(Bisa diedit Admin)";
             }
 
-            // Tanamkan jejak pop-up ke HP, lalu buka form
-            window.history.pushState({ modal: true }, "", window.location.hash);
+            // Tampilkan Modal
             document.getElementById('modalTambahSantri').classList.remove('hidden'); 
         }
-
-        function closeModalSantri() { 
-            // Jika ditutup pakai tombol batal, suruh HP tekan 'back' otomatis
-            if (history.state && history.state.modal) { window.history.back(); } 
-            else { document.getElementById('modalTambahSantri').classList.add('hidden'); document.getElementById('formTambahSantri').reset(); }
-        }
+        function closeModalSantri() { document.getElementById('modalTambahSantri').classList.add('hidden'); document.getElementById('formTambahSantri').reset(); }
         
         function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) { 
             document.getElementById('edit_nis').value = nis; document.getElementById('edit_nama').value = nama; 
             document.getElementById('edit_jk').value = jk; document.getElementById('edit_kelas').value = kelas; 
             document.getElementById('edit_alamat').value = alamat; document.getElementById('edit_ayah').value = ayah; 
             document.getElementById('edit_ibu').value = ibu; document.getElementById('edit_hp').value = hp; 
-            document.getElementById('edit_ttl').value = ttl; 
+            document.getElementById('edit_ttl').value = ttl; document.getElementById('modalEditSantri').classList.remove('hidden'); 
+        }
+        function closeModalEditSantri() { document.getElementById('modalEditSantri').classList.add('hidden'); document.getElementById('formEditSantri').reset(); }
+
+        function filterSantri() { 
+            const searchText = document.getElementById('searchSantri').value.toLowerCase(); 
+            const selectedKelas = document.getElementById('filterKelasSantri').value; 
+            const rows = document.querySelectorAll('.santri-row'); 
+            let visibleCount = 0; 
             
-            window.history.pushState({ modal: true }, "", window.location.hash);
-            document.getElementById('modalEditSantri').classList.remove('hidden'); 
+            rows.forEach(row => { 
+                const nama = row.cells[1].innerText.toLowerCase(); 
+                const nis = row.cells[0].innerText.toLowerCase(); 
+                const kelas = row.getAttribute('data-kelas'); 
+                const matchSearch = nama.includes(searchText) || nis.includes(searchText); 
+                const matchKelas = selectedKelas === 'Semua' || kelas === selectedKelas; 
+                
+                if (matchSearch && matchKelas) { row.style.display = ''; visibleCount++; } 
+                else { row.style.display = 'none'; } 
+            }); 
+            
+            const tabelContainer = document.getElementById('tabelSantri').parentElement; 
+            const noDataPesan = document.getElementById('noDataPesan'); 
+            
+            if (visibleCount === 0) { 
+                tabelContainer.classList.add('hidden'); noDataPesan.classList.remove('hidden'); 
+            } else { 
+                tabelContainer.classList.remove('hidden'); noDataPesan.classList.add('hidden'); 
+            } 
         }
 
-        function closeModalEditSantri() { 
-            if (history.state && history.state.modal) { window.history.back(); } 
-            else { document.getElementById('modalEditSantri').classList.add('hidden'); document.getElementById('formEditSantri').reset(); } 
+        function loadDataSantri() { 
+            showLoading(true); 
+            const formData = new URLSearchParams(); formData.append('action', 'getSantri'); 
+            
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
+                showLoading(false); 
+                if(res.status === 'success') { 
+                    GLOBAL_DATA_SANTRI = res.data; 
+                    const tbody = document.getElementById('bodyTabelSantri'); 
+                    if(tbody) { 
+                        tbody.innerHTML = ''; 
+                        if(res.data.length === 0) { tbody.innerHTML = '<tr><td colspan=\"5\" class=\"p-4 sm:p-6 text-center text-gray-500\">Belum ada data santri di database.</td></tr>'; return; } 
+                        
+                        res.data.forEach(s => { 
+                            const tr = document.createElement('tr'); 
+                            tr.className = 'hover:bg-teal-50 transition-all santri-row'; tr.setAttribute('data-kelas', s.kelas); 
+                    
+				tr.innerHTML = `<td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td><td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td><td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${s.nama}', '${s.jk}', '${s.kelas}', \`${s.alamat}\`, \`${s.ayah}\`, \`${s.ibu}\`, '${s.hp}', \`${s.ttl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`;
+					
+                            tbody.appendChild(tr); 
+                        }); 
+                        filterSantri(); 
+                    } 
+                } 
+            }).catch(err => { showLoading(false); Swal.fire('Error', 'Gagal menarik data dari server.', 'error'); }); 
+        }
+
+        document.getElementById('formTambahSantri').addEventListener('submit', function(e) { 
+            e.preventDefault(); 
+            const btnSubmit = this.querySelector('button[type="submit"]'); 
+            const originalText = btnSubmit.innerHTML; 
+            btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; 
+            showLoading(true); 
+            
+            const formData = new URLSearchParams(); 
+            formData.append('action', 'addSantri'); formData.append('nis', document.getElementById('add_nis').value); 
+            formData.append('nama', document.getElementById('add_nama').value); formData.append('jk', document.getElementById('add_jk').value); 
+            formData.append('kelas', document.getElementById('add_kelas').value); formData.append('alamat', document.getElementById('add_alamat').value); 
+            formData.append('ayah', document.getElementById('add_ayah').value); formData.append('ibu', document.getElementById('add_ibu').value); 
+            formData.append('hp', document.getElementById('add_hp').value); formData.append('ttl', document.getElementById('add_ttl').value); 
+            
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
+                showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; 
+                if(data.status === 'success') { closeModalSantri(); Swal.fire('Berhasil!', data.message, 'success'); loadDataSantri(); } 
+                else { Swal.fire('Gagal', data.message, 'error'); } 
+            }).catch(err => { 
+                showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal mengirim data.', 'error'); 
+            }); 
+        });
+
+        document.getElementById('formEditSantri').addEventListener('submit', function(e) { 
+            e.preventDefault(); 
+            const btnSubmit = this.querySelector('button[type="submit"]'); 
+            const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memperbarui...'; 
+            showLoading(true); 
+            
+            const formData = new URLSearchParams(); 
+            formData.append('action', 'updateSantri'); formData.append('nis', document.getElementById('edit_nis').value); 
+            formData.append('nama', document.getElementById('edit_nama').value); formData.append('jk', document.getElementById('edit_jk').value); 
+            formData.append('kelas', document.getElementById('edit_kelas').value); formData.append('alamat', document.getElementById('edit_alamat').value); 
+            formData.append('ayah', document.getElementById('edit_ayah').value); formData.append('ibu', document.getElementById('edit_ibu').value); 
+            formData.append('hp', document.getElementById('edit_hp').value); formData.append('ttl', document.getElementById('edit_ttl').value); 
+            
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
+                showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; 
+                if(data.status === 'success') { closeModalEditSantri(); Swal.fire('Berhasil!', data.message, 'success'); loadDataSantri(); } 
+                else { Swal.fire('Gagal', data.message, 'error'); } 
+            }).catch(err => { 
+                showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal update data.', 'error'); 
+            }); 
+        });
+
+        function validasiInputNilai(el) { 
+            let val = parseFloat(el.value); 
+            if (el.value !== "" && (val < 0 || val > 100)) { 
+                el.classList.add('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500'); 
+                Swal.fire({ toast: true, position: 'top-end', icon: 'warning', title: 'Nilai 0 - 100', showConfirmButton: false, timer: 2000 }); 
+            } else { 
+                el.classList.remove('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500'); 
+            } 
+        }
+
+        function aktifkanFilterKedua() { 
+            const kelas = document.getElementById('pilihKelasNilai').value; 
+            const wadahFilter2 = document.getElementById('wadahFilterKedua'); 
+            const selectFilter2 = document.getElementById('pilihFilterKedua'); 
+            const labelFilter2 = document.getElementById('labelFilterKedua'); 
+            
+            document.getElementById('formInputNilaiBulk').classList.add('hidden'); 
+            
+            if (kelas) { 
+                wadahFilter2.classList.remove('hidden'); 
+                selectFilter2.innerHTML = '<option value="" disabled selected>-- Pilih --</option>'; 
+                
+                if (kelas.includes('TK')) { 
+                    labelFilter2.innerHTML = '<i class="fas fa-calendar-alt text-emerald-600 mr-2"></i> Penilaian Hari Apa?'; 
+                    const hari = ['Sabtu', 'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis']; 
+                    hari.forEach(h => selectFilter2.innerHTML += `<option value="${h}">${h}</option>`); 
+                } else {
+                    labelFilter2.innerHTML = '<i class="fas fa-book text-blue-600 mr-2"></i> Untuk Pelajaran Apa?';
+                    
+                    // --- KODE PINTAR BARU ---
+                    const dataMapel = JADWAL_MAPEL[kelas] || { tulis: [], praktek: [], baca: [] };
+                    
+                    let htmlTulis = ''; let htmlPraktek = ''; let htmlMembaca = '';
+                    
+                    if(dataMapel.tulis) dataMapel.tulis.forEach(m => htmlTulis += `<option value="${m}">${m}</option>`);
+                    if(dataMapel.praktek) dataMapel.praktek.forEach(m => htmlPraktek += `<option value="${m}">${m}</option>`);
+                    if(dataMapel.baca) dataMapel.baca.forEach(m => htmlMembaca += `<option value="${m}">${m}</option>`);
+                    
+                    if(htmlTulis) selectFilter2.innerHTML += `<optgroup label="A. UJIAN TERTULIS">${htmlTulis}</optgroup>`;
+                    if(htmlPraktek) selectFilter2.innerHTML += `<optgroup label="B. UJIAN PRAKTEK">${htmlPraktek}</optgroup>`;
+                    if(htmlMembaca) selectFilter2.innerHTML += `<optgroup label="C. UJIAN MEMBACA">${htmlMembaca}</optgroup>`;
+                }
+            } 
+        }
+
+        function generateTabelAbsen() { 
+            const kelas = document.getElementById('pilihKelasNilai').value; 
+            const subFilterValue = document.getElementById('pilihFilterKedua').value; 
+            const santriKelasIni = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelas); 
+            const tbody = document.getElementById('bodyTabelAbsen'); 
+            const wadahGlobalMapelTK = document.getElementById('wadahGlobalMapelTK'); 
+            tbody.innerHTML = ''; 
+            
+            if (santriKelasIni.length === 0) { 
+                tbody.innerHTML = '<tr><td colspan="10" class="p-6 text-center text-red-500 font-bold"><i class="fas fa-exclamation-triangle mr-2"></i> Kelas ini masih kosong, belum ada santri.</td></tr>'; 
+            } else { 
+                santriKelasIni.forEach((s, idx) => { 
+                    let html = `<tr class="hover:bg-emerald-50 transition-all santri-absen-row"> <td class="p-3 text-center text-gray-500 font-medium border-r border-gray-200">${idx + 1}</td>`; 
+                    
+                    if (kelas.includes('TK')) { 
+                        html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"> <p class="font-bold text-gray-800 whitespace-nowrap">${s.nama}</p> </td> <td class="p-2 border-r border-gray-200 bg-gray-50"><input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)"></td> <td class="p-2 border-r border-gray-200 bg-gray-50"><input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N2" oninput="validasiInputNilai(this)"></td> <td class="p-2 bg-gray-50"><input type="number" class="input-tk-n3 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N3" oninput="validasiInputNilai(this)"></td>`; 
+                    } else { 
+                        document.getElementById('judulKolomNilai').innerText = `NILAI ${subFilterValue}`; 
+                        html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"> <p class="font-bold text-gray-800 whitespace-nowrap">${s.nama}</p> </td> <td class="p-3 text-center bg-gray-50"><input type="number" class="input-ibt w-20 sm:w-24 mx-auto block p-2 border-2 border-gray-300 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 shadow-inner outline-none" data-nis="${s.nis}" data-nama="${s.nama}" placeholder="0-100" oninput="validasiInputNilai(this)"></td>`; 
+                    } 
+                    html += `</tr>`; tbody.innerHTML += html; 
+                }); 
+            } 
+            
+            if (kelas.includes('TK')) { 
+                document.getElementById('headerTK').style.display = 'table-header-group'; document.getElementById('headerIBT').style.display = 'none'; wadahGlobalMapelTK.classList.remove('hidden'); 
+            } else { 
+                document.getElementById('headerTK').style.display = 'none'; document.getElementById('headerIBT').style.display = 'table-header-group'; wadahGlobalMapelTK.classList.add('hidden'); 
+            } 
+            document.getElementById('formInputNilaiBulk').classList.remove('hidden'); 
+        }
+
+        document.getElementById('formInputNilaiBulk').addEventListener('submit', function(e) { 
+            e.preventDefault(); 
+            if (this.querySelectorAll('.border-red-500').length > 0) { Swal.fire({ icon: 'error', title: 'Data Invalid', text: 'Pastikan angka nilai 0 - 100.' }); return; } 
+            
+            const kelasPilih = document.getElementById('pilihKelasNilai').value; 
+            const filterKedua = document.getElementById('pilihFilterKedua').value; 
+            let paketBulk = []; 
+            
+            if (kelasPilih.includes('TK')) { 
+                const globalM1 = document.getElementById('global_tk_m1').value; const globalM2 = document.getElementById('global_tk_m2').value; const globalM3 = document.getElementById('global_tk_m3').value; 
+                let adaIsianNilai = false; 
+                
+                document.querySelectorAll('#bodyTabelAbsen tr.santri-absen-row').forEach(tr => { 
+                    const n1Input = tr.querySelector('.input-tk-n1'); 
+                    if (n1Input) { 
+                        const nis = n1Input.getAttribute('data-nis'); const nama = tr.querySelector('.font-bold.text-gray-800').innerText; 
+                        const n1 = n1Input.value; const n2 = tr.querySelector('.input-tk-n2').value; const n3 = tr.querySelector('.input-tk-n3').value; 
+                        if(n1 !== "" || n2 !== "" || n3 !== "") { 
+                            adaIsianNilai = true; let total = (parseFloat(n1)||0) + (parseFloat(n2)||0) + (parseFloat(n3)||0); 
+                            let count = 0; if(n1!=="")count++; if(n2!=="")count++; if(n3!=="")count++; let rata = count > 0 ? (total/count).toFixed(1) : 0; 
+                            paketBulk.push({ nis: nis, nama: nama, m1: globalM1, n1: n1, m2: globalM2, n2: n2, m3: globalM3, n3: n3, total: total, rata: rata }); 
+                        } 
+                    } 
+                }); 
+                
+                if (adaIsianNilai && globalM1 === "") { Swal.fire({ icon: 'warning', title: 'Mapel 1 Kosong', text: 'Tolong isi Nama Mapel 1.'}); return; } 
+            } else { 
+                document.querySelectorAll('.input-ibt').forEach(input => { 
+                    if (input.value !== "") { paketBulk.push({ nis: input.getAttribute('data-nis'), nama: input.getAttribute('data-nama'), nilai: input.value }); } 
+                }); 
+            } 
+            
+            if (paketBulk.length === 0) { Swal.fire({ icon: 'warning', title: 'Tabel Kosong', text: 'Belum memasukkan nilai satupun.'}); return; } 
+            
+            const btnSubmit = this.querySelector('button[type="submit"]'); 
+            const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; 
+            showLoading(true); 
+            
+            const formData = new URLSearchParams(); 
+            formData.append('action', 'simpanNilai'); formData.append('kelas', kelasPilih); formData.append('list_nilai', JSON.stringify(paketBulk)); 
+            
+         if (kelasPilih.includes('TK')) { formData.append('hari', filterKedua); } 
+            else { formData.append('mapel', filterKedua); formData.append('semua_mapel', JSON.stringify(JADWAL_MAPEL[kelasPilih].semua)); }
+            
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
+                showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; 
+                if(data.status === 'success') { 
+                    Swal.fire({ icon: 'success', title: 'Sukses!', text: data.message, confirmButtonColor: '#059669' }); 
+                    document.getElementById('formInputNilaiBulk').classList.add('hidden'); document.getElementById('pilihKelasNilai').value = ""; document.getElementById('wadahFilterKedua').classList.add('hidden'); 
+                    if(kelasPilih.includes('TK')) { document.getElementById('global_tk_m1').value = ""; document.getElementById('global_tk_m2').value = ""; document.getElementById('global_tk_m3').value = ""; } 
+                } else { Swal.fire('Ditolak!', data.message, 'error'); } 
+            }).catch(e => { showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; Swal.fire('Error', 'Gagal kirim.', 'error'); }); 
+        });
+
+        function loadDataNilaiKelas() { 
+            const kelasPilih = document.getElementById('filterKelasDataNilai').value; 
+            if (!kelasPilih) { Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' }); return; } 
+            showLoading(true); 
+            const formData = new URLSearchParams(); formData.append('action', 'getDataNilai'); formData.append('kelas', kelasPilih); 
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
+                showLoading(false); 
+                if (res.status === 'success') { renderTabelDataNilai(res.headers, res.data); } 
+                else { Swal.fire('Gagal', res.message || 'Gagal memuat data nilai.', 'error'); } 
+            }).catch(err => { showLoading(false); Swal.fire('Error', 'Koneksi ke server gagal.', 'error'); }); 
+        }
+
+        function renderTabelDataNilai(headers, data) { 
+            GLOBAL_HEADERS_NILAI = headers; GLOBAL_DATA_NILAI = data; 
+            const thead = document.getElementById('headerDataNilai'); const tbody = document.getElementById('bodyDataNilai'); 
+            thead.innerHTML = ''; tbody.innerHTML = ''; 
+            
+            if (!headers || headers.length === 0 || data.length === 0) { 
+                tbody.innerHTML = `<tr><td colspan="15" class="p-10 text-center text-red-500 font-medium"><i class="fas fa-folder-open text-4xl mb-3 block text-red-300"></i> Belum ada data nilai yang diinput oleh Guru untuk kelas ini.</td></tr>`; return; 
+            } 
+            
+            let trHead = '<tr>'; trHead += `<th class="p-3 text-center border-r border-gray-200 w-10 bg-gray-100">No</th>`; 
+            headers.forEach((h) => { 
+                let namaKolom = h.toLowerCase(); 
+                if (namaKolom.includes('nama')) { trHead += `<th class="p-3 border-r border-gray-200 sticky left-0 bg-gray-100 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] whitespace-nowrap">${h}</th>`; } 
+                else if (namaKolom.includes('nis')) { trHead += `<th class="p-3 border-r border-gray-200 whitespace-nowrap w-1 bg-gray-100">${h}</th>`; } 
+                else { trHead += `<th class="p-3 border-r border-gray-200 text-center whitespace-nowrap bg-gray-100">${h}</th>`; } 
+            }); 
+            trHead += `<th class="p-3 text-center bg-gray-100 w-24">AKSI</th></tr>`; thead.innerHTML = trHead; 
+            
+            data.forEach((row, rowIndex) => { 
+                let trBody = `<tr class="hover:bg-blue-50 transition-all">`; 
+                trBody += `<td class="p-3 text-center text-gray-500 border-r border-gray-200">${rowIndex + 1}</td>`; 
+                row.forEach((cell, cellIndex) => { 
+                    const headerName = headers[cellIndex].toLowerCase(); 
+                    if (headerName.includes('nama')) { trBody += `<td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] font-bold text-gray-800 whitespace-nowrap">${cell}</td>`; } 
+                    else if (headerName.includes('nis')) { let textNIS = cell.toString().replace("'", ""); trBody += `<td class="p-3 border-r border-gray-200 text-gray-600 whitespace-nowrap">${textNIS}</td>`; } 
+                    else { const isNumber = !isNaN(cell) && cell !== ""; trBody += `<td class="p-3 border-r border-gray-200 text-center ${isNumber ? 'font-bold text-emerald-700' : 'text-gray-400'} whitespace-nowrap">${cell}</td>`; } 
+                }); 
+                trBody += `<td class="p-3 text-center whitespace-nowrap"><button onclick="openModalEditNilai(${rowIndex})" class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition-all shadow-sm border border-blue-200" title="Edit Data"><i class="fas fa-edit"></i> Edit</button></td></tr>`; 
+                tbody.innerHTML += trBody; 
+            }); 
         }
 
         function openModalEditNilai(index) { 
@@ -1117,15 +1382,10 @@ function openModalSantri() {
                 let html = `<div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 truncate">${h} ${isReadOnly ? '<span class="text-xs text-red-500">(Terkunci)</span>' : ''}</label><input type="${inputType}" name="${h}" value="${val}" class="input-edit-nilai-dinamis w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm ${isReadOnly ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'font-bold text-blue-700'}" ${isReadOnly ? 'readonly' : ''} ${inputType === 'number' && !isReadOnly ? 'oninput="validasiInputNilai(this)"' : ''}></div>`; 
                 container.innerHTML += html; 
             } 
-            
-            window.history.pushState({ modal: true }, "", window.location.hash);
             document.getElementById('modalEditNilai').classList.remove('hidden'); 
         }
 
-        function closeModalEditNilai() { 
-            if (history.state && history.state.modal) { window.history.back(); } 
-            else { document.getElementById('modalEditNilai').classList.add('hidden'); } 
-        }
+        function closeModalEditNilai() { document.getElementById('modalEditNilai').classList.add('hidden'); }
 
         document.getElementById('formEditNilai').addEventListener('submit', function(e) { 
             e.preventDefault(); 
