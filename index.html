@@ -828,12 +828,40 @@
         }
 
         window.addEventListener('popstate', function(event) {
+            // --- FITUR BARU: TUTUP FORM/MODAL DENGAN TOMBOL BACK HP ---
+            const modalTambah = document.getElementById('modalTambahSantri');
+            const modalEdit = document.getElementById('modalEditSantri');
+            const modalEditNilai = document.getElementById('modalEditNilai');
+            
+            // 1. Cek apakah ada form yang sedang terbuka di layar
+            if (!modalTambah.classList.contains('hidden') || !modalEdit.classList.contains('hidden') || !modalEditNilai.classList.contains('hidden')) {
+                
+                // 2. Jika ada, paksa sembunyikan (tutup) semua formnya
+                modalTambah.classList.add('hidden');
+                modalEdit.classList.add('hidden');
+                modalEditNilai.classList.add('hidden');
+                
+                // 3. Cari kita sedang berada di menu apa sekarang (misal: dataSantri)
+                let currentView = 'home';
+                document.querySelectorAll('.view-section').forEach(el => {
+                    if (!el.classList.contains('hidden')) {
+                        currentView = el.id.replace('view-', '');
+                    }
+                });
+                
+                // 4. Kembalikan URL ke menu saat ini agar HP tidak pindah ke halaman lain
+                window.history.pushState({ view: currentView }, "", "#" + currentView);
+                return; // Stop/putus perintah back di sini!
+            }
+
+            // --- KODE LAMA NAVIGASI MENU (Jalankan jika tidak ada form yang terbuka) ---
             const isDashboard = !document.getElementById('dashboardPage').classList.contains('hidden');
             if (isDashboard) {
                 if (event.state && event.state.view) showView(event.state.view, false);
                 else showView('home', false);
             }
         });
+
 
         // ---------------------------------------------------------
         // 3. FUNGSI AUTENTIKASI (LOGIN & LOGOUT)
