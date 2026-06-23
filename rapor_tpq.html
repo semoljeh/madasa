@@ -401,15 +401,16 @@
                     barisDiisi++;
                     let warnaPredikat = k13.predikat === 'A' ? "text-emerald-600" : k13.predikat === 'B' ? "text-blue-600" : k13.predikat === 'C' ? "text-orange-500" : "text-red-600";
                     
-                    tbody.innerHTML += `
-                        <tr style="height: 38px; max-height: 38px; overflow: hidden;">
-                            <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
-                            <td class="font-bold text-gray-800 px-2 py-0 align-middle truncate">${item.mapel}</td>
-                            <td class="text-center font-bold text-[13px] p-0 align-middle">${item.nilai}</td>
-                            <td class="text-center font-black text-[14px] ${warnaPredikat} p-0 align-middle">${k13.predikat}</td>
-                            <td class="text-justify px-2 py-1 leading-tight text-[10px] align-middle overflow-hidden">${k13.deskripsi}</td>
-                        </tr>
-                    `;
+                    // Baris Kosong yang terkunci tinggi pikselnya
+tbody.innerHTML += `
+    <tr style="height: 38px; max-height: 38px; overflow: hidden;">
+        <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
+        <td class="px-2 py-0 align-middle text-gray-400 text-center italic">-</td>
+        <td class="p-0 align-middle text-center text-gray-400">-</td>
+        <td class="p-0 align-middle text-center text-gray-400">-</td>
+        <td class="p-0 align-middle">&nbsp;</td>
+    </tr>
+`;
                 } else {
                     // Baris Kosong yang terkunci tinggi pikselnya
                     tbody.innerHTML += `
@@ -424,12 +425,13 @@
                 }
             }
 
-            // Hitung rata-rata hanya dari mapel yang memiliki nilai
-            let rataRata = barisDiisi > 0 ? (totalNilai / barisDiisi).toFixed(1) : 0;
+            // Perhitungan rata-rata yang lebih presisi (menggunakan total mapel 7 baris statis)
+            let rataRata = barisDiisi > 0 ? (totalNilai / barisDiisi) : 0;
             
-            // Kunci total nilai menjadi angka bulat atau desimal 1 angka jika dibutuhkan
-            let fixTotal = totalNilai % 1 === 0 ? totalNilai : totalNilai.toFixed(1);
-            let fixRata = rataRata % 1 === 0 ? parseInt(rataRata) : parseFloat(rataRata);
+            // Kunci total nilai agar selalu tampil bersih
+            let fixTotal = totalNilai % 1 === 0 ? totalNilai : parseFloat(totalNilai).toFixed(1);
+            // Kunci rata-rata agar 1 angka di belakang koma (contoh: 85.5) dan tidak error jika 0
+            let fixRata = rataRata > 0 ? parseFloat(rataRata).toFixed(1) : "0.0";
 
             tbody.innerHTML += `
                 <tr class="font-bold border-t-[2.5px] border-black" style="height: 28px;">
