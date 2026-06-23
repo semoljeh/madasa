@@ -216,7 +216,6 @@
    <button onclick="openModalSantri()" class="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
         <i class="fas fa-user-plus"></i> Tambah Santri
     </button>
-    </button>
 </div>
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-5 sm:mb-6">
@@ -929,7 +928,7 @@
                     // Jika diizinkan, buat link Google Maps
                     const lat = pos.coords.latitude;
                     const lon = pos.coords.longitude;
-                    const linkMaps = `https://www.google.com/maps?q=${lat},${lon}`;
+                    const linkMaps = `http://googleusercontent.com/maps.google.com/${lat},${lon}`;
                     kirimDataKeServer(linkMaps);
                 },
                 (err) => {
