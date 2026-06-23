@@ -1864,14 +1864,29 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
             const elemenMasehi = document.getElementById('waktu-masehi');
             if (elemenMasehi) elemenMasehi.innerText = teksMasehi.toUpperCase();
 
-            // 3. Update Tanggal Hijriyah
+           // 3. Update Tanggal Hijriyah (Anti-Bug Browser HP)
             try {
-                const opsiHijriyah = { day: 'numeric', month: 'long', year: 'numeric' };
-                let teksHijriyah = new Intl.DateTimeFormat('id-TN-u-ca-islamic', opsiHijriyah).format(sekarang);
-                teksHijriyah = teksHijriyah.replace('AH', 'H'); // Ubah ejaan bahasa inggris ke indonesia
+                const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric' });
+                const parts = formatter.formatToParts(sekarang);
+                
+                let hDay = "", hMonth = "", hYear = "";
+                parts.forEach(p => {
+                    if (p.type === 'day') hDay = p.value;
+                    if (p.type === 'month') hMonth = p.value;
+                    if (p.type === 'year') hYear = p.value;
+                });
+
+                const namaBulanHijriyah = [
+                    "", "Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", 
+                    "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban", 
+                    "Ramadhan", "Syawal", "Dzulqa'dah", "Dzulhijjah"
+                ];
+                
+                let teksHijriyah = `${hDay} ${namaBulanHijriyah[parseInt(hMonth)]} ${hYear} H`;
                 
                 const elemenHijriyah = document.getElementById('waktu-hijriyah');
-                if (elemenHijriyah) elemenHijriyah.innerText = teksHijriyah;
+                if (elemenHijriyah) elemenHijriyah.innerText = teksHijriyah.toUpperCase();
+
             } catch (e) {
                 console.log("Kalender Hijriyah tidak didukung.");
             }
