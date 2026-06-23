@@ -195,7 +195,7 @@
     </div>
 
 <script>
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyeeYMPHrdsBCdtwRS9ssZR6HaB9dHm7-9WNYcu9ZA0DHdOt3Ptjrp1jr4kV4QbbLYf/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbz-8dTbIH53tiXW_BG8cmotpz4aJWi9mBJn-pjADitiT9YqgBxz8ieizXaVQI01e2LE/exec';
         let GLOBAL_DATA_SANTRI = [];
 
         window.onload = async () => {
@@ -245,7 +245,7 @@
             muatDataRapor(nisPilih);
         }
 
-        function terbilang(angka) {
+     function terbilang(angka) {
             angka = Math.round(angka); 
             const bilangan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
             if (angka === 0) return "Nol"; 
@@ -253,8 +253,11 @@
             if (angka < 20) return terbilang(angka - 10) + " Belas";
             if (angka < 100) return terbilang(Math.floor(angka / 10)) + " Puluh " + (angka % 10 > 0 ? " " + terbilang(angka % 10) : "");
             if (angka === 100) return "Seratus";
-            if (angka > 100 && angka < 1000) return terbilang(Math.floor(angka / 100)) + " Ratus " + (angka % 100 > 0 ? terbilang(angka % 100) : "");
-            if (angka >= 1000 && angka < 1000000) return terbilang(Math.floor(angka / 1000)) + " Ribu " + (angka % 1000 > 0 ? terbilang(angka % 1000) : "");
+            if (angka < 200) return "Seratus " + terbilang(angka - 100);
+            if (angka < 1000) return terbilang(Math.floor(angka / 100)) + " Ratus " + (angka % 100 > 0 ? " " + terbilang(angka % 100) : "");
+            if (angka === 1000) return "Seribu";
+            if (angka < 2000) return "Seribu " + terbilang(angka - 1000);
+            if (angka < 1000000) return terbilang(Math.floor(angka / 1000)) + " Ribu " + (angka % 1000 > 0 ? " " + terbilang(angka % 1000) : "");
             return angka.toString();
         }
 
@@ -335,17 +338,17 @@
             }
         }
 
-        function renderRapor(d, peringkat) {
+       function renderRapor(d, peringkat) {
             document.getElementById('val_nama').innerText = d.biodata.nama;
             document.getElementById('val_nis').innerText = d.biodata.nis;
             document.getElementById('val_alamat').innerText = d.biodata.alamat;
             document.getElementById('val_kelas').innerText = d.biodata.kelas;
 
-            document.getElementById('val_semester').innerText = d.pengaturan.semester;
-            document.getElementById('val_tahun').innerText = d.pengaturan.tahun;
-            document.getElementById('val_tanggal').innerText = d.pengaturan.tanggal;
-            document.getElementById('val_wali').innerText = d.pengaturan.wali;
-            document.getElementById('val_kepala').innerText = d.pengaturan.kepala;
+            document.getElementById('val_semester').innerText = d.pengaturan.semester || '-';
+            document.getElementById('val_tahun').innerText = d.pengaturan.tahun || '-';
+            document.getElementById('val_tanggal').innerText = d.pengaturan.tanggal || 'Bangkalan, ........................';
+            document.getElementById('val_wali').innerText = d.pengaturan.wali || '&nbsp;';
+            document.getElementById('val_kepala').innerText = d.pengaturan.kepala || '&nbsp;';
 
             function pasangGambar(idElemen, urlGambar) {
                 const imgEl = document.getElementById(idElemen);
@@ -364,67 +367,85 @@
             document.getElementById('val_disiplin').innerText = konversiHuruf(d.detail.disiplin);
             document.getElementById('val_rapi').innerText = konversiHuruf(d.detail.rapi);
             
-            document.getElementById('val_sakit').innerText = d.detail.sakit;
-            document.getElementById('val_izin').innerText = d.detail.izin;
-            document.getElementById('val_alpa').innerText = d.detail.alpa;
+            document.getElementById('val_sakit').innerText = d.detail.sakit || '-';
+            document.getElementById('val_izin').innerText = d.detail.izin || '-';
+            document.getElementById('val_alpa').innerText = d.detail.alpa || '-';
             
             let teksCatatan = (d.detail.catatan || '').trim();
             if (teksCatatan === '-' || teksCatatan === '') { document.getElementById('val_catatan').innerText = '-'; } 
             else { document.getElementById('val_catatan').innerText = `"${teksCatatan}"`; }
-            document.getElementById('val_keputusan').innerText = d.detail.keputusan;
+            
+            let isGenap = (d.pengaturan.semester || '').toLowerCase().includes('genap');
+            let teksKeputusan = isGenap 
+                ? `${d.detail.keputusan || `Naik Kelas`}`
+                : `- Hanya diisi pada akhir tahun pelajaran (Genap) -`;
+            
+            // Atur gaya font keputusan jika isinya teks placeholder
+            if (!isGenap) {
+                document.getElementById('val_keputusan').classList.remove('text-emerald-700', 'uppercase', 'font-bold');
+                document.getElementById('val_keputusan').classList.add('text-gray-500', 'font-normal', 'italic');
+            }
+            document.getElementById('val_keputusan').innerText = teksKeputusan;
 
             const tbody = document.getElementById('bodyTabelNilai');
             tbody.innerHTML = '';
             let totalNilai = 0;
+            let barisDiisi = 0; // Menghitung berapa baris yang benar-benar ada nilainya
 
-           // LOGIKA 7 BARIS STATIS
+           // LOGIKA 7 BARIS STATIS (DIKUNCI TINGGINYA)
             for (let i = 0; i < 7; i++) {
                 if (d.nilai && d.nilai[i]) {
                     const item = d.nilai[i];
                     const k13 = generateK13Logic(item.mapel, item.nilai);
                     totalNilai += parseFloat(item.nilai);
+                    barisDiisi++;
                     let warnaPredikat = k13.predikat === 'A' ? "text-emerald-600" : k13.predikat === 'B' ? "text-blue-600" : k13.predikat === 'C' ? "text-orange-500" : "text-red-600";
                     
-                    // PERUBAHAN: Padding (py-3) diubah jadi (py-1.5) dan jarak baris (leading-relaxed) jadi (leading-tight)
                     tbody.innerHTML += `
-                        <tr>
-                            <td class="text-center font-bold py-1.5">${i + 1}</td>
-                            <td class="font-bold text-gray-800 px-2 py-1.5">${item.mapel}</td>
-                            <td class="text-center font-bold text-[13px] py-1.5">${item.nilai}</td>
-                            <td class="text-center font-black text-[14px] ${warnaPredikat} py-1.5">${k13.predikat}</td>
-                            <td class="text-justify px-2 py-1.5 leading-tight text-[10px]">${k13.deskripsi}</td>
+                        <tr style="height: 38px; max-height: 38px; overflow: hidden;">
+                            <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
+                            <td class="font-bold text-gray-800 px-2 py-0 align-middle truncate">${item.mapel}</td>
+                            <td class="text-center font-bold text-[13px] p-0 align-middle">${item.nilai}</td>
+                            <td class="text-center font-black text-[14px] ${warnaPredikat} p-0 align-middle">${k13.predikat}</td>
+                            <td class="text-justify px-2 py-1 leading-tight text-[10px] align-middle overflow-hidden">${k13.deskripsi}</td>
                         </tr>
                     `;
                 } else {
+                    // Baris Kosong yang terkunci tinggi pikselnya
                     tbody.innerHTML += `
-                        <tr>
-                            <td class="text-center font-bold py-1.5">${i + 1}</td>
-                            <td class="px-2 py-1.5">&nbsp;</td>
-                            <td class="py-1.5">&nbsp;</td>
-                            <td class="py-1.5">&nbsp;</td>
-                            <td class="py-1.5">&nbsp;</td>
+                        <tr style="height: 38px; max-height: 38px; overflow: hidden;">
+                            <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
+                            <td class="px-2 py-0 align-middle">&nbsp;</td>
+                            <td class="p-0 align-middle">&nbsp;</td>
+                            <td class="p-0 align-middle">&nbsp;</td>
+                            <td class="p-0 align-middle">&nbsp;</td>
                         </tr>
                     `;
                 }
             }
 
-            let rataRata = d.nilai.length > 0 ? (totalNilai / d.nilai.length).toFixed(1) : "0.0";
+            // Hitung rata-rata hanya dari mapel yang memiliki nilai
+            let rataRata = barisDiisi > 0 ? (totalNilai / barisDiisi).toFixed(1) : 0;
             
+            // Kunci total nilai menjadi angka bulat atau desimal 1 angka jika dibutuhkan
+            let fixTotal = totalNilai % 1 === 0 ? totalNilai : totalNilai.toFixed(1);
+            let fixRata = rataRata % 1 === 0 ? parseInt(rataRata) : parseFloat(rataRata);
+
             tbody.innerHTML += `
-                <tr class="font-bold border-t-[2px] border-black">
-                    <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Jumlah Nilai</td>
-                    <td class="text-center text-[13px] text-emerald-800">${totalNilai}</td>
-                    <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">${terbilang(totalNilai)}</td>
+                <tr class="font-bold border-t-[2.5px] border-black" style="height: 28px;">
+                    <td colspan="2" class="text-right px-4 py-0 align-middle uppercase tracking-widest text-gray-700">Jumlah Nilai</td>
+                    <td class="text-center text-[13px] p-0 align-middle text-emerald-800">${fixTotal}</td>
+                    <td colspan="2" class="px-4 text-[10px] py-0 align-middle uppercase text-gray-700 italic truncate">${terbilang(fixTotal)}</td>
                 </tr>
-                <tr class="font-bold border-t border-gray-300">
-                    <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Rata-Rata</td>
-                    <td class="text-center text-[13px] text-blue-700">${rataRata}</td>
-                    <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">${terbilang(rataRata)}</td>
+                <tr class="font-bold border-t border-gray-400" style="height: 28px;">
+                    <td colspan="2" class="text-right px-4 py-0 align-middle uppercase tracking-widest text-gray-700">Rata-Rata</td>
+                    <td class="text-center text-[13px] p-0 align-middle text-blue-700">${fixRata}</td>
+                    <td colspan="2" class="px-4 text-[10px] py-0 align-middle uppercase text-gray-700 italic truncate">${terbilang(fixRata)}</td>
                 </tr>
-                <tr class="font-bold border-t border-black border-b-[2px]">
-                    <td colspan="2" class="text-right px-4 py-2.5 uppercase tracking-widest text-gray-700">Peringkat Kelas</td>
-                    <td class="text-center text-[14px] text-purple-700">${peringkat}</td>
-                    <td colspan="2" class="px-4 text-[10px] uppercase text-gray-700 italic">Dari seluruh santri di kelas ini</td>
+                <tr class="font-bold border-t border-black border-b-[2.5px]" style="height: 28px;">
+                    <td colspan="2" class="text-right px-4 py-0 align-middle uppercase tracking-widest text-gray-700">Peringkat Kelas</td>
+                    <td class="text-center text-[14px] p-0 align-middle text-purple-700">${peringkat}</td>
+                    <td colspan="2" class="px-4 text-[10px] py-0 align-middle uppercase text-gray-700 italic truncate">Dari seluruh santri di kelas ini</td>
                 </tr>
             `;
         }
