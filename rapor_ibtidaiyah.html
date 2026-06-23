@@ -81,7 +81,7 @@
 
 
     <script>
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyeeYMPHrdsBCdtwRS9ssZR6HaB9dHm7-9WNYcu9ZA0DHdOt3Ptjrp1jr4kV4QbbLYf/exec';
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbzs9QRRZaibqxcabQyn9Ry1BQ0mgrSftBs33Dhn06Wgt-MsgC0NqKqo5wQAOOZWR8oP/exec';
         let GLOBAL_DATA_SANTRI = [];
 
         function showLoading(show, teks="Memproses...") { 
@@ -109,12 +109,38 @@
             selectSantri.disabled = false;
         }
 
+       // FUNGSI TERBILANG INDONESIA (UPGRADE RIBUAN)
         function terbilang(angka) {
-            angka = Math.round(angka); const bilangan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
-            if (angka === 0) return "Nol"; if (angka < 12) return bilangan[angka]; if (angka < 20) return terbilang(angka - 10) + " Belas";
+            angka = Math.round(angka); 
+            const bilangan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+            if (angka === 0) return "Nol"; 
+            if (angka < 12) return bilangan[angka]; 
+            if (angka < 20) return terbilang(angka - 10) + " Belas";
             if (angka < 100) return terbilang(Math.floor(angka / 10)) + " Puluh " + (angka % 10 > 0 ? " " + terbilang(angka % 10) : "");
             if (angka === 100) return "Seratus";
-            if (angka > 100 && angka < 1000) return terbilang(Math.floor(angka / 100)) + " Ratus " + (angka % 100 > 0 ? terbilang(angka % 100) : "");
+            if (angka < 200) return "Seratus " + terbilang(angka - 100);
+            if (angka < 1000) return terbilang(Math.floor(angka / 100)) + " Ratus " + (angka % 100 > 0 ? " " + terbilang(angka % 100) : "");
+            if (angka === 1000) return "Seribu";
+            if (angka < 2000) return "Seribu " + terbilang(angka - 1000);
+            if (angka < 1000000) return terbilang(Math.floor(angka / 1000)) + " Ribu " + (angka % 1000 > 0 ? " " + terbilang(angka % 1000) : "");
+            return angka.toString();
+        }
+
+        // FUNGSI TERBILANG ARAB (UPGRADE RIBUAN)
+        function terbilangArab(angka) {
+            if (angka === 0 || isNaN(angka)) return "صفر";
+            const satuan = ["", "واحد", "إثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
+            const belasan = ["عشرة", "أحد عشر", "إثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
+            const puluhan = ["", "عشرة", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
+            const ratusan = ["", "مائة", "مائتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسعمائة"];
+            const ribuan = ["", "ألف", "ألفان", "ثلاثة آلاف", "أربعة آلاف", "خمسة آلاف", "ستة آلاف", "سبعة آلاف", "ثمانية آلاف", "تسعة آلاف"];
+
+            let intAngka = Math.floor(angka);
+            if (intAngka < 10) return satuan[intAngka];
+            if (intAngka >= 10 && intAngka < 20) return belasan[intAngka - 10];
+            if (intAngka >= 20 && intAngka < 100) { let p = Math.floor(intAngka / 10); let s = intAngka % 10; if (s === 0) return puluhan[p]; return satuan[s] + " و " + puluhan[p]; }
+            if (intAngka >= 100 && intAngka < 1000) { let r = Math.floor(intAngka / 100); let sisa = intAngka % 100; if (sisa === 0) return ratusan[r]; return ratusan[r] + " و " + terbilangArab(sisa); }
+            if (intAngka >= 1000 && intAngka < 10000) { let r = Math.floor(intAngka / 1000); let sisa = intAngka % 1000; if (sisa === 0) return ribuan[r]; return ribuan[r] + " و " + terbilangArab(sisa); }
             return angka.toString();
         }
 
@@ -185,92 +211,107 @@
             }).catch(err => { showLoading(false); Swal.fire('Error', 'Gagal memuat data rapor dari server.', 'error'); });
         }
 
-        function renderKertasRapor(kelas, info, headers, nilaiRow, rank, pengaturan) {
+       function renderKertasRapor(kelas, info, headers, nilaiRow, rank, pengaturan) {
             document.getElementById('wadahKertasRapor').classList.remove('hidden');
             const kertas = document.getElementById('kertasRapor');
             
+            // --- VARIABEL UTAMA ---
             let setUmum = pengaturan.umum || {};
-            let nisDicari = info.nis.toString().replace(/'/g, "").trim();
-            let setDetail = {akhlaq:'-', kerajinan:'-', disiplin:'-', rapi:'-', sakit:'-', izin:'-', alpa:'-', catatan:'', keputusan:''};
+            let setDetail = pengaturan.detail[info.nis] || {};
+           // Pencari Posisi Kolom "Total Nilai" Secara Otomatis
+            let idxTotal = headers.indexOf('Total Nilai');
+            let total = idxTotal > -1 ? (parseFloat(nilaiRow[idxTotal]) || 0) : 0;
+            let barisIndo = '';
+            let barisArab = '';
             
-            if (pengaturan.detail) {
-                for (let k in pengaturan.detail) {
-                    if (k.toString() === nisDicari || parseInt(k) === parseInt(nisDicari)) {
-                        setDetail = pengaturan.detail[k]; break;
-                    }
-                }
+            // 1. KAMUS ARAB DINAMIS
+            let kamusDinamis = {};
+            if (pengaturan.kamus) {
+                pengaturan.kamus.split(',').forEach(p => {
+                    let parts = p.split('=');
+                    if (parts.length === 2) kamusDinamis[parts[0].trim().toUpperCase()] = parts[1].trim();
+                });
             }
 
-            document.title = `Rapor_Ibtidaiyah_${info.nama.replace(/\s+/g,"_")}`;
+            // 2. KATEGORI MAPEL
+            const katTulis = (pengaturan.mapel_tulis || "").split(',').map(s => s.trim().toUpperCase()).filter(s => s !== "");
+            const katPraktek = (pengaturan.mapel_praktek || "").split(',').map(s => s.trim().toUpperCase()).filter(s => s !== "");
+            const katMembaca = (pengaturan.mapel_baca || "").split(',').map(s => s.trim().toUpperCase()).filter(s => s !== "");
 
-            let barisIndo = ''; let barisArab = ''; 
-            let total = nilaiRow[3] || 0; 
-            
-            const katPraktek = ["WUDUK", "TAYAMUM", "SHOLAT SUBUH", "SHOLAT JENAZAH", "DZIKIR", "TAHLIL"]; 
-            const katMembaca = ["ALQUR'ANUL KARIM", "KITAB"];
-
+            // 3. PENGELOMPOKAN MAPEL (SISTEM KOTAK TETAP / FIXED ROWS)
             let mapelTertulis = [], mapelPraktek = [], mapelMembaca = [];
 
-            for(let i = 5; i < headers.length; i++) {
-                let nilaiMapel = nilaiRow[i];
-                if (nilaiMapel !== "" && nilaiMapel !== undefined && nilaiMapel !== null) {
-                    let obj = { nama: headers[i], nilai: parseFloat(nilaiMapel) };
-                    let upper = obj.nama.toUpperCase();
-                    if(katPraktek.includes(upper)) mapelPraktek.push(obj);
-                    else if(katMembaca.includes(upper)) mapelMembaca.push(obj);
-                    else mapelTertulis.push(obj);
+            function getScore(mapelName) {
+                let upper = String(mapelName).toUpperCase();
+                for(let i=5; i<headers.length; i++) {
+                    if(String(headers[i]).toUpperCase() === upper) {
+                        return { nilai: parseFloat(nilaiRow[i]), found: true };
+                    }
                 }
+                return { nilai: '', found: false };
             }
+// MENAMBAH KOLOM 
+            katTulis.forEach(m => {
+                let sc = getScore(m);
+                mapelTertulis.push({ nama: m, nilai: isNaN(sc.nilai) ? '' : sc.nilai });
+            });
+            while(mapelTertulis.length < 14) mapelTertulis.push({nama: '', nilai: ''}); 
 
+            katPraktek.forEach(m => {
+                let sc = getScore(m);
+                mapelPraktek.push({ nama: m, nilai: isNaN(sc.nilai) ? '' : sc.nilai });
+            });
+            while(mapelPraktek.length < 4) mapelPraktek.push({nama: '', nilai: ''}); 
+
+            katMembaca.forEach(m => {
+                let sc = getScore(m);
+                mapelMembaca.push({ nama: m, nilai: isNaN(sc.nilai) ? '' : sc.nilai });
+            });
+            while(mapelMembaca.length < 2) mapelMembaca.push({nama: '', nilai: ''}); 
+
+           // 4. LOGIKA BUILD ROW & HEADER (DIKUNCI ANTI-MOLOR)
             function buildRow(no, item) {
                 let nama = item && item.nama ? item.nama : '';
                 let nilai = item && item.nilai !== '' && !isNaN(item.nilai) ? item.nilai : '';
-                
                 let hIndo = nilai !== '' ? terbilang(nilai) : '';
                 let hArab = nilai !== '' ? terbilangArab(nilai) : '';
-                let mArab = nama !== '' ? (kamusArab[nama.toUpperCase()] || nama) : '';
+                
+                let mArab = nama !== '' ? (kamusDinamis[nama.toUpperCase()] || kamusArab[nama.toUpperCase()] || nama) : '';
                 let numStr = nilai !== '' ? toArabicNumeral(nilai) : '';
 
-                let dNo = nama !== '' ? no : '&nbsp;';
-                let dNoArab = nama !== '' ? toArabicNumeral(no) : '&nbsp;';
-                let dNama = nama || '&nbsp;'; let dNilai = nilai || '&nbsp;';
-                let dHIndo = hIndo || '&nbsp;'; let dMArab = mArab || '&nbsp;';
-                let dNumStr = numStr || '&nbsp;'; let dHArab = hArab || '&nbsp;';
-
-                barisIndo += `<tr style="height: 22px; max-height: 22px; overflow: hidden;">
-                    <td class="border border-black p-0 text-center align-middle text-[11px]">${dNo}</td>
-                    <td class="border border-black px-1.5 font-semibold align-middle truncate text-[11px]">${dNama}</td>
-                    <td class="border border-black p-0 text-center font-bold align-middle text-[11px]">${dNilai}</td>
-                    <td class="border border-black px-1.5 text-[9px] uppercase align-middle truncate">${dHIndo}</td>
+                barisIndo += `<tr style="height: 23.5px;">
+                    <td class="border border-black p-0 text-center text-[11px]">${nama ? no : '&nbsp;'}</td>
+                    <td class="border border-black px-1.5 font-semibold text-[11px]">${nama}</td>
+                    <td class="border border-black text-center font-bold text-[11px]">${nilai}</td>
+                    <td class="border border-black px-1.5 text-[9px] uppercase leading-tight">${hIndo}</td>
                 </tr>`;
                 
-                barisArab += `<tr style="height: 22px; max-height: 22px; overflow: hidden;">
-                    <td class="border border-black p-0 text-center align-middle text-[14px] leading-none" style="font-family: 'Traditional Arabic', serif;">${dNoArab}</td>
-                    <td class="border border-black px-2 text-right font-bold text-[14px] align-middle truncate leading-none" style="font-family: 'Traditional Arabic', serif;">${dMArab}</td>
-                    <td class="border border-black p-0 text-center font-bold align-middle text-[11px]">${dNumStr}</td>
-                    <td class="border border-black px-1.5 text-center text-[13px] font-bold align-middle truncate leading-none" style="font-family: 'Traditional Arabic', serif;">${dHArab}</td>
+                barisArab += `<tr style="height: 23.5px;">
+                    <td class="border border-black p-0 text-center text-[14px] leading-none" style="font-family: 'Traditional Arabic', serif;">${nama ? toArabicNumeral(no) : '&nbsp;'}</td>
+                    <td class="border border-black px-2 text-right font-bold text-[14px] leading-none" style="font-family: 'Traditional Arabic', serif;">${mArab}</td>
+                    <td class="border border-black p-0 text-center text-[11px]">${numStr}</td>
+                    <td class="border border-black p-0 text-center text-[13px] font-bold leading-none" style="font-family: 'Traditional Arabic', serif;">${hArab}</td>
                 </tr>`;
             }
 
             function buildHeader(abjadIndo, judulIndo, abjadArab, judulArab) {
-                barisIndo += `<tr style="height: 22px; max-height: 22px; overflow: hidden;" class="font-bold bg-gray-50">
-                    <td class="border border-black p-0 text-center align-middle text-[11px]">${abjadIndo}</td>
-                    <td class="border border-black px-1.5 align-middle text-[11px]" colspan="3">${judulIndo}</td>
-                </tr>`;
-                barisArab += `<tr style="height: 22px; max-height: 22px; overflow: hidden;" class="font-bold bg-gray-50">
-                    <td class="border border-black p-0 text-center align-middle text-[14px] leading-none" style="font-family: 'Traditional Arabic', serif;">${abjadArab}</td>
-                    <td class="border border-black px-2 text-right text-[13px] align-middle leading-none" colspan="3" style="font-family: 'Traditional Arabic', serif;">${judulArab}</td>
-                </tr>`;
+                barisIndo += `<tr class="font-bold bg-gray-50" style="height: 24px;"><td class="border border-black text-center text-[11px] p-0">${abjadIndo}</td><td class="border border-black px-1.5 text-[11px] py-0" colspan="3">${judulIndo}</td></tr>`;
+                barisArab += `<tr class="font-bold bg-gray-50" style="height: 24px;"><td class="border border-black text-center text-[14px] p-0 leading-none" style="font-family: 'Traditional Arabic', serif;">${abjadArab}</td><td class="border border-black px-2 text-right text-[13px] py-0 leading-none" colspan="3" style="font-family: 'Traditional Arabic', serif;">${judulArab}</td></tr>`;
             }
 
+            // 5. RENDER TABEL
             buildHeader('A', 'Tertulis', 'أ', 'تحريري');
-            for (let i = 0; i < 15; i++) { buildRow(i + 1, mapelTertulis[i]); }
-
+            mapelTertulis.forEach((m, i) => buildRow(i + 1, m));
+            
             buildHeader('B', 'Praktek', 'ب', 'عملي');
-            for (let i = 0; i < 4; i++) { buildRow(i + 1, mapelPraktek[i]); }
-
+            mapelPraktek.forEach((m, i) => buildRow(i + 1, m));
+            
             buildHeader('C', 'Membaca', 'ت', 'قراءة');
-            for (let i = 0; i < 2; i++) { buildRow(i + 1, mapelMembaca[i]); }
+            mapelMembaca.forEach((m, i) => buildRow(i + 1, m));
+
+            // Kode di bawah ini (isGenap & kertas.innerHTML) biarkan seperti semula...
+
+            
 
             let isGenap = (setUmum.semester || '').toLowerCase().includes('genap');
             let teksKeputusan = isGenap 
@@ -309,20 +350,20 @@
                     </div>
                 </div>
 
-            <div class="flex justify-between items-start mb-2 text-black w-full">
+                <div class="flex justify-between items-stretch mb-2 text-black w-full">
                     <div class="w-[49.3%]">
-                        <table class="w-full text-left border-collapse border-[1.5px] border-black text-[10px]" style="table-layout: fixed;">
+                        <table class="w-full h-full text-left border-collapse border-[1.5px] border-black text-[10px]" style="table-layout: fixed;">
                             <colgroup>
                                 <col style="width: 7%;">  <col style="width: 43%;"> <col style="width: 14%;"> <col style="width: 36%;"> 
                             </colgroup>
                             <thead>
                                 <tr style="height: 24px;">
-                                    <th width="50%" colspan="2" rowspan="2" class="border border-black text-center align-middle text-[11px]">Mata Pelajaran</th>
-                                    <th width="50%" colspan="2" class="border border-black text-center align-middle text-[11px]">Hasil Tes</th>
+                                    <th width="50%" colspan="2" rowspan="2" class="border border-black text-center align-middle text-[11px] p-0">Mata Pelajaran</th>
+                                    <th width="50%" colspan="2" class="border border-black text-center align-middle text-[11px] p-0">Hasil Tes</th>
                                 </tr>
                                 <tr style="height: 24px;">
-                                    <th width="14%" class="border border-black text-center align-middle text-[11px]">Angka</th>
-                                    <th width="36%" class="border border-black text-center align-middle text-[11px]">Huruf</th>
+                                    <th width="14%" class="border border-black text-center align-middle text-[11px] p-0">Angka</th>
+                                    <th width="36%" class="border border-black text-center align-middle text-[11px] p-0">Huruf</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -343,31 +384,31 @@
                     </div>
 
                     <div class="w-[49.3%]">
-                        <table class="w-full text-right border-collapse border-[1.5px] border-black text-[10px]" dir="rtl" style="table-layout: fixed;">
+                        <table class="w-full h-full text-right border-collapse border-[1.5px] border-black text-[10px]" dir="rtl" style="table-layout: fixed;">
                             <colgroup>
                                 <col style="width: 7%;">  <col style="width: 43%;"> <col style="width: 14%;"> <col style="width: 36%;"> 
                             </colgroup>
                             <thead>
                                 <tr style="height: 24px;">
-                                    <th width="50%" colspan="2" rowspan="2" class="border border-black text-center align-middle font-bold text-[14px]" style="font-family: 'Traditional Arabic', serif;">المواد الدراسية</th>
-                                    <th width="50%" colspan="2" class="border border-black text-center align-middle font-bold text-[14px]" style="font-family: 'Traditional Arabic', serif;">الدرجات العملية</th>
+                                    <th width="50%" colspan="2" rowspan="2" class="border border-black text-center align-middle font-bold text-[14px] leading-none p-0" style="font-family: 'Traditional Arabic', serif;">المواد الدراسية</th>
+                                    <th width="50%" colspan="2" class="border border-black text-center align-middle font-bold text-[14px] leading-none p-0" style="font-family: 'Traditional Arabic', serif;">الدرجات العملية</th>
                                 </tr>
                                 <tr style="height: 24px;">
-                                    <th width="14%" class="border border-black text-center align-middle font-bold text-[14px]" style="font-family: 'Traditional Arabic', serif;">رقما</th>
-                                    <th width="36%" class="border border-black text-center align-middle font-bold text-[14px]" style="font-family: 'Traditional Arabic', serif;">كتابة</th>
+                                    <th width="14%" class="border border-black text-center align-middle font-bold text-[14px] leading-none p-0" style="font-family: 'Traditional Arabic', serif;">رقما</th>
+                                    <th width="36%" class="border border-black text-center align-middle font-bold text-[14px] leading-none p-0" style="font-family: 'Traditional Arabic', serif;">كتابة</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${barisArab}
                                 <tr style="height: 36px;" class="font-bold border-t-2 border-black">
-                                    <td colspan="2" class="border border-black px-2 text-right text-[14px]" style="font-family: 'Traditional Arabic', serif;">الجملة</td>
+                                    <td colspan="2" class="border border-black px-2 text-right text-[14px] leading-none" style="font-family: 'Traditional Arabic', serif;">الجملة</td>
                                     <td class="border border-black p-0 text-center text-[11px]">${toArabicNumeral(total)}</td>
                                     <td class="border border-black p-0 text-center text-[10px] align-middle" style="font-family: 'Traditional Arabic', serif;">
                                         <div style="height: 36px; padding: 0 6px;" class="flex items-center justify-center whitespace-normal leading-tight overflow-hidden">${terbilangArab(total)}</div>
                                     </td>
                                 </tr>
                                 <tr style="height: 24px;" class="font-bold">
-                                    <td colspan="2" class="border border-black px-2 text-right text-[14px] border-b-2 border-black" style="font-family: 'Traditional Arabic', serif;">الدرجة</td>
+                                    <td colspan="2" class="border border-black px-2 text-right text-[14px] border-b-2 border-black leading-none" style="font-family: 'Traditional Arabic', serif;">الدرجة</td>
                                     <td colspan="2" class="border border-black p-0 text-center border-b-2 border-black text-[11px]">${toArabicNumeral(rank === '-' ? '-' : rank)}</td>
                                 </tr>
                             </tbody>
@@ -437,7 +478,7 @@
                     </div>
                 </div>
 
-             <div class="flex justify-between items-stretch mb-4 text-[10px] text-black w-full">
+                <div class="flex justify-between items-stretch mb-4 text-[10px] text-black w-full">
                     <div class="w-[49.3%] border-[1.5px] border-black flex flex-col min-h-[60px]">
                         <div class="text-center font-bold border-b border-black py-1 text-[11px]">CATATAN GURU</div>
                         <div class="p-1 italic flex-1 flex items-center justify-center text-center w-full"><span>${setDetail.catatan || '-'}</span></div>
