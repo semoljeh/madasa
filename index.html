@@ -205,8 +205,9 @@
     <button onclick="cetakDataSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
         <i class="fas fa-print"></i> Cetak / Print
     </button>
-    <button onclick="openModalSantri()" class="admin-only w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
+   <button onclick="openModalSantri()" class="w-full sm:w-auto px-5 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
         <i class="fas fa-user-plus"></i> Tambah Santri
+    </button>
     </button>
 </div>
                         </div>
@@ -596,7 +597,7 @@
             </div>
             <form id="formTambahSantri" class="space-y-3 sm:space-y-4">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS</label><input type="number" id="add_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
+               <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS <span id="labelNisRole" class="text-[10px] text-red-500 ml-1"></span></label><input type="text" id="add_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm font-bold" required></div>
                     <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="add_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
@@ -955,7 +956,46 @@
         // ---------------------------------------------------------
         // 6. FUNGSI DATABASE (SANTRI, NILAI, RANKING, PENGATURAN)
         // ---------------------------------------------------------
-        function openModalSantri() { document.getElementById('modalTambahSantri').classList.remove('hidden'); }
+       function openModalSantri() { 
+            // --- SISTEM NIS OTOMATIS ---
+            let nextNis = "001"; // Default awal jika database kosong
+            if (GLOBAL_DATA_SANTRI && GLOBAL_DATA_SANTRI.length > 0) {
+                let maxNis = 0;
+                let panjangKarakter = 3; // Standar panjang karakter (contoh: 001)
+                
+                GLOBAL_DATA_SANTRI.forEach(s => {
+                    let nisStr = s.nis.toString().trim();
+                    if(nisStr.length > panjangKarakter) panjangKarakter = nisStr.length;
+                    
+                    let nisAngka = parseInt(nisStr.replace(/\D/g, '')); // Ambil angkanya saja
+                    if (!isNaN(nisAngka) && nisAngka > maxNis) {
+                        maxNis = nisAngka;
+                    }
+                });
+                
+                // Tambah 1 dan pertahankan angka nol di depannya
+                nextNis = (maxNis + 1).toString().padStart(panjangKarakter, '0');
+            }
+
+            const inputNis = document.getElementById('add_nis');
+            const labelNis = document.getElementById('labelNisRole');
+            inputNis.value = nextNis;
+
+            // --- KUNCI INPUT KHUSUS UNTUK GURU ---
+            const userRole = document.getElementById('userRoleDisplay').innerText;
+            if (userRole.includes('Guru')) {
+                inputNis.readOnly = true;
+                inputNis.classList.add('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
+                labelNis.innerText = "(Otomatis)";
+            } else {
+                inputNis.readOnly = false;
+                inputNis.classList.remove('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
+                labelNis.innerText = "(Bisa diedit Admin)";
+            }
+
+            // Tampilkan Modal
+            document.getElementById('modalTambahSantri').classList.remove('hidden'); 
+        }
         function closeModalSantri() { document.getElementById('modalTambahSantri').classList.add('hidden'); document.getElementById('formTambahSantri').reset(); }
         
         function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) { 
@@ -1840,11 +1880,12 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
         function updateWaktuLokal() {
             const sekarang = new Date();
             
-            // 1. Update Jam dan Menit (Format: 08:30)
+          // 1. Update Jam, Menit, dan Detik (Format: 08:30:45)
             const jam = sekarang.getHours().toString().padStart(2, '0');
             const menit = sekarang.getMinutes().toString().padStart(2, '0');
+            const detik = sekarang.getSeconds().toString().padStart(2, '0');
             const elemenJam = document.getElementById('waktu-jam');
-            if (elemenJam) elemenJam.innerText = `${jam}:${menit}`;
+            if (elemenJam) elemenJam.innerText = `${jam}:${menit}:${detik}`;
 
             // 2. Update Tanggal Masehi & Pasaran Jawa
             // Rumus menghitung hari Pasaran berdasarkan waktu Unix (Epoch 1970)
