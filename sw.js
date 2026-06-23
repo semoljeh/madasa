@@ -1,4 +1,4 @@
-const CACHE_NAME = 'madasa-pwa-v4';
+const CACHE_NAME = 'madasa-pwa-v5';
 const urlsToCache = [
   './',
   './index.html',
