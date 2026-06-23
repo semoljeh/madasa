@@ -5,24 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Madrasah Darussalam - Sistem Penilaian</title>
 	
-	<meta name="description" content="Sistem Informasi Penilaian Santri Digital Madrasah Darussalam. Memudahkan dewan guru dalam mengelola data induk, input nilai, ranking, hingga cetak rapor santri secara real-time.">
+	<!-- META SEO & SOCIAL MEDIA SHARE (WhatsApp, FB, Telegram) -->
+    <meta name="description" content="Sistem Informasi Penilaian Santri Digital Madrasah Darussalam. Memudahkan dewan guru dalam mengelola data induk, input nilai, ranking, hingga cetak rapor santri secara real-time.">
     
+    <!-- Open Graph (Facebook & WhatsApp) -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Madrasah Darussalam - Sistem Penilaian">
     <meta property="og:description" content="Sistem Informasi Penilaian Santri Digital Madrasah Darussalam. Memudahkan dewan guru dalam mengelola data induk, input nilai, ranking, hingga cetak rapor santri secara real-time.">
+    <!-- INI YANG PENTING: Pakai URL lengkap untuk WhatsApp -->
     <meta property="og:image" content="https://semoljeh.github.io/madasa/asset/logoweb.png">
     <meta property="og:image:secure_url" content="https://semoljeh.github.io/madasa/asset/logoweb.png">
     <meta property="og:image:type" content="image/png">
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Madrasah Darussalam - Sistem Penilaian">
     <meta name="twitter:description" content="Sistem Informasi Penilaian Santri Digital Madrasah Darussalam. Memudahkan dewan guru dalam mengelola data induk, input nilai, ranking, hingga cetak rapor santri secara real-time.">
+    <!-- Pakai URL lengkap juga di sini -->
     <meta name="twitter:image" content="https://semoljeh.github.io/madasa/asset/logoweb.png">
     
+    <!-- PENGATURAN PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#065f46">
     <link rel="apple-touch-icon" href="asset/logo-192.png">
     
+    <!-- Favicon Browser -->
     <link rel="icon" type="image/png" href="asset/logoweb.png">
     <link rel="shortcut icon" href="asset/logoweb.png">
     
@@ -57,15 +64,19 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
 
+    <!-- NOTIFIKASI INSTALL PWA KUSTOM (Pojok Kanan Atas) -->
     <div id="pwaInstallPrompt" class="fixed top-4 right-4 z-[100] w-[calc(100%-2rem)] sm:w-80 bg-white/90 backdrop-blur-xl border border-emerald-100 shadow-2xl rounded-2xl p-4 transition-all duration-700 transform translate-x-[150%] opacity-0 flex items-start gap-4">
+        <!-- Tombol X (Close) -->
         <button onclick="tutupNotifPWA()" class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all cursor-pointer">
             <i class="fas fa-times text-sm"></i>
         </button>
         
+        <!-- Ikon -->
         <div class="w-12 h-12 shrink-0 bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl shadow-inner border border-white">
             <i class="fas fa-download"></i>
         </div>
         
+        <!-- Teks & Tombol Aksi -->
         <div class="flex-1 pt-0.5">
             <h4 class="font-heading font-bold text-gray-800 text-sm mb-1">Install Aplikasi</h4>
             <p class="text-[11px] text-gray-500 leading-relaxed mb-3">Tambahkan Madasa ke layar utama HP Anda untuk akses lebih cepat & ringan.</p>
@@ -75,10 +86,12 @@
         </div>
     </div>
 
+    <!-- LOADING SCREEN -->
     <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-white/90 backdrop-blur-sm hidden">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600"></div>
     </div>
 
+    <!-- HALAMAN LOGIN -->
     <div id="loginPage" class="min-h-screen flex items-center justify-center islamic-bg relative px-4">
         <div class="absolute inset-0 bg-emerald-900/40 z-0"></div>
         <div class="glass-panel relative z-10 w-full max-w-md p-6 sm:p-8 m-2 sm:m-4">
@@ -108,15 +121,17 @@
         </div>
     </div>
 
+    <!-- HALAMAN DASHBOARD -->
     <div id="dashboardPage" class="hidden flex h-screen bg-gray-50 overflow-hidden">
         
+        <!-- SIDEBAR -->
         <aside class="w-64 bg-emerald-800 text-white hidden md:flex flex-col shadow-xl z-20 shrink-0">
             <div class="p-6 text-center border-b border-emerald-700 bg-emerald-900/50">
                 <img src="asset/logo.png" class="w-14 h-14 mx-auto object-contain mb-2 drop-shadow-md" alt="Logo Madrasah">
                 <h2 class="font-heading font-bold text-base tracking-wide">DARUSSALAM</h2>
             </div>
             <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-                <button onclick="kembaliKeHome()" class="nav-link w-full flex items-center gap-3 px-4 py-3 bg-emerald-700 rounded-xl text-white font-medium transition-all text-sm"><i class="fas fa-th-large w-5 text-gold"></i> Utama</button>
+                <button onclick="showView('home')" class="nav-link w-full flex items-center gap-3 px-4 py-3 bg-emerald-700 rounded-xl text-white font-medium transition-all text-sm"><i class="fas fa-th-large w-5 text-gold"></i> Utama</button>
                 <button onclick="showView('dataSantri')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-users w-5"></i> Data Santri</button>
                 <button onclick="showView('inputNilai')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-edit w-5"></i> Input Nilai</button>
                 
@@ -125,14 +140,17 @@
                 
                 <button onclick="showView('cetakRapor')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-print w-5"></i> Cetak Rapor</button>
 				
-				<button onclick="showView('mutasi')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-exchange-alt w-5"></i> Mutasi Kelas</button>
+				<!-- TOMBOL MUTASI KELAS (HANYA ADMIN) -->
+                <button onclick="showView('mutasi')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-exchange-alt w-5"></i> Mutasi Kelas</button>
                 
                 <button onclick="showView('pengaturan')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-cog w-5"></i> Pengaturan</button>
+				
 				
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col h-screen overflow-hidden w-full">
+            <!-- HEADER -->
             <header class="bg-white shadow-sm border-b border-gray-100 z-10 flex items-center justify-between p-4 sm:px-6">
                 <div class="flex items-center gap-4"><h2 class="text-lg sm:text-xl font-heading font-bold text-gray-800 truncate">Madrasah Darussalam</h2></div>
                 <div class="flex items-center gap-4">
@@ -146,7 +164,9 @@
 
             <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-gray-50">
                 
-                  <div id="view-home" class="view-section">
+               
+                  <!-- VIEW: HOME -->
+                <div id="view-home" class="view-section">
                     <div class="bg-gradient-to-r from-emerald-700 to-teal-800 rounded-2xl p-6 sm:p-8 text-white shadow-md mb-6 sm:mb-8 relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
                         
                         <div class="relative z-10">
@@ -154,6 +174,7 @@
                             <p class="text-emerald-100 mt-1 sm:mt-2 text-sm sm:text-base">Selamat datang di Sistem Informasi Penilaian Santri Digital.</p>
                         </div>
 
+                        <!-- KOTAK WAKTU & TANGGAL (Adaptasi gaya Al-Mukhtar) -->
                         <div class="relative z-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-4 text-center md:text-right min-w-[200px]">
                             <h2 id="waktu-jam" class="text-3xl sm:text-4xl font-bold font-mono tracking-tighter text-gold leading-none drop-shadow-sm">00:00</h2>
                             <div class="mt-2 pt-2 border-t border-white/20 border-dashed">
@@ -180,11 +201,12 @@
                     </div>
                 </div>
 
+                <!-- VIEW: DATA SANTRI -->
                 <div id="view-dataSantri" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 border-b border-gray-100 pb-4 gap-4">
                             <div class="flex items-center gap-3 sm:gap-4">
-                                <button onclick="kembaliKeHome()" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 hover:text-teal-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
+                                <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 hover:text-teal-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
                                 <div><h3 class="text-lg sm:text-xl font-heading font-bold text-gray-800">Data Induk Santri</h3><p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Manajemen biodata seluruh santri aktif</p></div>
                             </div>
                             <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -233,11 +255,12 @@
                     </div>
                 </div>
 
+                <!-- VIEW: INPUT NILAI -->
                 <div id="view-inputNilai" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 border-b border-gray-100 pb-4 gap-4">
                             <div class="flex items-center gap-3 sm:gap-4">
-                                <button onclick="kembaliKeHome()" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
+                                <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
                                 <div><h3 class="text-lg sm:text-xl font-heading font-bold text-gray-800">Aplikasi Buku Nilai</h3><p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Sistem Input Real-Time Terpadu</p></div>
                             </div>
                         </div>
@@ -300,11 +323,12 @@
                     </div>
                 </div>
 
+                <!-- VIEW: DATA NILAI -->
                 <div id="view-dataNilai" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-5 sm:mb-6 border-b border-gray-100 pb-4 gap-4">
                             <div class="flex items-center gap-3 sm:gap-4">
-                                <button onclick="kembaliKeHome()" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
+                                <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
                                 <div><h3 class="text-lg sm:text-xl font-heading font-bold text-gray-800">Rekap Data Nilai</h3><p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Pantau hasil input nilai seluruh kelas.</p></div>
                             </div>
                         </div>
@@ -336,6 +360,7 @@
                     </div>
                 </div>
 
+                <!-- VIEW: RANKING -->
                 <div id="view-ranking" class="view-section hidden">
                     <div class="bg-gradient-to-br from-amber-400 to-yellow-600 rounded-2xl shadow-lg border border-amber-300 p-6 sm:p-8 mb-8 relative overflow-hidden">
                         <div class="absolute -right-10 -top-10 opacity-20"><i class="fas fa-medal text-9xl text-white"></i></div>
@@ -358,7 +383,7 @@
 
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex items-center gap-3 border-b border-gray-100 pb-4 mb-5 sm:mb-6">
-                            <button onclick="kembaliKeHome()" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shrink-0"><i class="fas fa-arrow-left"></i></button>
+                            <button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shrink-0"><i class="fas fa-arrow-left"></i></button>
                             <div><h3 class="text-lg font-heading font-bold text-gray-800">Ranking Per Kelas</h3></div>
                         </div>
                         <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 mb-6 flex flex-col sm:flex-row gap-3">
@@ -401,10 +426,11 @@
                     </div>
                 </div>
                 
+                <!-- VIEW: CETAK RAPOR -->
                 <div id="view-cetakRapor" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
                         <div class="flex items-center gap-3 border-b border-gray-100 pb-4 mb-5">
-                            <button onclick="kembaliKeHome()" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shrink-0"><i class="fas fa-arrow-left"></i></button>
+                            <button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-emerald-100 hover:text-emerald-600 transition-all shrink-0"><i class="fas fa-arrow-left"></i></button>
                             <div>
                                 <h3 class="text-xl font-heading font-bold text-gray-800">Cetak Dokumen Rapor</h3>
                                 <p class="text-xs text-gray-500">Pilih tingkat pendidikan untuk mencetak rapor</p>
@@ -412,18 +438,21 @@
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-gray-50 rounded-2xl border border-gray-100">
+                            <!-- Tombol TK -->
                             <a href="rapor_tpq.html" target="_blank" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-emerald-50 to-emerald-100 rounded-2xl border-2 border-emerald-200 hover:border-emerald-500 transition-all cursor-pointer text-emerald-800 relative overflow-hidden" style="animation-delay: 0s;">
                                 <i class="fas fa-child text-5xl mb-4 group-hover:scale-110 group-hover:text-emerald-600 transition-transform duration-300"></i>
                                 <h3 class="text-xl font-bold font-heading mb-1">Rapor TK / RA</h3>
                                 <p class="text-xs text-center text-emerald-600 font-medium px-2">Masuk ke sistem cetak rapor khusus Taman Kanak-Kanak</p>
                             </a>
 
+                            <!-- Tombol Ibtidaiyah -->
                             <a href="rapor_ibtidaiyah.html" target="_blank" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 hover:border-blue-500 transition-all cursor-pointer text-blue-800 relative overflow-hidden" style="animation-delay: 0.4s;">
                                 <i class="fas fa-book-open text-5xl mb-4 group-hover:scale-110 group-hover:text-blue-600 transition-transform duration-300"></i>
                                 <h3 class="text-xl font-bold font-heading mb-1">Ibtidaiyah</h3>
                                 <p class="text-xs text-center text-blue-600 font-medium px-2">Masuk ke cetak rapor Madrasah Ibtidaiyah</p>
                             </a>
 
+                            <!-- Tombol Sanawiyah -->
                             <a href="rapor_sanawiyah.html" target="_blank" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-200 hover:border-purple-500 transition-all cursor-pointer text-purple-800 relative overflow-hidden" style="animation-delay: 0.8s;">
                                 <i class="fas fa-graduation-cap text-5xl mb-4 group-hover:scale-110 group-hover:text-purple-600 transition-transform duration-300"></i>
                                 <h3 class="text-xl font-bold font-heading mb-1">Sanawiyah</h3>
@@ -433,13 +462,15 @@
                     </div>
                 </div>
                 
+                <!-- VIEW PENGATURAN -->
                 <div id="view-pengaturan" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex items-center gap-3 border-b border-gray-100 pb-4 mb-5">
-                            <button onclick="kembaliKeHome()" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 transition-all"><i class="fas fa-arrow-left"></i></button>
+                            <button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 transition-all"><i class="fas fa-arrow-left"></i></button>
                             <div><h3 class="text-xl font-heading font-bold text-gray-800">Pengaturan Rapor Kelas</h3></div>
                         </div>
 
+                        <!-- Filter Kelas -->
                         <div class="bg-teal-50 p-4 rounded-xl border border-teal-100 mb-6">
                             <label class="block text-sm font-bold text-teal-800 mb-2">Pilih Kelas yang Akan Diatur:</label>
                             <select id="settingKelas" onchange="loadSettingRapor()" class="w-full p-3 border border-teal-300 rounded-xl font-bold bg-white text-teal-700 outline-none focus:ring-2 focus:ring-teal-500 shadow-sm cursor-pointer">
@@ -451,6 +482,7 @@
                         </div>
 
                         <form id="formSettingRapor" class="hidden">
+                            <!-- Form Umum -->
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-inner">
                                     <h4 class="font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2"><i class="fas fa-school mr-2 text-emerald-600"></i>Identitas Rapor</h4>
@@ -477,7 +509,8 @@
                             </div>
 							
 							
-							<div class="bg-indigo-50 p-4 sm:p-5 rounded-xl border border-indigo-200 shadow-inner mb-6">
+							<!-- MASTER MATA PELAJARAN (3 KATEGORI) & KAMUS ARAB -->
+                            <div class="bg-indigo-50 p-4 sm:p-5 rounded-xl border border-indigo-200 shadow-inner mb-6">
                                 <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-2"><i class="fas fa-book mr-2 text-indigo-600"></i>Master Mata Pelajaran (Kategori)</h4>
                                 <p class="text-[11px] text-indigo-600 mb-3 font-medium">* Ketik mapel dipisah tanda koma ( , ). Kosongkan jika tidak ada.</p>
                                 
@@ -491,10 +524,12 @@
                                 <textarea id="set_kamus" rows="2" class="w-full p-3 border border-indigo-300 rounded-xl focus:ring-indigo-500 outline-none text-sm font-bold text-gray-700 leading-relaxed" placeholder="Contoh: AKHLAQ=أخلاق, FIQIH=فقه" dir="auto"></textarea>
                             </div>
                             
+                            <!-- Upload TTD & Stempel -->
                             <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-inner mb-6">
                                 <h4 class="font-bold text-gray-700 mb-2 border-b border-gray-200 pb-2"><i class="fas fa-image mr-2 text-purple-600"></i>Upload Stempel & Tanda Tangan</h4>
                                 <p class="text-[11px] text-red-500 mb-4 font-medium">* Aturan: Format <b>WAJIB .PNG</b> (Latar Belakang Transparan). Ukuran maksimal <b>5 MB</b> per gambar.</p>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <!-- Upload TTD Wali -->
                                     <div class="border border-dashed border-gray-400 rounded-lg p-3 text-center bg-white hover:bg-purple-50 transition-all">
                                         <label class="block text-xs font-bold text-gray-600 mb-2">TTD Guru Wali Kelas</label>
                                         <div class="h-16 flex items-center justify-center mb-2 border border-gray-100 rounded bg-gray-50 overflow-hidden">
@@ -504,6 +539,7 @@
                                         <input type="file" id="upload_wali" accept="image/png" class="text-[10px] w-full file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:font-semibold file:bg-purple-100 file:text-purple-700 cursor-pointer outline-none">
                                     </div>
 
+                                    <!-- Upload TTD Kepala -->
                                     <div class="border border-dashed border-gray-400 rounded-lg p-3 text-center bg-white hover:bg-blue-50 transition-all">
                                         <label class="block text-xs font-bold text-gray-600 mb-2">TTD Kepala Madrasah</label>
                                         <div class="h-16 flex items-center justify-center mb-2 border border-gray-100 rounded bg-gray-50 overflow-hidden">
@@ -513,6 +549,7 @@
                                         <input type="file" id="upload_kepala" accept="image/png" class="text-[10px] w-full file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:font-semibold file:bg-blue-100 file:text-blue-700 cursor-pointer outline-none">
                                     </div>
 
+                                    <!-- Upload Stempel -->
                                     <div class="border border-dashed border-gray-400 rounded-lg p-3 text-center bg-white hover:bg-emerald-50 transition-all">
                                         <label class="block text-xs font-bold text-gray-600 mb-2">Stempel Madrasah</label>
                                         <div class="h-16 flex items-center justify-center mb-2 border border-gray-100 rounded bg-gray-50 overflow-hidden">
@@ -524,6 +561,7 @@
                                 </div>
                             </div>
 
+                            <!-- Tabel Santri -->
                             <h4 class="font-bold text-gray-800 mb-3"><i class="fas fa-users mr-2 text-orange-500"></i>Detail Kepribadian & Absensi Santri</h4>
                             <div class="overflow-x-auto rounded-xl border border-gray-200 mb-6 shadow-sm">
                                 <table class="w-full text-left border-collapse bg-white whitespace-nowrap text-sm min-w-max">
@@ -555,16 +593,18 @@
                 </div>
 				
 				
-				<div id="view-mutasi" class="view-section hidden">
+				<!-- VIEW MUTASI KELAS -->
+                <div id="view-mutasi" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
                         <div class="flex items-center gap-3 border-b border-gray-100 pb-4 mb-5">
-                            <button onclick="kembaliKeHome()" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-indigo-100 hover:text-indigo-600 transition-all"><i class="fas fa-arrow-left"></i></button>
+                            <button onclick="showView('home')" class="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-indigo-100 hover:text-indigo-600 transition-all"><i class="fas fa-arrow-left"></i></button>
                             <div>
                                 <h3 class="text-xl font-heading font-bold text-gray-800">Mutasi / Kenaikan Kelas</h3>
                                 <p class="text-xs text-gray-500">Pindahkan banyak santri sekaligus ke kelas baru.</p>
                             </div>
                         </div>
 
+                        <!-- Panel Filter & Aksi -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-indigo-50 p-4 rounded-xl border border-indigo-100">
                             <div>
                                 <label class="block text-sm font-bold text-indigo-800 mb-2">1. Pilih Kelas Asal:</label>
@@ -592,6 +632,7 @@
                             </div>
                         </div>
 
+                        <!-- Tabel Checklist Santri -->
                         <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm w-full">
                             <table class="w-full text-left border-collapse min-w-max">
                                 <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
@@ -616,6 +657,7 @@
                     </div>
                 </div>
 
+                <!-- WADAH KATA MOTIVASI (SELALU TAMPIL DI SEMUA MENU BAWAH) -->
                 <div class="mt-6 sm:mt-8 relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-50 via-white to-teal-50 border border-emerald-100 p-6 sm:p-8 shadow-sm group hover:shadow-md transition-all">
                     <i class="fas fa-quote-right absolute -bottom-4 -right-2 text-7xl text-emerald-100 opacity-50 group-hover:scale-110 group-hover:opacity-70 transition-all duration-500"></i>
                     <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5">
@@ -631,8 +673,12 @@
                     </div>
                 </div>
 
-            </div> </main>
-    </div> <div id="modalTambahSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
+            </div> <!-- Penutup Area Konten .flex-1.overflow-y-auto -->
+        </main>
+    </div> <!-- Penutup #dashboardPage -->
+
+    <!-- MODAL TAMBAH SANTRI -->
+    <div id="modalTambahSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
                 <h3 class="text-base sm:text-lg font-heading font-bold text-gray-800">Tambah Data Santri</h3>
@@ -664,6 +710,7 @@
         </div>
     </div>
 
+    <!-- MODAL EDIT SANTRI -->
     <div id="modalEditSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
@@ -696,6 +743,7 @@
         </div>
     </div>
 
+    <!-- MODAL EDIT NILAI -->
     <div id="modalEditNilai" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-5 sm:p-6 transform transition-all max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center border-b pb-3 mb-4 shrink-0">
@@ -714,13 +762,21 @@
         </div>
     </div>
 
-    <div id="wa-widget" class="fixed bottom-6 right-6 z-40 flex flex-col items-center cursor-grab select-none" style="touch-action: none;">
+    <!-- WIDGET KONSULTASI WA DRAGGABLE -->
+   <div id="wa-widget" class="fixed bottom-6 right-6 z-40 flex flex-col items-center cursor-grab select-none" style="touch-action: none;">
+        <!-- Tombol WA (Diperkecil dan tanpa teks) -->
+        <!-- UBAH NOMOR WA DI BAWAH INI (Gunakan awalan 62 tanpa + atau 0) -->
         <a id="wa-link" href="https://wa.me/6282333166659?text=Assalamu'alaikum%20Admin,%20saya%20butuh%20bantuan%20terkait%20Sistem%20Madasa." target="_blank" class="relative flex items-center justify-center w-12 h-12 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full shadow-2xl transition-transform transform hover:scale-105 pointer-events-auto">
+            <!-- Efek Animasi Ping (Berdetak) -->
             <span class="absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-50 animate-ping"></span>
             <i class="fab fa-whatsapp text-2xl relative z-10"></i>
         </a>
     </div>
 
+
+    <!-- =========================================================================
+         SEMUA KODE JAVASCRIPT DISATUKAN DI SINI (MAIN, PWA, MOTIVASI, DLL)
+         ========================================================================= -->
     <script>
         // ---------------------------------------------------------
         // 1. PENGATURAN GLOBAL & DATABASE
@@ -730,8 +786,9 @@
         let GLOBAL_HEADERS_NILAI = [];
         let GLOBAL_DATA_NILAI = [];
 
-        let JADWAL_MAPEL = {}; 
+        let JADWAL_MAPEL = {}; // Sekarang dikosongkan agar bisa diisi otomatis
 
+        // Fungsi baru untuk menarik mapel dari database saat aplikasi dibuka
         function muatSemuaMapel() {
             const fdMapel = new URLSearchParams();
             fdMapel.append('action', 'getAllMapel');
@@ -742,32 +799,24 @@
         }
 
         // ---------------------------------------------------------
-        // 2. FUNGSI UI (TAMPILAN) & ROUTING LAYAKNYA APP MOBILE
+        // 2. FUNGSI UI (TAMPILAN) UTAMA
         // ---------------------------------------------------------
         function togglePassword() { const pwd = document.getElementById('password'); const icon = document.getElementById('eyeIcon'); if (pwd.type === 'password') { pwd.type = 'text'; icon.classList.replace('fa-eye', 'fa-eye-slash'); } else { pwd.type = 'password'; icon.classList.replace('fa-eye-slash', 'fa-eye'); } }
         function showLoading(show) { document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none'; }
-
-        // Fungsi baru untuk mensimulasikan tab bar agar Back Button merespon dengan rapi
-        function kembaliKeHome() {
-            const state = window.history.state;
-            // Jika berada di dalam sebuah menu (bukan home dan bukan di zona trap)
-            if (state && state.view && state.view !== 'home' && state.view !== 'exit_trap') {
-                window.history.back(); // Panggil hardware back untuk mengeluarkan history
-            } else {
-                showView('home');
-            }
-        }
 
         function showView(viewName, pushToHistory = true) {
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             const targetView = document.getElementById('view-' + viewName);
             if (targetView) targetView.classList.remove('hidden');
             
+           // Logika Muat Data sesuai Menu
             if (viewName === 'dataSantri' || viewName === 'inputNilai' || viewName === 'pengaturan' || viewName === 'mutasi') { loadDataSantri(); }
             if (viewName === 'ranking') { loadBintangPelajar(); }
             
+            // Panggil motivasi acak setiap kali pindah menu
             gantiMotivasiAcak(); 
             
+            // Efek Aktif Sidebar
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
                 link.classList.remove('bg-emerald-700', 'text-white', 'font-medium'); link.classList.add('text-emerald-100', 'hover:bg-emerald-700/50');
@@ -775,56 +824,19 @@
                     link.classList.add('bg-emerald-700', 'text-white', 'font-medium'); link.classList.remove('text-emerald-100', 'hover:bg-emerald-700/50');
                 }
             });
-
-            // Sistem Perekam Jejak (History) ala Native App
-            if (pushToHistory) {
-                const currentState = window.history.state;
-                if (currentState && currentState.view === viewName) {
-                    // Cegah duplikasi penekanan tombol
-                } else if (viewName === 'home') {
-                    window.history.pushState({ view: viewName }, "", "#" + viewName);
-                } else {
-                    // Jika pindah antar menu (misal dari Data Santri -> Input Nilai)
-                    // Gunakan replaceState agar tidak menumpuk back-stack menjadi panjang
-                    if (currentState && currentState.view && currentState.view !== 'home' && currentState.view !== 'exit_trap') {
-                        window.history.replaceState({ view: viewName }, "", "#" + viewName);
-                    } else {
-                        // Jika masuk menu dari Home
-                        window.history.pushState({ view: viewName }, "", "#" + viewName);
-                    }
-                }
-            }
+            if (pushToHistory) window.history.pushState({ view: viewName }, "", "#" + viewName);
         }
 
        window.addEventListener('popstate', function(event) {
-            // 1. Setiap kali tombol back ditekan, paksa tutup & reset semua form yang terbuka
-            const modalTambah = document.getElementById('modalTambahSantri');
-            if(!modalTambah.classList.contains('hidden')) { 
-                modalTambah.classList.add('hidden'); 
-                document.getElementById('formTambahSantri').reset(); 
-            }
+            // 1. Setiap kali tombol back ditekan, paksa tutup semua form yang sedang terbuka
+            document.getElementById('modalTambahSantri').classList.add('hidden');
+            document.getElementById('modalEditSantri').classList.add('hidden');
+            document.getElementById('modalEditNilai').classList.add('hidden');
 
-            const modalEdit = document.getElementById('modalEditSantri');
-            if(!modalEdit.classList.contains('hidden')) { 
-                modalEdit.classList.add('hidden'); 
-                document.getElementById('formEditSantri').reset(); 
-            }
-
-            const modalEditNilai = document.getElementById('modalEditNilai');
-            if(!modalEditNilai.classList.contains('hidden')) { 
-                modalEditNilai.classList.add('hidden'); 
-            }
-
-            // 2. Atur perpindahan halaman menu layaknya Mobile App
+            // 2. Atur perpindahan halaman menu
             const isDashboard = !document.getElementById('dashboardPage').classList.contains('hidden');
             if (isDashboard) {
-                if (event.state && event.state.view === 'exit_trap') {
-                    // Mencegah aplikasi tertutup saat menekan back di halaman Home
-                    // 1. Dorong kembali state home agar tetap di aplikasi
-                    window.history.pushState({ view: 'home' }, "", "#home");
-                    // 2. Munculkan peringatan Exit
-                    logout();
-                } else if (event.state && event.state.view) {
+                if (event.state && event.state.view) {
                     showView(event.state.view, false);
                 } else if (event.state && event.state.modal) {
                     // Abaikan perpindahan halaman jika yang baru ditutup adalah form
@@ -833,6 +845,7 @@
                 }
             }
         });
+
 
         // ---------------------------------------------------------
         // 3. FUNGSI AUTENTIKASI (LOGIN & LOGOUT)
@@ -859,11 +872,7 @@
                     
                     document.getElementById('loginPage').classList.add('hidden'); 
                     document.getElementById('dashboardPage').classList.remove('hidden'); 
-                    
-                    // Injeksi Tumpukan 'Exit Trap' untuk tombol fisik HP
-                    window.history.pushState({ view: 'exit_trap' }, "", window.location.pathname); 
                     window.history.pushState({ view: 'home' }, "", "#home"); 
-                    
                     showView('home', false); 
 					muatSemuaMapel();
 
@@ -871,38 +880,44 @@
         // FITUR BARU: LACAK PERANGKAT & GPS AKURAT -> EMAIL
         // =========================================================
         
+        // 1. Saring Nama Perangkat
         let mentahanPerangkat = navigator.userAgent;
         let namaPerangkatRapi = mentahanPerangkat;
         if (/Android/i.test(mentahanPerangkat)) {
             let match = mentahanPerangkat.match(/Android\s[0-9\.]+(?:;\s([^;]+))?/);
             let modelPabrik = match && match[1] ? match[1].split(')')[0] : "Tidak Diketahui";
-            namaPerangkatRapi = "📱 HP Android (Model: " + modelPabrik + ")";
-        } else if (/iPhone/i.test(mentahanPerangkat)) { namaPerangkatRapi = "📱 Apple iPhone";
-        } else if (/iPad/i.test(mentahanPerangkat)) { namaPerangkatRapi = "📱 Apple iPad";
-        } else if (/Windows NT/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 Laptop/PC (Windows)";
-        } else if (/Mac/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 MacBook/iMac (Mac OS)";
+            namaPerangkatRapi = "導 HP Android (Model: " + modelPabrik + ")";
+        } else if (/iPhone/i.test(mentahanPerangkat)) { namaPerangkatRapi = "克 Apple iPhone";
+        } else if (/iPad/i.test(mentahanPerangkat)) { namaPerangkatRapi = "克 Apple iPad";
+        } else if (/Windows NT/i.test(mentahanPerangkat)) { namaPerangkatRapi = "捗 Laptop/PC (Windows)";
+        } else if (/Mac/i.test(mentahanPerangkat)) { namaPerangkatRapi = "捗 MacBook/iMac (Mac OS)";
         }
 
+        // 2. Fungsi Pengirim Data ke GAS
         const kirimDataKeServer = (dataLokasi) => {
             const notifData = new URLSearchParams();
             notifData.append('action', 'notifLogin');
             notifData.append('nama', d.name);  
             notifData.append('role', d.role);  
             notifData.append('perangkat', namaPerangkatRapi); 
-            notifData.append('lokasi', dataLokasi);
+            notifData.append('lokasi', dataLokasi); // <-- Tambahan data lokasi
 
             fetch(GAS_URL, { method: 'POST', body: notifData }).catch(err => console.log(err));
         };
 
+        // 3. Minta Akses GPS (Geolocation)
         if (navigator.geolocation) {
+            // Aktifkan mode High Accuracy untuk hasil yang presisi
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
+                    // Jika diizinkan, buat link Google Maps
                     const lat = pos.coords.latitude;
                     const lon = pos.coords.longitude;
                     const linkMaps = `https://www.google.com/maps?q=${lat},${lon}`;
                     kirimDataKeServer(linkMaps);
                 },
                 (err) => {
+                    // Jika user menolak popup izin lokasi
                     kirimDataKeServer("Akses GPS Ditolak oleh Pengguna (" + err.message + ")");
                 },
                 { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -910,6 +925,7 @@
         } else {
             kirimDataKeServer("Perangkat/Browser tidak mendukung fitur GPS");
         }
+        // =========================================================
 
                 } else { 
                     Swal.fire('Gagal Masuk', d.message, 'error'); 
@@ -922,14 +938,13 @@
 
         function logout() { 
             Swal.fire({ 
-                title: 'Keluar Aplikasi?', text: "Apakah Anda yakin ingin menutup sesi dan keluar dari aplikasi?", icon: 'question', 
+                title: 'Keluar?', text: "Anda akan kembali ke halaman login", icon: 'question', 
                 showCancelButton: true, confirmButtonColor: '#059669', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Keluar' 
             }).then((result) => { 
                 if (result.isConfirmed) { 
                     document.getElementById('dashboardPage').classList.add('hidden'); 
                     document.getElementById('loginPage').classList.remove('hidden'); 
                     document.getElementById('loginForm').reset(); 
-                    // Bersihkan rekam jejak history saat pengguna logout (Reset State)
                     window.history.replaceState(null, "", window.location.pathname); 
                 } 
             }); 
@@ -1040,7 +1055,7 @@
         
         window.addEventListener('appinstalled', (evt) => { tutupNotifPWA(); });
 
-        function openModalSantri() { 
+function openModalSantri() { 
             let nextNis = "001";
             if (GLOBAL_DATA_SANTRI && GLOBAL_DATA_SANTRI.length > 0) {
                 let maxNis = 0; let panjangKarakter = 3; 
@@ -1070,7 +1085,7 @@
         }
 
         function closeModalSantri() { 
-            // Memanfaatkan window.history.back() agar form tertutup alami dan mereset form dari 'popstate'
+            // Jika ditutup pakai tombol batal, suruh HP tekan 'back' otomatis
             if (history.state && history.state.modal) { window.history.back(); } 
             else { document.getElementById('modalTambahSantri').classList.add('hidden'); document.getElementById('formTambahSantri').reset(); }
         }
@@ -1171,12 +1186,14 @@
                         let isTop1 = idx === 0; 
                         let namaWali = mapWali[santri.kelas];
 
+                        // --- KALKULATOR RATA-RATA OTOMATIS ANTI SALAH ---
                         let rataBenar = santri.rata;
                         if (!santri.kelas.includes('TK')) {
                             let jmlMapel = JADWAL_MAPEL[santri.kelas] ? JADWAL_MAPEL[santri.kelas].length : 1;
                             rataBenar = (parseFloat(santri.total) / jmlMapel).toFixed(1);
                         }
 
+                        // --- KODE HTML YANG SUDAH DIPERBAIKI NOMOR URUTNYA (1, 2, 3) ---
                         let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${isTop1 ? '<div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>' : ''} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400'} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 ${isTop1 ? 'bg-red-500' : 'bg-gray-500'} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${idx + 1}</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${santri.nama}</h4> <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata: <span class="font-bold text-gray-800">${rataBenar}</span></p> </div> </div> <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1"> <p class="truncate" title="${santri.jk}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${santri.jk}</b></p> <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p> <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p> <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p> <p class="truncate mt-1 pt-1" title="Wali Kelas"><i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${namaWali}</b></p> </div> </div>`; 
                         
                         wadah.innerHTML += html; 
@@ -1265,6 +1282,7 @@
         document.getElementById('set_kepala').value = u.kepala || ''; 
         document.getElementById('set_wali').value = u.wali || ''; 
         
+        // PASTIKAN 4 BARIS INI ADA AGAR DATA MAPEL MUNCUL DI KOTAK:
         document.getElementById('set_mapel_tulis').value = res.mapel_tulis || ''; 
         document.getElementById('set_mapel_praktek').value = res.mapel_praktek || ''; 
         document.getElementById('set_mapel_baca').value = res.mapel_baca || ''; 
@@ -1307,7 +1325,7 @@
                 showLoading(false); 
                 if(res.status === 'success') {
                     Swal.fire('Berhasil', res.message, 'success'); 
-                    muatSemuaMapel(); 
+                    muatSemuaMapel(); // Segarkan database mapel seketika agar langsung update di Input Nilai
                 } else { 
                     Swal.fire('Gagal', res.message, 'error'); 
                 } 
@@ -1372,21 +1390,29 @@
                 return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data nilai yang bisa dicetak.' });
             }
             
+            // Kloning (copy) tabel agar tampilan asli di layar tidak rusak
             const tabelClone = elemenTabel.cloneNode(true);
+            
+            // Bersihkan semua class CSS Tailwind agar tabel murni diatur oleh CSS Print
             tabelClone.removeAttribute('class');
             tabelClone.querySelectorAll('th, td, tr, thead, tbody').forEach(el => el.removeAttribute('class'));
             
+            // Hapus kolom AKSI (kolom paling kanan) dari header
             const headerRow = tabelClone.querySelector('thead tr');
             if (headerRow && headerRow.lastElementChild) headerRow.removeChild(headerRow.lastElementChild);
             
+            // Hapus tombol AKSI dari isi datanya
             const bodyRows = tabelClone.querySelectorAll('tbody tr');
             bodyRows.forEach(tr => { if (tr.lastElementChild) tr.removeChild(tr.lastElementChild); });
             
             const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
             
+            // Buka Jendela/Tab Baru khusus untuk mode Print
             const printWindow = window.open('', '_blank');
+            
+            // Peringatan jika Pop-up diblokir oleh browser
             if (!printWindow) {
-                return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser Anda memblokir tab baru. Silakan izinkan pop-up.' });
+                return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser Anda memblokir tab baru. Silakan izinkan pop-up (Always allow pop-ups) pada address bar.' });
             }
             
             printWindow.document.write(`
@@ -1395,15 +1421,22 @@
                 <head>
                     <title>Cetak_Nilai_${kelas.replace(/\s+/g, '_')}</title>
                     <style>
+                        /* Setingan Kertas Miring (Landscape) dan Margin */
                         @page { size: landscape; margin: 10mm; }
                         body { font-family: 'Arial', sans-serif; font-size: 11px; color: #000; background: #fff; margin: 0; padding: 0; }
+                        
+                        /* Kop Laporan */
                         .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
                         .header h2 { margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold; }
                         .header p { margin: 5px 0 0 0; font-size: 13px; }
+                        
+                        /* Tabel Nilai (Garis Hitam Tegas) */
                         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
                         th, td { border: 1px solid #000; padding: 6px 4px; font-size: 10px; text-align: center; white-space: nowrap; }
                         th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
-                        td:nth-child(3) { text-align: left; }
+                        td:nth-child(3) { text-align: left; /* Nama Santri Dibuat Rata Kiri */ }
+                        
+                        /* Footer Bawah */
                         .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
                     </style>
                 </head>
@@ -1412,13 +1445,21 @@
                         <h2>Madrasah Darussalam</h2>
                         <p>Laporan Rekapitulasi Nilai Santri - Kelas: <b>${kelas}</b></p>
                     </div>
+                    
                     ${tabelClone.outerHTML}
+                    
                     <div class="footer">
                         Dokumen ini dicetak secara otomatis dari Sistem Informasi Penilaian Santri<br>
                         Tanggal Cetak: ${tanggalCetak}
                     </div>
+                    
                     <script>
-                        window.onload = function() { setTimeout(function() { window.print(); }, 1000); };
+                        // Beri jeda 1 detik agar halaman ke-render penuh sebelum dialog print muncul (Anti-Error HP)
+                        window.onload = function() {
+                            setTimeout(function() {
+                                window.print();
+                            }, 1000);
+                        };
                     <\/script>
                 </body>
                 </html>
@@ -1490,6 +1531,56 @@
         }
 
         // =========================================================
+        // 2. FUNGSI CETAK DATA NILAI (Kop Berlogo)
+        // =========================================================
+        function cetakDataNilai() {
+            const kelas = document.getElementById('filterKelasDataNilai').value;
+            if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan laporan terlebih dahulu.' });
+            
+            const elemenTabel = document.getElementById('tabelDataNilai');
+            const teksTabel = document.getElementById('bodyDataNilai').innerText;
+            if (teksTabel.includes('Silakan pilih kelas') || teksTabel.includes('Belum ada data')) return Swal.fire({ icon: 'error', title: 'Kosong', text: 'Tidak ada data nilai.' });
+            
+            const tabelClone = elemenTabel.cloneNode(true);
+            tabelClone.removeAttribute('class'); tabelClone.querySelectorAll('th, td, tr, thead, tbody').forEach(el => el.removeAttribute('class'));
+            
+            const headerRow = tabelClone.querySelector('thead tr');
+            if (headerRow && headerRow.lastElementChild) headerRow.removeChild(headerRow.lastElementChild);
+            const bodyRows = tabelClone.querySelectorAll('tbody tr');
+            bodyRows.forEach(tr => { if (tr.lastElementChild) tr.removeChild(tr.lastElementChild); });
+            
+            const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+            const printWindow = window.open('', '_blank');
+            if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
+            
+            printWindow.document.write(`
+                <!DOCTYPE html><html lang="id"><head><title>Cetak_Nilai_${kelas.replace(/\s+/g, '_')}</title>
+                <style>
+                    @page { size: landscape; margin: 10mm; }
+                    body { font-family: 'Arial', sans-serif; font-size: 11px; color: #000; background: #fff; margin: 0; padding: 0; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    th, td { border: 1px solid #000; padding: 6px 4px; font-size: 10px; text-align: center; white-space: nowrap; }
+                    th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
+                    td:nth-child(3) { text-align: left; }
+                    .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
+                </style></head><body>
+                    <div style="display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
+                        <img src="${logoUrl}" style="width: 65px; height: 65px; object-fit: contain; margin-right: 15px;">
+                        <div style="flex: 1; text-align: center; padding-right: 80px;">
+                            <h2 style="margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold;">Madrasah Darussalam</h2>
+                            <p style="margin: 5px 0 0 0; font-size: 13px;">Laporan Rekapitulasi Nilai Santri - Kelas: <b>${kelas}</b></p>
+                        </div>
+                    </div>
+                    ${tabelClone.outerHTML}
+                    <div class="footer">Dokumen ini dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
+<script>window.onload = function() { setTimeout(function() { window.print(); }, 1000); };<\/script>
+</body></html>
+            `);
+            printWindow.document.close();
+        }
+
+  // =========================================================
         // 3. FUNGSI CETAK RANKING KELAS (Kertas Legal)
         // =========================================================
         function cetakRanking() {
@@ -1501,6 +1592,7 @@
                  return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data untuk dicetak.' });
             }
 
+            // Menyusun ulang tabel agar rapi saat dicetak
             const barisData = tbody.querySelectorAll('tr');
             let tabelPrintHTML = `
                 <table>
@@ -1522,6 +1614,7 @@
                     const rank = tds[0].innerText;
                     const nis = tds[1].innerText;
                     
+                    // Ekstrak nama dan detail
                     const nama = tds[2].querySelector('p.font-bold').innerText;
                     const detailLines = tds[2].querySelectorAll('.space-y-0\\.5 p');
                     let detailStr = '';
@@ -1554,6 +1647,8 @@
             printWindow.document.write(`
                 <!DOCTYPE html><html lang="id"><head><title>Cetak_Ranking_${kelas.replace(/\s+/g, '_')}</title>
                 <style>
+               
+                   /* PENGATURAN KERTAS DIBEBASKAN KE BROWSER */
 @page { margin: 15mm; }
 body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
                     table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
@@ -1585,12 +1680,14 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
                  return Swal.fire({ icon: 'error', title: 'Data Kosong', text: 'Tidak ada data Bintang Pelajar saat ini.' });
             }
 
+            // Menyusun ulang kartu juara menjadi grid print
             const cards = wadah.querySelectorAll('.bg-white.rounded-xl');
             let gridHTML = `<div style="display: flex; flex-wrap: wrap; gap: 2%; justify-content: flex-start;">`;
             
+            // Tambahkan parameter 'index' untuk mendapatkan nomor urut
             cards.forEach((card, index) => {
                 const isJuaraUmum = card.innerHTML.includes('JUARA UMUM');
-                const nomorUrut = index + 1;
+                const nomorUrut = index + 1; // Menghitung dari angka 1
                 
                 const kelas = card.querySelector('p.uppercase').innerText;
                 const nama = card.querySelector('h4').innerText;
@@ -1602,8 +1699,12 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
 
                 gridHTML += `
                     <div style="border: 2px solid ${isJuaraUmum ? '#d97706' : '#000'}; padding: 15px; width: 49%; box-sizing: border-box; border-radius: 12px; margin-bottom: 15px; position: relative;">
+                        
                         ${isJuaraUmum ? '<div style="position: absolute; top: 0; right: 0; background: #d97706; color: white; padding: 4px 8px; font-size: 10px; font-weight: bold; border-bottom-left-radius: 8px;">JUARA UMUM</div>' : ''}
+                        
+                        <!-- ELEMEN BARU: NOMOR URUT DI POJOK KIRI ATAS KOTAK -->
                         <div style="position: absolute; top: 12px; left: 15px; font-size: 22px; font-weight: 900; color: ${isJuaraUmum ? '#d97706' : '#64748b'};">#${nomorUrut}</div>
+
                         <div style="text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px;">
                             <div style="font-size: 11px; font-weight: bold; background: #e5e7eb; display: inline-block; padding: 4px 12px; border-radius: 15px; margin-bottom: 8px;">${kelas}</div>
                             <h3 style="margin: 0; font-size: 18px; font-weight: bold;">${nama}</h3>
@@ -1623,6 +1724,7 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
             printWindow.document.write(`
                 <!DOCTYPE html><html lang="id"><head><title>Cetak_Bintang_Pelajar</title>
                 <style>
+                  /* PENGATURAN KERTAS DIBEBASKAN KE BROWSER */
 @page { margin: 15mm; }
 body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
                     .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 30px; border-top: 1px dashed #aaa; padding-top: 10px; }
@@ -1648,27 +1750,32 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
         function updateWaktuLokal() {
             const sekarang = new Date();
             
+          // 1. Update Jam, Menit, dan Detik (Format: 08:30:45)
             const jam = sekarang.getHours().toString().padStart(2, '0');
             const menit = sekarang.getMinutes().toString().padStart(2, '0');
             const detik = sekarang.getSeconds().toString().padStart(2, '0');
             const elemenJam = document.getElementById('waktu-jam');
             if (elemenJam) elemenJam.innerText = `${jam}:${menit}:${detik}`;
 
-            const offsetWIB = 7 * 60 * 60 * 1000; 
+            // 2. Update Tanggal Masehi & Pasaran Jawa
+            // Rumus menghitung hari Pasaran berdasarkan waktu Unix (Epoch 1970)
+            const offsetWIB = 7 * 60 * 60 * 1000; // Penyesuaian Zona Waktu Indonesia (+7)
             const totalHari = Math.floor((sekarang.getTime() + offsetWIB) / 86400000);
             
             const arrPasaran = ['Legi', 'Pahing', 'Pon', 'Wage', 'Kliwon'];
-            const pasaranJawa = arrPasaran[(totalHari + 3) % 5]; 
+            const pasaranJawa = arrPasaran[(totalHari + 3) % 5]; // +3 adalah konstanta sinkronisasi kalender
 
             const opsiMasehi = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
             let teksMasehi = sekarang.toLocaleDateString('id-ID', opsiMasehi);
             
+            // Menyisipkan nama pasaran Jawa setelah nama Hari (Misal: Senin -> Senin Kliwon)
             let bagianTeks = teksMasehi.split(','); 
             teksMasehi = `${bagianTeks[0]} ${pasaranJawa}, ${bagianTeks[1]} M`;
 
             const elemenMasehi = document.getElementById('waktu-masehi');
             if (elemenMasehi) elemenMasehi.innerText = teksMasehi.toUpperCase();
 
+           // 3. Update Tanggal Hijriyah (Anti-Bug Browser HP)
             try {
                 const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric' });
                 const parts = formatter.formatToParts(sekarang);
@@ -1696,6 +1803,7 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
             }
         }
 
+        // Jalankan saat web dibuka, lalu perbarui setiap detik
         document.addEventListener("DOMContentLoaded", () => {
             updateWaktuLokal();
             setInterval(updateWaktuLokal, 1000);
@@ -1711,6 +1819,7 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
         let isMoved = false; 
         let startX, startY;
 
+        // --- FUNGSI UNTUK DESKTOP (MOUSE) ---
         waWidget.addEventListener('mousedown', function(e) {
             isDragging = true;
             isMoved = false;
@@ -1741,6 +1850,7 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
             waWidget.style.cursor = 'grab';
         });
 
+        // --- FUNGSI UNTUK HP / SMARTPHONE (TOUCH) ---
         waWidget.addEventListener('touchstart', function(e) {
             isDragging = true;
             isMoved = false;
@@ -1771,6 +1881,7 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
             isDragging = false;
         });
 
+        // --- PENCEGAH KLIK TIDAK SENGAJA ---
         waLink.addEventListener('click', function(e) {
             if (isMoved) {
                 e.preventDefault(); 
@@ -1789,6 +1900,7 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
 
             if (!kelasAsal) return;
 
+            // Menarik data santri dari variabel global yang sudah ada
             const santriKelas = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelasAsal);
             
             if (santriKelas.length === 0) {
@@ -1851,6 +1963,7 @@ body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; backgroun
                             document.getElementById('mutasiKelasTujuan').value = '';
                             document.getElementById('bodyTabelMutasi').innerHTML = '<tr><td colspan="4" class="p-8 text-center text-gray-400"><i class="fas fa-check-circle text-4xl mb-2 text-emerald-400 block"></i>Mutasi selesai.</td></tr>';
                             
+                            // Segarkan ulang data lokal agar sinkron
                             loadDataSantri(); 
                         } else {
                             showLoading(false);
