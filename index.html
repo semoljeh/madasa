@@ -1376,6 +1376,9 @@
                 tbody.innerHTML = `<tr><td colspan="15" class="p-10 text-center text-red-500 font-medium"><i class="fas fa-folder-open text-4xl mb-3 block text-red-300"></i> Belum ada data nilai yang diinput oleh Guru untuk kelas ini.</td></tr>`; return; 
             } 
             
+            let idxTotal = headers.findIndex(h => h.toLowerCase().includes('total'));
+            let kls = document.getElementById('filterKelasDataNilai').value;
+
             let trHead = '<tr>'; trHead += `<th class="p-3 text-center border-r border-gray-200 w-10 bg-gray-100">No</th>`; 
             headers.forEach((h) => { 
                 let namaKolom = h.toLowerCase(); 
@@ -1388,11 +1391,32 @@
             data.forEach((row, rowIndex) => { 
                 let trBody = `<tr class="hover:bg-blue-50 transition-all">`; 
                 trBody += `<td class="p-3 text-center text-gray-500 border-r border-gray-200">${rowIndex + 1}</td>`; 
+                
+                // KALKULATOR RATA-RATA OTOMATIS ANTI BUG TANGGAL
+                let totalNilai = idxTotal > -1 ? parseFloat(row[idxTotal] || 0) : 0;
+                let rataBenar = "0.0";
+                if (kls && !kls.includes('TK')) {
+                    let jmlMapel = (JADWAL_MAPEL[kls] && JADWAL_MAPEL[kls].semua) ? JADWAL_MAPEL[kls].semua.length : 0;
+                    rataBenar = jmlMapel > 0 ? (totalNilai / jmlMapel).toFixed(1) : "0.0";
+                }
+
                 row.forEach((cell, cellIndex) => { 
                     const headerName = headers[cellIndex].toLowerCase(); 
-                    if (headerName.includes('nama')) { trBody += `<td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] font-bold text-gray-800 whitespace-nowrap">${cell}</td>`; } 
-                    else if (headerName.includes('nis')) { let textNIS = cell.toString().replace("'", ""); trBody += `<td class="p-3 border-r border-gray-200 text-gray-600 whitespace-nowrap">${textNIS}</td>`; } 
-                    else { const isNumber = !isNaN(cell) && cell !== ""; trBody += `<td class="p-3 border-r border-gray-200 text-center ${isNumber ? 'font-bold text-emerald-700' : 'text-gray-400'} whitespace-nowrap">${cell}</td>`; } 
+                    if (headerName.includes('nama')) { 
+                        trBody += `<td class="p-3 border-r border-gray-200 sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] font-bold text-gray-800 whitespace-nowrap">${cell}</td>`; 
+                    } 
+                    else if (headerName.includes('nis')) { 
+                        let textNIS = cell.toString().replace("'", ""); trBody += `<td class="p-3 border-r border-gray-200 text-gray-600 whitespace-nowrap">${textNIS}</td>`; 
+                    } 
+                    else if (headerName.includes('rata')) {
+                        // Terapkan rata-rata hasil hitung ulang agar tidak muncul Teks Tanggal
+                        let finalRata = kls.includes('TK') ? (!isNaN(parseFloat(cell)) ? parseFloat(cell).toFixed(1) : "0.0") : rataBenar;
+                        trBody += `<td class="p-3 border-r border-gray-200 text-center font-bold text-blue-600 whitespace-nowrap">${finalRata}</td>`;
+                        GLOBAL_DATA_NILAI[rowIndex][cellIndex] = finalRata; // Sinkronkan untuk menu Edit
+                    }
+                    else { 
+                        const isNumber = !isNaN(cell) && cell !== ""; trBody += `<td class="p-3 border-r border-gray-200 text-center ${isNumber ? 'font-bold text-emerald-700' : 'text-gray-400'} whitespace-nowrap">${cell}</td>`; 
+                    } 
                 }); 
                 trBody += `<td class="p-3 text-center whitespace-nowrap"><button onclick="openModalEditNilai(${rowIndex})" class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition-all shadow-sm border border-blue-200" title="Edit Data"><i class="fas fa-edit"></i> Edit</button></td></tr>`; 
                 tbody.innerHTML += trBody; 
@@ -1474,11 +1498,17 @@
                         let isTop1 = idx === 0; 
                         let namaWali = mapWali[santri.kelas];
 
-                        // --- KALKULATOR RATA-RATA OTOMATIS ANTI SALAH ---
-                        let rataBenar = santri.rata;
+                      // --- KALKULATOR RATA-RATA OTOMATIS ANTI SALAH ---
+                        let rataBenar = parseFloat(santri.rata || 0).toFixed(1);
                         if (!santri.kelas.includes('TK')) {
-                            let jmlMapel = JADWAL_MAPEL[santri.kelas] ? JADWAL_MAPEL[santri.kelas].length : 1;
-                            rataBenar = (parseFloat(santri.total) / jmlMapel).toFixed(1);
+                            // Hitung jumlah seluruh mapel (Tertulis + Praktek + Membaca) dari array 'semua'
+                            let jmlMapel = (JADWAL_MAPEL[santri.kelas] && JADWAL_MAPEL[santri.kelas].semua) ? JADWAL_MAPEL[santri.kelas].semua.length : 0;
+                            
+                            if (jmlMapel > 0) {
+                                rataBenar = (parseFloat(santri.total || 0) / jmlMapel).toFixed(1);
+                            } else {
+                                rataBenar = "0.0"; // Muncul 0.0 hanya jika Admin belum mengatur Master Mapel di menu Pengaturan
+                            }
                         }
 
                         // --- KODE HTML YANG SUDAH DIPERBAIKI NOMOR URUTNYA (1, 2, 3) ---
@@ -1519,10 +1549,29 @@
                     namaWali = resPengaturan.umum.wali;
                 }
 
-                if (resRanking.status === 'success' && resRanking.data.length > 0) { 
-                    resRanking.data.sort((a, b) => { if (a.rank && b.rank) return a.rank - b.rank; return (b.rata || 0) - (a.rata || 0) || (b.total || 0) - (a.total || 0); }); 
+               if (resRanking.status === 'success' && resRanking.data.length > 0) { 
                     
-                    resRanking.data.forEach((s, index) => { 
+                    // --- KALKULATOR RATA-RATA OTOMATIS (PERBAIKAN BUG 0.0) ---
+                    resRanking.data.forEach(s => {
+                        if (!kelasPilih.includes('TK')) {
+                            let jmlMapel = (JADWAL_MAPEL[kelasPilih] && JADWAL_MAPEL[kelasPilih].semua) ? JADWAL_MAPEL[kelasPilih].semua.length : 0;
+                            if (jmlMapel > 0) {
+                                s.rata = (parseFloat(s.total || 0) / jmlMapel).toFixed(1);
+                            } else {
+                                s.rata = "0.0";
+                            }
+                        } else {
+                            s.rata = parseFloat(s.rata || 0).toFixed(1);
+                        }
+                    });
+
+                    // Sortir ulang berdasarkan Rata-Rata dan Total Nilai yang sudah diperbaiki
+                    resRanking.data.sort((a, b) => { 
+                        if (a.rank && b.rank) return a.rank - b.rank; 
+                        return parseFloat(b.rata || 0) - parseFloat(a.rata || 0) || parseFloat(b.total || 0) - parseFloat(a.total || 0); 
+                    }); 
+                    
+                    resRanking.data.forEach((s, index) => {
                         let rankNomor = s.rank ? parseInt(s.rank) : (index + 1); 
                         let rankStyle = "text-gray-500 font-bold text-lg"; let bgStyle = "hover:bg-gray-50"; let icon = rankNomor; 
                         

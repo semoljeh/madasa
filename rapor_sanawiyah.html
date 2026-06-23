@@ -137,6 +137,7 @@
             if (intAngka >= 1000 && intAngka < 10000) { let r = Math.floor(intAngka / 1000); let sisa = intAngka % 1000; if (sisa === 0) return ribuan[r]; return ribuan[r] + " و " + terbilangArab(sisa); }
             return angka.toString();
         }
+
         function terbilangArab(angka) {
             if (angka === 0 || isNaN(angka)) return "صفر";
             const satuan = ["", "واحد", "إثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
@@ -233,11 +234,11 @@ function renderKertasRapor(kelas, info, headers, nilaiRow, rank, pengaturan) {
 
             document.title = `Rapor_Sanawiyah_${info.nama.replace(/\s+/g,"_")}`;
 
-        // Tarik posisi Total Nilai secara akurat (Kebal Huruf Besar/Kecil)
-            let idxTotal = headers.findIndex(h => h.toLowerCase().includes('total'));
+            // Tarik posisi Total Nilai secara akurat
+            let idxTotal = headers.indexOf('Total Nilai');
             let total = idxTotal > -1 ? (parseFloat(nilaiRow[idxTotal]) || 0) : 0;
             
-            let barisIndo = ''; let barisArab = '';
+            let barisIndo = ''; let barisArab = ''; 
             
             // 2. KATEGORI MAPEL
             const katTulis = (pengaturan.mapel_tulis || "").split(',').map(s => s.trim().toUpperCase()).filter(s => s !== "");
@@ -247,10 +248,9 @@ function renderKertasRapor(kelas, info, headers, nilaiRow, rank, pengaturan) {
             // 3. PENGELOMPOKAN MAPEL (SISTEM KOTAK TETAP)
             let mapelTertulis = [], mapelPraktek = [], mapelMembaca = [];
 
-          function getScore(mapelName) {
+            function getScore(mapelName) {
                 let upper = String(mapelName).toUpperCase();
-                // Ubah i=5 menjadi i=0 agar mencari dari awal kolom tanpa ada yang terlewat
-                for(let i=0; i<headers.length; i++) {
+                for(let i=5; i<headers.length; i++) {
                     if(String(headers[i]).toUpperCase() === upper) {
                         return { nilai: parseFloat(nilaiRow[i]), found: true };
                     }

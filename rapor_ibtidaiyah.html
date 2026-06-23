@@ -127,7 +127,7 @@
         }
 
         // FUNGSI TERBILANG ARAB (UPGRADE RIBUAN)
-       function terbilangArab(angka) {
+        function terbilangArab(angka) {
             if (angka === 0 || isNaN(angka)) return "صفر";
             const satuan = ["", "واحد", "إثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
             const belasan = ["عشرة", "أحد عشر", "إثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
@@ -218,8 +218,8 @@
             // --- VARIABEL UTAMA ---
             let setUmum = pengaturan.umum || {};
             let setDetail = pengaturan.detail[info.nis] || {};
-          // Pencari Posisi Kolom "Total Nilai" Secara Otomatis (Kebal Huruf Besar/Kecil)
-            let idxTotal = headers.findIndex(h => h.toLowerCase().includes('total'));
+           // Pencari Posisi Kolom "Total Nilai" Secara Otomatis
+            let idxTotal = headers.indexOf('Total Nilai');
             let total = idxTotal > -1 ? (parseFloat(nilaiRow[idxTotal]) || 0) : 0;
             let barisIndo = '';
             let barisArab = '';
@@ -241,10 +241,9 @@
             // 3. PENGELOMPOKAN MAPEL (SISTEM KOTAK TETAP / FIXED ROWS)
             let mapelTertulis = [], mapelPraktek = [], mapelMembaca = [];
 
-           function getScore(mapelName) {
+            function getScore(mapelName) {
                 let upper = String(mapelName).toUpperCase();
-                // Ubah i=5 menjadi i=0 agar mencari dari awal kolom tanpa ada yang terlewat
-                for(let i=0; i<headers.length; i++) {
+                for(let i=5; i<headers.length; i++) {
                     if(String(headers[i]).toUpperCase() === upper) {
                         return { nilai: parseFloat(nilaiRow[i]), found: true };
                     }
