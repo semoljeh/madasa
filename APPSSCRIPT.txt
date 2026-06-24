@@ -30,6 +30,9 @@ function doPost(e) {
       
       // FITUR MUTASI KELAS MASSAL
       case 'mutasiSantri': return mutasiSantri(e);
+
+      // FITUR IMPORT MASSAL
+      case 'importSantriBulk': return importSantriBulk(e);
       
       default: return responError('Aksi tidak dikenali oleh server.');
     }
@@ -803,4 +806,38 @@ function getAllMapel() {
     }
   }
   return responSukses({ data: mapelDict });
+}
+
+// =================================================================
+// FUNGSI IMPORT SANTRI MASSAL (EXCEL/CSV)
+// =================================================================
+function importSantriBulk(e) {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('SANTRI');
+    var dataMentah = JSON.parse(e.parameter.data_import);
+    
+    // Hapus baris pertama jika baris tersebut adalah judul kolom (Header Excel)
+    // Cek apakah data di kolom pertama bukan sebuah angka NIS
+    if (dataMentah.length > 0 && isNaN(parseInt(dataMentah[0][0]))) {
+      dataMentah.shift(); // Buang baris pertama
+    }
+    
+    if (dataMentah.length > 0) {
+      // Ambil baris terakhir yang ada datanya, agar DATA LAMA TIDAK TERTIMPA
+      var lastRow = sheet.getLastRow() + 1;
+      var jumlahKolom = dataMentah[0].length;
+      
+      // Tulis data rombongan sekaligus (metode sangat cepat dan aman)
+      sheet.getRange(lastRow, 1, dataMentah.length, jumlahKolom).setValues(dataMentah);
+      
+      return responSukses({
+        message: dataMentah.length + ' Data santri berhasil di-import!'
+      });
+    } else {
+      return responError('File kosong atau format salah.');
+    }
+  } catch (err) {
+    return responError('Gagal import: ' + err.message);
+  }
 }

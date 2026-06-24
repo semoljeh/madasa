@@ -1,7 +1,7 @@
 // ---------------------------------------------------------
 // 1. PENGATURAN GLOBAL & DATABASE
 // ---------------------------------------------------------
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbw0FVt3AC99sCl1qiZL36RpjxKVnPcTzjbA8gGhf4Q7DGK2huXivf2z0DJ2x2BnmsyD/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbznmOWv37I6c7cpImYwk9aZjNzeK791Gl-YssBD9Nfa_52q5xLKVGJaVs7Bq1P3YmBc/exec';
 let GLOBAL_DATA_SANTRI = [];
 let GLOBAL_HEADERS_NILAI = [];
 let GLOBAL_DATA_NILAI = [];
@@ -1590,6 +1590,7 @@ function prosesMutasi() {
             .then(r => r.json())
             .then(res => {
                 if (res.status === 'success') {
+                    showLoading(false); // <-- Perbaikan: Matikan loading screen saat sukses
                     Swal.fire('Berhasil!', res.message, 'success');
                     document.getElementById('mutasiKelasAsal').value = '';
                     document.getElementById('mutasiKelasTujuan').value = '';

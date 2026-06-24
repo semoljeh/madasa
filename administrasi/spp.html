@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen SPP - Madrasah Darussalam</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Mengambil CSS dari folder utama -->
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-white/90 backdrop-blur-sm hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600"></div>
+    </div>
+
+    <!-- Header & Navigasi Atas -->
+    <header class="bg-white shadow-sm border-b border-gray-100 z-10 flex items-center justify-between p-4 sm:px-6 sticky top-0">
+        <div class="flex items-center gap-4">
+            <img src="../asset/logo.png" class="w-10 h-10 object-contain drop-shadow-md" alt="Logo Madrasah" onerror="this.style.display='none'">
+            <div>
+                <h2 class="text-lg sm:text-xl font-heading font-bold text-gray-800 leading-tight">Manajemen Administrasi</h2>
+                <p class="text-[11px] text-emerald-600 font-medium">Madrasah Darussalam</p>
+            </div>
+        </div>
+        <button onclick="window.close()" class="px-4 py-2 bg-gray-100 hover:bg-red-50 text-gray-600 hover:text-red-600 rounded-xl transition-all text-sm font-bold shadow-sm">
+            <i class="fas fa-times mr-2"></i> Tutup
+        </button>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+        
+        <!-- Banner Waktu & Kalender (Sama seperti Index Utama) -->
+        <div class="bg-gradient-to-r from-emerald-700 to-teal-800 rounded-2xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div class="relative z-10">
+                <h1 class="text-2xl sm:text-3xl font-heading font-bold"><i class="fas fa-wallet mr-3 text-emerald-200"></i>Data Pembayaran SPP</h1>
+                <p class="text-emerald-100 mt-1 text-sm sm:text-base">Kelola transaksi, edit status, dan pantau administrasi santri.</p>
+            </div>
+            <div class="relative z-10 bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-4 text-center md:text-right min-w-[200px]">
+                <h2 id="waktu-jam" class="text-3xl sm:text-4xl font-bold font-mono tracking-tighter text-yellow-400 leading-none drop-shadow-sm">00:00:00</h2>
+                <div class="mt-2 pt-2 border-t border-white/20 border-dashed">
+                    <p id="waktu-hijriyah" class="text-[12px] text-emerald-200 font-bold tracking-wide mb-0.5">Memuat Hijriyah...</p>
+                    <p id="waktu-masehi" class="text-[10px] font-bold text-emerald-50 uppercase tracking-widest">Memuat Masehi...</p>
+                </div>
+            </div>
+            <i class="fas fa-coins absolute -right-6 -bottom-6 text-emerald-900 opacity-20" style="font-size: 8rem;"></i>
+        </div>
+
+        <!-- Area Kontrol (Filter Kelas & Tambah Data) -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col sm:flex-row gap-4 justify-between items-center">
+            <div class="w-full sm:w-1/2">
+                <label class="block text-xs font-bold text-gray-700 mb-1">Filter Berdasarkan Kelas:</label>
+                <select id="filterKelasSpp" onchange="loadDataSpp()" class="w-full p-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-bold text-emerald-800 bg-emerald-50">
+                    <option value="" disabled selected>-- Pilih Kelas --</option>
+                    <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
+                    <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
+                    <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
+                </select>
+            </div>
+            <button onclick="openModalSpp('tambah')" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                <i class="fas fa-plus"></i> Tambah / Perbarui SPP
+            </button>
+        </div>
+
+        <!-- Tabel Data SPP -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-gray-100 text-gray-700 text-xs uppercase border-b border-gray-200">
+                        <tr>
+                            <th class="p-4 w-16 text-center">No</th>
+                            <th class="p-4 w-24">NIS</th>
+                            <th class="p-4">Nama Lengkap</th>
+                            <th class="p-4 text-center">Bulan / Keterangan</th>
+                            <th class="p-4 text-center">Status Pembayaran</th>
+                            <th class="p-4 text-center w-28">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyTabelSpp" class="divide-y divide-gray-100">
+                        <tr>
+                            <td colspan="6" class="p-10 text-center text-gray-400">
+                                <i class="fas fa-folder-open text-4xl mb-3 text-gray-300 block"></i>
+                                Silakan pilih kelas terlebih dahulu untuk melihat data administrasi.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Form Input / Edit SPP -->
+    <div id="modalFormSpp" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 transform transition-all">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 id="judulModalSpp" class="text-lg font-heading font-bold text-gray-800">Form Pembayaran SPP</h3>
+                <button onclick="closeModalSpp()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="formInputSpp" class="space-y-4">
+                <input type="hidden" id="spp_mode" value="tambah"> <!-- Penanda Tambah atau Edit -->
+                
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Pilih Nama Santri</label>
+                    <select id="spp_nis_nama" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm font-medium" required>
+                        <option value="" disabled selected>-- Pilih Santri (Pilih Kelas Dulu) --</option>
+                    </select>
+                </div>
+				
+				
+<!-- Grid Tanggal, Bulan, Tahun (Wajib) -->
+<div class="grid grid-cols-3 gap-3 mb-4">
+    <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1">Tanggal</label>
+        <select id="spp_tanggal" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm" required>
+            <option value="" disabled selected>Pilih</option>
+            <option value="01">01</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option>
+            <option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option><option value="10">10</option>
+            <option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option>
+            <option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option>
+            <option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option>
+            <option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option>
+            <option value="31">31</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1">Bulan</label>
+        <select id="spp_bulan" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm" required>
+            <option value="" disabled selected>Pilih Bulan</option>
+            <option value="Januari">Januari</option><option value="Februari">Februari</option>
+            <option value="Maret">Maret</option><option value="April">April</option>
+            <option value="Mei">Mei</option><option value="Juni">Juni</option>
+            <option value="Juli">Juli</option><option value="Agustus">Agustus</option>
+            <option value="September">September</option><option value="Oktober">Oktober</option>
+            <option value="November">November</option><option value="Desember">Desember</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1">Tahun</label>
+        <!-- Menggunakan angka agar mudah diubah, otomatis terisi 2026 -->
+        <input type="number" id="spp_tahun" value="2026" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm font-bold" required>
+    </div>
+</div>
+
+<!-- Deskripsi Tambahan (Opsional) -->
+<div class="mb-4">
+    <label class="block text-xs font-bold text-gray-700 mb-1">Deskripsi / Catatan Khusus <span class="text-[10px] text-gray-400 font-normal">(Opsional)</span></label>
+    <textarea id="spp_deskripsi" rows="2" placeholder="Contoh: Cicilan tahap 1 / Lunas bersama uang seragam..." class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm"></textarea>
+</div>
+				
+				
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">Status Pembayaran</label>
+                    <select id="spp_status" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm font-bold" required>
+                        <option value="LUNAS" class="text-emerald-600">LUNAS</option>
+                        <option value="BELUM LUNAS" class="text-red-600">BELUM LUNAS</option>
+                        <option value="MENGANGSUR" class="text-amber-600">MENGANGSUR</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-end gap-3 pt-4 border-t mt-6">
+                    <button type="button" onclick="closeModalSpp()" class="px-5 py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 font-semibold text-sm">Batal</button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-sm shadow-sm"><i class="fas fa-save mr-2"></i> Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="spp.js"></script>
+</body>
+</html>
