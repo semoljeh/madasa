@@ -1,46 +1,16 @@
-/* css/style.css */
-body {
-    -webkit-font-smoothing: antialiased;
-}
+body { -webkit-font-smoothing: antialiased; }
+.islamic-bg { background-color: #065f46; background-image: radial-gradient(#059669 2.5px, transparent 2.5px), radial-gradient(#059669 2.5px, transparent 2.5px); background-size: 60px 60px; background-position: 0 0, 30px 30px; }
+.glass-panel { background: rgba(255, 255, 255, 0.90); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3); }
+.transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 300ms; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #059669; }
 
-/* Islamic Pattern Background for Login */
-.islamic-bg {
-    background-color: #065f46;
-    background-image: radial-gradient(#059669 2px, transparent 2px), radial-gradient(#059669 2px, transparent 2px);
-    background-size: 60px 60px;
-    background-position: 0 0, 30px 30px;
+/* Animasi Tombol Cetak */
+@keyframes napas-pantul {
+    0%, 100% { transform: translateY(0) scale(1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+    50% { transform: translateY(-8px) scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15); }
 }
-
-/* Glassmorphism Panel */
-.glass-panel {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 20px;
-    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.2);
-}
-
-/* Rounded 16px as requested (Tailwind rounded-2xl is 16px) */
-/* Smooth Transitions */
-.transition-all {
-    transition-property: all;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 300ms;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-}
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #059669;
-}
+.animasi-klik-saya { animation: napas-pantul 2.5s infinite ease-in-out; }
+.animasi-klik-saya:hover { animation: none; transform: translateY(-10px) scale(1.05); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); }
