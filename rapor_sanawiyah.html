@@ -76,10 +76,11 @@
     <!-- KERTAS RAPOR (Langsung ditempatkan tanpa wadah, sama persis dengan versi TK) -->
     <div id="kertasRapor" class="bg-white shadow-2xl text-black font-sans relative box-border mx-auto hidden mt-4 mb-10" style="width: 210mm; min-height: 330mm; padding: 8mm;"></div>
 
-    <script>
+
         <script src="config.js"></script>
-<script>
-    let GLOBAL_DATA_SANTRI = [];
+
+   <script>
+        let GLOBAL_DATA_SANTRI = [];
 
         function showLoading(show, teks="Memproses...") { 
             document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none'; 
@@ -106,7 +107,7 @@
             selectSantri.disabled = false;
         }
 
-     function terbilang(angka) {
+        function terbilang(angka) {
             angka = Math.round(angka); 
             const bilangan = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
             if (angka === 0) return "Nol"; 
@@ -138,8 +139,6 @@
             if (intAngka >= 1000 && intAngka < 10000) { let r = Math.floor(intAngka / 1000); let sisa = intAngka % 1000; if (sisa === 0) return ribuan[r]; return ribuan[r] + " و " + terbilangArab(sisa); }
             return angka.toString();
         }
-
-   
 
         function predikatArab(huruf) {
             let h = (huruf||'').toUpperCase();
@@ -198,7 +197,7 @@
             }).catch(err => { showLoading(false); Swal.fire('Error', 'Gagal memuat data rapor dari server.', 'error'); });
         }
 
-function renderKertasRapor(kelas, info, headers, nilaiRow, rank, pengaturan) {
+        function renderKertasRapor(kelas, info, headers, nilaiRow, rank, pengaturan) {
             const kertas = document.getElementById('kertasRapor');
             
             let setUmum = pengaturan.umum || {};
@@ -224,8 +223,8 @@ function renderKertasRapor(kelas, info, headers, nilaiRow, rank, pengaturan) {
 
             document.title = `Rapor_Sanawiyah_${info.nama.replace(/\s+/g,"_")}`;
 
-            // Tarik posisi Total Nilai secara akurat
-            let idxTotal = headers.indexOf('Total Nilai');
+            // PERBAIKAN: Tarik posisi Total Nilai secara akurat dan kebal salah ketik/spasi
+            let idxTotal = headers.findIndex(h => String(h).trim().toLowerCase() === 'total nilai');
             let total = idxTotal > -1 ? (parseFloat(nilaiRow[idxTotal]) || 0) : 0;
             
             let barisIndo = ''; let barisArab = ''; 
@@ -508,7 +507,6 @@ function renderKertasRapor(kelas, info, headers, nilaiRow, rank, pengaturan) {
             
             kertas.classList.remove('hidden');
         }
-       
 
         function cetakRapor() { window.print(); }
     </script>

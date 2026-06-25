@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cetak Rapor TK (K13)</title>
+    <title>Cetak Rapor TK RA</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -194,7 +194,7 @@
 
     </div>
 
-<script>
+
         <script src="config.js"></script>
 <script>
     let GLOBAL_DATA_SANTRI = [];
@@ -339,7 +339,10 @@
             }
         }
 
-       function renderRapor(d, peringkat) {
+      function renderRapor(d, peringkat) {
+            // PERBAIKAN: Menambahkan fallback "{}" agar tidak error jika d.detail belum diisi di database
+            let det = d.detail || {}; 
+            
             document.getElementById('val_nama').innerText = d.biodata.nama;
             document.getElementById('val_nis').innerText = d.biodata.nis;
             document.getElementById('val_alamat').innerText = d.biodata.alamat;
@@ -363,47 +366,57 @@
             pasangGambar('img_wali', d.pengaturan.url_wali);
             pasangGambar('img_kepala', d.pengaturan.url_kepala);
 
-            document.getElementById('val_akhlaq').innerText = konversiHuruf(d.detail.akhlaq);
-            document.getElementById('val_rajin').innerText = konversiHuruf(d.detail.kerajinan);
-            document.getElementById('val_disiplin').innerText = konversiHuruf(d.detail.disiplin);
-            document.getElementById('val_rapi').innerText = konversiHuruf(d.detail.rapi);
+            document.getElementById('val_akhlaq').innerText = konversiHuruf(det.akhlaq);
+            document.getElementById('val_rajin').innerText = konversiHuruf(det.kerajinan);
+            document.getElementById('val_disiplin').innerText = konversiHuruf(det.disiplin);
+            document.getElementById('val_rapi').innerText = konversiHuruf(det.rapi);
             
-            document.getElementById('val_sakit').innerText = d.detail.sakit || '-';
-            document.getElementById('val_izin').innerText = d.detail.izin || '-';
-            document.getElementById('val_alpa').innerText = d.detail.alpa || '-';
+            document.getElementById('val_sakit').innerText = det.sakit || '-';
+            document.getElementById('val_izin').innerText = det.izin || '-';
+            document.getElementById('val_alpa').innerText = det.alpa || '-';
             
-            let teksCatatan = (d.detail.catatan || '').trim();
+            let teksCatatan = (det.catatan || '').trim();
             if (teksCatatan === '-' || teksCatatan === '') { document.getElementById('val_catatan').innerText = '-'; } 
             else { document.getElementById('val_catatan').innerText = `"${teksCatatan}"`; }
             
             let isGenap = (d.pengaturan.semester || '').toLowerCase().includes('genap');
             let teksKeputusan = isGenap 
-                ? `${d.detail.keputusan || `Naik Kelas`}`
+                ? `${det.keputusan || `Naik Kelas`}`
                 : `- Hanya diisi pada akhir tahun pelajaran (Genap) -`;
             
-            // Atur gaya font keputusan jika isinya teks placeholder
             if (!isGenap) {
                 document.getElementById('val_keputusan').classList.remove('text-emerald-700', 'uppercase', 'font-bold');
                 document.getElementById('val_keputusan').classList.add('text-gray-500', 'font-normal', 'italic');
+            } else {
+                // Mengembalikan style aslinya jika semester genap
+                document.getElementById('val_keputusan').classList.remove('text-gray-500', 'font-normal', 'italic');
+                document.getElementById('val_keputusan').classList.add('text-emerald-700', 'uppercase', 'font-bold');
             }
             document.getElementById('val_keputusan').innerText = teksKeputusan;
 
             const tbody = document.getElementById('bodyTabelNilai');
             tbody.innerHTML = '';
             let totalNilai = 0;
-            let barisDiisi = 0; // Menghitung berapa baris yang benar-benar ada nilainya
+            let barisDiisi = 0; 
 
-           // LOGIKA 7 BARIS STATIS (DIKUNCI TINGGINYA)
-            for (let i = 0; i < 7; i++) {
+          // LOGIKA 10 BARIS STATIS (Disesuaikan agar muat 1 halaman Folio/Legal)
+            for (let i = 0; i < 10; i++) {
                 if (d.nilai && d.nilai[i]) {
                     const item = d.nilai[i];
                     const k13 = generateK13Logic(item.mapel, item.nilai);
-                    totalNilai += parseFloat(item.nilai);
-                    barisDiisi++;
+                    
+                    // Pengecekan NaN agar aman dari nilai kosong
+                    let parsedNilai = parseFloat(item.nilai);
+                    if (!isNaN(parsedNilai)) {
+                        totalNilai += parsedNilai;
+                        barisDiisi++;
+                    }
+
                     let warnaPredikat = k13.predikat === 'A' ? "text-emerald-600" : k13.predikat === 'B' ? "text-blue-600" : k13.predikat === 'C' ? "text-orange-500" : "text-red-600";
                     
+                    // PERUBAHAN: Tinggi baris diatur ke 30px, font deskripsi diperbesar ke text-[10px]
                     tbody.innerHTML += `
-                        <tr style="height: 38px; max-height: 38px; overflow: hidden;">
+                        <tr style="height: 30px; max-height: 30px; overflow: hidden;">
                             <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
                             <td class="font-bold text-gray-800 px-2 py-0 align-middle truncate">${item.mapel}</td>
                             <td class="text-center font-bold text-[13px] p-0 align-middle">${item.nilai}</td>
@@ -412,9 +425,9 @@
                         </tr>
                     `;
                 } else {
-                    // Baris Kosong yang terkunci tinggi pikselnya
+                    // PERUBAHAN: Tinggi baris kosong disesuaikan ke 30px
                     tbody.innerHTML += `
-                        <tr style="height: 38px; max-height: 38px; overflow: hidden;">
+                        <tr style="height: 30px; max-height: 30px; overflow: hidden;">
                             <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
                             <td class="px-2 py-0 align-middle">&nbsp;</td>
                             <td class="p-0 align-middle">&nbsp;</td>
@@ -425,25 +438,23 @@
                 }
             }
 
-            // Hitung rata-rata hanya dari mapel yang memiliki nilai
             let rataRata = barisDiisi > 0 ? (totalNilai / barisDiisi).toFixed(1) : 0;
-            
-            // Kunci total nilai menjadi angka bulat atau desimal 1 angka jika dibutuhkan
             let fixTotal = totalNilai % 1 === 0 ? totalNilai : totalNilai.toFixed(1);
             let fixRata = rataRata % 1 === 0 ? parseInt(rataRata) : parseFloat(rataRata);
 
+            // PERUBAHAN: Tinggi baris footer (Jumlah/Rata-rata) disesuaikan
             tbody.innerHTML += `
-                <tr class="font-bold border-t-[2.5px] border-black" style="height: 28px;">
+                <tr class="font-bold border-t-[2.5px] border-black" style="height: 26px;">
                     <td colspan="2" class="text-right px-4 py-0 align-middle uppercase tracking-widest text-gray-700">Jumlah Nilai</td>
                     <td class="text-center text-[13px] p-0 align-middle text-emerald-800">${fixTotal}</td>
                     <td colspan="2" class="px-4 text-[10px] py-0 align-middle uppercase text-gray-700 italic truncate">${terbilang(fixTotal)}</td>
                 </tr>
-                <tr class="font-bold border-t border-gray-400" style="height: 28px;">
+                <tr class="font-bold border-t border-gray-400" style="height: 26px;">
                     <td colspan="2" class="text-right px-4 py-0 align-middle uppercase tracking-widest text-gray-700">Rata-Rata</td>
                     <td class="text-center text-[13px] p-0 align-middle text-blue-700">${fixRata}</td>
                     <td colspan="2" class="px-4 text-[10px] py-0 align-middle uppercase text-gray-700 italic truncate">${terbilang(fixRata)}</td>
                 </tr>
-                <tr class="font-bold border-t border-black border-b-[2.5px]" style="height: 28px;">
+                <tr class="font-bold border-t border-black border-b-[2.5px]" style="height: 26px;">
                     <td colspan="2" class="text-right px-4 py-0 align-middle uppercase tracking-widest text-gray-700">Peringkat Kelas</td>
                     <td class="text-center text-[14px] p-0 align-middle text-purple-700">${peringkat}</td>
                     <td colspan="2" class="px-4 text-[10px] py-0 align-middle uppercase text-gray-700 italic truncate">Dari seluruh santri di kelas ini</td>
