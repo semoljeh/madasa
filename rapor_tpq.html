@@ -6,7 +6,8 @@
     <title>Cetak Rapor TK RA</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         tailwind.config = { theme: { extend: { colors: { emerald: { 600: '#059669', 700: '#047857' } }, fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] } } } }
@@ -74,7 +75,7 @@
             </div>
             <div class="flex items-end gap-2">
                 <button onclick="lihatRaporTKLangsung()" class="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm font-bold text-sm transition-all"><i class="fas fa-eye mr-1"></i> Tampilkan</button>
-                <button onclick="window.print()" class="w-full py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-sm font-bold text-sm transition-all"><i class="fas fa-print mr-1"></i> Cetak</button>
+               <button onclick="cetakRaporTKLangsung()" class="w-full py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 shadow-sm font-bold text-sm transition-all"><i class="fas fa-print mr-1"></i> Cetak</button>
             </div>
         </div>
     </div>
@@ -237,13 +238,41 @@
             selectSantri.disabled = false;
         }
 
-        function lihatRaporTKLangsung() {
+     function lihatRaporTKLangsung() {
             const nisPilih = document.getElementById('raporSantri').value;
             if(!nisPilih) {
-                alert("Silakan pilih Kelas dan Nama Santri terlebih dahulu!");
+                // Menggunakan SweetAlert2 sebagai pengganti alert()
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data Belum Lengkap',
+                    text: 'Silakan pilih Kelas dan Nama Santri terlebih dahulu!',
+                    confirmButtonColor: '#059669', // Warna emerald-600 dari tema Anda
+                    confirmButtonText: '<i class="fas fa-check mr-1"></i> Mengerti',
+                    customClass: {
+                        popup: 'rounded-2xl font-sans'
+                    }
+                });
                 return;
             }
             muatDataRapor(nisPilih);
+        }
+		
+		function cetakRaporTKLangsung() {
+            const nisPilih = document.getElementById('raporSantri').value;
+            if(!nisPilih) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Tidak Bisa Mencetak',
+                    text: 'Silakan pilih Kelas dan Nama Santri terlebih dahulu!',
+                    confirmButtonColor: '#059669',
+                    confirmButtonText: '<i class="fas fa-check mr-1"></i> Mengerti',
+                    customClass: {
+                        popup: 'rounded-2xl font-sans'
+                    }
+                });
+                return;
+            }
+            window.print();
         }
 
      function terbilang(angka) {
