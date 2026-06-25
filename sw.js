@@ -1,17 +1,29 @@
-const CACHE_NAME = 'madasa-pwa-v3';
+const CACHE_NAME = 'madasa-pwa-v4'; // Versi dinaikkan untuk memicu pembaruan
 const urlsToCache = [
   './',
   './index.html',
+  './style.css',      // Ditambahkan agar CSS tersimpan
+  './script.js',      // Ditambahkan agar logika JS tersimpan
+  './config.js',      // Ditambahkan agar URL database tersimpan
+  // Halaman Rapor
   './rapor_tpq.html',
   './rapor_ibtidaiyah.html',
   './rapor_sanawiyah.html',
+  // Portal Ortu & SPP (Wajib ditambahkan)
+  './ortu.html',
+  './ortu.css',
+  './ortu.js',
+  './spp.html',
+  './spp.js',
+  // Aset Gambar
   './asset/logo.png',
   './asset/logo-192.png',
   './asset/logo-512.png'
 ];
 
-// Install Service Worker dan simpan file ke cache
+// 1. Install Service Worker dan simpan file ke cache
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Memaksa service worker baru langsung aktif
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
@@ -20,29 +32,50 @@ self.addEventListener('install', event => {
   );
 });
 
-// Ambil file dari cache jika tidak ada internet / agar lebih cepat
+// 2. Logika Fetch dengan Stale-While-Revalidate & Pengecualian API
 self.addEventListener('fetch', event => {
+  // A. Pengecualian untuk API Database (Google Apps Script)
+  // Selalu ambil dari internet, JANGAN gunakan cache agar data selalu terbaru
+  if (event.request.url.includes('script.google.com')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // B. Strategi Stale-While-Revalidate untuk file statis lainnya
   event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        if (response) {
-          return response; 
-        }
-        return fetch(event.request);
-      }
-    )
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.match(event.request).then(response => {
+        
+        // Proses ambil pembaruan dari internet (berjalan di latar belakang)
+        const fetchPromise = fetch(event.request).then(networkResponse => {
+          // Jika berhasil mengambil file yang valid, perbarui cache
+          if (networkResponse && networkResponse.status === 200) {
+            cache.put(event.request, networkResponse.clone());
+          }
+          return networkResponse;
+        }).catch(() => {
+          // Abaikan error jika user sedang offline
+        });
+
+        // Tampilkan versi cache (jika ada) untuk kecepatan ekstra, 
+        // jika tidak ada di cache, tunggu hasil unduhan dari internet
+        return response || fetchPromise;
+      });
+    })
   );
 });
 
-// Hapus cache lama jika ada update
+// 3. Hapus cache lama jika ada update versi
 self.addEventListener('activate', event => {
+  event.waitUntil(clients.claim()); // Mengambil alih kontrol halaman saat ini juga
+  
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
     caches.keys().then(cacheNames => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheWhitelist.indexOf(cacheName) === -1) {
-            return caches.delete(cacheName);
+            return caches.delete(cacheName); // Hapus cache v3 dan sebelumnya
           }
         })
       );
