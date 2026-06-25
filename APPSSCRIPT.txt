@@ -9,8 +9,15 @@ function doPost(e) {
 if (action === 'login') return prosesLogin(e);
 
 // --- JALUR KHUSUS PORTAL WALI SANTRI ---
-if (action === 'getSppSantri') return getSppSantri(e);
-if (action === 'getRaporTK') return getRaporTK(e);
+    if (action === 'getSppSantri') return getSppSantri(e);
+    if (action === 'getRaporTK') return getRaporTK(e);
+    
+    // TAMBAHAN: Izinkan Wali Santri menarik data ini tanpa Token Login
+    if (action === 'getSantri') return ambilDataSantri();
+    if (action === 'getAllMapel') return getAllMapel();
+    if (action === 'getDataNilai') return getDataNilai(e);
+    if (action === 'getPengaturan') return getPengaturan(e);
+
 // (Jika nanti ortu.html memanggil fungsi lain, tambahkan juga di sini)
 
     // ==========================================
@@ -60,7 +67,10 @@ if (action === 'getRaporTK') return getRaporTK(e);
     
     // (Opsional) Keamanan Ekstra: Kunci fitur khusus hanya untuk Admin
     var adminOnly = ['mutasiSantri', 'importSantriBulk', 'deleteSppData', 'updateDataNilai'];
-    if (adminOnly.indexOf(action) !== -1 && userRole !== 'Admin' && userRole !== 'Ustadz Admin Utama') {
+    var roleBersih = userRole.toString().trim(); // Bersihkan spasi gaib jika ada
+    
+    // Tambahkan 'Administrator' ke dalam daftar putih (whitelist)
+    if (adminOnly.indexOf(action) !== -1 && roleBersih !== 'Admin' && roleBersih !== 'Administrator' && roleBersih !== 'Ustadz Admin Utama') {
         return responError('Akses Ditolak: Anda tidak memiliki hak akses Admin untuk fitur ini!');
     }
 
@@ -98,17 +108,22 @@ if (action === 'getRaporTK') return getRaporTK(e);
 function prosesLogin(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('LOGIN');
-  var user = e.parameter.username;
-  var pass = e.parameter.password;
-  var data = sheet.getDataRange().getValues();
   
+  if (!sheet) return responError('Sistem Error: Sheet "LOGIN" tidak ditemukan di database.');
+
+  // Bersihkan spasi kosong jika ada
+  var user = e.parameter.username ? e.parameter.username.toString().trim() : "";
+  var pass = e.parameter.password ? e.parameter.password.toString().trim() : "";
+  var data = sheet.getDataRange().getValues();
+
   for (var i = 1; i < data.length; i++) {
-    if (data[i][0] == user && data[i][1] == pass) {
+    // Cocokkan data (pastikan huruf besar/kecil dan spasi akurat)
+    if (data[i][0].toString().trim() === user && data[i][1].toString().trim() === pass) {
       var roleUser = data[i][2];
       var namaUser = data[i][3];
 
       // --- KODE BARU: PEMBUATAN TOKEN ---
-      var token = Utilities.getUuid(); // Cetak ID Card acak
+      var token = Utilities.getUuid();
       var sheetSesi = ss.getSheetByName('SesiAktif');
       
       // Buat sheet jika belum ada
@@ -120,17 +135,16 @@ function prosesLogin(e) {
 
       // Simpan token ke database SesiAktif
       sheetSesi.appendRow([token, user, roleUser, new Date()]);
-      // ----------------------------------
 
       // Kirim balik data ke browser beserta Token-nya
       return responSukses({ 
         role: roleUser, 
         name: namaUser,
-        token: token // <--- Browser butuh ini
+        token: token 
       });
     }
   }
-  return responError('Username atau Password salah!');
+  return responError('Username atau Password salah! Periksa kembali data Anda.');
 }
 
 // =================================================================

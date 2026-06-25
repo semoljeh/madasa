@@ -42,7 +42,7 @@ self.addEventListener('fetch', event => {
   // B. Strategi Stale-While-Revalidate untuk file statis lainnya
   event.respondWith(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.match(event.request).then(response => {
+     return cache.match(event.request, { ignoreSearch: true }).then(response => {
         const fetchPromise = fetch(event.request).then(networkResponse => {
           if (networkResponse && networkResponse.status === 200) {
             cache.put(event.request, networkResponse.clone());

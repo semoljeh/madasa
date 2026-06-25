@@ -417,6 +417,7 @@ complete: function(results) {
     const formData = new URLSearchParams();
     formData.append('action', 'importSantriBulk');
     formData.append('data_import', JSON.stringify(results.data));
+	formData.append('token', sessionStorage.getItem('tokenMadasa'));
 
     fetch(GAS_URL, { method: 'POST', body: formData })
     .then(res => res.json())
@@ -854,8 +855,11 @@ document.getElementById('formEditNilai').addEventListener('submit', function(e) 
     this.querySelectorAll('.input-edit-nilai-dinamis').forEach(inp => { if(!inp.readOnly) { payload[inp.name] = inp.value; } }); 
     
     const formData = new URLSearchParams(); 
-    formData.append('action', 'updateDataNilai'); formData.append('kelas', document.getElementById('edit_nilai_kelas').value); 
-    formData.append('nis', document.getElementById('edit_nilai_nis').value); formData.append('data_nilai', JSON.stringify(payload)); 
+formData.append('action', 'updateDataNilai'); 
+formData.append('kelas', document.getElementById('edit_nilai_kelas').value); 
+formData.append('nis', document.getElementById('edit_nilai_nis').value); 
+formData.append('data_nilai', JSON.stringify(payload)); 
+formData.append('token', sessionStorage.getItem('tokenMadasa'));
     
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; 
@@ -1120,7 +1124,14 @@ function prosesUploadDrive(inputId, previewId, teksId, jenisKode) {
         const reader = new FileReader(); 
         reader.onload = function(event) { 
             const base64String = event.target.result; previewImg.src = base64String; previewImg.classList.remove('hidden'); teksKosong.classList.add('hidden'); showLoading(true); 
-            const formData = new URLSearchParams(); formData.append('action', 'uploadGambar'); formData.append('kelas', kelas); formData.append('jenis', jenisKode); formData.append('data', base64String); 
+            
+const formData = new URLSearchParams(); 
+formData.append('action', 'uploadGambar'); 
+formData.append('kelas', kelas); 
+formData.append('jenis', jenisKode); 
+formData.append('data', base64String); 
+formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- TAMBAHKAN BARIS INI
+			
             fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => { showLoading(false); if(res.status === 'success') { Swal.fire({toast:true, position:'top-end', icon:'success', title: 'Tersimpan di Drive!', showConfirmButton:false, timer:2000}); } else { Swal.fire('Gagal Upload', res.message, 'error'); } }).catch(err => { showLoading(false); Swal.fire('Error', 'Jaringan terputus.', 'error'); }); 
         }; reader.readAsDataURL(file); 
     }); 
