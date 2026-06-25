@@ -80,11 +80,12 @@
     </div>
 
 
-    <script>
+   
         <script src="config.js"></script>
-<script>
-    let GLOBAL_DATA_SANTRI = [];
 
+<script>
+        let GLOBAL_DATA_SANTRI = [];
+        
         function showLoading(show, teks="Memproses...") { 
             document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none'; 
             document.getElementById('teksLoading').innerText = teks;
@@ -206,9 +207,11 @@
             // --- VARIABEL UTAMA ---
             let setUmum = pengaturan.umum || {};
             let setDetail = pengaturan.detail[info.nis] || {};
-           // Pencari Posisi Kolom "Total Nilai" Secara Otomatis
-            let idxTotal = headers.indexOf('Total Nilai');
+            
+            // PERBAIKAN: Pencarian "Total Nilai" kini aman dari masalah spasi dan huruf besar/kecil
+            let idxTotal = headers.findIndex(h => String(h).trim().toLowerCase() === 'total nilai');
             let total = idxTotal > -1 ? (parseFloat(nilaiRow[idxTotal]) || 0) : 0;
+            
             let barisIndo = '';
             let barisArab = '';
             
@@ -238,7 +241,8 @@
                 }
                 return { nilai: '', found: false };
             }
-// MENAMBAH KOLOM 
+
+            // MENAMBAH KOLOM 
             katTulis.forEach(m => {
                 let sc = getScore(m);
                 mapelTertulis.push({ nama: m, nilai: isNaN(sc.nilai) ? '' : sc.nilai });
@@ -296,10 +300,6 @@
             
             buildHeader('C', 'Membaca', 'ت', 'قراءة');
             mapelMembaca.forEach((m, i) => buildRow(i + 1, m));
-
-            // Kode di bawah ini (isGenap & kertas.innerHTML) biarkan seperti semula...
-
-            
 
             let isGenap = (setUmum.semester || '').toLowerCase().includes('genap');
             let teksKeputusan = isGenap 
