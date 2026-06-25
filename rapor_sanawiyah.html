@@ -77,8 +77,9 @@
     <div id="kertasRapor" class="bg-white shadow-2xl text-black font-sans relative box-border mx-auto hidden mt-4 mb-10" style="width: 210mm; min-height: 330mm; padding: 8mm;"></div>
 
     <script>
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyoOXucwPi1Rx4LW6Uiz6N2nTAd_tt2r3QWPp8q6dGFOrmrOPZvNcneKy9_4uZ7MzQN/exec';
-        let GLOBAL_DATA_SANTRI = [];
+        <script src="config.js"></script>
+<script>
+    let GLOBAL_DATA_SANTRI = [];
 
         function showLoading(show, teks="Memproses...") { 
             document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none'; 
@@ -138,18 +139,7 @@
             return angka.toString();
         }
 
-        function terbilangArab(angka) {
-            if (angka === 0 || isNaN(angka)) return "صفر";
-            const satuan = ["", "واحد", "إثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة"];
-            const belasan = ["عشرة", "أحد عشر", "إثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
-            const puluhan = ["", "عشرة", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
-            if (angka < 10) return satuan[angka];
-            if (angka >= 10 && angka < 20) return belasan[angka - 10];
-            if (angka >= 20 && angka < 100) { let p = Math.floor(angka / 10); let s = angka % 10; if (s === 0) return puluhan[p]; return satuan[s] + " و " + puluhan[p]; }
-            if (angka === 100) return "مائة";
-            if (angka > 100 && angka < 1000) { const ratusan = ["", "مائة", "مائتان", "ثلاثمائة", "أربعمائة", "خمسمائة", "ستمائة", "سبعمائة", "ثمانمائة", "تسعمائة"]; let r = Math.floor(angka / 100); let sisa = angka % 100; if (sisa === 0) return ratusan[r]; return ratusan[r] + " و " + terbilangArab(sisa); }
-            return angka.toString();
-        }
+   
 
         function predikatArab(huruf) {
             let h = (huruf||'').toUpperCase();

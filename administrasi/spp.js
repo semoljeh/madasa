@@ -1,5 +1,3 @@
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyoOXucwPi1Rx4LW6Uiz6N2nTAd_tt2r3QWPp8q6dGFOrmrOPZvNcneKy9_4uZ7MzQN/exec';
-
 // Menarik data santri mentah untuk keperluan dropdown pilihan nama
 let LOKAL_DATA_SANTRI = []; 
 
@@ -119,9 +117,12 @@ function loadDataSpp() {
 function openModalSpp() {
     const kelas = document.getElementById('filterKelasSpp').value;
     if (!kelas) return Swal.fire('Perhatian', 'Pilih kelas terlebih dahulu di bagian atas.', 'warning');
-    
+
     document.getElementById('formInputSpp').reset();
     document.getElementById('modalFormSpp').classList.remove('hidden');
+
+    // Kode baru untuk mengisi tahun otomatis
+    document.getElementById('spp_tahun').value = new Date().getFullYear();
 }
 
 function closeModalSpp() {

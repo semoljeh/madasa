@@ -1,12 +1,18 @@
 // ---------------------------------------------------------
 // 1. PENGATURAN GLOBAL & DATABASE
 // ---------------------------------------------------------
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbyoOXucwPi1Rx4LW6Uiz6N2nTAd_tt2r3QWPp8q6dGFOrmrOPZvNcneKy9_4uZ7MzQN/exec';
+
 let GLOBAL_DATA_SANTRI = [];
 let GLOBAL_HEADERS_NILAI = [];
 let GLOBAL_DATA_NILAI = [];
 
 let JADWAL_MAPEL = {}; // Sekarang dikosongkan agar bisa diisi otomatis
+
+function formatTanggalIndo(tanggalYYYYMMDD) {
+    if (!tanggalYYYYMMDD) return "";
+    const dateObj = new Date(tanggalYYYYMMDD);
+    return dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 
 // Fungsi baru untuk menarik mapel dari database saat aplikasi dibuka
 function muatSemuaMapel() {
@@ -471,7 +477,10 @@ document.getElementById('formTambahSantri').addEventListener('submit', function(
     formData.append('nama', document.getElementById('add_nama').value); formData.append('jk', document.getElementById('add_jk').value); 
     formData.append('kelas', document.getElementById('add_kelas').value); formData.append('alamat', document.getElementById('add_alamat').value); 
     formData.append('ayah', document.getElementById('add_ayah').value); formData.append('ibu', document.getElementById('add_ibu').value); 
-    formData.append('hp', document.getElementById('add_hp').value); formData.append('ttl', document.getElementById('add_ttl').value); 
+    formData.append('hp', document.getElementById('add_hp').value); 
+	const tempatTambah = document.getElementById('add_tempat_lahir').value;
+const tglTambah = formatTanggalIndo(document.getElementById('add_tanggal_lahir').value);
+formData.append('ttl', `${tempatTambah}, ${tglTambah}`);
     
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; 
@@ -493,7 +502,10 @@ document.getElementById('formEditSantri').addEventListener('submit', function(e)
     formData.append('nama', document.getElementById('edit_nama').value); formData.append('jk', document.getElementById('edit_jk').value); 
     formData.append('kelas', document.getElementById('edit_kelas').value); formData.append('alamat', document.getElementById('edit_alamat').value); 
     formData.append('ayah', document.getElementById('edit_ayah').value); formData.append('ibu', document.getElementById('edit_ibu').value); 
-    formData.append('hp', document.getElementById('edit_hp').value); formData.append('ttl', document.getElementById('edit_ttl').value); 
+    formData.append('hp', document.getElementById('edit_hp').value); 
+	const tempatEdit = document.getElementById('edit_tempat_lahir').value;
+const tglEdit = formatTanggalIndo(document.getElementById('edit_tanggal_lahir').value);
+formData.append('ttl', `${tempatEdit}, ${tglEdit}`);
     
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; 
