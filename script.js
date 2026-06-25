@@ -1,3 +1,18 @@
+
+// KEAMANAN
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Cek apakah ada token yang tersimpan di memori browser
+    const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
+    
+    if (!tokenTersimpan) {
+        // Tendang kembali ke halaman login
+        document.getElementById('dashboardPage').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+    }
+});
+
+
 // ---------------------------------------------------------
 // 1. PENGATURAN GLOBAL & DATABASE
 // ---------------------------------------------------------
@@ -5,8 +20,21 @@
 let GLOBAL_DATA_SANTRI = [];
 let GLOBAL_HEADERS_NILAI = [];
 let GLOBAL_DATA_NILAI = [];
-
 let JADWAL_MAPEL = {}; // Sekarang dikosongkan agar bisa diisi otomatis
+
+// --- KODE KEAMANAN 1: AUTO-KICK ---
+document.addEventListener("DOMContentLoaded", () => {
+    // Mengecek apakah ada token di memori browser
+    const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
+    
+    // Jika tidak ada token (belum login), sembunyikan dashboard, paksa ke login
+    if (!tokenTersimpan) {
+        document.getElementById('dashboardPage').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+    }
+});
+// ----------------------------------
+
 
 function formatTanggalIndo(tanggalYYYYMMDD) {
     if (!tanggalYYYYMMDD) return "";
@@ -18,6 +46,9 @@ function formatTanggalIndo(tanggalYYYYMMDD) {
 function muatSemuaMapel() {
     const fdMapel = new URLSearchParams();
     fdMapel.append('action', 'getAllMapel');
+    // --- KODE KEAMANAN 3: LAMPIRKAN TOKEN ---
+    fdMapel.append('token', sessionStorage.getItem('tokenMadasa'));
+    // ----------------------------------------
     fetch(GAS_URL, { method: 'POST', body: fdMapel })
         .then(r => r.json())
         .then(res => { if (res.status === 'success') JADWAL_MAPEL = res.data; })
@@ -92,6 +123,16 @@ window.addEventListener('popstate', function(event) {
 // ---------------------------------------------------------
 // 3. FUNGSI AUTENTIKASI (LOGIN & LOGOUT)
 // ---------------------------------------------------------
+
+// --- KODE KEAMANAN 1: AUTO-KICK ---
+document.addEventListener("DOMContentLoaded", () => {
+    const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
+    if (!tokenTersimpan) {
+        document.getElementById('dashboardPage').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+    }
+});
+
 document.getElementById('loginForm').addEventListener('submit', function(e) { 
     e.preventDefault(); showLoading(true); 
     const formData = new URLSearchParams(); 
@@ -102,6 +143,11 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     fetch(GAS_URL, { method: 'POST', body: formData }).then(r => r.json()).then(d => { 
         showLoading(false); 
         if (d.status === 'success') { 
+            
+            // --- KODE KEAMANAN 2: SIMPAN TOKEN ---
+            sessionStorage.setItem('tokenMadasa', d.token);
+            // -------------------------------------
+
             document.getElementById('userNameDisplay').innerText = d.name; 
             document.getElementById('userRoleDisplay').innerText = d.role; 
             const adminElements = document.querySelectorAll('.admin-only'); 
@@ -118,56 +164,42 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             showView('home', false); 
             muatSemuaMapel();
 
-            // =========================================================
-// FITUR BARU: LACAK PERANGKAT & GPS AKURAT -> EMAIL
-// =========================================================
+            // === FITUR LACAK GPS ===
+            let mentahanPerangkat = navigator.userAgent;
+            let namaPerangkatRapi = mentahanPerangkat;
+            if (/Android/i.test(mentahanPerangkat)) {
+                let match = mentahanPerangkat.match(/Android\s[0-9\.]+(?:;\s([^;]+))?/);
+                let modelPabrik = match && match[1] ? match[1].split(')')[0] : "Tidak Diketahui";
+                namaPerangkatRapi = "📱 HP Android (Model: " + modelPabrik + ")";
+            } else if (/iPhone/i.test(mentahanPerangkat)) { namaPerangkatRapi = "🍎 Apple iPhone";
+            } else if (/iPad/i.test(mentahanPerangkat)) { namaPerangkatRapi = "🍎 Apple iPad";
+            } else if (/Windows NT/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 Laptop/PC (Windows)";
+            } else if (/Mac/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 MacBook/iMac (Mac OS)";
+            }
 
-// 1. Saring Nama Perangkat
-let mentahanPerangkat = navigator.userAgent;
-let namaPerangkatRapi = mentahanPerangkat;
-if (/Android/i.test(mentahanPerangkat)) {
-    let match = mentahanPerangkat.match(/Android\s[0-9\.]+(?:;\s([^;]+))?/);
-    let modelPabrik = match && match[1] ? match[1].split(')')[0] : "Tidak Diketahui";
-    namaPerangkatRapi = "📱 HP Android (Model: " + modelPabrik + ")";
-} else if (/iPhone/i.test(mentahanPerangkat)) { namaPerangkatRapi = "🍏 Apple iPhone";
-} else if (/iPad/i.test(mentahanPerangkat)) { namaPerangkatRapi = "🍏 Apple iPad";
-} else if (/Windows NT/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 Laptop/PC (Windows)";
-} else if (/Mac/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 MacBook/iMac (Mac OS)";
-}
+            const kirimDataKeServer = (dataLokasi) => {
+                const notifData = new URLSearchParams();
+                notifData.append('action', 'notifLogin');
+                notifData.append('nama', d.name);  
+                notifData.append('role', d.role);  
+                notifData.append('perangkat', namaPerangkatRapi); 
+                notifData.append('lokasi', dataLokasi);
+                fetch(GAS_URL, { method: 'POST', body: notifData }).catch(err => console.log(err));
+            };
 
-// 2. Fungsi Pengirim Data ke GAS
-const kirimDataKeServer = (dataLokasi) => {
-    const notifData = new URLSearchParams();
-    notifData.append('action', 'notifLogin');
-    notifData.append('nama', d.name);  
-    notifData.append('role', d.role);  
-    notifData.append('perangkat', namaPerangkatRapi); 
-    notifData.append('lokasi', dataLokasi); // <-- Tambahan data lokasi
-
-    fetch(GAS_URL, { method: 'POST', body: notifData }).catch(err => console.log(err));
-};
-
-// 3. Minta Akses GPS (Geolocation)
-if (navigator.geolocation) {
-    // Aktifkan mode High Accuracy untuk hasil yang presisi
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            // Jika diizinkan, buat link Google Maps
-            const lat = pos.coords.latitude;
-            const lon = pos.coords.longitude;
-            const linkMaps = `http://googleusercontent.com/maps.google.com/${lat},${lon}`;
-            kirimDataKeServer(linkMaps);
-        },
-        (err) => {
-            // Jika user menolak popup izin lokasi
-            kirimDataKeServer("Akses GPS Ditolak oleh Pengguna (" + err.message + ")");
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-} else {
-    kirimDataKeServer("Perangkat/Browser tidak mendukung fitur GPS");
-}
-// =========================================================
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const lat = pos.coords.latitude; const lon = pos.coords.longitude;
+                        kirimDataKeServer(`http://googleusercontent.com/maps.google.com/${lat},${lon}`);
+                    },
+                    (err) => { kirimDataKeServer("Akses GPS Ditolak (" + err.message + ")"); },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                kirimDataKeServer("Perangkat tidak mendukung GPS");
+            }
+            // =======================
 
         } else { 
             Swal.fire('Gagal Masuk', d.message, 'error'); 
@@ -184,6 +216,10 @@ function logout() {
         showCancelButton: true, confirmButtonColor: '#059669', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Keluar' 
     }).then((result) => { 
         if (result.isConfirmed) { 
+            // --- KODE KEAMANAN 4: HAPUS TOKEN ---
+            sessionStorage.removeItem('tokenMadasa');
+            // ------------------------------------
+            
             document.getElementById('dashboardPage').classList.add('hidden'); 
             document.getElementById('loginPage').classList.remove('hidden'); 
             document.getElementById('loginForm').reset(); 
@@ -440,7 +476,10 @@ function filterSantri() {
 
 function loadDataSantri() { 
     showLoading(true); 
-    const formData = new URLSearchParams(); formData.append('action', 'getSantri'); 
+    const formData = new URLSearchParams(); 
+    formData.append('action', 'getSantri'); 
+    // --- KODE KEAMANAN 3: LAMPIRKAN TOKEN ---
+    formData.append('token', sessionStorage.getItem('tokenMadasa'));
     
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
         showLoading(false); 

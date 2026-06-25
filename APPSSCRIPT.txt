@@ -457,7 +457,7 @@ function simpanPengaturan(e) {
     var sheetSet = ss.getSheetByName('SETTING_RAPOR');
     if (!sheetSet) {
        sheetSet = ss.insertSheet('SETTING_RAPOR');
-       sheetSet.appendRow(['Kelas', 'Semester', 'Tahun', 'Tanggal', 'Wali', 'Kepala', 'URL Wali', 'URL Kepala', 'URL Stempel']);
+       sheetSet.appendRow(['Kelas', 'Semester', 'Tahun', 'Tanggal', 'Wali', 'Kepala', 'URL Wali', 'URL Kepala', 'URL Stempel', 'Status Rilis']);
     }
     
     var dSet = sheetSet.getDataRange().getValues();
@@ -474,6 +474,7 @@ function simpanPengaturan(e) {
       sheetSet.getRange(rowIndexSet, 4).setValue(setUmum.tanggal);
       sheetSet.getRange(rowIndexSet, 5).setValue(setUmum.wali);
       sheetSet.getRange(rowIndexSet, 6).setValue(setUmum.kepala);
+      sheetSet.getRange(rowIndexSet, 10).setValue(setUmum.status_rilis || 'Sembunyi');
     }
 
     // 2. Simpan Master Mapel & Kamus ke MASTER_MAPEL
@@ -545,7 +546,7 @@ function simpanPengaturan(e) {
 function getPengaturan(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var kelas = e.parameter.kelas;
-  
+
   // A. Tarik Pengaturan Umum
   var sheetSet = ss.getSheetByName('SETTING_RAPOR');
   var setUmum = {};
@@ -554,19 +555,29 @@ function getPengaturan(e) {
     for(var i=1; i<dSet.length; i++) {
       // Menggunakan toString().trim() agar kebal spasi ghaib
       if(dSet[i][0].toString().trim() === kelas.toString().trim()) {
-        setUmum = { semester: dSet[i][1], tahun: dSet[i][2], tanggal: dSet[i][3], wali: dSet[i][4], kepala: dSet[i][5], url_wali: dSet[i][6] || '', url_kepala: dSet[i][7] || '', url_stempel: dSet[i][8] || '' }; 
+        setUmum = {
+          semester: dSet[i][1],
+          tahun: dSet[i][2],
+          tanggal: dSet[i][3],
+          wali: dSet[i][4],
+          kepala: dSet[i][5],
+          url_wali: dSet[i][6] || '',
+          url_kepala: dSet[i][7] || '',
+          url_stempel: dSet[i][8] || '',
+          status_rilis: dSet[i][9] || 'Sembunyi' 
+        };
         break;
       }
     }
   }
-  
+
   // B. Tarik Detail Santri
   var sheetDet = ss.getSheetByName('DETAIL_RAPOR');
   var detSantri = {};
   if(sheetDet) {
     var dDet = sheetDet.getDataRange().getValues();
     for(var i=1; i<dDet.length; i++) {
-      if(dDet[i][1].toString().trim() === kelas.toString().trim()) { 
+      if(dDet[i][1].toString().trim() === kelas.toString().trim()) {
         var nisStr = dDet[i][0].toString().replace(/'/g, "").trim();
         detSantri[nisStr] = { akhlaq: dDet[i][2], kerajinan: dDet[i][3], disiplin: dDet[i][4], rapi: dDet[i][5], sakit: dDet[i][6], izin: dDet[i][7], alpa: dDet[i][8], catatan: dDet[i][9], keputusan: dDet[i][10] };
       }
@@ -580,16 +591,16 @@ function getPengaturan(e) {
     var dMapel = sheetMapel.getDataRange().getValues();
     for(var j=1; j<dMapel.length; j++) {
       // Menggunakan toString().trim() agar tepat sasaran
-      if(dMapel[j][0].toString().trim() === kelas.toString().trim()) { 
+      if(dMapel[j][0].toString().trim() === kelas.toString().trim()) {
           mTulis = dMapel[j][1];
-          mPraktek = dMapel[j][2]; 
-          mBaca = dMapel[j][3]; 
-          mKamus = dMapel[j][4] || ""; 
+          mPraktek = dMapel[j][2];
+          mBaca = dMapel[j][3];
+          mKamus = dMapel[j][4] || "";
           break;
       }
     }
   }
-  
+
   return responSukses({ umum: setUmum, detail: detSantri, mapel_tulis: mTulis, mapel_praktek: mPraktek, mapel_baca: mBaca, kamus: mKamus });
 }
 
