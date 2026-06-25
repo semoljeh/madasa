@@ -1,5 +1,5 @@
 // Pastikan URL ini persis sama dengan GAS_URL yang ada di file script.js Anda!
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbznmOWv37I6c7cpImYwk9aZjNzeK791Gl-YssBD9Nfa_52q5xLKVGJaVs7Bq1P3YmBc/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyoOXucwPi1Rx4LW6Uiz6N2nTAd_tt2r3QWPp8q6dGFOrmrOPZvNcneKy9_4uZ7MzQN/exec';
 let JADWAL_MAPEL = {};
 
 function showLoading(show) {
@@ -48,23 +48,38 @@ function tarikDataDariDatabase() {
         document.getElementById('ortuNamaSantri').innerText = santriTerpilih.nama;
         document.getElementById('ortuNisSantri').innerText = santriTerpilih.nis;
         document.getElementById('ortuKelasSantri').innerText = santriTerpilih.kelas;
+		// Panggil fungsi riwayat SPP
+        muatRiwayatSpp(santriTerpilih.nis);
 
-        // Tarik Data Nilai khusus untuk kelas santri terpilih
-        const fdNilai = new URLSearchParams();
-        fdNilai.append('action', 'getDataNilai');
-        fdNilai.append('kelas', santriTerpilih.kelas);
+        // Tarik Data Nilai & Pengaturan khusus untuk kelas santri terpilih
+     const fdNilai = new URLSearchParams();
+     fdNilai.append('action', 'getDataNilai');
+     fdNilai.append('kelas', santriTerpilih.kelas);
 
-        return fetch(GAS_URL, { method: 'POST', body: fdNilai })
-            .then(r => r.json())
-            .then(responseNilai => {
-                showLoading(false);
-                if (responseNilai.status !== 'success') {
-                    return Swal.fire('Informasi', 'Data identitas benar, namun nilai kelas belum di-input guru.', 'info');
-                }
+     const fdPengaturan = new URLSearchParams();
+     fdPengaturan.append('action', 'getPengaturan');
+     fdPengaturan.append('kelas', santriTerpilih.kelas);
 
-                // Lanjut ke proses render (dengan membawa variabel kelas)
-                prosesDanTampilkanData(inputNis, santriTerpilih.kelas, responseNilai.headers, responseNilai.data);
-            });
+     return Promise.all([
+         fetch(GAS_URL, { method: 'POST', body: fdNilai }).then(r => r.json()),
+         fetch(GAS_URL, { method: 'POST', body: fdPengaturan }).then(r => r.json())
+     ])
+     .then(([responseNilai, responsePengaturan]) => {
+         showLoading(false);
+         if (responseNilai.status !== 'success') {
+             return Swal.fire('Informasi', 'Data identitas benar, namun nilai kelas belum di-input guru.', 'info');
+         }
+
+         // Cek Status Rilis
+         let statusRilis = 'Sembunyi'; // Default disembunyikan
+         if (responsePengaturan.status === 'success' && responsePengaturan.umum && responsePengaturan.umum.status_rilis) {
+             statusRilis = responsePengaturan.umum.status_rilis;
+         }
+
+         // Lanjut ke proses render
+         prosesDanTampilkanData(inputNis, santriTerpilih.kelas, responseNilai.headers, responseNilai.data, statusRilis);
+     });
+		
     })
     .catch(err => {
         showLoading(false);
@@ -73,7 +88,7 @@ function tarikDataDariDatabase() {
     });
 }
 
-function prosesDanTampilkanData(nis, kelas, headers, rows) {
+function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis) {
     const containerHasil = document.getElementById('hasilDataOrtu');
     const tbodyNilai = document.getElementById('bodyTabelNilaiOrtu');
     tbodyNilai.innerHTML = '';
@@ -86,8 +101,6 @@ function prosesDanTampilkanData(nis, kelas, headers, rows) {
         document.getElementById('ortuSakit').innerText = '0';
         document.getElementById('ortuIzin').innerText = '0';
         document.getElementById('ortuAlpa').innerText = '0';
-        document.getElementById('ortuStatusSpp').innerText = "Lunas (Semester Berjalan)";
-        document.getElementById('ortuStatusSpp').className = "text-sm font-bold p-4 rounded-xl bg-emerald-50 text-emerald-700 text-center";
         containerHasil.classList.remove('hidden');
         return;
     }
@@ -100,18 +113,14 @@ function prosesDanTampilkanData(nis, kelas, headers, rows) {
     document.getElementById('ortuIzin').innerText = dataMap['izin'] || '0';
     document.getElementById('ortuAlpa').innerText = dataMap['alpa'] || '0';
 
-    // SET STATUS SPP
-    const statusSppBox = document.getElementById('ortuStatusSpp');
-    const nilaiSpp = dataMap['status_spp'] || dataMap['spp'] || 'Lunas';
-    statusSppBox.innerText = nilaiSpp;
-    if (nilaiSpp.toLowerCase().includes('lunas')) {
-        statusSppBox.className = "text-sm font-bold p-4 rounded-xl bg-emerald-50 text-emerald-700 text-center shadow-inner";
-    } else {
-        statusSppBox.className = "text-sm font-bold p-4 rounded-xl bg-red-50 text-red-700 text-center shadow-inner";
+    // CEK STATUS RILIS NILAI
+    if (statusRilis === 'Sembunyi') {
+        tbodyNilai.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-gray-500"><i class="fas fa-lock text-4xl mb-3 block text-gray-300"></i>Nilai akademik semester ini belum dirilis oleh madrasah.<br><span class="text-xs">Silakan cek kembali secara berkala.</span></td></tr>';
+        containerHasil.classList.remove('hidden');
+        return; // Hentikan proses merender angka nilai
     }
 
-
-   // ==========================================
+  // ==========================================
     // LOGIKA RENDER NILAI DENGAN KATEGORI A B C
     // ==========================================
     let adaNilai = false;
@@ -182,3 +191,88 @@ function prosesDanTampilkanData(nis, kelas, headers, rows) {
 
     containerHasil.classList.remove('hidden');
 }
+// ==========================================
+// FUNGSI TARIK DATA RIWAYAT SPP KHUSUS ORTU
+// ==========================================
+function muatRiwayatSpp(nisSantri) {
+    const wadah = document.getElementById('wadahSppOrtu');
+    wadah.innerHTML = '<div class="text-center text-xs text-gray-400 py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat data...</div>';
+    
+    const fd = new URLSearchParams();
+    fd.append('action', 'getSppSantri'); // Endpoint yang dibuat di APPSSCRIPT.txt
+    fd.append('nis', nisSantri);
+
+    fetch(GAS_URL, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+        wadah.innerHTML = ''; 
+        
+        if (res.status === 'success' && res.data.length > 0) {
+            res.data.forEach(item => {
+                let warnaTeks = item.status.includes('LUNAS') ? 'text-emerald-600' : 
+                                item.status.includes('BELUM') ? 'text-red-500' : 'text-amber-500';
+                let warnaBg = item.status.includes('LUNAS') ? 'bg-emerald-50' : 
+                              item.status.includes('BELUM') ? 'bg-red-50' : 'bg-amber-50';
+
+                wadah.innerHTML += `
+                    <div class="flex justify-between items-center p-2 rounded-lg border border-gray-50 text-xs ${warnaBg} mb-2">
+                        <span class="font-medium text-gray-700">${item.keterangan}</span>
+                        <span class="font-bold ${warnaTeks}">${item.status}</span>
+                    </div>
+                `;
+            });
+        } else {
+            wadah.innerHTML = `<div class="text-center text-xs text-gray-400 py-4">Belum ada riwayat pembayaran yang tercatat.</div>`;
+        }
+    }).catch(e => {
+        wadah.innerHTML = `<div class="text-center text-xs text-red-400 py-4">Gagal terhubung ke database.</div>`;
+    });
+}
+
+// =========================================================
+// PWA (PROGRESSIVE WEB APP) KHUSUS PORTAL WALI SANTRI
+// =========================================================
+let deferredPromptOrtu;
+const installPromptOrtu = document.getElementById('pwaInstallPromptOrtu');
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // Menggunakan ../sw.js karena file sw.js ada di luar folder 'informasi'
+        navigator.serviceWorker.register('../sw.js')
+        .then(reg => console.log('PWA Portal Ortu aktif!'))
+        .catch(err => console.log('PWA Portal Ortu gagal: ', err));
+    });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); 
+    deferredPromptOrtu = e;
+    if (installPromptOrtu) { 
+        // Munculkan notifikasi install setelah 1.5 detik
+        setTimeout(() => { 
+            installPromptOrtu.classList.remove('translate-x-[150%]', 'opacity-0'); 
+            installPromptOrtu.classList.add('translate-x-0', 'opacity-100'); 
+        }, 1500); 
+    }
+});
+
+function tutupNotifPWAOrtu() { 
+    if(installPromptOrtu) { 
+        installPromptOrtu.classList.remove('translate-x-0', 'opacity-100'); 
+        installPromptOrtu.classList.add('translate-x-[150%]', 'opacity-0'); 
+    } 
+}
+
+function installPWAOrtu() {
+    if (deferredPromptOrtu) {
+        deferredPromptOrtu.prompt();
+        deferredPromptOrtu.userChoice.then((choiceResult) => { 
+            if (choiceResult.outcome === 'accepted') { tutupNotifPWAOrtu(); } 
+            deferredPromptOrtu = null; 
+        });
+    }
+}
+
+window.addEventListener('appinstalled', (evt) => { 
+    tutupNotifPWAOrtu(); 
+});

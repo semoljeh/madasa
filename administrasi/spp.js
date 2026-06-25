@@ -1,4 +1,4 @@
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbznmOWv37I6c7cpImYwk9aZjNzeK791Gl-YssBD9Nfa_52q5xLKVGJaVs7Bq1P3YmBc/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyoOXucwPi1Rx4LW6Uiz6N2nTAd_tt2r3QWPp8q6dGFOrmrOPZvNcneKy9_4uZ7MzQN/exec';
 
 // Menarik data santri mentah untuk keperluan dropdown pilihan nama
 let LOKAL_DATA_SANTRI = []; 

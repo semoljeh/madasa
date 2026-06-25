@@ -112,6 +112,9 @@
 				
 				<button onclick="showView('mutasi')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-exchange-alt w-5"></i> Mutasi Kelas</button>
 				
+				
+				
+		
 				<!-- Tombol Portal Wali Santri di Sidebar -->
 <button onclick="window.open('informasi/ortu.html', '_blank')" class="w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
     <i class="fas fa-user-check w-5 text-emerald-300"></i> Portal Wali Santri
@@ -501,6 +504,16 @@
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-inner">
                                     <h4 class="font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2"><i class="fas fa-school mr-2 text-emerald-600"></i>Identitas Rapor</h4>
                                     <div class="space-y-3">
+									
+									<div class="bg-emerald-50/50 p-3 rounded-lg border border-emerald-100">
+         <label class="text-xs font-bold text-emerald-700 block mb-1">Publikasi Nilai ke Portal Ortu</label>
+         <select id="set_status_rilis" class="w-full p-2 border border-emerald-300 rounded text-sm font-bold text-emerald-800 focus:ring-emerald-500 outline-none cursor-pointer">
+             <option value="Sembunyi">🔒 Sembunyikan Nilai Dulu</option>
+             <option value="Rilis">🌍 Rilis (Tampilkan di Portal)</option>
+         </select>
+     </div>
+									
+									
                                        <div>
                                            <label class="text-xs font-bold text-gray-600">Semester</label>
                                            <select id="set_semester" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-emerald-500 outline-none cursor-pointer">
@@ -512,19 +525,22 @@
                                         <div><label class="text-xs font-bold text-gray-600">Tanggal Rapor</label><input type="text" id="set_tanggal" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-emerald-500 outline-none" placeholder="Ex: Bangkalan, 5 April 2026"></div>
                                     </div>
                                 </div>
+								
                                 <div class="bg-gray-50 p-4 sm:p-5 rounded-xl border border-gray-200 shadow-inner">
-                                    <h4 class="font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2"><i class="fas fa-user-tie mr-2 text-blue-600"></i>Pejabat Madrasah</h4>
-                                    <div class="space-y-3">
-                                        <div><label class="text-xs font-bold text-gray-600">Nama Kepala Madrasah</label><input type="text" id="set_kepala" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 outline-none" placeholder="Ex: KH. Umar Faruq"></div>
-                                        <div><label class="text-xs font-bold text-gray-600">Nama Wali Kelas</label><input type="text" id="set_wali" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 outline-none" placeholder="Ex: Ust. Muhtarom"></div>
-                                        <p class="text-[10px] text-gray-400 italic mt-2">*Catatan: Untuk gambar stempel dan tanda tangan akan ditanam otomatis di aplikasi cetak.</p>
-                                    </div>
-                                </div>
+    <h4 class="font-bold text-gray-700 mb-3 border-b border-gray-200 pb-2"><i class="fas fa-user-tie mr-2 text-blue-600"></i>Pejabat Madrasah</h4>
+    <div class="space-y-3">
+        <div><label id="labelKepalaSetting" class="text-xs font-bold text-gray-600">Nama Kepala Madrasah</label><input type="text" id="set_kepala" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 outline-none" placeholder="Ex: KH. Umar Faruq"></div>
+        
+        <div><label class="text-xs font-bold text-gray-600">Nama Wali Kelas</label><input type="text" id="set_wali" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 outline-none" placeholder="Ex: Ust. Muhtarom"></div>
+        <p class="text-[10px] text-gray-400 italic mt-2">*Catatan: Untuk gambar stempel dan tanda tangan akan ditanam otomatis di aplikasi cetak.</p>
+    </div>
+</div>
+								
                             </div>
 							
 							
-							<div class="bg-indigo-50 p-4 sm:p-5 rounded-xl border border-indigo-200 shadow-inner mb-6">
-                                <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-2"><i class="fas fa-book mr-2 text-indigo-600"></i>Master Mata Pelajaran (Kategori)</h4>
+							<div id="wadahKategoriMapel" class="bg-indigo-50 p-4 sm:p-5 rounded-xl border border-indigo-200 shadow-inner mb-6 transition-all duration-300">
+    <h4 class="font-bold text-indigo-800 mb-2 border-b border-indigo-200 pb-2"><i class="fas fa-book mr-2 text-indigo-600"></i>Master Mata Pelajaran (Kategori)</h4>
                                 <p class="text-[11px] text-indigo-600 mb-3 font-medium">* Ketik mapel dipisah tanda koma ( , ). Kosongkan jika tidak ada.</p>
                                 
                                 <div class="space-y-3 mb-4">

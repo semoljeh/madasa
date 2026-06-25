@@ -9,8 +9,33 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
    <link rel="stylesheet" href="ortu.css">
+   
+   
+   <link rel="manifest" href="manifest-ortu.json">
+    <meta name="theme-color" content="#065f46">
+    <link rel="apple-touch-icon" href="../asset/logo.png">
+   
+   
 </head>
 <body class="bg-gray-50 text-gray-800">
+
+<div id="pwaInstallPromptOrtu" class="fixed top-4 right-4 z-[100] w-[calc(100%-2rem)] sm:w-80 bg-white/90 backdrop-blur-xl border border-emerald-100 shadow-2xl rounded-2xl p-4 transition-all duration-700 transform translate-x-[150%] opacity-0 flex items-start gap-4">
+        <button onclick="tutupNotifPWAOrtu()" class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all cursor-pointer">
+            <i class="fas fa-times text-sm"></i>
+        </button>
+        
+        <div class="w-12 h-12 shrink-0 bg-gradient-to-br from-emerald-100 to-teal-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl shadow-inner border border-white">
+            <i class="fas fa-mobile-alt"></i>
+        </div>
+        
+        <div class="flex-1 pt-0.5">
+            <h4 class="font-heading font-bold text-gray-800 text-sm mb-1">Install Portal Ortu</h4>
+            <p class="text-[11px] text-gray-500 leading-relaxed mb-3">Pasang aplikasi ini di layar HP Anda untuk memantau nilai & SPP anak dengan cepat.</p>
+            <button onclick="installPWAOrtu()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all transform hover:-translate-y-0.5">
+                Install Sekarang
+            </button>
+        </div>
+    </div>
 
     <div id="loadingScreen" class="fixed inset-0 z-50 flex items-center justify-center bg-white/90 backdrop-blur-sm hidden">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600"></div>
@@ -86,14 +111,17 @@
                     </div>
                 </div>
 
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                    <h5 class="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2">
-                        <i class="fas fa-wallet text-teal-500"></i> Status Administrasi / SPP
+              <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col h-full">
+                    <h5 class="font-bold text-gray-800 text-sm mb-3 flex items-center gap-2 shrink-0">
+                        <i class="fas fa-wallet text-teal-500"></i> Riwayat Administrasi / SPP
                     </h5>
-                    <div id="ortuStatusSpp" class="text-sm font-bold p-4 rounded-xl bg-gray-50 text-gray-600 text-center">
-                        Memuat data...
+                    <div id="wadahSppOrtu" class="flex-1 overflow-y-auto pr-2 space-y-2 max-h-32">
+                        <div class="text-center text-xs text-gray-400 py-4">
+                            <i class="fas fa-spinner fa-spin mr-1"></i> Sedang memuat riwayat SPP...
+                        </div>
                     </div>
                 </div>
+				
             </div>
 
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">

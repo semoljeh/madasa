@@ -33,6 +33,12 @@ function doPost(e) {
 
       // FITUR IMPORT MASSAL
       case 'importSantriBulk': return importSantriBulk(e);
+
+      // FITUR SPP
+      case 'getSppData': return getSppData(e);
+      case 'saveSppData': return saveSppData(e);
+      case 'deleteSppData': return deleteSppData(e);
+      case 'getSppSantri': return getSppSantri(e); // Khusus untuk halaman wali santri
       
       default: return responError('Aksi tidak dikenali oleh server.');
     }
@@ -840,4 +846,118 @@ function importSantriBulk(e) {
   } catch (err) {
     return responError('Gagal import: ' + err.message);
   }
+}
+
+// =================================================================
+// FUNGSI SPP (BACA, SIMPAN, HAPUS)
+// =================================================================
+
+function getSppData(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('SPP');
+  var kelasReq = e.parameter.kelas;
+  
+  // Jika sheet SPP belum ada, jangan error, kembalikan array kosong
+  if (!sheet) return responSukses({ data: [] });
+  
+  var data = sheet.getDataRange().getValues();
+  var result = [];
+  
+  // Looping mulai dari baris ke-2 (mengabaikan header)
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][2] == kelasReq) { // Asumsi Kelas ada di kolom ke-3 (C)
+      result.push({
+        nis: data[i][0],
+        nama: data[i][1],
+        kelas: data[i][2],
+        keterangan: data[i][3], // Bulan / Keterangan
+        status: data[i][4]      // Lunas / Belum Lunas
+      });
+    }
+  }
+  return responSukses({ data: result });
+}
+
+function saveSppData(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('SPP');
+  
+  // Buat sheet SPP otomatis jika belum ada
+  if (!sheet) {
+    sheet = ss.insertSheet('SPP');
+    sheet.appendRow(['NIS', 'Nama Lengkap', 'Kelas', 'Keterangan Pembayaran', 'Status']);
+    sheet.getRange(1, 1, 1, 5).setFontWeight("bold").setBackground("#d1fae5");
+  }
+  
+  var nis = e.parameter.nis;
+  var nama = e.parameter.nama;
+  var kelas = e.parameter.kelas;
+  var keterangan = e.parameter.keterangan;
+  var status = e.parameter.status;
+  
+  var data = sheet.getDataRange().getValues();
+  var isUpdated = false;
+  
+  // Cek apakah data pembayaran (NIS & Keterangan yang sama) sudah ada. Jika ada, Update statusnya.
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] == nis && data[i][3] == keterangan) {
+      sheet.getRange(i + 1, 5).setValue(status); // Update status
+      isUpdated = true;
+      break;
+    }
+  }
+  
+  // Jika belum ada, buat baris baru
+  if (!isUpdated) {
+    sheet.appendRow(["'" + nis, nama, kelas, keterangan, status]);
+  }
+  
+  return responSukses({ message: 'Data SPP berhasil disimpan!' });
+}
+
+function deleteSppData(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('SPP');
+  if (!sheet) return responError('Data SPP tidak ditemukan.');
+  
+  var nis = e.parameter.nis;
+  var keterangan = e.parameter.keterangan;
+  var data = sheet.getDataRange().getValues();
+  
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] == nis && data[i][3] == keterangan) {
+      sheet.deleteRow(i + 1);
+      return responSukses({ message: 'Data SPP berhasil dihapus!' });
+    }
+  }
+  
+  return responError('Data yang akan dihapus tidak ditemukan.');
+}
+
+// =================================================================
+// FUNGSI SPP UNTUK HALAMAN WALI SANTRI
+// =================================================================
+function getSppSantri(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('SPP');
+  
+  // Jika sheet SPP belum ada atau kosong
+  if (!sheet) return responSukses({ data: [] });
+  
+  var nisReq = e.parameter.nis; // Menangkap NIS yang dikirim dari web
+  var data = sheet.getDataRange().getValues();
+  var result = [];
+  
+  // Membaca data dari baris ke-2 sampai bawah
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] == nisReq) { // Jika NIS di database sama dengan NIS anak yang dicari
+      result.push({
+        keterangan: data[i][3], // Mengambil kolom Tanggal/Bulan/Tahun
+        status: data[i][4]      // Mengambil kolom Lunas/Belum Lunas
+      });
+    }
+  }
+  
+  result.reverse(); // Membalik urutan agar pembayaran terbaru ada di paling atas
+  return responSukses({ data: result });
 }

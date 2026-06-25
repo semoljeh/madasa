@@ -1,7 +1,7 @@
 // ---------------------------------------------------------
 // 1. PENGATURAN GLOBAL & DATABASE
 // ---------------------------------------------------------
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbznmOWv37I6c7cpImYwk9aZjNzeK791Gl-YssBD9Nfa_52q5xLKVGJaVs7Bq1P3YmBc/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyoOXucwPi1Rx4LW6Uiz6N2nTAd_tt2r3QWPp8q6dGFOrmrOPZvNcneKy9_4uZ7MzQN/exec';
 let GLOBAL_DATA_SANTRI = [];
 let GLOBAL_HEADERS_NILAI = [];
 let GLOBAL_DATA_NILAI = [];
@@ -899,48 +899,77 @@ function loadRankingKelas() {
     }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal memuat ranking.', 'error'); }); 
 }
 
-function loadSettingRapor() { 
-const kelas = document.getElementById('settingKelas').value; 
-if(!kelas) return; showLoading(true); 
-const formData = new URLSearchParams(); formData.append('action', 'getPengaturan'); formData.append('kelas', kelas); 
+function loadSettingRapor() {
+    const kelas = document.getElementById('settingKelas').value; 
+    if(!kelas) return; 
+    
+    // --- LOGIKA SEMBUNYIKAN MAPEL & UBAH LABEL UNTUK TK ---
+    const wadahMapel = document.getElementById('wadahKategoriMapel');
+    const labelKepala = document.getElementById('labelKepalaSetting');
+    
+    if (kelas.includes('TK')) {
+        if (wadahMapel) wadahMapel.classList.add('hidden'); // Sembunyikan mapel untuk TK
+        if (labelKepala) labelKepala.innerText = 'Nama Kepala TK / RA'; // Ubah label untuk TK
+    } else {
+        if (wadahMapel) wadahMapel.classList.remove('hidden'); // Munculkan mapel untuk Ibt/Sana
+        if (labelKepala) labelKepala.innerText = 'Nama Kepala Madrasah'; // Kembalikan label
+    }
+    // ------------------------------------------------------
 
-fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => { 
-showLoading(false); 
-document.getElementById('formSettingRapor').classList.remove('hidden'); 
+    showLoading(true); 
+    const formData = new URLSearchParams(); 
+    formData.append('action', 'getPengaturan'); 
+    formData.append('kelas', kelas); 
 
-let u = res.umum || {}; 
-document.getElementById('set_semester').value = u.semester || ''; 
-document.getElementById('set_tahun').value = u.tahun || ''; 
-document.getElementById('set_tanggal').value = u.tanggal || ''; 
-document.getElementById('set_kepala').value = u.kepala || ''; 
-document.getElementById('set_wali').value = u.wali || ''; 
+    fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => { 
+        showLoading(false); 
+        document.getElementById('formSettingRapor').classList.remove('hidden'); 
 
-// PASTIKAN 4 BARIS INI ADA AGAR DATA MAPEL MUNCUL DI KOTAK:
-document.getElementById('set_mapel_tulis').value = res.mapel_tulis || ''; 
-document.getElementById('set_mapel_praktek').value = res.mapel_praktek || ''; 
-document.getElementById('set_mapel_baca').value = res.mapel_baca || ''; 
-document.getElementById('set_kamus').value = res.kamus || '';
+        let u = res.umum || {}; 
+        document.getElementById('set_semester').value = u.semester || ''; 
+        document.getElementById('set_tahun').value = u.tahun || ''; 
+        document.getElementById('set_tanggal').value = u.tanggal || ''; 
+        document.getElementById('set_kepala').value = u.kepala || ''; 
+        document.getElementById('set_wali').value = u.wali || ''; 
+		
+		document.getElementById('set_status_rilis').value = u.status_rilis || 'Sembunyi';
 
-const mapImg = [{url: u.url_wali, imgId: 'preview_wali', teksId: 'teks_wali'}, {url: u.url_kepala, imgId: 'preview_kepala', teksId: 'teks_kepala'}, {url: u.url_stempel, imgId: 'preview_stempel', teksId: 'teks_stempel'}]; 
-mapImg.forEach(m => { 
-    const imgEl = document.getElementById(m.imgId); 
-    const txtEl = document.getElementById(m.teksId); 
-    if(m.url) { imgEl.src = m.url; imgEl.classList.remove('hidden'); txtEl.classList.add('hidden'); } 
-    else { imgEl.src = ''; imgEl.classList.add('hidden'); txtEl.classList.remove('hidden'); } 
-});
+        document.getElementById('set_mapel_tulis').value = res.mapel_tulis || ''; 
+        document.getElementById('set_mapel_praktek').value = res.mapel_praktek || ''; 
+        document.getElementById('set_mapel_baca').value = res.mapel_baca || ''; 
+        document.getElementById('set_kamus').value = res.kamus || '';
+
+        const mapImg = [{url: u.url_wali, imgId: 'preview_wali', teksId: 'teks_wali'}, {url: u.url_kepala, imgId: 'preview_kepala', teksId: 'teks_kepala'}, {url: u.url_stempel, imgId: 'preview_stempel', teksId: 'teks_stempel'}]; 
+        mapImg.forEach(m => { 
+            const imgEl = document.getElementById(m.imgId); 
+            const txtEl = document.getElementById(m.teksId); 
+            if(m.url) { imgEl.src = m.url; imgEl.classList.remove('hidden'); txtEl.classList.add('hidden'); } 
+            else { imgEl.src = ''; imgEl.classList.add('hidden'); txtEl.classList.remove('hidden'); } 
+        });
         
+        const santriKelas = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelas); 
+        const tbody = document.getElementById('bodySettingSantri'); 
+        tbody.innerHTML = ''; 
+        let det = res.detail || {}; 
         
-        const santriKelas = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelas); const tbody = document.getElementById('bodySettingSantri'); tbody.innerHTML = ''; let det = res.detail || {}; 
-        santriKelas.forEach(s => { 
-            let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''}; 
-            tbody.innerHTML += ` <tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}"> <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800">${s.nama}</td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.akhlaq}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.kerajinan}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-disiplin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.disiplin}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rapi w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.rapi}" maxlength="1"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-sakit w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.sakit}"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-izin w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.izin}"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.alpa}"></td> <td class="p-2 border-r bg-emerald-50/30"><input type="text" class="inp-keputusan w-48 border-2 border-emerald-200 rounded p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Ex: Naik Ke Kelas II"></td> <td class="p-2 bg-purple-50/30"><input type="text" class="inp-catatan w-72 border-2 border-purple-200 rounded p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Ex: Tingkatkan prestasimu..."></td> </tr>`; 
-        }); 
-    }); 
+        // --- TAMBAHAN KODE PENGECEKAN KELAS KOSONG ---
+        if (santriKelas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-red-500 font-bold"><i class="fas fa-exclamation-triangle mr-2 block text-3xl mb-2 text-red-300"></i> Belum ada santri di kelas ini.<br><span class="text-sm font-normal text-gray-500">Silakan tambahkan santri terlebih dahulu di menu Data Santri.</span></td></tr>';
+        } else {
+            santriKelas.forEach(s => { 
+                let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''}; 
+                tbody.innerHTML += ` <tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}"> <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800">${s.nama}</td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.akhlaq}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.kerajinan}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-disiplin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.disiplin}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rapi w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.rapi}" maxlength="1"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-sakit w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.sakit}"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-izin w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.izin}"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.alpa}"></td> <td class="p-2 border-r bg-emerald-50/30"><input type="text" class="inp-keputusan w-48 border-2 border-emerald-200 rounded p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Ex: Naik Ke Kelas II"></td> <td class="p-2 bg-purple-50/30"><input type="text" class="inp-catatan w-72 border-2 border-purple-200 rounded p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Ex: Tingkatkan prestasimu..."></td> </tr>`; 
+            }); 
+        }
+    }).catch(e => {
+        showLoading(false);
+        Swal.fire('Error', 'Gagal memuat pengaturan. Periksa koneksi internet.', 'error');
+    });
 }
 
 document.getElementById('formSettingRapor').addEventListener('submit', function(e){ 
     e.preventDefault(); showLoading(true); const kelas = document.getElementById('settingKelas').value; 
-    let setUmum = { semester: document.getElementById('set_semester').value, tahun: document.getElementById('set_tahun').value, tanggal: document.getElementById('set_tanggal').value, kepala: document.getElementById('set_kepala').value, wali: document.getElementById('set_wali').value }; 
+    let setUmum = { semester: document.getElementById('set_semester').value, tahun: document.getElementById('set_tahun').value, tanggal: document.getElementById('set_tanggal').value, kepala: document.getElementById('set_kepala').value, wali: document.getElementById('set_wali').value, status_rilis: document.getElementById('set_status_rilis').value };
     let detSantri = []; document.querySelectorAll('.set-santri-row').forEach(tr => { detSantri.push({ nis: tr.getAttribute('data-nis'), akhlaq: tr.querySelector('.inp-akhlaq').value, kerajinan: tr.querySelector('.inp-rajin').value, disiplin: tr.querySelector('.inp-disiplin').value, rapi: tr.querySelector('.inp-rapi').value, sakit: tr.querySelector('.inp-sakit').value, izin: tr.querySelector('.inp-izin').value, alpa: tr.querySelector('.inp-alpa').value, keputusan: tr.querySelector('.inp-keputusan').value, catatan: tr.querySelector('.inp-catatan').value }); }); 
     
     const formData = new URLSearchParams(); 
