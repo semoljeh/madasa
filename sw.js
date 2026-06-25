@@ -1,4 +1,4 @@
-const CACHE_NAME = 'madasa-pwa-v4'; // Versi dinaikkan untuk memicu pembaruan
+const CACHE_NAME = 'madasa-pwa-v7'; // Versi dinaikkan untuk memicu pembaruan
 const urlsToCache = [
   './',
   './index.html',
@@ -34,31 +34,23 @@ self.addEventListener('install', event => {
 
 // 2. Logika Fetch dengan Stale-While-Revalidate & Pengecualian API
 self.addEventListener('fetch', event => {
-  // A. Pengecualian untuk API Database (Google Apps Script)
-  // Selalu ambil dari internet, JANGAN gunakan cache agar data selalu terbaru
-  if (event.request.url.includes('script.google.com')) {
-    event.respondWith(fetch(event.request));
-    return;
+  // A. Pengecualian mutlak untuk API Database (Metode POST & Domain Google)
+  if (event.request.method !== 'GET' || event.request.url.includes('google.com') || event.request.url.includes('googleusercontent.com')) {
+    return; // Biarkan browser yang mengurusnya, JANGAN disimpan di cache PWA
   }
 
   // B. Strategi Stale-While-Revalidate untuk file statis lainnya
   event.respondWith(
     caches.open(CACHE_NAME).then(cache => {
       return cache.match(event.request).then(response => {
-        
-        // Proses ambil pembaruan dari internet (berjalan di latar belakang)
         const fetchPromise = fetch(event.request).then(networkResponse => {
-          // Jika berhasil mengambil file yang valid, perbarui cache
           if (networkResponse && networkResponse.status === 200) {
             cache.put(event.request, networkResponse.clone());
           }
           return networkResponse;
         }).catch(() => {
-          // Abaikan error jika user sedang offline
+          // Abaikan error jika offline
         });
-
-        // Tampilkan versi cache (jika ada) untuk kecepatan ekstra, 
-        // jika tidak ada di cache, tunggu hasil unduhan dari internet
         return response || fetchPromise;
       });
     })

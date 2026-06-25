@@ -1,12 +1,70 @@
 // =================================================================
-// TERMINAL UTAMA (ROUTER)
+// TERMINAL UTAMA (ROUTER + SISTEM KEAMANAN TOKEN)
 // =================================================================
 function doPost(e) {
   try {
     var action = e.parameter.action;
 
+    // 1. IZINKAN AKSES LOGIN & PORTAL ORTU TANPA TOKEN
+if (action === 'login') return prosesLogin(e);
+
+// --- JALUR KHUSUS PORTAL WALI SANTRI ---
+if (action === 'getSppSantri') return getSppSantri(e);
+if (action === 'getRaporTK') return getRaporTK(e);
+// (Jika nanti ortu.html memanggil fungsi lain, tambahkan juga di sini)
+
+    // ==========================================
+    // 2. AREA SATPAM: VALIDASI TOKEN (SESI)
+    // ==========================================
+    var tokenKlien = e.parameter.token;
+    
+    if (!tokenKlien) {
+      return responError('Akses Ditolak: Anda belum login atau sesi telah berakhir.');
+    }
+
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheetSesi = ss.getSheetByName('SesiAktif');
+    
+    // Auto-Create Sheet SesiAktif jika belum ada
+    if (!sheetSesi) {
+      sheetSesi = ss.insertSheet('SesiAktif');
+      sheetSesi.appendRow(['Token', 'Username', 'Role', 'Waktu Login']);
+      sheetSesi.getRange("A1:D1").setFontWeight("bold").setBackground("#f87171"); // Warna merah sbg tanda file sistem
+    }
+
+    var dataSesi = sheetSesi.getDataRange().getValues();
+    var tokenValid = false;
+    var userRole = "";
+
+    // Pengecekan apakah token ada di database
+    for (var i = 1; i < dataSesi.length; i++) {
+      if (dataSesi[i][0] === tokenKlien) {
+        tokenValid = true;
+        userRole = dataSesi[i][2];
+        break;
+      }
+    }
+
+    // Jika token palsu/tidak ada di database, tendang!
+    if (!tokenValid) {
+      return responError('Sesi tidak valid atau telah kadaluarsa. Silakan login ulang.');
+    }
+    // ==========================================
+    // AREA SATPAM SELESAI
+    // ==========================================
+
+
+    // ==========================================
+    // 3. JIKA TOKEN VALID, LANJUTKAN KE ROUTER
+    // ==========================================
+    
+    // (Opsional) Keamanan Ekstra: Kunci fitur khusus hanya untuk Admin
+    var adminOnly = ['mutasiSantri', 'importSantriBulk', 'deleteSppData', 'updateDataNilai'];
+    if (adminOnly.indexOf(action) !== -1 && userRole !== 'Admin' && userRole !== 'Ustadz Admin Utama') {
+        return responError('Akses Ditolak: Anda tidak memiliki hak akses Admin untuk fitur ini!');
+    }
+
     switch (action) {
-      case 'login': return prosesLogin(e);
       case 'getSantri': return ambilDataSantri();
       case 'addSantri': return tambahDataSantri(e);
       case 'updateSantri': return updateDataSantri(e);
@@ -16,30 +74,17 @@ function doPost(e) {
       case 'getRankingKelas': return getRankingKelas(e);
       case 'getBintangPelajar': return getBintangPelajar();
       case 'getRaporTK': return getRaporTK(e);
-      
-      // --- PINTU MASUK PENGATURAN & UPLOAD ---
       case 'getPengaturan': return getPengaturan(e);
       case 'simpanPengaturan': return simpanPengaturan(e);
       case 'uploadGambar': return uploadGambarDrive(e); 
-      
-      // ==========================================
-      // FITUR BARU: ROUTER NOTIFIKASI LOGIN (EMAIL)
-      // ==========================================
       case 'getAllMapel': return getAllMapel();
       case 'notifLogin': return kirimNotifLogin(e);
-      
-      // FITUR MUTASI KELAS MASSAL
       case 'mutasiSantri': return mutasiSantri(e);
-
-      // FITUR IMPORT MASSAL
       case 'importSantriBulk': return importSantriBulk(e);
-
-      // FITUR SPP
       case 'getSppData': return getSppData(e);
       case 'saveSppData': return saveSppData(e);
       case 'deleteSppData': return deleteSppData(e);
-      case 'getSppSantri': return getSppSantri(e); // Khusus untuk halaman wali santri
-      
+      case 'getSppSantri': return getSppSantri(e); 
       default: return responError('Aksi tidak dikenali oleh server.');
     }
   } catch (error) {
@@ -48,16 +93,41 @@ function doPost(e) {
 }
 
 // =================================================================
-// 1. FUNGSI LOGIN
+// 1. FUNGSI LOGIN (PEMBUAT TOKEN)
 // =================================================================
 function prosesLogin(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('LOGIN');
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('LOGIN');
   var user = e.parameter.username;
   var pass = e.parameter.password;
   var data = sheet.getDataRange().getValues();
+  
   for (var i = 1; i < data.length; i++) {
     if (data[i][0] == user && data[i][1] == pass) {
-      return responSukses({ role: data[i][2], name: data[i][3] });
+      var roleUser = data[i][2];
+      var namaUser = data[i][3];
+
+      // --- KODE BARU: PEMBUATAN TOKEN ---
+      var token = Utilities.getUuid(); // Cetak ID Card acak
+      var sheetSesi = ss.getSheetByName('SesiAktif');
+      
+      // Buat sheet jika belum ada
+      if (!sheetSesi) {
+        sheetSesi = ss.insertSheet('SesiAktif');
+        sheetSesi.appendRow(['Token', 'Username', 'Role', 'Waktu Login']);
+        sheetSesi.getRange("A1:D1").setFontWeight("bold").setBackground("#f87171");
+      }
+
+      // Simpan token ke database SesiAktif
+      sheetSesi.appendRow([token, user, roleUser, new Date()]);
+      // ----------------------------------
+
+      // Kirim balik data ke browser beserta Token-nya
+      return responSukses({ 
+        role: roleUser, 
+        name: namaUser,
+        token: token // <--- Browser butuh ini
+      });
     }
   }
   return responError('Username atau Password salah!');

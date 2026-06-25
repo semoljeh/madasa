@@ -93,8 +93,14 @@ function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis) {
     const tbodyNilai = document.getElementById('bodyTabelNilaiOrtu');
     tbodyNilai.innerHTML = '';
 
-    const idxNis = headers.findIndex(h => h.toUpperCase().includes('NIS'));
-    const barisSantri = rows.find(row => row[idxNis].toString().replace("'", "") === nis);
+    // PERBAIKAN: Mencegah error jika Guru belum membuat database nilai sama sekali
+    let barisSantri = undefined;
+    if (headers && headers.length > 0) {
+        const idxNis = headers.findIndex(h => h && h.toString().toUpperCase().includes('NIS'));
+        if (idxNis > -1) {
+            barisSantri = rows.find(row => row[idxNis] && row[idxNis].toString().replace(/'/g, "").trim() === nis.toString().trim());
+        }
+    }
 
     if (!barisSantri) {
         tbodyNilai.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400">Nilai akademik semester ini belum dirilis guru kelas.</td></tr>';

@@ -45,18 +45,41 @@ function updateWaktuLokal() {
     } catch (e) { }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// =========================================================
+// INISIALISASI AWAL (ANTI GAGAL LOAD & AUTO REFRESH)
+// =========================================================
+function initSpp() {
     updateWaktuLokal();
     setInterval(updateWaktuLokal, 1000);
-    // Muat data master santri di awal untuk dropdown SPP
     ambilMasterSantri();
-});
+}
+
+// Menjamin fungsi tetap berjalan meski halaman lambat dimuat
+if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", initSpp);
+} else {
+    initSpp(); 
+}
 
 function ambilMasterSantri() {
-    const fd = new URLSearchParams(); fd.append('action', 'getSantri');
-    fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
-        if(res.status === 'success') LOKAL_DATA_SANTRI = res.data;
-    }).catch(e=>console.log("Gagal muat master santri"));
+    const fd = new URLSearchParams(); 
+    fd.append('action', 'getSantri');
+    fd.append('token', sessionStorage.getItem('tokenMadasa')); 
+    
+    fetch(GAS_URL, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+        if(res.status === 'success') {
+            LOKAL_DATA_SANTRI = res.data;
+            
+            // FITUR BARU: Auto-Refresh Pilihan Dropdown
+            // Jika Anda sudah terlanjur memilih kelas sebelum data selesai diunduh,
+            // sistem akan otomatis memunculkan namanya sekarang!
+            if (document.getElementById('filterKelasSpp').value) {
+                loadDataSpp();
+            }
+        }
+    }).catch(e => console.log("Gagal muat master santri"));
 }
 
 // =========================================================
@@ -68,8 +91,9 @@ function loadDataSpp() {
 
     showLoading(true);
     const fd = new URLSearchParams();
-    fd.append('action', 'getSppData'); // Pastikan Endpoint ini disiapkan di GAS
+    fd.append('action', 'getSppData'); 
     fd.append('kelas', kelas);
+    fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
     fetch(GAS_URL, { method: 'POST', body: fd })
     .then(r => r.json())
@@ -78,13 +102,31 @@ function loadDataSpp() {
         const tbody = document.getElementById('bodyTabelSpp');
         tbody.innerHTML = '';
 
-        // Update Dropdown di Modal berdasarkan kelas yang dipilih
+        // --- PERBAIKAN: Pilihan Nama Santri (Pencocokan Cerdas) ---
         const selectNama = document.getElementById('spp_nis_nama');
         selectNama.innerHTML = '<option value="" disabled selected>-- Pilih Santri --</option>';
-        LOKAL_DATA_SANTRI.filter(s => s.kelas === kelas).forEach(s => {
-            selectNama.innerHTML += `<option value="${s.nis}">${s.nis} - ${s.nama}</option>`;
+        
+        // Bersihkan format string kelas agar lebih fleksibel (mengubah "TK - TK 1" menjadi "tk 1")
+        let kelasBersih = kelas.toString().trim().toLowerCase();
+        let kelasAlternatif = kelasBersih.includes('-') ? kelasBersih.split('-')[1].trim() : kelasBersih;
+
+        let santriDitemukan = LOKAL_DATA_SANTRI.filter(s => {
+            let kelasDB = s.kelas ? s.kelas.toString().trim().toLowerCase() : '';
+            // Sistem akan mencocokkan teks persis ATAU kata belakangnya saja
+            return kelasDB === kelasBersih || kelasDB === kelasAlternatif || kelasBersih.includes(kelasDB);
         });
 
+        santriDitemukan.forEach(s => {
+            selectNama.innerHTML += `<option value="${s.nis}">${s.nis} - ${s.nama}</option>`;
+        });
+        
+        // Pesan jika masih kosong
+        if (santriDitemukan.length === 0) {
+            selectNama.innerHTML = '<option value="" disabled selected>-- Data Santri Tidak Ditemukan di Kelas Ini --</option>';
+        }
+        // -----------------------------------------------------------
+
+        // Render Riwayat Tabel SPP
         if (res.status === 'success' && res.data.length > 0) {
             res.data.forEach((item, index) => {
                 let badgeColor = item.status.includes('LUNAS') && !item.status.includes('BELUM') ? 'bg-emerald-100 text-emerald-700' : 
@@ -162,8 +204,11 @@ document.getElementById('formInputSpp').addEventListener('submit', function(e) {
     showLoading(true);
 
     const fd = new URLSearchParams();
-    fd.append('action', 'saveSppData'); 
-    fd.append('nis', nis);
+fd.append('action', 'saveSppData');
+fd.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
+fd.append('nis', nis);
+	
+	
     fd.append('nama', namaSantri);
     fd.append('kelas', kelas);
     fd.append('keterangan', stringKeterangan);
@@ -205,10 +250,13 @@ function hapusSpp(nis, keterangan) {
     }).then((result) => {
         if (result.isConfirmed) {
             showLoading(true);
+			
+			
             const fd = new URLSearchParams();
-            fd.append('action', 'deleteSppData'); // Endpoint GAS
-            fd.append('nis', nis);
-            fd.append('keterangan', keterangan);
+fd.append('action', 'deleteSppData');
+fd.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
+fd.append('nis', nis);
+fd.append('keterangan', keterangan);
 
             fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
                 showLoading(false);

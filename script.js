@@ -177,13 +177,15 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             } else if (/Mac/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 MacBook/iMac (Mac OS)";
             }
 
-            const kirimDataKeServer = (dataLokasi) => {
+           const kirimDataKeServer = (dataLokasi) => {
                 const notifData = new URLSearchParams();
                 notifData.append('action', 'notifLogin');
                 notifData.append('nama', d.name);  
                 notifData.append('role', d.role);  
                 notifData.append('perangkat', namaPerangkatRapi); 
                 notifData.append('lokasi', dataLokasi);
+                notifData.append('token', d.token); // <--- WAJIB TAMBAHKAN BARIS INI
+                
                 fetch(GAS_URL, { method: 'POST', body: notifData }).catch(err => console.log(err));
             };
 
@@ -437,14 +439,55 @@ complete: function(results) {
 });
 });
 
+// Fungsi Bantuan: Mengubah teks "Bangkalan, 5 April 2026" menjadi "2026-04-05"
+function reverseTanggalIndo(teksTanggal) {
+    if (!teksTanggal || !teksTanggal.includes(',')) return "";
+    let parts = teksTanggal.split(',');
+    if (parts.length < 2) return "";
+    
+    let tglArr = parts[1].trim().split(' '); 
+    if (tglArr.length !== 3) return "";
 
-function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) { 
-    document.getElementById('edit_nis').value = nis; document.getElementById('edit_nama').value = nama; 
-    document.getElementById('edit_jk').value = jk; document.getElementById('edit_kelas').value = kelas; 
-    document.getElementById('edit_alamat').value = alamat; document.getElementById('edit_ayah').value = ayah; 
-    document.getElementById('edit_ibu').value = ibu; document.getElementById('edit_hp').value = hp; 
-    document.getElementById('edit_ttl').value = ttl; document.getElementById('modalEditSantri').classList.remove('hidden'); 
+    let bulanMap = {
+        "Januari": "01", "Februari": "02", "Maret": "03", "April": "04",
+        "Mei": "05", "Juni": "06", "Juli": "07", "Agustus": "08",
+        "September": "09", "Oktober": "10", "November": "11", "Desember": "12"
+    };
+    
+    let hari = tglArr[0].padStart(2, '0');
+    let bulan = bulanMap[tglArr[1]];
+    let tahun = tglArr[2];
+
+    if (hari && bulan && tahun) return `${tahun}-${bulan}-${hari}`;
+    return "";
 }
+
+// Fungsi Utama Edit Santri yang Sudah Diperbaiki
+function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) { 
+    document.getElementById('edit_nis').value = nis; 
+    document.getElementById('edit_nama').value = nama; 
+    document.getElementById('edit_jk').value = jk; 
+    document.getElementById('edit_kelas').value = kelas; 
+    document.getElementById('edit_alamat').value = alamat; 
+    document.getElementById('edit_ayah').value = ayah; 
+    document.getElementById('edit_ibu').value = ibu; 
+    document.getElementById('edit_hp').value = hp; 
+    
+    // Logika Pintar untuk memecah data TTL
+    if (ttl && ttl.includes(',')) {
+        let parts = ttl.split(',');
+        document.getElementById('edit_tempat_lahir').value = parts[0].trim();
+        document.getElementById('edit_tanggal_lahir').value = reverseTanggalIndo(ttl);
+    } else {
+        document.getElementById('edit_tempat_lahir').value = ttl || "";
+        document.getElementById('edit_tanggal_lahir').value = "";
+    }
+
+    document.getElementById('modalEditSantri').classList.remove('hidden'); 
+}
+
+
+
 function closeModalEditSantri() { document.getElementById('modalEditSantri').classList.add('hidden'); document.getElementById('formEditSantri').reset(); }
 
 function filterSantri() { 
@@ -511,8 +554,10 @@ document.getElementById('formTambahSantri').addEventListener('submit', function(
     btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; 
     showLoading(true); 
     
-    const formData = new URLSearchParams(); 
-    formData.append('action', 'addSantri'); formData.append('nis', document.getElementById('add_nis').value); 
+  const formData = new URLSearchParams();
+formData.append('action', 'addSantri');
+formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
+formData.append('nis', document.getElementById('add_nis').value);
     formData.append('nama', document.getElementById('add_nama').value); formData.append('jk', document.getElementById('add_jk').value); 
     formData.append('kelas', document.getElementById('add_kelas').value); formData.append('alamat', document.getElementById('add_alamat').value); 
     formData.append('ayah', document.getElementById('add_ayah').value); formData.append('ibu', document.getElementById('add_ibu').value); 
@@ -536,8 +581,10 @@ document.getElementById('formEditSantri').addEventListener('submit', function(e)
     const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memperbarui...'; 
     showLoading(true); 
     
-    const formData = new URLSearchParams(); 
-    formData.append('action', 'updateSantri'); formData.append('nis', document.getElementById('edit_nis').value); 
+    const formData = new URLSearchParams();
+formData.append('action', 'updateSantri');
+formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
+formData.append('nis', document.getElementById('edit_nis').value);
     formData.append('nama', document.getElementById('edit_nama').value); formData.append('jk', document.getElementById('edit_jk').value); 
     formData.append('kelas', document.getElementById('edit_kelas').value); formData.append('alamat', document.getElementById('edit_alamat').value); 
     formData.append('ayah', document.getElementById('edit_ayah').value); formData.append('ibu', document.getElementById('edit_ibu').value); 
@@ -686,8 +733,12 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
     const originalText = btnSubmit.innerHTML; btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; 
     showLoading(true); 
     
-    const formData = new URLSearchParams(); 
-    formData.append('action', 'simpanNilai'); formData.append('kelas', kelasPilih); formData.append('list_nilai', JSON.stringify(paketBulk)); 
+    const formData = new URLSearchParams();
+formData.append('action', 'simpanNilai');
+formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
+formData.append('kelas', kelasPilih);
+	
+	formData.append('list_nilai', JSON.stringify(paketBulk)); 
     
  if (kelasPilih.includes('TK')) { formData.append('hari', filterKedua); } 
     else { formData.append('mapel', filterKedua); formData.append('semua_mapel', JSON.stringify(JADWAL_MAPEL[kelasPilih].semua)); }
@@ -706,7 +757,12 @@ function loadDataNilaiKelas() {
     const kelasPilih = document.getElementById('filterKelasDataNilai').value; 
     if (!kelasPilih) { Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' }); return; } 
     showLoading(true); 
-    const formData = new URLSearchParams(); formData.append('action', 'getDataNilai'); formData.append('kelas', kelasPilih); 
+    
+    const formData = new URLSearchParams();
+    formData.append('action', 'getDataNilai');
+    formData.append('token', sessionStorage.getItem('tokenMadasa')); 
+    formData.append('kelas', kelasPilih); // PERBAIKAN: Sebelumnya tertulis 'kelas'
+    
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
         showLoading(false); 
         if (res.status === 'success') { renderTabelDataNilai(res.headers, res.data); } 
@@ -814,6 +870,8 @@ function loadBintangPelajar() {
     
     const formData = new URLSearchParams(); 
     formData.append('action', 'getBintangPelajar'); 
+    // PERBAIKAN 1: Lampirkan Token Keamanan di sini
+    formData.append('token', sessionStorage.getItem('tokenMadasa'));
     
     fetch(GAS_URL, { method: 'POST', body: formData })
     .then(res => res.json())
@@ -830,6 +888,9 @@ function loadBintangPelajar() {
                 let fd = new URLSearchParams(); 
                 fd.append('action', 'getPengaturan'); 
                 fd.append('kelas', kls);
+                // PERBAIKAN 2: Lampirkan Token Keamanan untuk ambil nama Wali Kelas
+                fd.append('token', sessionStorage.getItem('tokenMadasa'));
+
                 return fetch(GAS_URL, {method:'POST', body:fd})
                     .then(r => r.json())
                     .then(d => {
@@ -854,11 +915,10 @@ function loadBintangPelajar() {
                     if (jmlMapel > 0) {
                         rataBenar = (parseFloat(santri.total || 0) / jmlMapel).toFixed(1);
                     } else {
-                        rataBenar = "0.0"; // Muncul 0.0 hanya jika Admin belum mengatur Master Mapel di menu Pengaturan
+                        rataBenar = "0.0"; 
                     }
                 }
 
-                // --- KODE HTML YANG SUDAH DIPERBAIKI NOMOR URUTNYA (1, 2, 3) ---
                 let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${isTop1 ? '<div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>' : ''} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400'} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 ${isTop1 ? 'bg-red-500' : 'bg-gray-500'} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${idx + 1}</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${santri.nama}</h4> <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata: <span class="font-bold text-gray-800">${rataBenar}</span></p> </div> </div> <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1"> <p class="truncate" title="${santri.jk}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${santri.jk}</b></p> <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p> <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p> <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p> <p class="truncate mt-1 pt-1" title="Wali Kelas"><i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${namaWali}</b></p> </div> </div>`; 
                 
                 wadah.innerHTML += html; 
@@ -866,7 +926,7 @@ function loadBintangPelajar() {
         } else { 
             wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-info-circle text-2xl mb-2 block"></i>Belum ada data nilai yang diinput di kelas mana pun.</div>'; 
         } 
-    }).catch(e => { wadah.innerHTML = '<div class="text-white">Gagal memuat data.</div>'; }); 
+    }).catch(e => { wadah.innerHTML = '<div class="text-white">Gagal memuat data. Periksa jaringan Anda.</div>'; }); 
 }
 
 function loadRankingKelas() { 
@@ -875,13 +935,16 @@ function loadRankingKelas() {
     
     showLoading(true); 
     
-    const formDataRanking = new URLSearchParams(); 
-    formDataRanking.append('action', 'getRankingKelas'); 
+    // PERBAIKAN: Pisahkan nama variabel agar tidak bertabrakan
+    const formDataRanking = new URLSearchParams();
+    formDataRanking.append('action', 'getRankingKelas');
+    formDataRanking.append('token', sessionStorage.getItem('tokenMadasa'));
     formDataRanking.append('kelas', kelasPilih); 
 
-    const formDataPengaturan = new URLSearchParams(); 
-    formDataPengaturan.append('action', 'getPengaturan'); 
-    formDataPengaturan.append('kelas', kelasPilih);
+    const formDataPengaturan = new URLSearchParams();
+    formDataPengaturan.append('action', 'getPengaturan');
+    formDataPengaturan.append('token', sessionStorage.getItem('tokenMadasa'));
+    formDataPengaturan.append('kelas', kelasPilih); 
 
     Promise.all([
         fetch(GAS_URL, { method: 'POST', body: formDataRanking }).then(r => r.json()),
@@ -898,7 +961,6 @@ function loadRankingKelas() {
 
        if (resRanking.status === 'success' && resRanking.data.length > 0) { 
             
-            // --- KALKULATOR RATA-RATA OTOMATIS (PERBAIKAN BUG 0.0) ---
             resRanking.data.forEach(s => {
                 if (!kelasPilih.includes('TK')) {
                     let jmlMapel = (JADWAL_MAPEL[kelasPilih] && JADWAL_MAPEL[kelasPilih].semua) ? JADWAL_MAPEL[kelasPilih].semua.length : 0;
@@ -912,7 +974,6 @@ function loadRankingKelas() {
                 }
             });
 
-            // Sortir ulang berdasarkan Rata-Rata dan Total Nilai yang sudah diperbaiki
             resRanking.data.sort((a, b) => { 
                 if (a.rank && b.rank) return a.rank - b.rank; 
                 return parseFloat(b.rata || 0) - parseFloat(a.rata || 0) || parseFloat(b.total || 0) - parseFloat(a.total || 0); 
@@ -1023,8 +1084,9 @@ document.getElementById('formSettingRapor').addEventListener('submit', function(
     let setUmum = { semester: document.getElementById('set_semester').value, tahun: document.getElementById('set_tahun').value, tanggal: document.getElementById('set_tanggal').value, kepala: document.getElementById('set_kepala').value, wali: document.getElementById('set_wali').value, status_rilis: document.getElementById('set_status_rilis').value };
     let detSantri = []; document.querySelectorAll('.set-santri-row').forEach(tr => { detSantri.push({ nis: tr.getAttribute('data-nis'), akhlaq: tr.querySelector('.inp-akhlaq').value, kerajinan: tr.querySelector('.inp-rajin').value, disiplin: tr.querySelector('.inp-disiplin').value, rapi: tr.querySelector('.inp-rapi').value, sakit: tr.querySelector('.inp-sakit').value, izin: tr.querySelector('.inp-izin').value, alpa: tr.querySelector('.inp-alpa').value, keputusan: tr.querySelector('.inp-keputusan').value, catatan: tr.querySelector('.inp-catatan').value }); }); 
     
-    const formData = new URLSearchParams(); 
-    formData.append('action', 'simpanPengaturan'); 
+    const formData = new URLSearchParams();
+formData.append('action', 'simpanPengaturan');
+formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
     formData.append('kelas', kelas); 
     formData.append('set_umum', JSON.stringify(setUmum)); 
     formData.append('det_santri', JSON.stringify(detSantri)); 
@@ -1662,9 +1724,10 @@ function prosesMutasi() {
             showLoading(true, "Memproses Mutasi...");
             
             const formData = new URLSearchParams();
-            formData.append('action', 'mutasiSantri');
-            formData.append('kelas_tujuan', kelasTujuan);
-            formData.append('nis_list', JSON.stringify(nisList));
+formData.append('action', 'mutasiSantri');
+formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
+formData.append('kelas_tujuan', kelasTujuan);
+formData.append('nis_list', JSON.stringify(nisList));
 
             fetch(GAS_URL, { method: 'POST', body: formData })
             .then(r => r.json())

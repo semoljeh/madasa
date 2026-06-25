@@ -11,8 +11,11 @@ function togglePassword() {
     }
 }
 
-function showLoading(show) {
-    document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none';
+function showLoading(show, teks = "Memproses...") {
+    const loadingScreen = document.getElementById('loadingScreen');
+    if (loadingScreen) {
+        loadingScreen.style.display = show ? 'flex' : 'none';
+    }
 }
 
 function showView(viewName) {
@@ -40,48 +43,45 @@ function showView(viewName) {
     });
 }
 
-
-
-
 // === Logika Filter & Pencarian Data Santri ===
-        function filterSantri() {
-            const searchText = document.getElementById('searchSantri').value.toLowerCase();
-            const selectedKelas = document.getElementById('filterKelasSantri').value;
-            const rows = document.querySelectorAll('.santri-row');
-            
-            let visibleCount = 0; // Untuk menghitung data yang tampil
+function filterSantri() {
+    const searchInput = document.getElementById('searchSantri');
+    const filterKelas = document.getElementById('filterKelasSantri');
+    if (!searchInput || !filterKelas) return;
 
-            rows.forEach(row => {
-                // Ambil text dari kolom Nama (index 1) dan NIS (index 0)
-                const nama = row.cells[1].innerText.toLowerCase();
-                const nis = row.cells[0].innerText.toLowerCase();
-                // Ambil asal kelas dari attribute HTML 'data-kelas'
-                const kelas = row.getAttribute('data-kelas');
+    const searchText = searchInput.value.toLowerCase();
+    const selectedKelas = filterKelas.value;
+    const rows = document.querySelectorAll('.santri-row');
+    
+    let visibleCount = 0;
 
-                // Cek apakah data cocok dengan pencarian dan filter
-                const matchSearch = nama.includes(searchText) || nis.includes(searchText);
-                const matchKelas = selectedKelas === 'Semua' || kelas === selectedKelas;
+    rows.forEach(row => {
+        const nama = row.cells[1].innerText.toLowerCase();
+        const nis = row.cells[0].innerText.toLowerCase();
+        const kelas = row.getAttribute('data-kelas');
 
-                if (matchSearch && matchKelas) {
-                    row.style.display = ''; // Tampilkan baris
-                    visibleCount++;
-                } else {
-                    row.style.display = 'none'; // Sembunyikan baris
-                }
-            });
+        const matchSearch = nama.includes(searchText) || nis.includes(searchText);
+        const matchKelas = selectedKelas === 'Semua' || kelas === selectedKelas;
 
-            // Tampilkan pesan kosong jika tidak ada data yang cocok
-            const tabelContainer = document.getElementById('tabelSantri').parentElement;
-            const noDataPesan = document.getElementById('noDataPesan');
-            
-            if (visibleCount === 0) {
-                tabelContainer.classList.add('hidden');
-                noDataPesan.classList.remove('hidden');
-            } else {
-                tabelContainer.classList.remove('hidden');
-                noDataPesan.classList.add('hidden');
-            }
+        if (matchSearch && matchKelas) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
         }
+    });
+
+    const tabelContainer = document.getElementById('tabelSantri');
+    const noDataPesan = document.getElementById('noDataPesan');
+    
+    if (visibleCount === 0) {
+        if(tabelContainer) tabelContainer.parentElement.classList.add('hidden');
+        if(noDataPesan) noDataPesan.classList.remove('hidden');
+    } else {
+        if(tabelContainer) tabelContainer.parentElement.classList.remove('hidden');
+        if(noDataPesan) noDataPesan.classList.add('hidden');
+    }
+}
 
 function logout() {
     Swal.fire({
@@ -95,76 +95,77 @@ function logout() {
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
+            sessionStorage.removeItem('tokenMadasa'); // Hapus token dengan bersih
             document.getElementById('dashboardPage').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('loginForm').reset();
+            const formLogin = document.getElementById('loginForm');
+            if(formLogin) formLogin.reset();
             
-            showView('home'); // Reset ke halaman utama
+            showView('home'); 
         }
     });
 }
 
-// === Login Logic (Sistem Hak Akses / RBAC) ===
-document.getElementById('loginForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Ambil data yang diketik pengguna
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    
-    let role = '';
-    let name = '';
-
-    // LOGIKA PENGECEKAN HAK AKSES
-    if (user === 'admin' && pass === 'admin') {
-        role = 'Administrator';
-        name = 'Ustadz Admin Utama';
-    } else if (user === 'guru' && pass === 'guru') {
-        role = 'Guru Kelas';
-        name = 'Ustadz Ahmad Fauzi';
-    } else {
-        // Jika username/password salah
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal Masuk',
-            text: 'Username atau Password salah! (Gunakan admin/admin atau guru/guru)',
-            confirmButtonColor: '#059669'
-        });
-        return; // Hentikan fungsi sampai di sini
-    }
-
-    showLoading(true);
-
-    // Simulasi loading database
-    setTimeout(() => {
-        showLoading(false);
+// === Login Logic (Sistem Sambung Database Asli) ===
+const loginFormElement = document.getElementById('loginForm');
+if (loginFormElement) {
+    loginFormElement.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        // Update Nama dan Role di Header
-        document.getElementById('userNameDisplay').innerText = name;
-        document.getElementById('userRoleDisplay').innerText = role;
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
 
-        // Atur Elemen yang Boleh Dilihat Admin Saja
-        const adminElements = document.querySelectorAll('.admin-only');
-        if (role === 'Guru Kelas') {
-            // Sembunyikan elemen admin-only jika yang login adalah guru
-            adminElements.forEach(el => el.style.display = 'none');
-        } else {
-            // Tampilkan kembali elemen admin-only jika yang login adalah admin
-            adminElements.forEach(el => el.style.display = ''); 
-        }
+        showLoading(true, "Mencocokkan data login...");
 
-        // Pindah layar
-        document.getElementById('loginPage').classList.add('hidden');
-        document.getElementById('dashboardPage').classList.remove('hidden');
-        showView('home');
-        
-        // Notifikasi Berhasil
-        Swal.fire({
-            icon: 'success',
-            title: 'Alhamdulillah',
-            text: `Selamat datang, ${name}!`,
-            timer: 1500,
-            showConfirmButton: false
+        const formData = new URLSearchParams();
+        formData.append('action', 'login');
+        formData.append('username', user); 
+        formData.append('password', pass); 
+
+        // Proses fetch ke Google Apps Script
+        fetch(GAS_URL, { method: 'POST', body: formData })
+        .then(response => response.json())
+        .then(res => {
+            showLoading(false);
+            if (res.status === 'success') {
+                // 1. SIMPAN TOKEN RESMI KE MEMORI BROWSER
+                sessionStorage.setItem('tokenMadasa', res.token);
+                
+                // 2. Update Nama dan Role di Header
+                document.getElementById('userNameDisplay').innerText = res.name;
+                document.getElementById('userRoleDisplay').innerText = res.role;
+
+                // 3. Atur Elemen yang Boleh Dilihat Admin Saja
+                const adminElements = document.querySelectorAll('.admin-only');
+                if (res.role === 'Guru Kelas' || res.role === 'Wali Kelas') {
+                    adminElements.forEach(el => el.style.display = 'none');
+                } else {
+                    adminElements.forEach(el => el.style.display = ''); 
+                }
+
+                // 4. Pindah layar ke Dashboard Utama
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('dashboardPage').classList.remove('hidden');
+                showView('home');
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Alhamdulillah',
+                    text: `Selamat datang, ${res.name}!`,
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+                // Muat ulang data otomatis
+                if (typeof loadDataSantri === 'function') loadDataSantri();
+
+            } else {
+                Swal.fire('Gagal Masuk', res.message, 'error');
+            }
+        })
+        .catch(err => {
+            showLoading(false);
+            Swal.fire('Error', 'Koneksi terputus ke server.', 'error');
         });
-    }, 1000);
-});
+    });
+}
