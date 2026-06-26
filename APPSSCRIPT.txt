@@ -17,6 +17,7 @@ if (action === 'login') return prosesLogin(e);
     if (action === 'getAllMapel') return getAllMapel();
     if (action === 'getDataNilai') return getDataNilai(e);
     if (action === 'getPengaturan') return getPengaturan(e);
+    if (action === 'getRankingKelas') return getRankingKelas(e);
 
 // (Jika nanti ortu.html memanggil fungsi lain, tambahkan juga di sini)
 

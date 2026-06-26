@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Absensi Barcode - Madrasah Darussalam</title>
+    
+    <!-- Memanggil Manifest Utama agar tampil Full Screen di HP (PWA) -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Font & Icon -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Framework & Library -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Library Barcode Generator -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <!-- Library Scanner Kamera -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <script>
+        tailwind.config = { theme: { extend: { colors: { emerald: { 600: '#059669', 700: '#047857', 800: '#065f46' } }, fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] } } } }
+    </script>
+    
+    <style>
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
+        
+        /* KUNCI UKURAN KARTU 54x86 mm (Ukuran Standar ID Card / KTP) */
+        .id-card-container {
+            width: 54mm;
+            height: 86mm;
+            box-sizing: border-box;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            position: relative;
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            margin: 0 auto;
+        }
+
+
+       /* Style khusus saat dicetak agar rapi dan pas di kertas Folio / F4 */
+        @media print {
+            /* PAKSA BROWSER MENCETAK SEMUA WARNA & BACKGROUND */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            
+            @page { 
+                size: 215mm 330mm; /* Kunci ukuran kertas ke Folio (F4) */
+                margin: 10mm; 
+            } 
+            body { background-color: #fff; margin: 0; padding: 0; }
+            .no-print { display: none !important; }
+            
+            /* Susunan Grid untuk Kertas A4 (Sekitar 10 kartu per halaman) */
+            #idCardGrid { 
+                display: flex !important; 
+                flex-wrap: wrap !important; 
+                gap: 5mm !important; 
+                justify-content: flex-start !important; 
+            }
+            .id-card-container { 
+                page-break-inside: avoid; 
+                border: 1px solid #000; /* Garis potong / cutting line */
+                box-shadow: none !important;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800 p-4 sm:p-8">
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="fixed inset-0 z-[99] flex flex-col items-center justify-center bg-white/90 backdrop-blur-sm hidden">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600 mb-4"></div>
+        <h2 id="teksLoading" class="text-xl font-bold text-gray-800 font-heading">Memuat Data...</h2>
+    </div>
+
+    <!-- Header & Navigasi -->
+    <div class="max-w-5xl mx-auto no-print">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-heading font-bold text-gray-800">Sistem Absensi Digital</h1>
+                <p class="text-sm text-gray-500">Scan Barcode & Cetak ID Card Santri</p>
+            </div>
+            <button onclick="window.location.href='index.html'" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 font-bold text-sm transition-all shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali
+            </button>
+        </div>
+
+        <!-- Tab Menu -->
+        <div class="flex gap-2 mb-6 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
+            <button onclick="switchTab('scan')" id="tabScan" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm transition-all shadow-sm">
+                <i class="fas fa-qrcode mr-2"></i> Kamera Scanner
+            </button>
+            <button onclick="switchTab('cetak')" id="tabCetak" class="flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">
+                <i class="fas fa-id-badge mr-2"></i> Data & Cetak ID Card
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- AREA 1: SCANNER KAMERA (DENGAN GEOFENCING) -->
+    <!-- ========================================== -->
+    <div id="areaScan" class="max-w-md mx-auto no-print">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
+            <p class="text-sm text-gray-500 mb-3 font-medium">Arahkan kamera ke Barcode ID Card Santri</p>
+            
+            <!-- Wadah Kamera Scanner -->
+            <div id="reader" class="w-full rounded-xl overflow-hidden border-2 border-emerald-100"></div>
+            
+            <!-- Notifikasi Hasil Scan -->
+            <div id="scanResult" class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm font-bold text-gray-700 hidden">
+                <i class="fas fa-check-circle text-emerald-500 mr-1 text-lg"></i>
+                <div class="mt-1">Berhasil Discan:</div>
+                <div id="nisTerscan" class="text-emerald-700 text-lg font-black tracking-wider"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- AREA 2: GENERATOR & CETAK ID CARD          -->
+    <!-- ========================================== -->
+    <div id="areaCetak" class="max-w-5xl mx-auto hidden">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 no-print flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div class="w-full sm:w-1/2 relative">
+                <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
+               <input type="text" id="filterNama" onkeyup="renderIdCards()" placeholder="Cari berdasarkan NIS, Nama, atau Kelas..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-gray-50 font-medium">
+            </div>
+            <button onclick="window.print()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm transition-all shadow-sm">
+                <i class="fas fa-print mr-2"></i> Cetak Kertas F4
+            </button>
+        </div>
+
+        <!-- Grid ID Card -->
+        <div id="idCardGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <!-- Kartu akan dirender oleh JavaScript di sini -->
+        </div>
+    </div>
+
+    <!-- Memanggil konfigurasi database GAS_URL -->
+    <script src="config.js?v=4"></script>
+    
+    <script>
+        let DATA_SANTRI = [];
+        let html5QrcodeScanner = null;
+
+        // --- KONFIGURASI LOKASI GPS MADRASAH DARUSSALAM ---
+        const MADRASAH_LAT = -6.9406767;
+        const MADRASAH_LNG = 113.0615107;
+        const RADIUS_MAKSIMAL = 20; // Toleransi jarak dalam meter (Saran: 20m - 30m)
+
+        // Rumus Haversine untuk menghitung jarak (dalam meter)
+        function hitungJarak(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Radius bumi dalam meter
+            const p1 = lat1 * Math.PI/180;
+            const p2 = lat2 * Math.PI/180;
+            const dp = (lat2-lat1) * Math.PI/180;
+            const dl = (lon2-lon1) * Math.PI/180;
+
+            const a = Math.sin(dp/2) * Math.sin(dp/2) +
+                      Math.cos(p1) * Math.cos(p2) *
+                      Math.sin(dl/2) * Math.sin(dl/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c; 
+        }
+
+        function showLoading(show, teks="Memproses...") { 
+            document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none'; 
+            document.getElementById('teksLoading').innerText = teks;
+        }
+
+        window.onload = () => {
+            showLoading(true, "Memuat Data Santri...");
+            const formData = new URLSearchParams(); 
+            formData.append('action', 'getSantri');
+            // Jika backend mewajibkan token, aktifkan baris di bawah ini:
+            // formData.append('token', sessionStorage.getItem('tokenMadasa'));
+
+            fetch(GAS_URL, { method: 'POST', body: formData }).then(r => r.json()).then(res => {
+                showLoading(false);
+                if(res.status === 'success') {
+                    DATA_SANTRI = res.data;
+                    renderIdCards();
+                    mulaiScanner(); // Nyalakan kamera
+                }
+            }).catch(e => { 
+                showLoading(false); 
+                Swal.fire('Error', 'Gagal memuat data santri dari database.', 'error'); 
+            });
+        }
+
+        // --- SISTEM TAB NAVIGASI ---
+        function switchTab(tab) {
+            const btnScan = document.getElementById('tabScan');
+            const btnCetak = document.getElementById('tabCetak');
+            const areaScan = document.getElementById('areaScan');
+            const areaCetak = document.getElementById('areaCetak');
+
+            if(tab === 'scan') {
+                btnScan.className = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm transition-all';
+                btnCetak.className = 'flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all';
+                areaScan.classList.remove('hidden'); areaCetak.classList.add('hidden');
+                if(html5QrcodeScanner) html5QrcodeScanner.resume();
+            } else {
+                btnCetak.className = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm transition-all';
+                btnScan.className = 'flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all';
+                areaCetak.classList.remove('hidden'); areaScan.classList.add('hidden');
+                if(html5QrcodeScanner) html5QrcodeScanner.pause();
+            }
+        }
+
+        // --- SISTEM RENDER ID CARD ---
+        // --- SISTEM RENDER ID CARD (Revisi Barcode Jumbo & Kertas Folio) ---
+        function renderIdCards() {
+            const kataKunci = document.getElementById('filterNama').value.toLowerCase();
+            const grid = document.getElementById('idCardGrid');
+            grid.innerHTML = '';
+
+            // Filter berdasarkan Nama, Kelas, ATAU NIS
+            const dataTersaring = DATA_SANTRI.filter(s => 
+                s.nama.toLowerCase().includes(kataKunci) || 
+                s.kelas.toLowerCase().includes(kataKunci) ||
+                s.nis.toString().toLowerCase().includes(kataKunci)
+            );
+
+            dataTersaring.forEach(s => {
+                const cardHtml = `
+                <div class="id-card-container shadow-md bg-white">
+                    <div class="absolute top-0 left-0 w-full h-[28mm] bg-gradient-to-b from-emerald-800 to-emerald-600 rounded-b-[20px] border-b-[3px] border-amber-400 z-0 shadow-sm">
+                    </div>
+                    
+                    <div class="relative z-10 w-full text-center pt-2.5">
+                        <h4 class="text-white text-[11px] font-bold tracking-widest uppercase leading-tight drop-shadow-md">Madrasah<br>Darussalam</h4>
+                    </div>
+                    
+                    <div class="relative z-10 mt-[2mm] bg-white p-0.5 rounded-full shadow-md border-2 border-amber-400">
+                        <div class="w-[15mm] h-[15mm] rounded-full flex items-center justify-center bg-white overflow-hidden">
+                            <img src="asset/logo.png" alt="Logo" class="w-full h-full object-contain p-0.5" onerror="this.style.display='none'">
+                        </div>
+                    </div>
+                    
+                    <div class="relative z-10 text-center w-full px-2 mt-1.5 flex flex-col items-center">
+                        <h3 class="font-extrabold text-gray-800 text-[11px] leading-tight uppercase line-clamp-2">${s.nama}</h3>
+                        
+                        <div class="mt-1 px-3 py-[2px] bg-emerald-50 border border-emerald-200 rounded-full shadow-sm">
+                            <p class="text-[7px] text-emerald-700 font-bold uppercase tracking-widest">${s.kelas}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="relative z-10 flex-1 w-full flex justify-center items-center mt-0.5 bg-white">
+                        <svg class="barcode-svg max-w-full" 
+                            jsbarcode-format="CODE128" 
+                            jsbarcode-value="${s.nis}" 
+                            jsbarcode-height="48" 
+                            jsbarcode-width="1.6" 
+                            jsbarcode-displayvalue="true" 
+                            jsbarcode-fontSize="13"
+                            jsbarcode-textmargin="2"
+                            jsbarcode-margin="0">
+                        </svg>
+                    </div>
+                    
+                    <div class="relative z-10 w-full text-center px-3 mb-[4mm]">
+                        <p class="text-[5px] text-gray-500 font-medium leading-tight">
+                            Kartu ini jangan sampai hilang.<br>
+                            Jika menemukan, mohon kembalikan ke<br>
+                            <span class="font-bold text-gray-700">Kantor Madrasah Darussalam</span>
+                        </p>
+                    </div>
+                    
+                    <div class="w-full h-[2.5mm] bg-emerald-800 absolute bottom-0 left-0 border-t border-amber-400"></div>
+                </div>`;
+                grid.innerHTML += cardHtml;
+            });
+
+            // Eksekusi JsBarcode
+            JsBarcode(".barcode-svg").init();
+        }
+
+        // --- SISTEM SCANNER KAMERA & GEOFENCING ---
+        function mulaiScanner() {
+            html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
+                fps: 10, 
+                qrbox: {width: 250, height: 100},
+                aspectRatio: 1.0
+            }, false);
+            
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        }
+
+        let isScanning = false;
+        function onScanSuccess(decodedText, decodedResult) {
+            if(isScanning) return; 
+            isScanning = true;
+            html5QrcodeScanner.pause(); // Hentikan kamera sejenak
+
+            // Bunyikan suara Beep
+            const audio = new Audio('https://www.soundjay.com/buttons/sounds/beep-07a.mp3'); 
+            audio.play();
+
+            // Cari nama santri
+            const santri = DATA_SANTRI.find(s => s.nis == decodedText);
+            const namaTampil = santri ? santri.nama : "Santri Tidak Dikenal";
+
+            showLoading(true, "Mengecek Lokasi GPS...");
+
+            // 1. CEK LOKASI HP GURU SAAT INI
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        const userLat = pos.coords.latitude;
+                        const userLng = pos.coords.longitude;
+                        
+                        // 2. HITUNG JARAK HP DENGAN MADRASAH
+                        const jarak = hitungJarak(userLat, userLng, MADRASAH_LAT, MADRASAH_LNG);
+
+                        if (jarak <= RADIUS_MAKSIMAL) {
+                            // Jika Jarak Aman -> Lanjut Simpan Absen
+                            simpanAbsensi(decodedText, namaTampil);
+                        } else {
+                            // Jika Terlalu Jauh -> Tolak
+                            showLoading(false);
+                            Swal.fire({
+                                title: 'Akses Ditolak!',
+                                html: `Anda berada <b>${Math.round(jarak)} meter</b> dari Madrasah.<br>Absensi wajib dilakukan di area Madrasah Darussalam.`,
+                                icon: 'error',
+                                confirmButtonColor: '#d33'
+                            });
+                            // Nyalakan kamera lagi setelah ditolak
+                            setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2500);
+                        }
+                    },
+                    (err) => {
+                        showLoading(false);
+                        Swal.fire('GPS Gagal', 'Sistem tidak bisa melacak lokasi Anda. Pastikan GPS/Lokasi HP diaktifkan dan browser diberi izin lokasi.', 'error');
+                        setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2500);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                showLoading(false);
+                Swal.fire('Tidak Didukung', 'Perangkat atau browser Anda tidak mendukung fitur pelacakan lokasi.', 'error');
+                setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2500);
+            }
+        }
+
+        function simpanAbsensi(nis, namaTampil) {
+            showLoading(true, "Menyimpan Absensi...");
+            const fd = new URLSearchParams();
+            fd.append('action', 'simpanAbsenBarcode');
+            fd.append('nis', nis);
+            fd.append('nama', namaTampil);
+
+            // Jika backend mewajibkan token, aktifkan baris di bawah ini:
+            // fd.append('token', sessionStorage.getItem('tokenMadasa'));
+
+            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+                showLoading(false);
+                
+                document.getElementById('scanResult').classList.remove('hidden');
+                document.getElementById('nisTerscan').innerText = nis;
+
+                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `${namaTampil} Hadir!`, timer: 2000, showConfirmButton: false });
+                
+                setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2000);
+            }).catch(e => {
+                showLoading(false);
+                Swal.fire('Error', 'Gagal menyimpan ke database.', 'error');
+                setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2000);
+            });
+        }
+
+        function onScanFailure(error) { 
+            // Abaikan error jika kamera sedang mencari dan belum menemukan barcode 
+        }
+    </script>
+</body>
+</html>
