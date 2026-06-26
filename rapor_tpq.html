@@ -216,6 +216,8 @@
             try {
                 const formData = new URLSearchParams(); 
                 formData.append('action', 'getSantri');
+				formData.append('token', sessionStorage.getItem('tokenMadasa'));
+				
                 const res = await fetch(GAS_URL, { method: 'POST', body: formData });
                 const data = await res.json();
                 if(data.status === 'success') {

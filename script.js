@@ -206,13 +206,15 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
         } else { 
             Swal.fire('Gagal Masuk', d.message, 'error'); 
         } 
-    }).catch(er => { 
+
+}).catch(er => { 
         showLoading(false); 
         Swal.fire('Error', 'Gagal terhubung ke database.', 'error'); 
     }); 
-});
+}); // <--- TAMBAHKAN BARIS INI 
 
-function logout() { 
+function logout() {
+
     Swal.fire({ 
         title: 'Keluar?', text: "Anda akan kembali ke halaman login", icon: 'question', 
         showCancelButton: true, confirmButtonColor: '#059669', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Keluar' 
@@ -391,8 +393,10 @@ function closeModalImportSantri() {
 document.getElementById('modalImportSantri').classList.add('hidden');
 }
 
-document.getElementById('formImportSantri').addEventListener('submit', function(e) {
-e.preventDefault();
+const formImport = document.getElementById('formImportSantri');
+if (formImport) {
+    formImport.addEventListener('submit', function(e) {
+        e.preventDefault();
 const fileInput = document.getElementById('fileImportCSV');
 if (!fileInput.files.length) return Swal.fire('Perhatian', 'Pilih file CSV terlebih dahulu!', 'warning');
 
@@ -431,14 +435,16 @@ complete: function(results) {
         } else {
             Swal.fire('Gagal', data.message, 'error');
         }
-    }).catch(err => {
+		
+}).catch(err => {
         showLoading(false);
         btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
         Swal.fire('Error', 'Gagal terhubung ke database.', 'error');
     });
 }
 });
-});
+    }); // <--- TAMBAHKAN BARIS INI
+} // <--- TAMBAHKAN BARIS INI
 
 // Fungsi Bantuan: Mengubah teks "Bangkalan, 5 April 2026" menjadi "2026-04-05"
 function reverseTanggalIndo(teksTanggal) {

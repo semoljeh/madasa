@@ -101,7 +101,10 @@
 
         window.onload = () => {
             showLoading(true, "Memuat Database Santri...");
-            const formData = new URLSearchParams(); formData.append('action', 'getSantri');
+            const formData = new URLSearchParams(); 
+			formData.append('action', 'getSantri');
+			formData.append('token', sessionStorage.getItem('tokenMadasa'));
+			
             fetch(GAS_URL, { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(res => {
