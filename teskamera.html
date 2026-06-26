@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<button onclick="tes()">Tes Kamera</button>
+
+<script>
+async function tes(){
+try{
+const stream = await navigator.mediaDevices.getUserMedia({
+video:true
+});
+
+alert("Kamera berhasil");
+
+}catch(e){
+alert(e.message);
+console.error(e);
+}
+}
+</script>
+
+</body>
+</html>
