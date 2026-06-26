@@ -28,6 +28,42 @@
             .no-print { display: none !important; }
             #idCardGrid { display: flex !important; flex-wrap: wrap !important; gap: 5mm !important; justify-content: flex-start !important; }
             .id-card-container { page-break-inside: avoid; border: 1px solid #000; box-shadow: none !important; margin: 0; }
+			
+            /* --- TAMBAHAN UNTUK CETAK REKAP LEGAL --- */
+            body.cetak-mode-rekap @page { size: legal portrait; margin: 15mm; }
+            .print-only { display: none; }
+            
+            body.cetak-mode-rekap .print-only { display: block !important; }
+            body.cetak-mode-rekap #areaRekap { display: block !important; }
+            
+            /* Hapus shadow dan ubah tabel jadi hitam putih tegas */
+            body.cetak-mode-rekap #areaRekap .bg-white { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; }
+            body.cetak-mode-rekap #areaRekap table { border: 1px solid #000 !important; }
+            body.cetak-mode-rekap #areaRekap th, body.cetak-mode-rekap #areaRekap td { 
+                border: 1px solid #000 !important; 
+                color: #000 !important; 
+                padding: 8px !important;
+            }
+            body.cetak-mode-rekap #areaRekap thead { background-color: #e2e8f0 !important; }
+            body.cetak-mode-rekap .text-emerald-700, body.cetak-mode-rekap .text-blue-600, body.cetak-mode-rekap .text-orange-500, body.cetak-mode-rekap .text-red-600 {
+                color: #000 !important; 
+            }
+        }
+		
+        body.cetak-mode-rekap .no-print, 
+        body.cetak-mode-rekap #areaRekap .bg-emerald-50 { 
+        display: none !important; 
+        }
+        
+        body.cetak-mode-rekap #areaRekap .no-print, 
+        body.cetak-mode-rekap #areaRekap .bg-emerald-50 { 
+            display: none !important; 
+        }
+        
+        /* Sembunyikan baris kosong yang masih muncul */
+        body.cetak-mode-rekap #areaRekap tbody tr:empty,
+        body.cetak-mode-rekap #areaRekap tbody tr:has(td[colspan="6"]) {
+            display: none !important;
         }
     </style>
 </head>
@@ -38,13 +74,8 @@
         <h2 id="teksLoading" class="text-xl font-bold text-gray-800 font-heading">Memuat Data...</h2>
     </div>
 
-    <!-- Header & Navigasi -->
     <div class="max-w-5xl mx-auto no-print">
-        
-        <!-- HEADER BARU: Responsif, Ada Logo, Tombol Icon Saja -->
         <div class="bg-white p-3 sm:p-5 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between gap-3 mb-5 sm:mb-6">
-            
-            <!-- Kiri: Logo dan Teks -->
             <div class="flex items-center gap-3 sm:gap-4 overflow-hidden">
                 <div class="w-10 h-10 sm:w-14 sm:h-14 bg-emerald-50 rounded-full flex items-center justify-center shrink-0 border border-emerald-100 overflow-hidden p-1">
                     <img src="asset/logo.png" alt="Logo" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
@@ -55,15 +86,11 @@
                     <p class="text-[10px] sm:text-sm text-gray-500 mt-0.5 truncate">Madrasah Darussalam</p>
                 </div>
             </div>
-
-            <!-- Kanan: Tombol Kembali -->
             <button onclick="window.location.href='index.html'" class="w-10 h-10 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center bg-gray-100 text-gray-600 rounded-xl hover:bg-emerald-100 hover:text-emerald-700 transition-all shadow-sm" title="Kembali ke Beranda">
                 <i class="fas fa-arrow-left sm:text-lg"></i>
             </button>
-            
         </div>
 
-        <!-- 3 Tab Menu -->
         <div class="flex flex-wrap gap-2 mb-6 bg-white p-2 rounded-2xl shadow-sm border border-gray-100">
             <button onclick="switchTab('scan')" id="tabScan" class="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm transition-all shadow-sm">
                 <i class="fas fa-qrcode mr-2"></i> Scanner
@@ -74,10 +101,12 @@
             <button onclick="switchTab('cetak')" id="tabCetak" class="flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">
                 <i class="fas fa-id-badge mr-2"></i> ID Card
             </button>
+            <button onclick="switchTab('rekap')" id="tabRekap" class="flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all">
+                <i class="fas fa-calendar-check mr-2"></i> Rekap
+            </button>
         </div>
     </div>
 
-    <!-- AREA 1: SCANNER -->
     <div id="areaScan" class="max-w-md mx-auto no-print">
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
             <p class="text-sm text-gray-500 mb-3 font-medium">Arahkan kamera ke Barcode ID Card Santri</p>
@@ -90,7 +119,6 @@
         </div>
     </div>
 
-    <!-- AREA 2: ABSEN MANUAL PER KELAS -->
     <div id="areaManual" class="max-w-4xl mx-auto hidden no-print">
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6">
             <div class="mb-5 bg-emerald-50 p-4 rounded-xl border border-emerald-100">
@@ -121,7 +149,6 @@
         </div>
     </div>
 
-    <!-- AREA 3: CETAK ID CARD -->
     <div id="areaCetak" class="max-w-5xl mx-auto hidden">
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 no-print flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div class="w-full sm:w-1/2 relative">
@@ -134,12 +161,75 @@
         </div>
         <div id="idCardGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
     </div>
+	
+    <div id="areaRekap" class="max-w-4xl mx-auto hidden">
+        <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 relative">
+            
+            <div class="print-only mb-6 text-center text-black hidden border-b-[3px] border-black pb-4">
+                <h2 class="text-2xl font-bold uppercase tracking-wide">Laporan Kehadiran Santri</h2>
+                <h3 class="text-xl font-bold uppercase mt-1">Madrasah Darussalam</h3>
+                <p class="text-sm mt-2 font-medium" id="teksSubtitleCetak">Bulan: - | Kelas: -</p>
+            </div>
 
-    <!-- ================= SCRIPT UTAMA ================= -->
+            <div class="flex flex-col sm:flex-row gap-4 mb-5 bg-emerald-50 p-4 rounded-xl border border-emerald-100 no-print">
+                <div class="flex-1">
+                    <label class="block text-sm font-bold text-emerald-800 mb-2">Bulan & Tahun:</label>
+                    <select id="filterBulanRekap" class="w-full p-3 border border-emerald-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium text-gray-700">
+                        <option value="" disabled selected>Memuat bulan...</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="block text-sm font-bold text-emerald-800 mb-2">Pilih Kelas:</label>
+                    <select id="filterKelasRekap" class="w-full p-3 border border-emerald-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium text-gray-700">
+                        <option value="" disabled selected>-- Silakan Pilih Kelas --</option>
+                        <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
+                        <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
+                        <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
+                    </select>
+                </div>
+                <div class="flex items-end gap-2">
+                    <button onclick="tarikDataRekap()" class="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm transition-all shadow-sm">
+                        <i class="fas fa-search mr-2"></i> Tampilkan
+                    </button>
+                    <button onclick="cetakRekap()" id="btnCetakRekap" class="hidden px-6 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 font-bold text-sm transition-all shadow-sm">
+                        <i class="fas fa-print mr-2"></i> Cetak Legal
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm w-full">
+                <table class="w-full text-left border-collapse min-w-max">
+                    <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
+                        <tr>
+                            <th class="p-3 text-center border-r border-gray-200 w-12">No</th>
+                            <th class="p-3 border-r border-gray-200 min-w-[200px]">Nama Santri</th>
+                            <th class="p-3 text-center border-r border-gray-200 text-emerald-700">Hadir</th>
+                            <th class="p-3 text-center border-r border-gray-200 text-blue-600">Izin</th>
+                            <th class="p-3 text-center border-r border-gray-200 text-orange-500">Sakit</th>
+                            <th class="p-3 text-center text-red-600">Alfa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyTabelRekap" class="text-sm divide-y divide-gray-100 bg-white">
+                        <tr><td colspan="6" class="p-8 text-center text-gray-400 no-print">Silakan pilih bulan dan kelas, lalu klik Tampilkan.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="print-only mt-10 text-black hidden">
+                <div class="float-right text-center mr-8">
+                    <p class="mb-16">Bangkalan, <span id="teksTanggalCetak">...</span><br>Wali Kelas,</p>
+                    <p class="font-bold underline">(.......................................)</p>
+                </div>
+                <div class="clear-both"></div>
+            </div>
+
+        </div>
+    </div>
+
     <script src="config.js?v=5"></script>
     <script>
 	
-	const beepSound = new Audio('asset/notif.mp3');
+	    const beepSound = new Audio('asset/notif.mp3');
 	
         let DATA_SANTRI = [];
         let html5QrcodeScanner;
@@ -152,35 +242,54 @@
 
         window.onload = () => {
             showLoading(true, "Memuat Data Santri...");
+            muatBulanTersedia(); 
+
             const formData = new URLSearchParams(); 
             formData.append('action', 'getSantri');
+            // Menambahkan token untuk verifikasi awal jika server membutuhkannya
+            formData.append('token', sessionStorage.getItem('tokenMadasa'));
             
-            fetch(GAS_URL, { method: 'POST', body: formData }).then(r => r.json()).then(res => {
+            fetch(GAS_URL, { method: 'POST', body: formData })
+            .then(r => r.text()) // Menggunakan text() untuk mendeteksi error HTML dari Google Server
+            .then(text => {
                 showLoading(false);
-                if(res.status === 'success') {
-                    DATA_SANTRI = res.data;
-                    renderIdCards();
-                    mulaiScanner(); 
+                try {
+                    const res = JSON.parse(text);
+                    if(res.status === 'success') {
+                        DATA_SANTRI = res.data;
+                        renderIdCards();
+                        mulaiScanner(); 
+                    } else {
+                        Swal.fire('Peringatan', res.message || 'Data santri kosong atau gagal dimuat.', 'warning');
+                    }
+                } catch(e) {
+                    console.error("Response Server Bukan JSON:", text);
+                    Swal.fire('Error Server', 'Terjadi kesalahan sistem atau token tidak valid. Silakan cek console browser (F12).', 'error');
                 }
-            }).catch(e => { 
+            })
+            .catch(e => { 
                 showLoading(false); 
-                Swal.fire('Error', 'Gagal memuat data santri.', 'error'); 
+                console.error(e);
+                Swal.fire('Error Koneksi', 'Gagal memuat data santri. Pastikan internet stabil.', 'error'); 
             });
         }
 
-        function switchTab(tab) {
+       function switchTab(tab) {
             const btnScan = document.getElementById('tabScan');
             const btnManual = document.getElementById('tabManual');
             const btnCetak = document.getElementById('tabCetak');
+            const btnRekap = document.getElementById('tabRekap');
+            
             const areaScan = document.getElementById('areaScan');
             const areaManual = document.getElementById('areaManual');
             const areaCetak = document.getElementById('areaCetak');
+            const areaRekap = document.getElementById('areaRekap');
 
             const classAktif = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm transition-all';
             const classMati = 'flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all';
 
-            btnScan.className = classMati; btnManual.className = classMati; btnCetak.className = classMati;
-            areaScan.classList.add('hidden'); areaManual.classList.add('hidden'); areaCetak.classList.add('hidden');
+            btnScan.className = classMati; btnManual.className = classMati; btnCetak.className = classMati; btnRekap.className = classMati;
+            areaScan.classList.add('hidden'); areaManual.classList.add('hidden'); areaCetak.classList.add('hidden'); areaRekap.classList.add('hidden');
 
             if(tab === 'scan') {
                 btnScan.className = classAktif; areaScan.classList.remove('hidden');
@@ -188,8 +297,11 @@
             } else if (tab === 'manual') {
                 btnManual.className = classAktif; areaManual.classList.remove('hidden');
                 if(html5QrcodeScanner) html5QrcodeScanner.pause(true);
-            } else {
+            } else if (tab === 'cetak') {
                 btnCetak.className = classAktif; areaCetak.classList.remove('hidden');
+                if(html5QrcodeScanner) html5QrcodeScanner.pause(true);
+            } else {
+                btnRekap.className = classAktif; areaRekap.classList.remove('hidden');
                 if(html5QrcodeScanner) html5QrcodeScanner.pause(true);
             }
         }
@@ -248,7 +360,7 @@
 
                 await html5QrcodeScanner.start(
                     cameraId,
-                    { fps: 10, qrbox: { width: 250, height: 100 } },
+                    { fps: 15, qrbox: { width: 250, height: 100 } },
                     onScanSuccess,
                     (err) => { /* Abaikan error parsing */ }
                 );
@@ -260,41 +372,68 @@
 
         function onScanSuccess(decodedText, decodedResult) {
     if(isScanning) return; 
+
+    // 1. Cek apakah hasil scan (decodedText) benar-benar ada di daftar santri kita
+    const santri = DATA_SANTRI.find(s => s.nis == decodedText);
+
+    // 2. Jika tidak ada (berarti itu pantulan cahaya, scan hantu, atau barcode asing), ABAIKAN.
+    if (!santri) {
+        console.log("Mengabaikan scan tidak valid / bayangan:", decodedText);
+        return; // Hentikan proses di sini, kamera akan terus merekam tanpa pause
+    }
+
+    // 3. Jika valid dan terdaftar, baru jalankan proses absensi
     isScanning = true;
     html5QrcodeScanner.pause(true);
 
-    // Memainkan suara notifikasi sekali saja
-    beepSound.play();
+    beepSound.play().catch(e => console.log("Audio play diabaikan oleh browser sebelum interaksi pengguna"));
 
-    const santri = DATA_SANTRI.find(s => s.nis == decodedText);
-    const namaTampil = santri ? santri.nama : "Santri Tidak Dikenal";
-    const kelasTampil = santri ? santri.kelas : "-"; 
+    const namaTampil = santri.nama;
+    const kelasTampil = santri.kelas; 
 
     simpanAbsenOtomatisScanner(decodedText, namaTampil, kelasTampil);
 }
 
         function simpanAbsenOtomatisScanner(nis, namaTampil, kelasTampil) {
-            showLoading(true, "Menyimpan Kehadiran...");
-            const fd = new URLSearchParams();
-            fd.append('action', 'simpanAbsenBarcode');
-            fd.append('nis', nis);
-            fd.append('nama', namaTampil);
-            fd.append('kelas', kelasTampil);
-            fd.append('status', 'Hadir'); 
-            fd.append('token', sessionStorage.getItem('tokenMadasa'));
+    showLoading(true, "Menyimpan Kehadiran...");
+    const fd = new URLSearchParams();
+    fd.append('action', 'simpanAbsenBarcode');
+    fd.append('nis', nis);
+    fd.append('nama', namaTampil);
+    fd.append('kelas', kelasTampil);
+    fd.append('status', 'Hadir'); 
+    fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
-                showLoading(false);
-                document.getElementById('scanResult').classList.remove('hidden');
-                document.getElementById('nisTerscan').innerText = nis;
-                Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: `${namaTampil} Hadir!`, timer: 2000, showConfirmButton: false });
-                setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2000);
-            }).catch(e => {
-                showLoading(false);
-                Swal.fire('Error', 'Gagal menyimpan ke database.', 'error');
-                setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2000);
+    fetch(GAS_URL, { method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+        showLoading(false);
+        
+        if (res.status === 'success') {
+            document.getElementById('scanResult').classList.remove('hidden');
+            document.getElementById('nisTerscan').innerText = nis;
+            Swal.fire({ 
+                toast: true, position: 'top-end', icon: 'success', 
+                title: `${namaTampil} Hadir!`, timer: 2000, showConfirmButton: false 
+            });
+        } else {
+            // Memunculkan pesan santun dari server dengan icon informatif
+            Swal.fire({ 
+                icon: 'info', 
+                title: 'Sudah Tercatat', 
+                text: res.message, // Menarik teks "Afwan..." dari server
+                confirmButtonColor: '#059669'
             });
         }
+        
+        setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2500);
+        
+    }).catch(e => {
+        showLoading(false);
+        Swal.fire('Error Koneksi', 'Gagal menyambung ke server.', 'error');
+        setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2000);
+    });
+}
 
         function renderTabelManual() {
             const kelas = document.getElementById('filterKelasManual').value;
@@ -358,6 +497,97 @@
                 showLoading(false);
                 Swal.fire('Error', 'Gagal menyimpan ke database.', 'error');
             });
+        }
+		
+		function tarikDataRekap() {
+            const bulanTahun = document.getElementById('filterBulanRekap').value;
+            const kelas = document.getElementById('filterKelasRekap').value;
+            const tbody = document.getElementById('bodyTabelRekap');
+            
+            if (!kelas) {
+                Swal.fire('Perhatian', 'Pilih kelas terlebih dahulu', 'warning');
+                return;
+            }
+
+            showLoading(true, `Menarik Laporan ${kelas}...`);
+            tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-400">Sedang memuat data...</td></tr>';
+
+            const fd = new URLSearchParams();
+            fd.append('action', 'getRekapBulanan');
+            fd.append('bulan_tahun', bulanTahun);
+            fd.append('kelas', kelas);
+            fd.append('token', sessionStorage.getItem('tokenMadasa')); 
+
+            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+                showLoading(false);
+                tbody.innerHTML = '';
+                
+                if (res.status === 'success') {
+				    document.getElementById('btnCetakRekap').classList.remove('hidden');
+                    res.data.forEach((s, i) => {
+                        tbody.innerHTML += `
+                        <tr class="hover:bg-gray-50 transition-all">
+                            <td class="p-3 text-center border-r border-gray-200 text-gray-500 font-medium">${i + 1}</td>
+                            <td class="p-3 border-r border-gray-200 font-bold text-gray-800">${s.nama}<br><span class="text-[10px] text-gray-500 font-medium">NIS: ${s.nis}</span></td>
+                            <td class="p-3 text-center border-r border-gray-200 font-bold text-emerald-700">${s.hadir}</td>
+                            <td class="p-3 text-center border-r border-gray-200 font-bold text-blue-600">${s.izin}</td>
+                            <td class="p-3 text-center border-r border-gray-200 font-bold text-orange-500">${s.sakit}</td>
+                            <td class="p-3 text-center font-bold text-red-600">${s.alfa}</td>
+                        </tr>`;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500 font-bold">${res.message}</td></tr>`;
+                }
+            }).catch(e => {
+                showLoading(false);
+                tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-red-500 font-bold">Gagal terhubung ke server.</td></tr>';
+                Swal.fire('Error', 'Gagal memuat rekap bulanan.', 'error');
+            });
+        }
+		
+		function muatBulanTersedia() {
+            const fd = new URLSearchParams();
+            fd.append('action', 'getBulanTersedia');
+            // Tambahan token juga di sini
+            fd.append('token', sessionStorage.getItem('tokenMadasa'));
+
+            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+                const selectBulan = document.getElementById('filterBulanRekap');
+                if (res.status === 'success' && res.data.length > 0) {
+                    selectBulan.innerHTML = ''; 
+                    res.data.forEach(item => {
+                        selectBulan.innerHTML += `<option value="${item.value}">${item.label}</option>`;
+                    });
+                } else {
+                    selectBulan.innerHTML = '<option value="" disabled selected>Belum ada data absen</option>';
+                }
+            }).catch(e => console.error('Gagal memuat bulan:', e));
+        }
+
+        function cetakRekap() {
+            const elBulan = document.getElementById('filterBulanRekap');
+            const elKelas = document.getElementById('filterKelasRekap');
+            const namaBulan = elBulan.options[elBulan.selectedIndex].text;
+            const namaKelas = elKelas.options[elKelas.selectedIndex].text;
+
+            document.getElementById('teksSubtitleCetak').innerHTML = `Bulan: ${namaBulan} &nbsp;&nbsp;|&nbsp;&nbsp; Kelas: ${namaKelas}`;
+
+            const tgl = new Date();
+            const namaBulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            document.getElementById('teksTanggalCetak').innerText = `${tgl.getDate()} ${namaBulanIndo[tgl.getMonth()]} ${tgl.getFullYear()}`;
+
+            document.body.classList.add('cetak-mode-rekap');
+            
+            const tabelTabel = document.querySelectorAll('#areaRekap table');
+            if(tabelTabel.length > 1) {
+                tabelTabel[1].style.display = 'none';
+            }
+
+            window.print();
+
+            setTimeout(() => {
+                document.body.classList.remove('cetak-mode-rekap');
+            }, 1000);
         }
     </script>
 </body>
