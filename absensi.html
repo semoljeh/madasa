@@ -285,29 +285,30 @@
             JsBarcode(".barcode-svg").init();
         }
 
-       // --- SISTEM SCANNER KAMERA YANG LEBIH AGRESIF ---
-async function mulaiScanner() {
-    // Meminta izin kamera secara eksplisit sebelum inisialisasi
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        stream.getTracks().forEach(track => track.stop()); // Matikan stream awal
-    } catch (err) {
-        Swal.fire("Izin Kamera", "Mohon berikan izin kamera agar fitur scan berfungsi.", "info");
-    }
-
-    html5QrcodeScanner = new Html5QrcodeScanner(
-        "reader", 
-        { 
+// --- SISTEM SCANNER KAMERA (VERSI DIPAKSA) ---
+function mulaiScanner() {
+    // Meminta izin kamera sebelum inisialisasi
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+    .then(function(stream) {
+        // Izin didapat, tutup stream sebentar lalu inisialisasi scanner
+        stream.getTracks().forEach(track => track.stop());
+        
+        html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
             fps: 10, 
             qrbox: {width: 250, height: 100},
             aspectRatio: 1.0,
-            showTorchButtonIfSupported: true, // Tambahkan tombol lampu
             rememberLastUsedCamera: true
-        }, 
-        /* verbose= */ false
-    );
-    
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        }, false);
+        
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    })
+    .catch(function(err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Kamera Gagal Dibuka',
+            text: 'Pastikan web dibuka melalui HTTPS dan izin kamera sudah diberikan. Detail: ' + err
+        });
+    });
 }
 
         let isScanning = false;
