@@ -208,7 +208,6 @@
                 btnScan.className = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm transition-all';
                 btnCetak.className = 'flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all';
                 areaScan.classList.remove('hidden'); areaCetak.classList.add('hidden');
-				
                if(html5QrcodeScanner){
     html5QrcodeScanner.resume();
 }
@@ -216,9 +215,8 @@
                 btnCetak.className = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm transition-all';
                 btnScan.className = 'flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all';
                 areaCetak.classList.remove('hidden'); areaScan.classList.add('hidden');
-				
                 if(html5QrcodeScanner){
-    html5QrcodeScanner.pause(true);
+    html5QrcodeScanner.resume();
 }
             }
         }
@@ -343,30 +341,23 @@ async function mulaiScanner() {
 }
 
         let isScanning = false;
+        // --- SISTEM SCANNER KAMERA (TANPA DETEKSI LOKASI) ---
         function onScanSuccess(decodedText, decodedResult) {
+            if(isScanning) return; 
+            isScanning = true;
+            html5QrcodeScanner.pause(); 
 
-    if (isScanning) return;
+            // Bunyikan suara Beep
+            const audio = new Audio('https://www.soundjay.com/buttons/sounds/beep-07a.mp3'); 
+            audio.play();
 
-    isScanning = true;
+            // Cari nama santri
+            const santri = DATA_SANTRI.find(s => s.nis == decodedText);
+            const namaTampil = santri ? santri.nama : "Santri Tidak Dikenal";
 
-    html5QrcodeScanner.pause(true);
-
-    const audio = new Audio(
-        'https://www.soundjay.com/buttons/sounds/beep-07a.mp3'
-    );
-    audio.play();
-
-    const santri = DATA_SANTRI.find(
-        s => s.nis == decodedText
-    );
-
-    const namaTampil = santri
-        ? santri.nama
-        : "Santri Tidak Dikenal";
-
-    // TEST MODE TANPA GPS
-    simpanAbsensi(decodedText, namaTampil);
-}
+            // LANGSUNG SIMPAN ABSENSI (Tanpa Cek GPS)
+            simpanAbsensi(decodedText, namaTampil);
+        }
 
         function simpanAbsensi(nis, namaTampil) {
             showLoading(true, "Menyimpan Absensi...");
