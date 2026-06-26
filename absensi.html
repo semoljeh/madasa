@@ -286,15 +286,30 @@
         }
 
         // --- SISTEM SCANNER KAMERA & GEOFENCING ---
-        function mulaiScanner() {
-            html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
-                fps: 10, 
-                qrbox: {width: 250, height: 100},
-                aspectRatio: 1.0
-            }, false);
-            
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-        }
+        // --- SISTEM SCANNER KAMERA YANG LEBIH AGRESIF ---
+async function mulaiScanner() {
+    // Meminta izin kamera secara eksplisit sebelum inisialisasi
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream.getTracks().forEach(track => track.stop()); // Matikan stream awal
+    } catch (err) {
+        Swal.fire("Izin Kamera", "Mohon berikan izin kamera agar fitur scan berfungsi.", "info");
+    }
+
+    html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", 
+        { 
+            fps: 10, 
+            qrbox: {width: 250, height: 100},
+            aspectRatio: 1.0,
+            showTorchButtonIfSupported: true, // Tambahkan tombol lampu
+            rememberLastUsedCamera: true
+        }, 
+        /* verbose= */ false
+    );
+    
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+}
 
         let isScanning = false;
         function onScanSuccess(decodedText, decodedResult) {
