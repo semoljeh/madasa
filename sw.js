@@ -10,11 +10,12 @@ const urlsToCache = [
   './rapor_ibtidaiyah.html',
   './rapor_sanawiyah.html',
   // Portal Ortu & SPP (Wajib ditambahkan)
-  './ortu.html',
-  './ortu.css',
-  './ortu.js',
-  './spp.html',
-  './spp.js',
+'./informasi/ortu.html',
+'./informasi/ortu.css',
+'./informasi/ortu.js',
+
+'./administrasi/spp.html',
+'./administrasi/spp.js',
   // Aset Gambar
   './asset/logo.png',
   './asset/logo-192.png',

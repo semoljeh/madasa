@@ -102,31 +102,54 @@
                 <h2 class="font-heading font-bold text-base tracking-wide">DARUSSALAM</h2>
             </div>
             <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-                <button onclick="showView('home')" class="nav-link w-full flex items-center gap-3 px-4 py-3 bg-emerald-700 rounded-xl text-white font-medium transition-all text-sm"><i class="fas fa-th-large w-5 text-gold"></i> Utama</button>
-                <button onclick="showView('dataSantri')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-users w-5"></i> Data Santri</button>
-                <button onclick="showView('inputNilai')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-edit w-5"></i> Input Nilai</button>
-                
-                <button onclick="showView('dataNilai')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-chart-line w-5"></i> Data Nilai</button>
-                <button onclick="showView('ranking')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-trophy w-5"></i> Ranking</button>
-                
-                <button onclick="showView('cetakRapor')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-print w-5"></i> Cetak Rapor</button>
-				
-				<button onclick="showView('mutasi')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-exchange-alt w-5"></i> Mutasi Kelas</button>
-				
-				
-				
-		
-<!-- Tombol Portal Wali Santri di Sidebar -->
+			
+			
+                <button onclick="showView('home')" class="nav-link w-full flex items-center gap-3 px-4 py-3 bg-emerald-700 rounded-xl text-white font-medium transition-all text-sm">
+    <i class="fas fa-th-large w-5 text-gold"></i> Utama
+</button>
+
+<button onclick="showView('dataSantri')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+    <i class="fas fa-users w-5"></i> Data Santri
+</button>
+
+<button onclick="showView('inputNilai')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+    <i class="fas fa-edit w-5"></i> Input Nilai
+</button>
+
+<button onclick="showView('dataNilai')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+    <i class="fas fa-chart-line w-5"></i> Data Nilai
+</button>
+
+<button onclick="showView('ranking')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+    <i class="fas fa-trophy w-5"></i> Ranking
+</button>
+
+<button onclick="showView('cetakRapor')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+    <i class="fas fa-print w-5"></i> Cetak Rapor
+</button>
+
+<button onclick="showView('mutasi')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+    <i class="fas fa-exchange-alt w-5"></i> Mutasi Kelas
+</button>
+
+<!-- Portal Wali Santri -->
+
 <button onclick="window.location.href='informasi/ortu.html'" class="w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
-    <i class="fas fa-user-check w-5 text-emerald-300"></i> Portal Wali Santri
+    <i class="fas fa-user-check w-5 text-emerald-300"></i>
+    Portal Wali Santri
 </button>
 
+<!-- Administrasi SPP -->
 
-<button onclick="window.open('administrasi/spp.html', '_blank')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
-    <i class="fas fa-wallet w-5"></i> Administrasi SPP
+<button onclick="window.location.href='administrasi/spp.html'" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+    <i class="fas fa-wallet w-5"></i>
+    Administrasi SPP
 </button>
-                
-                <button onclick="showView('pengaturan')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm"><i class="fas fa-cog w-5"></i> Pengaturan</button>
+
+<button onclick="showView('pengaturan')" class="nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
+    <i class="fas fa-cog w-5"></i> Pengaturan
+</button>
+
 				
 				
             </nav>
@@ -167,35 +190,74 @@
                     </div>
                     
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-4 sm:gap-6">
-                        <div onclick="showView('dataSantri')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-teal-50 text-teal-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-users"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Data Santri</h3></div>
-                        <div onclick="showView('inputNilai')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-book-open"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Input Nilai</h3></div>
-                        
-                        <div onclick="showView('dataNilai')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-table"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Data Nilai</h3></div>
-                        <div onclick="showView('ranking')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-trophy"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Ranking</h3></div>
-                        
-                        <div onclick="showView('cetakRapor')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 text-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-print"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Cetak Rapor</h3></div>
-						
-						<div onclick="showView('mutasi')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-50 text-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-exchange-alt"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Mutasi Kelas</h3></div>
-						
-						
-						<div onclick="window.open('informasi/ortu.html', '_blank')" class="bg-gradient-to-br from-emerald-50 to-white p-4 sm:p-6 rounded-2xl shadow-sm border border-emerald-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+
+<div onclick="showView('dataSantri')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-teal-50 text-teal-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4">
+        <i class="fas fa-users"></i>
+    </div>
+    <h3 class="font-bold text-gray-800 text-sm sm:text-base">Data Santri</h3>
+</div>
+
+<div onclick="showView('inputNilai')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-50 text-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4">
+        <i class="fas fa-book-open"></i>
+    </div>
+    <h3 class="font-bold text-gray-800 text-sm sm:text-base">Input Nilai</h3>
+</div>
+
+<div onclick="showView('dataNilai')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4">
+        <i class="fas fa-table"></i>
+    </div>
+    <h3 class="font-bold text-gray-800 text-sm sm:text-base">Data Nilai</h3>
+</div>
+
+<div onclick="showView('ranking')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-amber-50 text-amber-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4">
+        <i class="fas fa-trophy"></i>
+    </div>
+    <h3 class="font-bold text-gray-800 text-sm sm:text-base">Ranking</h3>
+</div>
+
+<div onclick="showView('cetakRapor')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-purple-50 text-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4">
+        <i class="fas fa-print"></i>
+    </div>
+    <h3 class="font-bold text-gray-800 text-sm sm:text-base">Cetak Rapor</h3>
+</div>
+
+<div onclick="showView('mutasi')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-indigo-50 text-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4">
+        <i class="fas fa-exchange-alt"></i>
+    </div>
+    <h3 class="font-bold text-gray-800 text-sm sm:text-base">Mutasi Kelas</h3>
+</div>
+
+<!-- PORTAL WALI SANTRI -->
+<div onclick="window.location.href='informasi/ortu.html'" class="bg-gradient-to-br from-emerald-50 to-white p-4 sm:p-6 rounded-2xl shadow-sm border border-emerald-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
     <div class="w-12 h-12 sm:w-14 sm:h-14 bg-emerald-100 text-emerald-700 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4">
         <i class="fas fa-user-check"></i>
     </div>
     <h3 class="font-bold text-gray-800 text-sm sm:text-base">Portal Wali Santri</h3>
 </div>
 
-
-<div onclick="window.open('administrasi/spp.html', '_blank')" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+<!-- DATA SPP -->
+<div onclick="window.location.href='administrasi/spp.html'" class="admin-only bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
     <div class="w-12 h-12 sm:w-14 sm:h-14 bg-red-50 text-red-500 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4">
         <i class="fas fa-wallet"></i>
     </div>
     <h3 class="font-bold text-gray-800 text-sm sm:text-base">Data SPP</h3>
 </div>
-						
-                        <div onclick="showView('pengaturan')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all"><div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 text-gray-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4"><i class="fas fa-cog"></i></div><h3 class="font-bold text-gray-800 text-sm sm:text-base">Pengaturan</h3></div>
-                    </div>
-                </div>
+
+<div onclick="showView('pengaturan')" class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 text-center cursor-pointer hover:shadow-md hover:-translate-y-1 transition-all">
+    <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gray-50 text-gray-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl mx-auto mb-3 sm:mb-4">
+        <i class="fas fa-cog"></i>
+    </div>
+    <h3 class="font-bold text-gray-800 text-sm sm:text-base">Pengaturan</h3>
+</div>
+
+</div>
+
 
                 <div id="view-dataSantri" class="view-section hidden">
                     <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100">
