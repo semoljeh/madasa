@@ -150,7 +150,7 @@
     
     <script>
         let DATA_SANTRI = [];
-        let html5QrcodeScanner = null;
+        let html5QrcodeScanner;
 
         // --- KONFIGURASI LOKASI GPS MADRASAH DARUSSALAM ---
         const MADRASAH_LAT = -6.9406767;
@@ -208,16 +208,20 @@
                 btnScan.className = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm transition-all';
                 btnCetak.className = 'flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all';
                 areaScan.classList.remove('hidden'); areaCetak.classList.add('hidden');
-                if(html5QrcodeScanner) html5QrcodeScanner.resume();
+               if(html5QrcodeScanner){
+    html5QrcodeScanner.resume();
+}
             } else {
                 btnCetak.className = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm transition-all';
                 btnScan.className = 'flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all';
                 areaCetak.classList.remove('hidden'); areaScan.classList.add('hidden');
-                if(html5QrcodeScanner) html5QrcodeScanner.pause();
+                if(html5QrcodeScanner){
+    html5QrcodeScanner.resume();
+}
             }
         }
 
-        // --- SISTEM RENDER ID CARD ---
+ 
         // --- SISTEM RENDER ID CARD (Revisi Barcode Jumbo & Kertas Folio) ---
         function renderIdCards() {
             const kataKunci = document.getElementById('filterNama').value.toLowerCase();
@@ -286,36 +290,61 @@
         }
 
 // --- SISTEM SCANNER KAMERA (VERSI DIPAKSA) ---
-function mulaiScanner() {
-    // Meminta izin kamera sebelum inisialisasi
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-    .then(function(stream) {
-        // Izin didapat, tutup stream sebentar lalu inisialisasi scanner
-        stream.getTracks().forEach(track => track.stop());
-        
-        html5QrcodeScanner = new Html5QrcodeScanner("reader", { 
-            fps: 10, 
-            qrbox: {width: 250, height: 100},
-            aspectRatio: 1.0,
-            rememberLastUsedCamera: true
-        }, false);
-        
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-    })
-    .catch(function(err) {
+async function mulaiScanner() {
+
+    try {
+
+        html5QrcodeScanner = new Html5Qrcode("reader");
+
+        const cameras = await Html5Qrcode.getCameras();
+		console.log("DAFTAR KAMERA:", cameras);
+
+        if (!cameras || cameras.length === 0) {
+            throw new Error("Kamera tidak ditemukan");
+        }
+
+        let cameraId = cameras[0].id;
+
+        const backCamera = cameras.find(cam =>
+            cam.label.toLowerCase().includes("back") ||
+            cam.label.toLowerCase().includes("rear")
+        );
+
+        if (backCamera) {
+            cameraId = backCamera.id;
+        }
+
+        await html5QrcodeScanner.start(
+            cameraId,
+            {
+                fps: 10,
+                qrbox: {
+                    width: 250,
+                    height: 100
+                }
+            },
+            onScanSuccess,
+            onScanFailure
+        );
+
+    } catch (err) {
+
+        console.error(err);
+
         Swal.fire({
             icon: 'error',
             title: 'Kamera Gagal Dibuka',
-            text: 'Pastikan web dibuka melalui HTTPS dan izin kamera sudah diberikan. Detail: ' + err
+            text: err.message
         });
-    });
+
+    }
 }
 
         let isScanning = false;
         function onScanSuccess(decodedText, decodedResult) {
             if(isScanning) return; 
             isScanning = true;
-            html5QrcodeScanner.pause(); // Hentikan kamera sejenak
+            html5QrcodeScanner.pause(true);
 
             // Bunyikan suara Beep
             const audio = new Audio('https://www.soundjay.com/buttons/sounds/beep-07a.mp3'); 
