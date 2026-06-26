@@ -208,6 +208,7 @@
                 btnScan.className = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm transition-all';
                 btnCetak.className = 'flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all';
                 areaScan.classList.remove('hidden'); areaCetak.classList.add('hidden');
+				
                if(html5QrcodeScanner){
     html5QrcodeScanner.resume();
 }
@@ -215,8 +216,9 @@
                 btnCetak.className = 'flex-1 py-3 bg-emerald-600 text-white rounded-xl font-bold text-sm shadow-sm transition-all';
                 btnScan.className = 'flex-1 py-3 text-gray-600 hover:bg-gray-50 rounded-xl font-bold text-sm transition-all';
                 areaCetak.classList.remove('hidden'); areaScan.classList.add('hidden');
+				
                 if(html5QrcodeScanner){
-    html5QrcodeScanner.resume();
+    html5QrcodeScanner.pause(true);
 }
             }
         }
@@ -342,59 +344,29 @@ async function mulaiScanner() {
 
         let isScanning = false;
         function onScanSuccess(decodedText, decodedResult) {
-            if(isScanning) return; 
-            isScanning = true;
-            html5QrcodeScanner.pause(true);
 
-            // Bunyikan suara Beep
-            const audio = new Audio('https://www.soundjay.com/buttons/sounds/beep-07a.mp3'); 
-            audio.play();
+    if (isScanning) return;
 
-            // Cari nama santri
-            const santri = DATA_SANTRI.find(s => s.nis == decodedText);
-            const namaTampil = santri ? santri.nama : "Santri Tidak Dikenal";
+    isScanning = true;
 
-            showLoading(true, "Mengecek Lokasi GPS...");
+    html5QrcodeScanner.pause(true);
 
-            // 1. CEK LOKASI HP GURU SAAT INI
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                        const userLat = pos.coords.latitude;
-                        const userLng = pos.coords.longitude;
-                        
-                        // 2. HITUNG JARAK HP DENGAN MADRASAH
-                        const jarak = hitungJarak(userLat, userLng, MADRASAH_LAT, MADRASAH_LNG);
+    const audio = new Audio(
+        'https://www.soundjay.com/buttons/sounds/beep-07a.mp3'
+    );
+    audio.play();
 
-                        if (jarak <= RADIUS_MAKSIMAL) {
-                            // Jika Jarak Aman -> Lanjut Simpan Absen
-                            simpanAbsensi(decodedText, namaTampil);
-                        } else {
-                            // Jika Terlalu Jauh -> Tolak
-                            showLoading(false);
-                            Swal.fire({
-                                title: 'Akses Ditolak!',
-                                html: `Anda berada <b>${Math.round(jarak)} meter</b> dari Madrasah.<br>Absensi wajib dilakukan di area Madrasah Darussalam.`,
-                                icon: 'error',
-                                confirmButtonColor: '#d33'
-                            });
-                            // Nyalakan kamera lagi setelah ditolak
-                            setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2500);
-                        }
-                    },
-                    (err) => {
-                        showLoading(false);
-                        Swal.fire('GPS Gagal', 'Sistem tidak bisa melacak lokasi Anda. Pastikan GPS/Lokasi HP diaktifkan dan browser diberi izin lokasi.', 'error');
-                        setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2500);
-                    },
-                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-            } else {
-                showLoading(false);
-                Swal.fire('Tidak Didukung', 'Perangkat atau browser Anda tidak mendukung fitur pelacakan lokasi.', 'error');
-                setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2500);
-            }
-        }
+    const santri = DATA_SANTRI.find(
+        s => s.nis == decodedText
+    );
+
+    const namaTampil = santri
+        ? santri.nama
+        : "Santri Tidak Dikenal";
+
+    // TEST MODE TANPA GPS
+    simpanAbsensi(decodedText, namaTampil);
+}
 
         function simpanAbsensi(nis, namaTampil) {
             showLoading(true, "Menyimpan Absensi...");
