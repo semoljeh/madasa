@@ -3,6 +3,7 @@
   "short_name": "Madasa",
   "description": "Sistem Informasi Penilaian Santri Digital Madrasah Darussalam",
   "start_url": "./index.html",
+  "scope": "./", 
   "display": "standalone",
   "background_color": "#f9fafb",
   "theme_color": "#065f46",
