@@ -523,14 +523,22 @@ function filterSantri() {
     let visibleCount = 0; 
     
     rows.forEach(row => { 
-        const nama = row.cells[1].innerText.toLowerCase(); 
-        const nis = row.cells[0].innerText.toLowerCase(); 
+        // Index bergeser karena ada kolom NO di awal (index 0)
+        const nis = row.cells[1].innerText.toLowerCase(); 
+        const nama = row.cells[2].innerText.toLowerCase(); 
         const kelas = row.getAttribute('data-kelas'); 
         const matchSearch = nama.includes(searchText) || nis.includes(searchText); 
         const matchKelas = selectedKelas === 'Semua' || kelas === selectedKelas; 
         
-        if (matchSearch && matchKelas) { row.style.display = ''; visibleCount++; } 
-        else { row.style.display = 'none'; } 
+        if (matchSearch && matchKelas) { 
+            row.style.display = ''; 
+            visibleCount++; 
+            // Sisipkan angka nomor urut secara dinamis ke sel pertama
+            row.cells[0].innerText = visibleCount;
+        } 
+        else { 
+            row.style.display = 'none'; 
+        } 
     }); 
     
     const tabelContainer = document.getElementById('tabelSantri').parentElement; 
@@ -557,23 +565,29 @@ function loadDataSantri() {
             const tbody = document.getElementById('bodyTabelSantri'); 
             if(tbody) { 
                 tbody.innerHTML = ''; 
-                if(res.data.length === 0) { tbody.innerHTML = '<tr><td colspan=\"5\" class=\"p-4 sm:p-6 text-center text-gray-500\">Belum ada data santri di database.</td></tr>'; return; } 
+				
+if(res.data.length === 0) { 
+    // Ubah colspan="5" menjadi colspan="6"
+    tbody.innerHTML = '<tr><td colspan=\"6\" class=\"p-4 sm:p-6 text-center text-gray-500\">Belum ada data santri di database.</td></tr>'; return; 
+} 
                 
-                res.data.forEach(s => { 
-                    const tr = document.createElement('tr'); 
-                    tr.className = 'hover:bg-teal-50 transition-all santri-row'; tr.setAttribute('data-kelas', s.kelas); 
-            
-        // Mengamankan tanda petik agar tidak merusak tombol
-let amanNama = s.nama ? s.nama.toString().replace(/'/g, "\\'") : '';
-let amanAlamat = s.alamat ? s.alamat.toString().replace(/`/g, "\\`") : '';
-let amanAyah = s.ayah ? s.ayah.toString().replace(/`/g, "\\`") : '';
-let amanIbu = s.ibu ? s.ibu.toString().replace(/`/g, "\\`") : '';
-let amanTtl = s.ttl ? s.ttl.toString().replace(/`/g, "\\`") : '';
+res.data.forEach(s => { 
+    const tr = document.createElement('tr'); 
+    tr.className = 'hover:bg-teal-50 transition-all santri-row'; tr.setAttribute('data-kelas', s.kelas); 
 
-tr.innerHTML = `<td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td><td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td><td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${amanNama}', '${s.jk}', '${s.kelas}', \`${amanAlamat}\`, \`${amanAyah}\`, \`${amanIbu}\`, '${s.hp}', \`${amanTtl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`;
+    // Mengamankan tanda petik agar tidak merusak tombol
+    let amanNama = s.nama ? s.nama.toString().replace(/'/g, "\\'") : '';
+    let amanAlamat = s.alamat ? s.alamat.toString().replace(/`/g, "\\`") : '';
+    let amanAyah = s.ayah ? s.ayah.toString().replace(/`/g, "\\`") : '';
+    let amanIbu = s.ibu ? s.ibu.toString().replace(/`/g, "\\`") : '';
+    let amanTtl = s.ttl ? s.ttl.toString().replace(/`/g, "\\`") : '';
+
+    // TAMBAHKAN KOLOM NOMOR DI AWAL: <td class="p-3 sm:p-4 text-center font-bold text-gray-500 urut-nomor"></td>
+    tr.innerHTML = `<td class="p-3 sm:p-4 text-center font-bold text-gray-500 urut-nomor"></td><td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td><td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td><td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${amanNama}', '${s.jk}', '${s.kelas}', \`${amanAlamat}\`, \`${amanAyah}\`, \`${amanIbu}\`, '${s.hp}', \`${amanTtl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`;
             
-                    tbody.appendChild(tr); 
-                }); 
+    tbody.appendChild(tr); 
+});
+				
                 filterSantri(); 
             } 
         } 
