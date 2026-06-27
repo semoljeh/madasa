@@ -211,12 +211,13 @@
                     </select>
                 </div>
 				
-               <!-- Pembungkus tombol yang sudah di-Center -->
-                <div class="flex items-end justify-center w-full sm:w-auto gap-2 mt-2 sm:mt-0">
-                    <button onclick="tarikDataRekap()" class="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm transition-all shadow-sm">
+             
+                <!-- Pembungkus tombol yang sudah di-Center & Anti-Melipat -->
+                <div class="flex items-center justify-center w-full gap-2 mt-2 sm:mt-0">
+                    <button onclick="tarikDataRekap()" class="flex-1 flex items-center justify-center whitespace-nowrap px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm transition-all shadow-sm">
                         <i class="fas fa-search mr-2"></i> Tampilkan
                     </button>
-                    <button onclick="cetakRekap()" id="btnCetakRekap" class="hidden px-6 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 font-bold text-sm transition-all shadow-sm">
+                    <button onclick="cetakRekap()" id="btnCetakRekap" class="hidden flex-1 flex items-center justify-center whitespace-nowrap px-4 py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-900 font-bold text-sm transition-all shadow-sm">
                         <i class="fas fa-print mr-2"></i> Cetak Legal
                     </button>
                 </div>
@@ -225,16 +226,18 @@
 
             <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm w-full">
                 <table class="w-full text-left border-collapse min-w-max">
+				
                     <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
                         <tr>
-                            <th class="p-3 text-center border-r border-gray-200 w-12">No</th>
-                            <th class="p-3 border-r border-gray-200 min-w-[200px]">Nama Santri</th>
-                            <th class="p-3 text-center border-r border-gray-200 text-emerald-700">Hadir</th>
-                            <th class="p-3 text-center border-r border-gray-200 text-blue-600">Izin</th>
-                            <th class="p-3 text-center border-r border-gray-200 text-orange-500">Sakit</th>
-                            <th class="p-3 text-center text-red-600">Alfa</th>
+                            <th class="p-2 sm:p-3 text-center border-r border-gray-200 w-8 sm:w-12 text-[10px] sm:text-xs">No</th>
+                            <th class="p-2 sm:p-3 border-r border-gray-200 min-w-[130px] sm:min-w-[200px] text-[10px] sm:text-xs">Nama Santri</th>
+                            <th class="p-2 sm:p-3 text-center border-r border-gray-200 text-emerald-700 text-[10px] sm:text-xs">Hadir</th>
+                            <th class="p-2 sm:p-3 text-center border-r border-gray-200 text-blue-600 text-[10px] sm:text-xs">Izin</th>
+                            <th class="p-2 sm:p-3 text-center border-r border-gray-200 text-orange-500 text-[10px] sm:text-xs">Sakit</th>
+                            <th class="p-2 sm:p-3 text-center text-red-600 text-[10px] sm:text-xs">Alfa</th>
                         </tr>
                     </thead>
+					
                     <tbody id="bodyTabelRekap" class="text-sm divide-y divide-gray-100 bg-white">
                         <tr><td colspan="6" class="p-8 text-center text-gray-400 no-print">Silakan pilih bulan dan kelas, lalu klik Tampilkan.</td></tr>
                     </tbody>
@@ -582,12 +585,14 @@ function simpanAbsenManual(nis, namaTampil, kelasTampil) {
                     res.data.forEach((s, i) => {
                         tbody.innerHTML += `
                         <tr class="hover:bg-gray-50 transition-all">
-                            <td class="p-3 text-center border-r border-gray-200 text-gray-500 font-medium">${i + 1}</td>
-                            <td class="p-3 border-r border-gray-200 font-bold text-gray-800">${s.nama}<br><span class="text-[10px] text-gray-500 font-medium">NIS: ${s.nis}</span></td>
-                            <td class="p-3 text-center border-r border-gray-200 font-bold text-emerald-700">${s.hadir}</td>
-                            <td class="p-3 text-center border-r border-gray-200 font-bold text-blue-600">${s.izin}</td>
-                            <td class="p-3 text-center border-r border-gray-200 font-bold text-orange-500">${s.sakit}</td>
-                            <td class="p-3 text-center font-bold text-red-600">${s.alfa}</td>
+                            <td class="p-2 sm:p-3 text-center border-r border-gray-200 text-gray-500 font-medium text-xs sm:text-sm">${i + 1}</td>
+                            <td class="p-2 sm:p-3 border-r border-gray-200 font-bold text-gray-800 text-xs sm:text-sm leading-tight">
+                                ${s.nama}<br><span class="text-[9px] sm:text-[10px] text-gray-500 font-medium">NIS: ${s.nis}</span>
+                            </td>
+                            <td class="p-2 sm:p-3 text-center border-r border-gray-200 font-bold text-emerald-700 text-xs sm:text-sm">${s.hadir}</td>
+                            <td class="p-2 sm:p-3 text-center border-r border-gray-200 font-bold text-blue-600 text-xs sm:text-sm">${s.izin}</td>
+                            <td class="p-2 sm:p-3 text-center border-r border-gray-200 font-bold text-orange-500 text-xs sm:text-sm">${s.sakit}</td>
+                            <td class="p-2 sm:p-3 text-center font-bold text-red-600 text-xs sm:text-sm">${s.alfa}</td>
                         </tr>`;
                     });
                 } else {
