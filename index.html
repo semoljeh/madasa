@@ -768,81 +768,102 @@
                 </div>
 
             </div> </main>
-    </div> <div id="modalTambahSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
-                <h3 class="text-base sm:text-lg font-heading font-bold text-gray-800">Tambah Data Santri</h3>
-                <button onclick="closeModalSantri()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <form id="formTambahSantri" class="space-y-3 sm:space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-               <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS <span id="labelNisRole" class="text-[10px] text-red-500 ml-1"></span></label><input type="text" id="add_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm font-bold" required></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="add_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
+    </div> 
+	
+	<!-- ============================================== -->
+<!-- MODAL TAMBAH SANTRI -->
+<!-- ============================================== -->
+<div id="modalTambahSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
+            <h3 class="text-base sm:text-lg font-heading font-bold text-gray-800">Tambah Data Santri</h3>
+            <button onclick="closeModalSantri()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <form id="formTambahSantri" class="space-y-3 sm:space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS <span id="labelNisRole" class="text-[10px] text-red-500 ml-1"></span></label>
+                    <input type="text" id="add_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm font-bold" required>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div>
-    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Tempat & Tgl Lahir</label>
-    <div class="flex gap-2">
-        <input type="text" id="add_tempat_lahir" class="w-1/2 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" placeholder="Kota" required>
-        <input type="date" id="add_tanggal_lahir" class="w-1/2 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm text-gray-600" required>
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="add_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Tempat & Tgl Lahir</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="add_tempat_lahir" class="w-1/2 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" placeholder="Kota" required>
+                        <input type="date" id="add_tanggal_lahir" class="w-1/2 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm text-gray-600" required>
+                    </div>
+                </div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="add_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="add_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="add_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="add_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="add_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
+            </div>
+            <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap/Domisili</label><textarea id="add_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></textarea></div>
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4 sm:mt-6">
+                <button type="button" onclick="closeModalSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
+                <button type="submit" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Simpan Data</button>
+            </div>
+        </form>
     </div>
 </div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="add_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="add_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required><option value="" disabled selected>Pilih...</option><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="add_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="add_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="add_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></div>
-                </div>
-                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap/Domisili</label><textarea id="add_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-teal-500 outline-none text-sm" required></textarea></div>
-                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4 sm:mt-6">
-                    <button type="button" onclick="closeModalSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
-                    <button type="submit" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-teal-600 text-white rounded-xl hover:bg-teal-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Simpan Data</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <div id="modalEditSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
-                <h3 class="text-base sm:text-lg font-heading font-bold text-gray-800">Edit Data Santri</h3>
-                <button onclick="closeModalEditSantri()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
-            </div>
-            <form id="formEditSantri" class="space-y-3 sm:space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS <span class="text-xs text-red-500">(Terkunci)</span></label><input type="number" id="edit_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 bg-gray-100 rounded-xl outline-none text-sm" readonly></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label><input type="text" id="edit_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
+    <!-- ============================================== -->
+<!-- MODAL EDIT SANTRI -->
+<!-- ============================================== -->
+<div id="modalEditSantri" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg p-5 sm:p-6 transform transition-all max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b pb-3 mb-4 sticky top-0 bg-white z-10">
+            <h3 class="text-base sm:text-lg font-heading font-bold text-gray-800">Edit Data Santri</h3>
+            <button onclick="closeModalEditSantri()" class="text-gray-400 hover:text-red-500 transition-all"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <form id="formEditSantri" class="space-y-3 sm:space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <input type="hidden" id="edit_nis_lama">
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">NIS <span id="labelEditNisRole" class="text-[10px] text-red-500 ml-1">(Terkunci)</span></label>
+                    <input type="text" id="edit_nis" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl outline-none text-sm bg-gray-100">
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div>
-    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Tempat & Tgl Lahir</label>
-    <div class="flex gap-2">
-        <input type="text" id="edit_tempat_lahir" class="w-1/2 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" placeholder="Kota" required>
-        <input type="date" id="edit_tanggal_lahir" class="w-1/2 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm text-gray-600" required>
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                    <input type="text" id="edit_nama" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div>
+                    <label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Tempat & Tgl Lahir</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="edit_tempat_lahir" class="w-1/2 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" placeholder="Kota" required>
+                        <input type="date" id="edit_tanggal_lahir" class="w-1/2 p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm text-gray-600" required>
+                    </div>
+                </div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="edit_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="edit_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="edit_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="edit_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
+                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="edit_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
+            </div>
+            <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label><textarea id="edit_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></textarea></div>
+            <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4 sm:mt-6">
+                <button type="button" onclick="closeModalEditSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
+                <button type="submit" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Perbarui Data</button>
+            </div>
+        </form>
     </div>
 </div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label><select id="edit_jk" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Penempatan Kelas</label><select id="edit_kelas" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required><optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup><optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup><optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup></select></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">No. HP/WA</label><input type="tel" id="edit_hp" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ayah</label><input type="text" id="edit_ayah" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
-                    <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Nama Ibu</label><input type="text" id="edit_ibu" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></div>
-                </div>
-                <div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1">Alamat Lengkap</label><textarea id="edit_alamat" rows="2" class="w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm" required></textarea></div>
-                <div class="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t mt-4 sm:mt-6">
-                    <button type="button" onclick="closeModalEditSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 border rounded-xl text-gray-600 hover:bg-gray-50 transition-all text-sm font-semibold">Batal</button>
-                    <button type="submit" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold"><i class="fas fa-save"></i> Perbarui Data</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <div id="modalEditNilai" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-5 sm:p-6 transform transition-all max-h-[90vh] flex flex-col">

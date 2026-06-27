@@ -44,10 +44,18 @@ function tarikDataDariDatabase() {
             return Swal.fire('Data Tidak Cocok', 'Nomor NIS atau Tanggal Lahir santri yang Anda masukkan salah.', 'error');
         }
 
-        // Pasang Identitas
+      // Pasang Identitas
         document.getElementById('ortuNamaSantri').innerText = santriTerpilih.nama;
         document.getElementById('ortuNisSantri').innerText = santriTerpilih.nis;
         document.getElementById('ortuKelasSantri').innerText = santriTerpilih.kelas;
+        
+        // Pasang Tambahan Jenis Kelamin, Orang Tua & Alamat
+        document.getElementById('ortuJkSantri').innerText = santriTerpilih.jk ? santriTerpilih.jk : '-';
+        let namaAyah = santriTerpilih.ayah ? santriTerpilih.ayah : '-';
+        let namaIbu = santriTerpilih.ibu ? santriTerpilih.ibu : '-';
+        document.getElementById('ortuNamaOrtu').innerText = namaAyah + " & " + namaIbu;
+        document.getElementById('ortuAlamatSantri').innerText = santriTerpilih.alamat ? santriTerpilih.alamat : '-';
+
 		// Panggil fungsi riwayat SPP
         muatRiwayatSpp(santriTerpilih.nis);
 
@@ -70,14 +78,21 @@ function tarikDataDariDatabase() {
              return Swal.fire('Informasi', 'Data identitas benar, namun nilai kelas belum di-input guru.', 'info');
          }
 
-         // Cek Status Rilis
-         let statusRilis = 'Sembunyi'; // Default disembunyikan
-         if (responsePengaturan.status === 'success' && responsePengaturan.umum && responsePengaturan.umum.status_rilis) {
-             statusRilis = responsePengaturan.umum.status_rilis;
+         // Cek Status Rilis & Tarik Data Pengaturan
+         let statusRilis = 'Sembunyi';
+         let detailRapor = {}; // <-- Wadah baru untuk menampung Kepribadian & Absensi
+
+         if (responsePengaturan.status === 'success') {
+             if (responsePengaturan.umum && responsePengaturan.umum.status_rilis) {
+                 statusRilis = responsePengaturan.umum.status_rilis;
+             }
+             if (responsePengaturan.detail) {
+                 detailRapor = responsePengaturan.detail; // <-- Tangkap datanya disini
+             }
          }
 
-         // Lanjut ke proses render
-         prosesDanTampilkanData(inputNis, santriTerpilih.kelas, responseNilai.headers, responseNilai.data, statusRilis);
+         // Lanjut ke proses render (Tambahkan detailRapor di akhir)
+         prosesDanTampilkanData(inputNis, santriTerpilih.kelas, responseNilai.headers, responseNilai.data, statusRilis, detailRapor);
      });
 		
     })
@@ -88,7 +103,7 @@ function tarikDataDariDatabase() {
     });
 }
 
-function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis) {
+function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis, detailRapor) {
     const containerHasil = document.getElementById('hasilDataOrtu');
     const tbodyNilai = document.getElementById('bodyTabelNilaiOrtu');
     tbodyNilai.innerHTML = '';
@@ -115,9 +130,38 @@ function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis) {
     headers.forEach((h, i) => { dataMap[h.toLowerCase()] = barisSantri[i]; });
 
     // SET ABSENSI
-    document.getElementById('ortuSakit').innerText = dataMap['sakit'] || '0';
-    document.getElementById('ortuIzin').innerText = dataMap['izin'] || '0';
-    document.getElementById('ortuAlpa').innerText = dataMap['alpa'] || '0';
+    // ==============================================================
+    // SET KEPRIBADIAN & ABSENSI BARU DARI MENU PENGATURAN
+    // ==============================================================
+    
+    // Ambil data detail santri spesifik berdasarkan NIS
+    let detSantri = { akhlaq: '-', kerajinan: '-', disiplin: '-', rapi: '-', sakit: '0', izin: '0', alpa: '0', catatan: '-', keputusan: '-' };
+    if (detailRapor && detailRapor[nis]) {
+        detSantri = detailRapor[nis];
+    }
+
+    // Tampilkan data Absensi
+    document.getElementById('ortuSakit').innerText = detSantri.sakit || '0';
+    document.getElementById('ortuIzin').innerText = detSantri.izin || '0';
+    document.getElementById('ortuAlpa').innerText = detSantri.alpa || '0';
+
+    // Tampilkan data Kepribadian & Catatan Wali Kelas
+    // Tampilkan data Kepribadian & Catatan Wali Kelas
+    let elAkhlaq = document.getElementById('ortuAkhlaq');
+    if (elAkhlaq) { 
+        elAkhlaq.innerText = (detSantri.akhlaq || '-').toString().toUpperCase();
+        document.getElementById('ortuRajin').innerText = (detSantri.kerajinan || '-').toString().toUpperCase();
+        document.getElementById('ortuDisiplin').innerText = (detSantri.disiplin || '-').toString().toUpperCase();
+        document.getElementById('ortuRapi').innerText = (detSantri.rapi || '-').toString().toUpperCase();
+        
+        // Ubah juga Keputusan Akhir agar kapital semua
+        document.getElementById('ortuKeputusan').innerText = (detSantri.keputusan || '-').toString().toUpperCase();
+        
+        // Ubah Catatan Wali Kelas agar kapital semua
+        let teksCatatan = detSantri.catatan ? detSantri.catatan.toString().toUpperCase() : "-";
+        document.getElementById('ortuCatatan').innerText = `"${teksCatatan}"`;
+    }
+    // ==============================================================
 
     // CEK STATUS RILIS NILAI
     if (statusRilis === 'Sembunyi') {
@@ -193,6 +237,60 @@ function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis) {
 
     if (!adaNilai) {
         tbodyNilai.innerHTML = '<tr><td colspan="3" class="p-4 text-center text-gray-400">Belum ada komponen mapel terinput.</td></tr>';
+        document.getElementById('footerTabelNilaiOrtu').classList.add('hidden');
+    } else {
+        // ==========================================
+        // LOGIKA TAMPILKAN TOTAL, RATA-RATA & RANKING
+        // ==========================================
+        const footerTabel = document.getElementById('footerTabelNilaiOrtu');
+        if(footerTabel) footerTabel.classList.remove('hidden');
+
+      // 1. Ambil Total dan Hitung Ulang Rata-rata (Anti-Bug Tanggal)
+        let stringTotal = dataMap['total nilai'] || dataMap['total'] || '-';
+        let numTotal = parseFloat(stringTotal);
+        
+        document.getElementById('ortuTotalNilai').innerText = stringTotal;
+        
+        let rataBenar = '-';
+        if (stringTotal !== '-' && !isNaN(numTotal)) {
+            if (!kelas.includes('TK')) {
+                // Hitung mandiri: Total dibagi Jumlah Mapel agar tidak jadi teks tanggal
+                let jmlMapel = (JADWAL_MAPEL[kelas] && JADWAL_MAPEL[kelas].semua) ? JADWAL_MAPEL[kelas].semua.length : 0;
+                rataBenar = jmlMapel > 0 ? (numTotal / jmlMapel).toFixed(1) : "0.0";
+            } else {
+                // Khusus TK
+                let valRataSheet = dataMap['rata-rata'] || dataMap['rata'] || 0;
+                rataBenar = !isNaN(parseFloat(valRataSheet)) ? parseFloat(valRataSheet).toFixed(1) : "0.0";
+            }
+        }
+        document.getElementById('ortuRataRata').innerText = rataBenar;
+
+        // 2. Hitung Peringkat Kelas secara dinamis
+        const idxTotal = headers.findIndex(h => h.toString().toLowerCase() === 'total nilai' || h.toString().toLowerCase() === 'total');
+        const idxNis = headers.findIndex(h => h.toString().toLowerCase() === 'nis');
+        
+        let rank = '-';
+        let jmlSantri = 0;
+        
+        if (idxTotal > -1 && idxNis > -1) {
+            // Saring santri di kelas ini yang nilainya sudah diinput
+            let santriDinilai = rows.filter(r => r[idxTotal] !== "" && !isNaN(r[idxTotal]))
+                .map(r => ({
+                    nis: r[idxNis].toString().replace(/'/g, "").trim(),
+                    total: parseFloat(r[idxTotal])
+                }));
+                
+            // Urutkan nilai teman sekelas dari tertinggi ke terendah
+            santriDinilai.sort((a, b) => b.total - a.total);
+            jmlSantri = santriDinilai.length;
+            
+            // Cari ranking (posisi) anak ini
+            let pos = santriDinilai.findIndex(s => s.nis === nis.toString().trim());
+            if (pos > -1) rank = pos + 1;
+        }
+        
+        document.getElementById('ortuRanking').innerText = rank;
+        document.getElementById('ortuJumlahSantri').innerText = jmlSantri;
     }
 
     containerHasil.classList.remove('hidden');

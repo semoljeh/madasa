@@ -471,7 +471,10 @@ function reverseTanggalIndo(teksTanggal) {
 
 // Fungsi Utama Edit Santri yang Sudah Diperbaiki
 function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) { 
+    // Simpan NIS Asli (Lama) di input hidden
+    document.getElementById('edit_nis_lama').value = nis; 
     document.getElementById('edit_nis').value = nis; 
+    
     document.getElementById('edit_nama').value = nama; 
     document.getElementById('edit_jk').value = jk; 
     document.getElementById('edit_kelas').value = kelas; 
@@ -480,7 +483,6 @@ function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) {
     document.getElementById('edit_ibu').value = ibu; 
     document.getElementById('edit_hp').value = hp; 
     
-    // Logika Pintar untuk memecah data TTL
     if (ttl && ttl.includes(',')) {
         let parts = ttl.split(',');
         document.getElementById('edit_tempat_lahir').value = parts[0].trim();
@@ -488,6 +490,23 @@ function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) {
     } else {
         document.getElementById('edit_tempat_lahir').value = ttl || "";
         document.getElementById('edit_tanggal_lahir').value = "";
+    }
+
+    // --- KUNCI INPUT KHUSUS UNTUK GURU, BUKA UNTUK ADMIN ---
+    const userRole = document.getElementById('userRoleDisplay').innerText;
+    const inputNisEdit = document.getElementById('edit_nis');
+    const labelNisEdit = document.getElementById('labelEditNisRole');
+
+    if (userRole.includes('Guru')) {
+        inputNisEdit.readOnly = true;
+        inputNisEdit.classList.add('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
+        labelNisEdit.innerText = "(Terkunci)";
+        labelNisEdit.classList.replace('text-blue-500', 'text-red-500');
+    } else {
+        inputNisEdit.readOnly = false;
+        inputNisEdit.classList.remove('bg-gray-100', 'text-gray-500', 'cursor-not-allowed');
+        labelNisEdit.innerText = "(Bisa diedit Admin)";
+        labelNisEdit.classList.replace('text-red-500', 'text-blue-500');
     }
 
     document.getElementById('modalEditSantri').classList.remove('hidden'); 
@@ -544,7 +563,14 @@ function loadDataSantri() {
                     const tr = document.createElement('tr'); 
                     tr.className = 'hover:bg-teal-50 transition-all santri-row'; tr.setAttribute('data-kelas', s.kelas); 
             
-        tr.innerHTML = `<td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td><td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td><td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${s.nama}', '${s.jk}', '${s.kelas}', \`${s.alamat}\`, \`${s.ayah}\`, \`${s.ibu}\`, '${s.hp}', \`${s.ttl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`;
+        // Mengamankan tanda petik agar tidak merusak tombol
+let amanNama = s.nama ? s.nama.toString().replace(/'/g, "\\'") : '';
+let amanAlamat = s.alamat ? s.alamat.toString().replace(/`/g, "\\`") : '';
+let amanAyah = s.ayah ? s.ayah.toString().replace(/`/g, "\\`") : '';
+let amanIbu = s.ibu ? s.ibu.toString().replace(/`/g, "\\`") : '';
+let amanTtl = s.ttl ? s.ttl.toString().replace(/`/g, "\\`") : '';
+
+tr.innerHTML = `<td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td><td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td><td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${amanNama}', '${s.jk}', '${s.kelas}', \`${amanAlamat}\`, \`${amanAyah}\`, \`${amanIbu}\`, '${s.hp}', \`${amanTtl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`;
             
                     tbody.appendChild(tr); 
                 }); 
@@ -591,6 +617,7 @@ document.getElementById('formEditSantri').addEventListener('submit', function(e)
     const formData = new URLSearchParams();
 formData.append('action', 'updateSantri');
 formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
+formData.append('nis_lama', document.getElementById('edit_nis_lama').value);
 formData.append('nis', document.getElementById('edit_nis').value);
     formData.append('nama', document.getElementById('edit_nama').value); formData.append('jk', document.getElementById('edit_jk').value); 
     formData.append('kelas', document.getElementById('edit_kelas').value); formData.append('alamat', document.getElementById('edit_alamat').value); 
