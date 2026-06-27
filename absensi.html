@@ -110,15 +110,21 @@
 		
     </div>
 
+   <!-- AREA 1: SCANNER -->
     <div id="areaScan" class="max-w-md mx-auto no-print">
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center">
             <p class="text-sm text-gray-500 mb-3 font-medium">Arahkan kamera ke Barcode ID Card Santri</p>
-            <div id="reader" class="w-full rounded-xl overflow-hidden border-2 border-emerald-100"></div>
-            <div id="scanResult" class="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-sm font-bold text-gray-700 hidden">
-                <i class="fas fa-check-circle text-emerald-500 mr-1 text-lg"></i>
-                <div class="mt-1">Berhasil Discan:</div>
-                <div id="nisTerscan" class="text-emerald-700 text-lg font-black tracking-wider"></div>
+            
+            <!-- Kotak Notifikasi Hasil Scan (Dipindah ke atas kamera) -->
+            <div id="scanResult" class="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl hidden shadow-sm transition-all">
+                <i class="fas fa-check-circle text-emerald-500 text-2xl mb-1"></i>
+                <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Berhasil Discan</div>
+                <div id="namaTerscan" class="text-gray-800 text-lg font-black uppercase mt-1 leading-tight"></div>
+                <div id="nisTerscan" class="text-emerald-700 text-sm font-bold tracking-widest mt-1"></div>
             </div>
+
+            <!-- Frame Kamera -->
+            <div id="reader" class="w-full rounded-xl overflow-hidden border-2 border-emerald-100"></div>
         </div>
     </div>
 
@@ -168,10 +174,24 @@
     <div id="areaRekap" class="max-w-4xl mx-auto hidden">
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 relative">
             
-            <div class="print-only mb-6 text-center text-black hidden border-b-[3px] border-black pb-4">
-                <h2 class="text-2xl font-bold uppercase tracking-wide">Laporan Kehadiran Santri</h2>
-                <h3 class="text-xl font-bold uppercase mt-1">Madrasah Darussalam</h3>
-                <p class="text-sm mt-2 font-medium" id="teksSubtitleCetak">Bulan: - | Kelas: -</p>
+            <!-- KOP SURAT MODE CETAK (DENGAN LOGO) -->
+            <div class="print-only mb-6 text-black hidden border-b-[3px] border-black pb-4">
+                <div class="flex items-center">
+                    <!-- Sisi Kiri: Logo -->
+                    <div class="w-24 h-24 shrink-0 flex items-center justify-center">
+                        <img src="asset/logo.png" alt="Logo" class="w-full h-full object-contain">
+                    </div>
+                    
+                    <!-- Sisi Tengah: Teks Kop -->
+                    <div class="flex-1 text-center px-4">
+                        <h2 class="text-2xl font-bold uppercase tracking-wide leading-tight">Laporan Kehadiran Santri</h2>
+                        <h3 class="text-xl font-bold uppercase mt-1 leading-tight">Madrasah Darussalam</h3>
+                        <p class="text-sm mt-2 font-medium" id="teksSubtitleCetak">Bulan: - | Kelas: -</p>
+                    </div>
+                    
+                    <!-- Sisi Kanan: Area Kosong Penyeimbang (Agar teks tetap persis di tengah) -->
+                    <div class="w-24 h-24 shrink-0"></div>
+                </div>
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4 mb-5 bg-emerald-50 p-4 rounded-xl border border-emerald-100 no-print">
@@ -190,7 +210,9 @@
                         <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
                     </select>
                 </div>
-                <div class="flex items-end gap-2">
+				
+               <!-- Pembungkus tombol yang sudah di-Center -->
+                <div class="flex items-end justify-center w-full sm:w-auto gap-2 mt-2 sm:mt-0">
                     <button onclick="tarikDataRekap()" class="px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm transition-all shadow-sm">
                         <i class="fas fa-search mr-2"></i> Tampilkan
                     </button>
@@ -198,6 +220,7 @@
                         <i class="fas fa-print mr-2"></i> Cetak Legal
                     </button>
                 </div>
+				
             </div>
 
             <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm w-full">
@@ -400,7 +423,7 @@
     simpanAbsenOtomatisScanner(decodedText, namaTampil, kelasTampil);
 }
 
-        function simpanAbsenOtomatisScanner(nis, namaTampil, kelasTampil) {
+function simpanAbsenOtomatisScanner(nis, namaTampil, kelasTampil) {
     showLoading(true, "Menyimpan Kehadiran...");
     const fd = new URLSearchParams();
     fd.append('action', 'simpanAbsenBarcode');
@@ -415,24 +438,37 @@
     .then(res => {
         showLoading(false);
         
+        // --- BAGIAN YANG DIGANTI MULAI DARI SINI ---
         if (res.status === 'success') {
+            // Tampilkan kotak notifikasi di atas kamera
             document.getElementById('scanResult').classList.remove('hidden');
+            // Masukkan Nama dan NIS ke dalam elemen kotak baru
+            document.getElementById('namaTerscan').innerText = namaTampil;
             document.getElementById('nisTerscan').innerText = nis;
+            
+            // Tetap memunculkan notifikasi kecil di pojok sebagai penanda sukses
             Swal.fire({ 
                 toast: true, position: 'top-end', icon: 'success', 
-                title: `${namaTampil} Hadir!`, timer: 2000, showConfirmButton: false 
+                title: 'Tersimpan!', timer: 2000, showConfirmButton: false 
             });
         } else {
-            // Memunculkan pesan santun dari server dengan icon informatif
+            // Jika gagal / ditolak karena sudah absen hari ini
             Swal.fire({ 
                 icon: 'info', 
                 title: 'Sudah Tercatat', 
-                text: res.message, // Menarik teks "Afwan..." dari server
+                text: res.message, 
                 confirmButtonColor: '#059669'
             });
         }
         
-        setTimeout(() => { isScanning = false; html5QrcodeScanner.resume(); }, 2500);
+        // Atur jeda sebelum kamera aktif kembali untuk scan santri berikutnya
+        setTimeout(() => { 
+            // Sembunyikan lagi kotak notifikasi hijau di atas kamera
+            document.getElementById('scanResult').classList.add('hidden');
+            isScanning = false; 
+            html5QrcodeScanner.resume(); 
+        }, 2500); // Jeda waktu 2.5 detik
+        // --- SELESAI BAGIAN YANG DIGANTI ---
         
     }).catch(e => {
         showLoading(false);
@@ -595,6 +631,7 @@ function simpanAbsenManual(nis, namaTampil, kelasTampil) {
             const namaBulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
             document.getElementById('teksTanggalCetak').innerText = `${tgl.getDate()} ${namaBulanIndo[tgl.getMonth()]} ${tgl.getFullYear()}`;
 
+            // 1. Ubah tampilan web menjadi mode cetak (hitam putih & munculkan kop)
             document.body.classList.add('cetak-mode-rekap');
             
             const tabelTabel = document.querySelectorAll('#areaRekap table');
@@ -602,11 +639,18 @@ function simpanAbsenManual(nis, namaTampil, kelasTampil) {
                 tabelTabel[1].style.display = 'none';
             }
 
-            window.print();
-
+            // 2. Trik Khusus HP: Beri jeda 0.5 detik agar browser HP selesai merender CSS
             setTimeout(() => {
-                document.body.classList.remove('cetak-mode-rekap');
-            }, 1000);
+                // Panggil jendela Print / Save PDF
+                window.print();
+
+                // 3. Beri jeda agak lama (3 detik) sebelum mengembalikan tampilan ke normal, 
+                // agar sistem PDF HP selesai memproses halaman
+                setTimeout(() => {
+                    document.body.classList.remove('cetak-mode-rekap');
+                }, 3000); 
+                
+            }, 500); 
         }
     </script>
 </body>
