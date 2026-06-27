@@ -194,26 +194,27 @@
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-4 mb-5 bg-emerald-50 p-4 rounded-xl border border-emerald-100 no-print">
-                <div class="flex-1">
-                    <label class="block text-sm font-bold text-emerald-800 mb-2">Bulan & Tahun:</label>
-                    <select id="filterBulanRekap" class="w-full p-3 border border-emerald-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium text-gray-700">
-                        <option value="" disabled selected>Memuat bulan...</option>
-                    </select>
+            <div class="mb-6 bg-emerald-50 p-4 rounded-xl border border-emerald-100 no-print">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-bold text-emerald-800 mb-2">Bulan & Tahun:</label>
+                        <select id="filterBulanRekap" class="w-full p-3 border border-emerald-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium text-gray-700">
+                            <option value="" disabled selected>Memuat bulan...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-emerald-800 mb-2">Pilih Kelas:</label>
+                        <select id="filterKelasRekap" class="w-full p-3 border border-emerald-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium text-gray-700">
+                            <option value="" disabled selected>-- Silakan Pilih Kelas --</option>
+                            <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
+                            <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
+                            <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
+                        </select>
+                    </div>
                 </div>
-                <div class="flex-1">
-                    <label class="block text-sm font-bold text-emerald-800 mb-2">Pilih Kelas:</label>
-                    <select id="filterKelasRekap" class="w-full p-3 border border-emerald-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium text-gray-700">
-                        <option value="" disabled selected>-- Silakan Pilih Kelas --</option>
-                        <optgroup label="TK"><option value="TK - TK 1">TK 1</option><option value="TK - TK 2">TK 2</option><option value="TK - TK 3">TK 3</option><option value="TK - TK 4">TK 4</option><option value="TK - TK 5">TK 5</option></optgroup>
-                        <optgroup label="IBTIDAIYAH"><option value="IBT - Kelas I">Kelas I</option><option value="IBT - Kelas II">Kelas II</option><option value="IBT - Kelas III">Kelas III</option><option value="IBT - Kelas IV">Kelas IV</option><option value="IBT - Kelas V">Kelas V</option><option value="IBT - Kelas VI">Kelas VI</option></optgroup>
-                        <optgroup label="SANAWIYAH"><option value="SANA - Kelas 1">Kelas 1</option><option value="SANA - Kelas 2">Kelas 2</option><option value="SANA - Kelas 3">Kelas 3</option></optgroup>
-                    </select>
-                </div>
-				
-             
-                <!-- Pembungkus tombol yang sudah di-Center & Anti-Melipat -->
-                <div class="flex items-center justify-center w-full gap-2 mt-2 sm:mt-0">
+
+                <div class="flex items-center justify-center w-full gap-2">
                     <button onclick="tarikDataRekap()" class="flex-1 flex items-center justify-center whitespace-nowrap px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm transition-all shadow-sm">
                         <i class="fas fa-search mr-2"></i> Tampilkan
                     </button>
@@ -221,7 +222,7 @@
                         <i class="fas fa-print mr-2"></i> Cetak Legal
                     </button>
                 </div>
-				
+                
             </div>
 
             <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm w-full">
