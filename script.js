@@ -81,8 +81,20 @@ function showView(viewName, pushToHistory = true) {
             link.classList.add('bg-emerald-700', 'text-white', 'font-medium'); link.classList.remove('text-emerald-100', 'hover:bg-emerald-700/50');
         }
     });
+   // (Kode Anda yang sudah ada sebelumnya)
     if (pushToHistory) window.history.pushState({ view: viewName }, "", "#" + viewName);
-}
+    
+    // ---> TAMBAHKAN KODE INI UNTUK AUTO-CLOSE DI HP <---
+    if (window.innerWidth < 768) {
+        const sidebar = document.querySelector('aside');
+        const overlay = document.getElementById('overlay-sidebar');
+        if (sidebar && !sidebar.classList.contains('hidden')) {
+            sidebar.classList.add('hidden');
+            sidebar.classList.remove('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
+            if (overlay) overlay.remove();
+        }
+    }
+} // <- Ini kurung penutup fungsi showView()
 
 window.addEventListener('popstate', function(event) {
     // 1. Kumpulkan SEMUA modal dan form dinamis di aplikasi
@@ -2037,4 +2049,35 @@ formData.append('nis_list', JSON.stringify(nisList));
             });
         }
     });
+}
+
+// =========================================================
+// FUNGSI MENU NAVIGASI HP (SIDEBAR MOBILE)
+// =========================================================
+function toggleSidebarMobile() {
+    const sidebar = document.querySelector('aside');
+    
+    // Jika sidebar sedang tersembunyi (hidden), maka TAMPILKAN
+    if (sidebar.classList.contains('hidden')) {
+        sidebar.classList.remove('hidden');
+        sidebar.classList.add('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
+        
+        // Buat layar gelap (overlay) di belakang sidebar
+        if (!document.getElementById('overlay-sidebar')) {
+            const overlay = document.createElement('div');
+            overlay.id = 'overlay-sidebar';
+            overlay.className = 'fixed inset-0 bg-black/50 z-[50] md:hidden backdrop-blur-sm transition-all';
+            overlay.onclick = toggleSidebarMobile; // Jika layar gelap diklik, menu akan tertutup
+            document.body.appendChild(overlay);
+        }
+        
+    } else {
+        // Jika sidebar sedang tampil, maka SEMBUNYIKAN KEMBALI
+        sidebar.classList.add('hidden');
+        sidebar.classList.remove('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
+        
+        // Hapus layar gelap
+        const overlay = document.getElementById('overlay-sidebar');
+        if (overlay) overlay.remove();
+    }
 }
