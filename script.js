@@ -120,8 +120,22 @@ window.addEventListener('popstate', function(event) {
     const formSetting = document.getElementById('formSettingRapor');
     const isPengaturanAktif = formSetting && !formSetting.classList.contains('hidden') && !document.getElementById('view-pengaturan').classList.contains('hidden');
 
+    // Deteksi Sidebar Mobile (Navigasi HP)
+    const sidebar = document.querySelector('aside');
+    const isSidebarOpen = sidebar && !sidebar.classList.contains('hidden') && window.innerWidth < 768;
 
-    // 2. Cek apakah ada satupun form/modal/laporan yang sedang tampil di layar
+    // =========================================================================
+    // PRIORITAS 1: TUTUP PROFIL DEVELOPER (SWEETALERT)
+    // =========================================================================
+    if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+        Swal.close();
+        amankanPosisiURL();
+        return; // Hentikan eksekusi, tunggu user menekan back lagi
+    }
+
+    // =========================================================================
+    // PRIORITAS 2: TUTUP MODAL & FORM DINAMIS LAINNYA
+    // =========================================================================
     if (
         (modalTambah && !modalTambah.classList.contains('hidden')) ||
         (modalEdit && !modalEdit.classList.contains('hidden')) ||
@@ -132,58 +146,53 @@ window.addEventListener('popstate', function(event) {
         isRankingAktif ||
         isPengaturanAktif
     ) {
-        // Jika ada modal terbuka, tutup modalnya
         if (modalTambah) modalTambah.classList.add('hidden');
         if (modalEdit) modalEdit.classList.add('hidden');
         if (modalImport) modalImport.classList.add('hidden');
         if (modalEditNilai) modalEditNilai.classList.add('hidden');
 
-        // Reset Input Nilai
         if (isInputNilaiAktif) {
             formInputNilai.classList.add('hidden');
             document.getElementById('pilihKelasNilai').value = "";
             document.getElementById('wadahFilterKedua').classList.add('hidden');
-            if (document.getElementById('global_tk_m1')) {
-                document.getElementById('global_tk_m1').value = "";
-                document.getElementById('global_tk_m2').value = "";
-                document.getElementById('global_tk_m3').value = "";
-            }
         }
 
-        // Reset Data Nilai
         if (isDataNilaiAktif) {
             document.getElementById('filterKelasDataNilai').value = "";
             document.getElementById('headerDataNilai').innerHTML = '';
             document.getElementById('bodyDataNilai').innerHTML = '<tr><td class="p-10 text-center text-gray-500"><i class="fas fa-table text-4xl mb-3 text-gray-300 block"></i> Silakan pilih kelas dan klik tombol cari.</td></tr>';
-            GLOBAL_DATA_NILAI = [];
-            GLOBAL_HEADERS_NILAI = [];
         }
 
-        // Reset Ranking
         if (isRankingAktif) {
             document.getElementById('filterKelasRanking').value = "";
             bodyTabelRanking.innerHTML = '<tr><td colspan="5" class="p-8 text-left sm:text-center border-none"><div class="sticky left-6 inline-block text-center text-gray-400"><i class="fas fa-list-ol text-4xl mb-2 text-gray-200 block"></i>Silakan pilih kelas.</div></td></tr>';
         }
 
-        // Reset Pengaturan
         if (isPengaturanAktif) {
             formSetting.classList.add('hidden');
             document.getElementById('settingKelas').value = "";
         }
 
-        // Amankan posisi URL agar tetap di menu saat ini
-        let currentView = 'home';
-        document.querySelectorAll('.view-section').forEach(el => {
-            if (!el.classList.contains('hidden')) {
-                currentView = el.id.replace('view-', '');
-            }
-        });
-        
-        window.history.pushState({ view: currentView }, "", "#" + currentView);
-        return; // Hentikan eksekusi di sini!
+        amankanPosisiURL();
+        return; // Hentikan eksekusi, tunggu user menekan back lagi
     }
 
-    // 3. Logika Navigasi Menu (Mundur ke Dashboard)
+    // =========================================================================
+    // PRIORITAS 3: TUTUP MENU NAVIGASI HP (SIDEBAR)
+    // =========================================================================
+    if (isSidebarOpen) {
+        sidebar.classList.add('hidden');
+        sidebar.classList.remove('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
+        const overlay = document.getElementById('overlay-sidebar');
+        if (overlay) overlay.remove();
+        
+        amankanPosisiURL();
+        return; // Hentikan eksekusi, tunggu user menekan back lagi
+    }
+
+    // =========================================================================
+    // PRIORITAS 4: NAVIGASI MENU UTAMA (MUNDUR KE HOME)
+    // =========================================================================
     const isDashboard = !document.getElementById('dashboardPage').classList.contains('hidden');
     if (isDashboard) {
         if (event.state && event.state.view) {
@@ -192,6 +201,17 @@ window.addEventListener('popstate', function(event) {
             showView('home', false);
             window.history.replaceState({ view: 'home' }, "", "#home");
         }
+    }
+
+    // Fungsi kecil (Helper) agar URL tidak berubah jika hanya menutup modal/sidebar
+    function amankanPosisiURL() {
+        let currentView = 'home';
+        document.querySelectorAll('.view-section').forEach(el => {
+            if (!el.classList.contains('hidden')) {
+                currentView = el.id.replace('view-', '');
+            }
+        });
+        window.history.pushState({ view: currentView }, "", "#" + currentView);
     }
 });
 
@@ -2080,4 +2100,42 @@ function toggleSidebarMobile() {
         const overlay = document.getElementById('overlay-sidebar');
         if (overlay) overlay.remove();
     }
+}
+
+function tampilkanProfilDeveloper() {
+    Swal.fire({
+        html: `
+            <div class="text-center pt-1">
+             
+                <!-- Ganti bagian div pembungkus dan img dengan kode ini -->
+<div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center border-4 border-emerald-500 mb-3 shadow-md overflow-hidden">
+    <img src="asset/arom.png" alt="Profile" class="w-full h-full object-cover">
+</div>
+                
+                <h3 class="text-lg font-heading font-bold text-gray-800 mb-0.5">Arom Kobama</h3>
+                <p class="text-[11px] text-emerald-600 font-bold mb-3 tracking-widest uppercase">Fullstack Developer</p>
+                
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-5 text-xs text-gray-600 text-center leading-relaxed">
+                    <b class="text-gray-800">Madasa (Madrasah Darussalam) v1.0</b><br>
+                    Sistem informasi ini dikembangkan dengan dedikasi untuk mempermudah digitalisasi penilaian santri.
+                </div>
+                
+                <p class="text-[10px] text-gray-400 mb-2 font-medium uppercase tracking-wider">Temukan saya di:</p>
+                <div class="flex justify-center gap-3">
+                    <a href="#" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-pink-600 hover:bg-pink-100 transition-all shadow-sm"><i class="fab fa-instagram text-base"></i></a>
+                    <a href="#" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-black hover:bg-gray-200 transition-all shadow-sm"><i class="fab fa-tiktok text-base"></i></a>
+                    <a href="#" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-all shadow-sm"><i class="fab fa-facebook-f text-base"></i></a>
+                </div>
+            </div>
+        `,
+        width: '320px',
+        showConfirmButton: true,
+        confirmButtonText: '<i class="fas fa-times mr-2"></i>Tutup',
+        confirmButtonColor: '#059669',
+        showCloseButton: true,
+        customClass: {
+            popup: 'rounded-[1.5rem] p-4',
+            confirmButton: 'rounded-xl font-bold px-5 py-2 text-sm shadow-md'
+        }
+    });
 }
