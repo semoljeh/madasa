@@ -2079,6 +2079,10 @@ function toggleSidebarMobile() {
     
     // Jika sidebar sedang tersembunyi (hidden), maka TAMPILKAN
     if (sidebar.classList.contains('hidden')) {
+        
+        // --- KUNCI: Suntikkan riwayat palsu untuk menu navigasi ---
+        window.history.pushState({ menu: 'sidebar' }, "", "#menu");
+        
         sidebar.classList.remove('hidden');
         sidebar.classList.add('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
         
@@ -2087,7 +2091,10 @@ function toggleSidebarMobile() {
             const overlay = document.createElement('div');
             overlay.id = 'overlay-sidebar';
             overlay.className = 'fixed inset-0 bg-black/50 z-[50] md:hidden backdrop-blur-sm transition-all';
-            overlay.onclick = toggleSidebarMobile; // Jika layar gelap diklik, menu akan tertutup
+            
+            // Jika layar gelap diklik, kita perintahkan browser untuk mengeksekusi "back" otomatis
+            overlay.onclick = () => { window.history.back(); }; 
+            
             document.body.appendChild(overlay);
         }
         
@@ -2103,15 +2110,15 @@ function toggleSidebarMobile() {
 }
 
 function tampilkanProfilDeveloper() {
+    // --- KUNCI: Suntikkan riwayat palsu agar HP tidak langsung keluar aplikasi ---
+    window.history.pushState({ modal: 'profil' }, "", "#profil");
+
     Swal.fire({
         html: `
             <div class="text-center pt-1">
-             
-                <!-- Ganti bagian div pembungkus dan img dengan kode ini -->
-<div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center border-4 border-emerald-500 mb-3 shadow-md overflow-hidden">
-    <img src="asset/arom.png" alt="Profile" class="w-full h-full object-cover">
-</div>
-                
+                <div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center border-4 border-emerald-500 mb-3 shadow-md overflow-hidden">
+                    <img src="asset/arom.png" alt="Profile" class="w-full h-full object-cover">
+                </div>
                 <h3 class="text-lg font-heading font-bold text-gray-800 mb-0.5">Arom Kobama</h3>
                 <p class="text-[11px] text-emerald-600 font-bold mb-3 tracking-widest uppercase">Fullstack Developer</p>
                 
@@ -2136,6 +2143,12 @@ function tampilkanProfilDeveloper() {
         customClass: {
             popup: 'rounded-[1.5rem] p-4',
             confirmButton: 'rounded-xl font-bold px-5 py-2 text-sm shadow-md'
+        }
+    }).then(() => {
+        // Jika user menutup pop-up via tombol "X" atau "Tutup" (bukan back HP),
+        // hapus riwayat palsu tersebut agar tombol back tetap rapi.
+        if (window.location.hash === "#profil") {
+            window.history.back();
         }
     });
 }
