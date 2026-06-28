@@ -1,4 +1,3 @@
-
 // KEAMANAN
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -96,14 +95,15 @@ function showView(viewName, pushToHistory = true) {
     }
 } // <- Ini kurung penutup fungsi showView()
 
+// --- PERBAIKAN LOGIKA TOMBOL BACK HP ---
 window.addEventListener('popstate', function(event) {
-    // 1. TUTUP PROFIL / SWEETALERT
+    // 1. TUTUP PROFIL DEVELOPER (SWEETALERT)
     if (typeof Swal !== 'undefined' && Swal.isVisible()) {
         Swal.close();
-        return; // Hentikan proses, URL sudah mundur secara otomatis
+        return; 
     }
 
-    // 2. TUTUP SIDEBAR MOBILE
+    // 2. TUTUP MENU NAVIGASI HP (SIDEBAR)
     const sidebar = document.querySelector('aside');
     if (sidebar && !sidebar.classList.contains('hidden') && window.innerWidth < 768) {
         sidebar.classList.add('hidden');
@@ -113,28 +113,22 @@ window.addEventListener('popstate', function(event) {
         return;
     }
 
-    // 3. TUTUP MODAL & FORM DINAMIS LAINNYA
+    // 3. TUTUP SEMUA MODAL & FORM DINAMIS
     const modalTambah = document.getElementById('modalTambahSantri');
     const modalEdit = document.getElementById('modalEditSantri');
     const modalImport = document.getElementById('modalImportSantri');
     const modalEditNilai = document.getElementById('modalEditNilai');
     
-    if (
-        (modalTambah && !modalTambah.classList.contains('hidden')) ||
-        (modalEdit && !modalEdit.classList.contains('hidden')) ||
-        (modalImport && !modalImport.classList.contains('hidden')) ||
-        (modalEditNilai && !modalEditNilai.classList.contains('hidden'))
-    ) {
-        if (modalTambah) modalTambah.classList.add('hidden');
-        if (modalEdit) modalEdit.classList.add('hidden');
-        if (modalImport) modalImport.classList.add('hidden');
-        if (modalEditNilai) modalEditNilai.classList.add('hidden');
-        // Jangan hapus baris di bawah ini agar URL tidak berantakan jika mundur dari modal
-        window.history.pushState({ view: document.querySelector('.view-section:not(.hidden)').id.replace('view-', '') }, "", "#" + document.querySelector('.view-section:not(.hidden)').id.replace('view-', ''));
-        return;
-    }
+    let isModalClosed = false;
 
-    // 4. NAVIGASI MENU UTAMA (HOME / HALAMAN SEBELUMNYA)
+    if (modalTambah && !modalTambah.classList.contains('hidden')) { modalTambah.classList.add('hidden'); isModalClosed = true; }
+    if (modalEdit && !modalEdit.classList.contains('hidden')) { modalEdit.classList.add('hidden'); isModalClosed = true; }
+    if (modalImport && !modalImport.classList.contains('hidden')) { modalImport.classList.add('hidden'); isModalClosed = true; }
+    if (modalEditNilai && !modalEditNilai.classList.contains('hidden')) { modalEditNilai.classList.add('hidden'); isModalClosed = true; }
+    
+    if (isModalClosed) return;
+
+    // 4. NAVIGASI MUNDUR KE HALAMAN UTAMA (HOME)
     const isDashboard = !document.getElementById('dashboardPage').classList.contains('hidden');
     if (isDashboard) {
         if (event.state && event.state.view) {
@@ -144,7 +138,7 @@ window.addEventListener('popstate', function(event) {
         }
     }
 });
-
+// ---------------------------------------
 
 // ---------------------------------------------------------
 // 3. FUNGSI AUTENTIKASI (LOGIN & LOGOUT)
@@ -197,8 +191,8 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
                 let match = mentahanPerangkat.match(/Android\s[0-9\.]+(?:;\s([^;]+))?/);
                 let modelPabrik = match && match[1] ? match[1].split(')')[0] : "Tidak Diketahui";
                 namaPerangkatRapi = "📱 HP Android (Model: " + modelPabrik + ")";
-            } else if (/iPhone/i.test(mentahanPerangkat)) { namaPerangkatRapi = "🍎 Apple iPhone";
-            } else if (/iPad/i.test(mentahanPerangkat)) { namaPerangkatRapi = "🍎 Apple iPad";
+            } else if (/iPhone/i.test(mentahanPerangkat)) { namaPerangkatRapi = "📱 Apple iPhone";
+            } else if (/iPad/i.test(mentahanPerangkat)) { namaPerangkatRapi = "📱 Apple iPad";
             } else if (/Windows NT/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 Laptop/PC (Windows)";
             } else if (/Mac/i.test(mentahanPerangkat)) { namaPerangkatRapi = "💻 MacBook/iMac (Mac OS)";
             }
@@ -404,19 +398,27 @@ function openModalSantri() {
     }
 
     // Tampilkan Modal
+    window.history.pushState({ modal: 'tambah' }, "", "#modalTambah"); 
     document.getElementById('modalTambahSantri').classList.remove('hidden'); 
 }
-function closeModalSantri() { document.getElementById('modalTambahSantri').classList.add('hidden'); document.getElementById('formTambahSantri').reset(); }
+
+function closeModalSantri() { 
+    document.getElementById('modalTambahSantri').classList.add('hidden'); 
+    document.getElementById('formTambahSantri').reset(); 
+    if (window.location.hash === "#modalTambah") window.history.back(); 
+}
 
 // --- FUNGSI IMPORT SANTRI VIA CSV ---
 function openModalImportSantri() {
-document.getElementById('modalImportSantri').classList.remove('hidden');
-document.getElementById('fileImportCSV').value = '';
-document.getElementById('namaFileCsv').innerText = '';
+    window.history.pushState({ modal: 'import' }, "", "#modalImport"); 
+    document.getElementById('modalImportSantri').classList.remove('hidden');
+    document.getElementById('fileImportCSV').value = '';
+    document.getElementById('namaFileCsv').innerText = '';
 }
 
 function closeModalImportSantri() {
-document.getElementById('modalImportSantri').classList.add('hidden');
+    document.getElementById('modalImportSantri').classList.add('hidden');
+    if (window.location.hash === "#modalImport") window.history.back(); 
 }
 
 const formImport = document.getElementById('formImportSantri');
@@ -535,12 +537,15 @@ function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) {
         labelNisEdit.classList.replace('text-red-500', 'text-blue-500');
     }
 
+    window.history.pushState({ modal: 'edit' }, "", "#modalEdit"); 
     document.getElementById('modalEditSantri').classList.remove('hidden'); 
 }
 
-
-
-function closeModalEditSantri() { document.getElementById('modalEditSantri').classList.add('hidden'); document.getElementById('formEditSantri').reset(); }
+function closeModalEditSantri() { 
+    document.getElementById('modalEditSantri').classList.add('hidden'); 
+    document.getElementById('formEditSantri').reset(); 
+    if (window.location.hash === "#modalEdit") window.history.back(); 
+}
 
 function filterSantri() { 
     const searchText = document.getElementById('searchSantri').value.toLowerCase(); 
@@ -998,10 +1003,15 @@ function openModalEditNilai(index) {
         let html = `<div><label class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 truncate">${h} ${isReadOnly ? '<span class="text-xs text-red-500">(Terkunci)</span>' : ''}</label><input type="${inputType}" name="${h}" value="${val}" class="input-edit-nilai-dinamis w-full p-2.5 sm:p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm ${isReadOnly ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'font-bold text-blue-700'}" ${isReadOnly ? 'readonly' : ''} ${inputType === 'number' && !isReadOnly ? 'oninput="validasiInputNilai(this)"' : ''}></div>`; 
         container.innerHTML += html; 
     } 
+
+    window.history.pushState({ modal: 'editNilai' }, "", "#modalEditNilai"); 
     document.getElementById('modalEditNilai').classList.remove('hidden'); 
 }
 
-function closeModalEditNilai() { document.getElementById('modalEditNilai').classList.add('hidden'); }
+function closeModalEditNilai() { 
+    document.getElementById('modalEditNilai').classList.add('hidden'); 
+    if (window.location.hash === "#modalEditNilai") window.history.back(); 
+}
 
 document.getElementById('formEditNilai').addEventListener('submit', function(e) { 
     e.preventDefault(); 
@@ -1718,7 +1728,7 @@ function cetakBintangPelajar() {
         
         const detailLines = card.querySelectorAll('.border-t p');
         let detailStr = '';
-        detailLines.forEach(p => { detailStr += `<div style="margin-bottom: 4px; font-size: 11px;">• ${p.innerText}</div>`; });
+        detailLines.forEach(p => { detailStr += `<div style="margin-bottom: 4px; font-size: 11px;">窶｢ ${p.innerText}</div>`; });
 
         gridHTML += `
             <div style="border: 2px solid ${isJuaraUmum ? '#d97706' : '#000'}; padding: 15px; width: 49%; box-sizing: border-box; border-radius: 12px; margin-bottom: 15px; position: relative;">
@@ -2015,22 +2025,24 @@ function toggleSidebarMobile() {
         sidebar.classList.remove('hidden');
         sidebar.classList.add('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
         
-        // Buat layar gelap (overlay)
+        // Buat layar gelap (overlay) di belakang sidebar
         if (!document.getElementById('overlay-sidebar')) {
             const overlay = document.createElement('div');
             overlay.id = 'overlay-sidebar';
             overlay.className = 'fixed inset-0 bg-black/50 z-[50] md:hidden backdrop-blur-sm transition-all';
             
-            // Jika layar gelap diklik, paksa browser untuk "mundur"
+            // Jika layar gelap diklik, kita perintahkan browser untuk mengeksekusi "back" otomatis
             overlay.onclick = () => { window.history.back(); }; 
             
             document.body.appendChild(overlay);
         }
+        
     } else {
-        // SEMBUNYIKAN KEMBALI
+        // Jika sidebar sedang tampil, maka SEMBUNYIKAN KEMBALI
         sidebar.classList.add('hidden');
         sidebar.classList.remove('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
         
+        // Hapus layar gelap
         const overlay = document.getElementById('overlay-sidebar');
         if (overlay) overlay.remove();
     }
@@ -2043,14 +2055,25 @@ function tampilkanProfilDeveloper() {
     Swal.fire({
         html: `
             <div class="text-center pt-1">
-                <div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center border-4 border-emerald-500 mb-3 shadow-md overflow-hidden">
-                    <img src="asset/arom.png" alt="Profile" class="w-full h-full object-cover">
-                </div>
+             
+                <!-- Ganti bagian div pembungkus dan img dengan kode ini -->
+<div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center border-4 border-emerald-500 mb-3 shadow-md overflow-hidden">
+    <img src="asset/arom.png" alt="Profile" class="w-full h-full object-cover">
+</div>
+                
                 <h3 class="text-lg font-heading font-bold text-gray-800 mb-0.5">Arom Kobama</h3>
                 <p class="text-[11px] text-emerald-600 font-bold mb-3 tracking-widest uppercase">Fullstack Developer</p>
+                
                 <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-5 text-xs text-gray-600 text-center leading-relaxed">
                     <b class="text-gray-800">Madasa (Madrasah Darussalam) v1.0</b><br>
                     Sistem informasi ini dikembangkan dengan dedikasi untuk mempermudah digitalisasi penilaian santri.
+                </div>
+                
+                <p class="text-[10px] text-gray-400 mb-2 font-medium uppercase tracking-wider">Temukan saya di:</p>
+                <div class="flex justify-center gap-3">
+                    <a href="#" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-pink-600 hover:bg-pink-100 transition-all shadow-sm"><i class="fab fa-instagram text-base"></i></a>
+                    <a href="#" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-black hover:bg-gray-200 transition-all shadow-sm"><i class="fab fa-tiktok text-base"></i></a>
+                    <a href="#" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-all shadow-sm"><i class="fab fa-facebook-f text-base"></i></a>
                 </div>
             </div>
         `,
@@ -2059,9 +2082,13 @@ function tampilkanProfilDeveloper() {
         confirmButtonText: '<i class="fas fa-times mr-2"></i>Tutup',
         confirmButtonColor: '#059669',
         showCloseButton: true,
-        customClass: { popup: 'rounded-[1.5rem] p-4', confirmButton: 'rounded-xl font-bold px-5 py-2 text-sm shadow-md' }
+        customClass: {
+            popup: 'rounded-[1.5rem] p-4',
+            confirmButton: 'rounded-xl font-bold px-5 py-2 text-sm shadow-md'
+        }
     }).then(() => {
-        // Bersihkan URL jika ditutup manual lewat tombol (bukan lewat tombol back HP)
+        // Jika user menutup pop-up via tombol "X" atau "Tutup" (bukan back HP),
+        // hapus riwayat palsu tersebut agar tombol back tetap rapi.
         if (window.location.hash === "#profil") {
             window.history.back();
         }
