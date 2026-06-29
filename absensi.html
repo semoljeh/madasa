@@ -477,8 +477,8 @@ function cekIzinAbsen() {
     if (jam < 12 || jam >= 18) {
         Swal.fire({ 
             icon: 'error', 
-            title: 'Sistem Terkunci', 
-            text: 'Absensi hanya dapat dilakukan antara jam 07.00 sampai 14.00 WIB.' 
+            title: 'Belum Waktunya', 
+            text: 'Absensi hanya dapat dilakukan dari jam 12.00 sampai 18.00 WIB. Jangan sampai telat ya !' 
         });
         return false;
     }
