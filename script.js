@@ -2065,7 +2065,7 @@ function tampilkanProfilDeveloper() {
                 <p class="text-[11px] text-emerald-600 font-bold mb-3 tracking-widest uppercase">Fullstack Developer</p>
                 
                 <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-5 text-xs text-gray-600 text-center leading-relaxed">
-                    <b class="text-gray-800">Madasa (Madrasah Darussalam) v1.0</b><br>
+                    <b class="text-gray-800">Madasa v1.0</b><br>
                     Sistem informasi ini dikembangkan dengan dedikasi untuk mempermudah digitalisasi penilaian santri.
                 </div>
                 
