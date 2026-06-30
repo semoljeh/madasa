@@ -1290,38 +1290,44 @@ function loadSettingRapor() {
         let det = res.detail || {}; 
         
         // --- TAMBAHAN KODE PENGECEKAN KELAS KOSONG ---
-        if (santriKelas.length === 0) {
+       if (santriKelas.length === 0) {
             tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-red-500 font-bold"><i class="fas fa-exclamation-triangle mr-2 block text-3xl mb-2 text-red-300"></i> Belum ada santri di kelas ini.<br><span class="text-sm font-normal text-gray-500">Silakan tambahkan santri terlebih dahulu di menu Data Santri.</span></td></tr>';
         } else {
             santriKelas.forEach(s => { 
                 let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''}; 
+                
+                // 1. INI KODE PEMBERSIH NAMA YANG BARU DITAMBAHKAN
+                let namaBersih = s.nama ? s.nama.toString().replace(//g, "'").replace(/[‘’`]/g, "'") : "";
 
-// KODE BARU YANG LEBIH RAMPING DI HP
-tbody.innerHTML += `
-<tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}"> 
-
-    <td class="p-2 sm:p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 text-[11px] sm:text-sm truncate max-w-[160px] sm:max-w-none" title="${s.nama}">${s.nama}</td>
-    
-    <td class="p-1 sm:p-2 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-8 sm:w-14 mx-auto block text-center border border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs" value="${d.akhlaq}" maxlength="1"></td> 
-    
-    <td class="p-1 sm:p-2 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-8 sm:w-14 mx-auto block text-center border border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs" value="${d.kerajinan}" maxlength="1"></td> 
-    
-    <td class="p-1 sm:p-2 border-r bg-blue-50/30"><input type="text" class="inp-disiplin w-8 sm:w-14 mx-auto block text-center border border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs" value="${d.disiplin}" maxlength="1"></td> 
-    
-    <td class="p-1 sm:p-2 border-r bg-blue-50/30"><input type="text" class="inp-rapi w-8 sm:w-14 mx-auto block text-center border border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs" value="${d.rapi}" maxlength="1"></td> 
-    
-    <td class="p-1 sm:p-2 border-r bg-orange-50/30"><input type="number" class="inp-sakit w-10 sm:w-14 mx-auto block text-center border border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs" value="${d.sakit}"></td> 
-    
-    <td class="p-1 sm:p-2 border-r bg-orange-50/30"><input type="number" class="inp-izin w-10 sm:w-14 mx-auto block text-center border border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs" value="${d.izin}"></td> 
-    
-    <td class="p-1 sm:p-2 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-10 sm:w-14 mx-auto block text-center border border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs" value="${d.alpa}"></td> 
-    
-    <td class="p-1 sm:p-2 border-r bg-emerald-50/30"><input type="text" class="inp-keputusan w-32 sm:w-48 border border-emerald-200 rounded p-1 sm:p-1.5 text-[10px] sm:text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Naik Ke Kelas II"></td> 
-    
-    <td class="p-1 sm:p-2 bg-purple-50/30"><input type="text" class="inp-catatan w-40 sm:w-72 border border-purple-200 rounded p-1 sm:p-1.5 text-[10px] sm:text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Tingkatkan prestasimu..."></td> 
-</tr>`;
+                // 2. INI AWAL PEMBENTUKAN TABEL (Perhatikan baris <td> pertama)
+                tbody.innerHTML += ` 
+                <tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}"> 
+                    
+                    <td class="p-2 sm:p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 text-[11px] sm:text-sm whitespace-normal break-words min-w-[110px] sm:min-w-[200px] leading-tight">${namaBersih}</td> 
+                    
+                    <td class="p-1 sm:p-2 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-8 sm:w-14 mx-auto block text-center border border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs" value="${d.akhlaq}" maxlength="1"></td> 
+                    
+                    <td class="p-1 sm:p-2 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-8 sm:w-14 mx-auto block text-center border border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs" value="${d.kerajinan}" maxlength="1"></td> 
+                    
+                    <td class="p-1 sm:p-2 border-r bg-blue-50/30"><input type="text" class="inp-disiplin w-8 sm:w-14 mx-auto block text-center border border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs" value="${d.disiplin}" maxlength="1"></td> 
+                    
+                    <td class="p-1 sm:p-2 border-r bg-blue-50/30"><input type="text" class="inp-rapi w-8 sm:w-14 mx-auto block text-center border border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs" value="${d.rapi}" maxlength="1"></td> 
+                    
+                    <td class="p-1 sm:p-2 border-r bg-orange-50/30"><input type="number" class="inp-sakit w-10 sm:w-14 mx-auto block text-center border border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs" value="${d.sakit}"></td> 
+                    
+                    <td class="p-1 sm:p-2 border-r bg-orange-50/30"><input type="number" class="inp-izin w-10 sm:w-14 mx-auto block text-center border border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs" value="${d.izin}"></td> 
+                    
+                    <td class="p-1 sm:p-2 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-10 sm:w-14 mx-auto block text-center border border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs" value="${d.alpa}"></td> 
+                    
+                    <td class="p-1 sm:p-2 border-r bg-emerald-50/30"><input type="text" class="inp-keputusan w-32 sm:w-48 border border-emerald-200 rounded p-1 sm:p-1.5 text-[10px] sm:text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Ex: Naik Ke Kelas II"></td> 
+                    
+                    <td class="p-1 sm:p-2 bg-purple-50/30"><input type="text" class="inp-catatan w-40 sm:w-72 border border-purple-200 rounded p-1 sm:p-1.5 text-[10px] sm:text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Ex: Tingkatkan prestasimu..."></td> 
+                </tr>`; 
             }); 
         }
+		
+		
+		
     }).catch(e => {
         showLoading(false);
         Swal.fire('Error', 'Gagal memuat pengaturan. Periksa koneksi internet.', 'error');
