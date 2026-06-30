@@ -614,7 +614,21 @@ res.data.forEach(s => {
     let amanTtl = s.ttl ? s.ttl.toString().replace(/`/g, "\\`") : '';
 
     // TAMBAHKAN KOLOM NOMOR DI AWAL: <td class="p-3 sm:p-4 text-center font-bold text-gray-500 urut-nomor"></td>
-    tr.innerHTML = `<td class="p-3 sm:p-4 text-center font-bold text-gray-500 urut-nomor"></td><td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td><td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td><td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${amanNama}', '${s.jk}', '${s.kelas}', \`${amanAlamat}\`, \`${amanAyah}\`, \`${amanIbu}\`, '${s.hp}', \`${amanTtl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`;
+    // Perhatikan perubahan pada ${s.nama} menjadi ${amanNama}
+tr.innerHTML = `
+    <td class="p-3 sm:p-4 text-center font-bold text-gray-500 urut-nomor"></td>
+    <td class="p-3 sm:p-4 font-medium">${s.nis}</td>
+    <td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td>
+    <td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td>
+    <td class="p-3 sm:p-4 whitespace-nowrap">
+        <span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span>
+    </td>
+    <td class="p-3 sm:p-4 text-center">
+        <button onclick="openModalEditSantri('${s.nis}', '${amanNama}', '${s.jk}', '${s.kelas}', \`${amanAlamat}\`, \`${amanAyah}\`, \`${amanIbu}\`, '${s.hp}', \`${amanTtl}\`)" 
+                class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit">
+            <i class="fas fa-edit"></i>
+        </button>
+    </td>`;
             
     tbody.appendChild(tr); 
 });
