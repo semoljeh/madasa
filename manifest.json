@@ -1,6 +1,6 @@
 {
   "name": "Sistem Penilaian Madrasah Darussalam",
-  "short_name": "MADASA",
+  "short_name": "Madasa Digital",
   "description": "Sistem Informasi Penilaian Santri Digital Madrasah Darussalam",
   "start_url": "./index.html",
   "scope": "./", 
