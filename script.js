@@ -1299,7 +1299,8 @@ function loadSettingRapor() {
 // KODE BARU YANG LEBIH RAMPING DI HP
 tbody.innerHTML += `
 <tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}"> 
-    <td class="p-2 sm:p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 text-[11px] sm:text-sm truncate max-w-[120px] sm:max-w-none">${s.nama}</td> 
+
+    <td class="p-2 sm:p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 text-[11px] sm:text-sm truncate max-w-[160px] sm:max-w-none" title="${s.nama}">${s.nama}</td>
     
     <td class="p-1 sm:p-2 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-8 sm:w-14 mx-auto block text-center border border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs" value="${d.akhlaq}" maxlength="1"></td> 
     
