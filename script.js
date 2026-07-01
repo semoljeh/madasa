@@ -1297,7 +1297,7 @@ function loadSettingRapor() {
     let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''}; 
     
     tbody.innerHTML += ` 
-    <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 min-w-[130px] max-w-[150px] whitespace-normal leading-snug">${s.nama}</td>
+    <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 min-w-[130px] max-w-[150px] md:max-w-none md:min-w-[250px] whitespace-normal leading-snug">${s.nama}</td>
         
         <td class="p-1 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.akhlaq}" maxlength="1"></td> 
         <td class="p-1 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.kerajinan}" maxlength="1"></td> 
@@ -1308,8 +1308,8 @@ function loadSettingRapor() {
         <td class="p-1 border-r bg-orange-50/30"><input type="number" class="inp-izin w-10 sm:w-12 mx-auto block text-center border-2 border-orange-200 rounded p-1 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.izin}"></td> 
         <td class="p-1 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-10 sm:w-12 mx-auto block text-center border-2 border-orange-200 rounded p-1 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.alpa}"></td> 
         
-        <td class="p-1 border-r bg-emerald-50/30"><input type="text" class="inp-keputusan w-48 border-2 border-emerald-200 rounded p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Ex: Naik Ke Kelas II"></td> 
-        <td class="p-1 bg-purple-50/30"><input type="text" class="inp-catatan w-72 border-2 border-purple-200 rounded p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Ex: Tingkatkan prestasimu..."></td> 
+        <td class="p-1 border-r bg-emerald-50/30"><input type="text" class="inp-keputusan w-48 border-2 border-emerald-200 rounded p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Naik Ke Kelas..."></td> 
+        <td class="p-1 bg-purple-50/30"><input type="text" class="inp-catatan w-72 border-2 border-purple-200 rounded p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Catatan Guru..."></td> 
     </tr>`; 
 });
         }
