@@ -1,3 +1,17 @@
+// KEAMANAN
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Cek apakah ada token yang tersimpan di memori browser
+    const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
+    
+    if (!tokenTersimpan) {
+        // Tendang kembali ke halaman login
+        document.getElementById('dashboardPage').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+    }
+});
+
+
 // ---------------------------------------------------------
 // 1. PENGATURAN GLOBAL & DATABASE
 // ---------------------------------------------------------
@@ -6,6 +20,19 @@ let GLOBAL_DATA_SANTRI = [];
 let GLOBAL_HEADERS_NILAI = [];
 let GLOBAL_DATA_NILAI = [];
 let JADWAL_MAPEL = {}; // Sekarang dikosongkan agar bisa diisi otomatis
+
+// --- KODE KEAMANAN 1: AUTO-KICK ---
+document.addEventListener("DOMContentLoaded", () => {
+    // Mengecek apakah ada token di memori browser
+    const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
+    
+    // Jika tidak ada token (belum login), sembunyikan dashboard, paksa ke login
+    if (!tokenTersimpan) {
+        document.getElementById('dashboardPage').classList.add('hidden');
+        document.getElementById('loginPage').classList.remove('hidden');
+    }
+});
+// ----------------------------------
 
 
 function formatTanggalIndo(tanggalYYYYMMDD) {
@@ -56,7 +83,7 @@ function showView(viewName, pushToHistory = true) {
    // (Kode Anda yang sudah ada sebelumnya)
     if (pushToHistory) window.history.pushState({ view: viewName }, "", "#" + viewName);
     
-    // --- CODE AUTO-CLOSE DI HP ---
+    // ---> TAMBAHKAN KODE INI UNTUK AUTO-CLOSE DI HP <---
     if (window.innerWidth < 768) {
         const sidebar = document.querySelector('aside');
         const overlay = document.getElementById('overlay-sidebar');
@@ -66,7 +93,7 @@ function showView(viewName, pushToHistory = true) {
             if (overlay) overlay.remove();
         }
     }
-}
+} // <- Ini kurung penutup fungsi showView()
 
 // --- PERBAIKAN LOGIKA TOMBOL BACK HP ---
 window.addEventListener('popstate', function(event) {
@@ -111,6 +138,7 @@ window.addEventListener('popstate', function(event) {
         }
     }
 });
+// ---------------------------------------
 
 // ---------------------------------------------------------
 // 3. FUNGSI AUTENTIKASI (LOGIN & LOGOUT)
@@ -138,6 +166,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             
             // --- KODE KEAMANAN 2: SIMPAN TOKEN ---
             sessionStorage.setItem('tokenMadasa', d.token);
+            // -------------------------------------
 
             document.getElementById('userNameDisplay').innerText = d.name; 
             document.getElementById('userRoleDisplay').innerText = d.role; 
@@ -175,7 +204,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
                 notifData.append('role', d.role);  
                 notifData.append('perangkat', namaPerangkatRapi); 
                 notifData.append('lokasi', dataLokasi);
-                notifData.append('token', d.token);
+                notifData.append('token', d.token); // <--- WAJIB TAMBAHKAN BARIS INI
                 
                 fetch(GAS_URL, { method: 'POST', body: notifData }).catch(err => console.log(err));
             };
@@ -192,18 +221,20 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             } else {
                 kirimDataKeServer("Perangkat tidak mendukung GPS");
             }
+            // =======================
 
         } else { 
             Swal.fire('Gagal Masuk', d.message, 'error'); 
         } 
 
-    }).catch(er => { 
+}).catch(er => { 
         showLoading(false); 
         Swal.fire('Error', 'Gagal terhubung ke database.', 'error'); 
     }); 
-});
+}); // <--- TAMBAHKAN BARIS INI 
 
 function logout() {
+
     Swal.fire({ 
         title: 'Keluar?', text: "Anda akan kembali ke halaman login", icon: 'question', 
         showCancelButton: true, confirmButtonColor: '#059669', cancelButtonColor: '#d33', confirmButtonText: 'Ya, Keluar' 
@@ -211,6 +242,7 @@ function logout() {
         if (result.isConfirmed) { 
             // --- KODE KEAMANAN 4: HAPUS TOKEN ---
             sessionStorage.removeItem('tokenMadasa');
+            // ------------------------------------
             
             document.getElementById('dashboardPage').classList.add('hidden'); 
             document.getElementById('loginPage').classList.remove('hidden'); 
@@ -225,7 +257,7 @@ function logout() {
 // ---------------------------------------------------------
 const dataMotivasi = [
     { judul: "Amal Jariyah Tanpa Batas", teks: "\"Sebaik-baik manusia adalah yang paling bermanfaat bagi manusia lainnya. Lelahmu dalam mendidik hari ini adalah benih amal jariyah yang pahalanya mengalir abadi.\"" },
-    { judul: "Pelita Kegelapan", teks: "\"Guru sejati adalah pelita di tengah gelapnya malam. Satu huruf yang kau ajarkan dengan ikhlas, bisa menjadi cahaya bagi masa depan seorang santri.\"" },
+    { judul: "Pelita Kegelapan", teks: "\"Guru sejati adalah pelita di tengah kegelapan. Satu huruf yang kau ajarkan dengan ikhlas, bisa menjadi cahaya bagi masa depan seorang santri.\"" },
     { judul: "Kesabaran Berbuah Surga", teks: "\"Mendidik butuh kesabaran ekstra. Ingatlah, setiap keringat dan kesabaranmu menghadapi santri akan dicatat sebagai ibadah di sisi Allah SWT.\"" },
     { judul: "Pencetak Generasi Rabbani", teks: "\"Engkau bukan sekadar mentransfer ilmu, tapi sedang memahat jiwa dan akhlaq. Di tanganmulah generasi Rabbani masa depan dibentuk.\"" },
     { judul: "Niatkan Karena Allah (Lillah)", teks: "\"Jadikan lelahmu menjadi Lillah. Tidak ada profesi yang lebih mulia dibandingkan mewariskan ilmu-ilmu kebaikan dan risalah kenabian.\"" },
@@ -329,21 +361,23 @@ window.addEventListener('appinstalled', (evt) => { tutupNotifPWA(); });
 // 6. FUNGSI DATABASE (SANTRI, NILAI, RANKING, PENGATURAN)
 // ---------------------------------------------------------
 function openModalSantri() { 
-    let nextNis = "001"; 
+    // --- SISTEM NIS OTOMATIS ---
+    let nextNis = "001"; // Default awal jika database kosong
     if (GLOBAL_DATA_SANTRI && GLOBAL_DATA_SANTRI.length > 0) {
         let maxNis = 0;
-        let panjangKarakter = 3; 
+        let panjangKarakter = 3; // Standar panjang karakter (contoh: 001)
         
         GLOBAL_DATA_SANTRI.forEach(s => {
             let nisStr = s.nis.toString().trim();
             if(nisStr.length > panjangKarakter) panjangKarakter = nisStr.length;
             
-            let nisAngka = parseInt(nisStr.replace(/\D/g, '')); 
+            let nisAngka = parseInt(nisStr.replace(/\D/g, '')); // Ambil angkanya saja
             if (!isNaN(nisAngka) && nisAngka > maxNis) {
                 maxNis = nisAngka;
             }
         });
         
+        // Tambah 1 dan pertahankan angka nol di depannya
         nextNis = (maxNis + 1).toString().padStart(panjangKarakter, '0');
     }
 
@@ -351,6 +385,7 @@ function openModalSantri() {
     const labelNis = document.getElementById('labelNisRole');
     inputNis.value = nextNis;
 
+    // --- KUNCI INPUT KHUSUS UNTUK GURU ---
     const userRole = document.getElementById('userRoleDisplay').innerText;
     if (userRole.includes('Guru')) {
         inputNis.readOnly = true;
@@ -362,6 +397,7 @@ function openModalSantri() {
         labelNis.innerText = "(Bisa diedit Admin)";
     }
 
+    // Tampilkan Modal
     window.history.pushState({ modal: 'tambah' }, "", "#modalTambah"); 
     document.getElementById('modalTambahSantri').classList.remove('hidden'); 
 }
@@ -372,6 +408,7 @@ function closeModalSantri() {
     if (window.location.hash === "#modalTambah") window.history.back(); 
 }
 
+// --- FUNGSI IMPORT SANTRI VIA CSV ---
 function openModalImportSantri() {
     window.history.pushState({ modal: 'import' }, "", "#modalImport"); 
     document.getElementById('modalImportSantri').classList.remove('hidden');
@@ -388,59 +425,62 @@ const formImport = document.getElementById('formImportSantri');
 if (formImport) {
     formImport.addEventListener('submit', function(e) {
         e.preventDefault();
-        const fileInput = document.getElementById('fileImportCSV');
-        if (!fileInput.files.length) return Swal.fire('Perhatian', 'Pilih file CSV terlebih dahulu!', 'warning');
+const fileInput = document.getElementById('fileImportCSV');
+if (!fileInput.files.length) return Swal.fire('Perhatian', 'Pilih file CSV terlebih dahulu!', 'warning');
 
-        const btnSubmit = this.querySelector('button[type="submit"]');
-        const originalText = btnSubmit.innerHTML;
-        btnSubmit.disabled = true;
-        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membaca File...';
+const btnSubmit = this.querySelector('button[type="submit"]');
+const originalText = btnSubmit.innerHTML;
+btnSubmit.disabled = true;
+btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Membaca File...';
 
-        Papa.parse(fileInput.files[0], {
-            header: false, 
-            skipEmptyLines: true,
-            complete: function(results) {
-                if(results.errors.length) {
-                    btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
-                    return Swal.fire('Error CSV', 'Format file CSV rusak.', 'error');
-                }
+// Parse CSV menggunakan library PapaParse
+Papa.parse(fileInput.files[0], {
+header: false, 
+skipEmptyLines: true,
+complete: function(results) {
+    if(results.errors.length) {
+        btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
+        return Swal.fire('Error CSV', 'Format file CSV rusak.', 'error');
+    }
 
-                btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim Data...';
-                showLoading(true);
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim Data...';
+    showLoading(true);
 
-                const formData = new URLSearchParams();
-                formData.append('action', 'importSantriBulk');
-                formData.append('data_import', JSON.stringify(results.data));
-                formData.append('token', sessionStorage.getItem('tokenMadasa'));
+    const formData = new URLSearchParams();
+    formData.append('action', 'importSantriBulk');
+    formData.append('data_import', JSON.stringify(results.data));
+	formData.append('token', sessionStorage.getItem('tokenMadasa'));
 
-                fetch(GAS_URL, { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(data => {
-                    showLoading(false);
-                    btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
-                    if(data.status === 'success') {
-                        closeModalImportSantri();
-                        Swal.fire('Berhasil!', data.message, 'success');
-                        loadDataSantri(); 
-                    } else {
-                        Swal.fire('Gagal', data.message, 'error');
-                    }
-                }).catch(err => {
-                    showLoading(false);
-                    btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
-                    Swal.fire('Error', 'Gagal terhubung ke database.', 'error');
-                });
-            }
-        });
-    }); 
+    fetch(GAS_URL, { method: 'POST', body: formData })
+    .then(res => res.json())
+    .then(data => {
+        showLoading(false);
+        btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
+        if(data.status === 'success') {
+            closeModalImportSantri();
+            Swal.fire('Berhasil!', data.message, 'success');
+            loadDataSantri(); // Refresh tabel setelah sukses
+        } else {
+            Swal.fire('Gagal', data.message, 'error');
+        }
+		
+}).catch(err => {
+        showLoading(false);
+        btnSubmit.disabled = false; btnSubmit.innerHTML = originalText;
+        Swal.fire('Error', 'Gagal terhubung ke database.', 'error');
+    });
 }
+});
+    }); // <--- TAMBAHKAN BARIS INI
+} // <--- TAMBAHKAN BARIS INI
 
+// Fungsi Bantuan: Mengubah teks "Bangkalan, 5 April 2026" menjadi "2026-04-05"
 function reverseTanggalIndo(teksTanggal) {
     if (!teksTanggal || !teksTanggal.includes(',')) return "";
     let parts = teksTanggal.split(',');
     if (parts.length < 2) return "";
     
-    let tglArr = parts[1].trim().split(/\s+/);
+    let tglArr = parts[1].trim().split(' '); 
     if (tglArr.length !== 3) return "";
 
     let bulanMap = {
@@ -457,7 +497,9 @@ function reverseTanggalIndo(teksTanggal) {
     return "";
 }
 
+// Fungsi Utama Edit Santri yang Sudah Diperbaiki
 function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) { 
+    // Simpan NIS Asli (Lama) di input hidden
     document.getElementById('edit_nis_lama').value = nis; 
     document.getElementById('edit_nis').value = nis; 
     
@@ -478,6 +520,7 @@ function openModalEditSantri(nis, nama, jk, kelas, alamat, ayah, ibu, hp, ttl) {
         document.getElementById('edit_tanggal_lahir').value = "";
     }
 
+    // --- KUNCI INPUT KHUSUS UNTUK GURU, BUKA UNTUK ADMIN ---
     const userRole = document.getElementById('userRoleDisplay').innerText;
     const inputNisEdit = document.getElementById('edit_nis');
     const labelNisEdit = document.getElementById('labelEditNisRole');
@@ -511,6 +554,7 @@ function filterSantri() {
     let visibleCount = 0; 
     
     rows.forEach(row => { 
+        // Index bergeser karena ada kolom NO di awal (index 0)
         const nis = row.cells[1].innerText.toLowerCase(); 
         const nama = row.cells[2].innerText.toLowerCase(); 
         const kelas = row.getAttribute('data-kelas'); 
@@ -520,6 +564,7 @@ function filterSantri() {
         if (matchSearch && matchKelas) { 
             row.style.display = ''; 
             visibleCount++; 
+            // Sisipkan angka nomor urut secara dinamis ke sel pertama
             row.cells[0].innerText = visibleCount;
         } 
         else { 
@@ -541,6 +586,7 @@ function loadDataSantri() {
     showLoading(true); 
     const formData = new URLSearchParams(); 
     formData.append('action', 'getSantri'); 
+    // --- KODE KEAMANAN 3: LAMPIRKAN TOKEN ---
     formData.append('token', sessionStorage.getItem('tokenMadasa'));
     
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
@@ -551,25 +597,27 @@ function loadDataSantri() {
             if(tbody) { 
                 tbody.innerHTML = ''; 
 				
-                if(res.data.length === 0) { 
-                    tbody.innerHTML = '<tr><td colspan="6" class="p-4 sm:p-6 text-center text-gray-500">Belum ada data santri di database.</td></tr>'; return; 
-                } 
+if(res.data.length === 0) { 
+    // Ubah colspan="5" menjadi colspan="6"
+    tbody.innerHTML = '<tr><td colspan=\"6\" class=\"p-4 sm:p-6 text-center text-gray-500\">Belum ada data santri di database.</td></tr>'; return; 
+} 
                 
-                res.data.forEach(s => { 
-                    const tr = document.createElement('tr'); 
-                    tr.className = 'hover:bg-teal-50 transition-all santri-row'; tr.setAttribute('data-kelas', s.kelas); 
+res.data.forEach(s => { 
+    const tr = document.createElement('tr'); 
+    tr.className = 'hover:bg-teal-50 transition-all santri-row'; tr.setAttribute('data-kelas', s.kelas); 
 
-                    // Mengamankan tanda petik tunggal dan ganda agar tidak merusak fungsi pemanggilan string DOM
-                    let amanNama = s.nama ? s.nama.toString().replace(/'/g, "\\'").replace(/"/g, "&quot;") : '';
-                    let amanAlamat = s.alamat ? s.alamat.toString().replace(/`/g, "\\`").replace(/'/g, "'") : '';
-                    let amanAyah = s.ayah ? s.ayah.toString().replace(/`/g, "\\`").replace(/'/g, "'") : '';
-                    let amanIbu = s.ibu ? s.ibu.toString().replace(/`/g, "\\`").replace(/'/g, "'") : '';
-                    let amanTtl = s.ttl ? s.ttl.toString().replace(/`/g, "\\`").replace(/'/g, "'") : '';
+    // Mengamankan tanda petik agar tidak merusak tombol
+    let amanNama = s.nama ? s.nama.toString().replace(/'/g, "\\'") : '';
+    let amanAlamat = s.alamat ? s.alamat.toString().replace(/`/g, "\\`") : '';
+    let amanAyah = s.ayah ? s.ayah.toString().replace(/`/g, "\\`") : '';
+    let amanIbu = s.ibu ? s.ibu.toString().replace(/`/g, "\\`") : '';
+    let amanTtl = s.ttl ? s.ttl.toString().replace(/`/g, "\\`") : '';
 
-                    tr.innerHTML = `<td class="p-3 sm:p-4 text-center font-bold text-gray-500 urut-nomor"></td><td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td><td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td><td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${amanNama}', '${s.jk}', '${s.kelas}', \`${amanAlamat}\`, \`${amanAyah}\`, \`${amanIbu}\`, '${s.hp}', \`${amanTtl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`;
-                            
-                    tbody.appendChild(tr); 
-                });
+    // TAMBAHKAN KOLOM NOMOR DI AWAL: <td class="p-3 sm:p-4 text-center font-bold text-gray-500 urut-nomor"></td>
+    tr.innerHTML = `<td class="p-3 sm:p-4 text-center font-bold text-gray-500 urut-nomor"></td><td class="p-3 sm:p-4 font-medium">${s.nis}</td><td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${s.nama}</td><td class="p-3 sm:p-4 text-center whitespace-nowrap">${s.jk}</td><td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${s.kelas}</span></td><td class="p-3 sm:p-4 text-center"><button onclick="openModalEditSantri('${s.nis}', '${amanNama}', '${s.jk}', '${s.kelas}', \`${amanAlamat}\`, \`${amanAyah}\`, \`${amanIbu}\`, '${s.hp}', \`${amanTtl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit"><i class="fas fa-edit"></i></button></td>`;
+            
+    tbody.appendChild(tr); 
+});
 				
                 filterSantri(); 
             } 
@@ -584,17 +632,17 @@ document.getElementById('formTambahSantri').addEventListener('submit', function(
     btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; 
     showLoading(true); 
     
-    const formData = new URLSearchParams();
-    formData.append('action', 'addSantri');
-    formData.append('token', sessionStorage.getItem('tokenMadasa')); 
-    formData.append('nis', document.getElementById('add_nis').value);
-    formData.append('nama', document.getElementById('add_nama').value); formData.append('add_jk', document.getElementById('add_jk').value); 
+  const formData = new URLSearchParams();
+formData.append('action', 'addSantri');
+formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
+formData.append('nis', document.getElementById('add_nis').value);
+    formData.append('nama', document.getElementById('add_nama').value); formData.append('jk', document.getElementById('add_jk').value); 
     formData.append('kelas', document.getElementById('add_kelas').value); formData.append('alamat', document.getElementById('add_alamat').value); 
     formData.append('ayah', document.getElementById('add_ayah').value); formData.append('ibu', document.getElementById('add_ibu').value); 
     formData.append('hp', document.getElementById('add_hp').value); 
 	const tempatTambah = document.getElementById('add_tempat_lahir').value;
-    const tglTambah = formatTanggalIndo(document.getElementById('add_tanggal_lahir').value);
-    formData.append('ttl', `${tempatTambah}, ${tglTambah}`);
+const tglTambah = formatTanggalIndo(document.getElementById('add_tanggal_lahir').value);
+formData.append('ttl', `${tempatTambah}, ${tglTambah}`);
     
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; 
@@ -608,12 +656,14 @@ document.getElementById('formTambahSantri').addEventListener('submit', function(
 document.getElementById('formEditSantri').addEventListener('submit', function(e) { 
     e.preventDefault(); 
     
+    // 1. Tangkap semua tombol yang ada di Modal Edit
     const btnSubmit = this.querySelector('button[type="submit"]'); 
     const btnBatal = this.querySelector('button[type="button"]'); 
     const btnClose = document.querySelector('#modalEditSantri button[onclick="closeModalEditSantri()"]');
     
     const originalText = btnSubmit.innerHTML; 
     
+    // 2. KUNCI TOTAL SEMUA TOMBOL (Tambahkan pointer-events-none)
     btnSubmit.disabled = true; 
     btnSubmit.classList.add('pointer-events-none', 'cursor-not-allowed');
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memperbarui...'; 
@@ -649,6 +699,7 @@ document.getElementById('formEditSantri').addEventListener('submit', function(e)
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); 
         
+        // 3. LEPASKAN KUNCI TOMBOL
         btnSubmit.disabled = false; 
         btnSubmit.classList.remove('pointer-events-none', 'cursor-not-allowed');
         btnSubmit.innerHTML = originalText; 
@@ -667,6 +718,7 @@ document.getElementById('formEditSantri').addEventListener('submit', function(e)
     }).catch(err => { 
         showLoading(false); 
         
+        // LEPASKAN KUNCI TOMBOL JIKA ERROR
         btnSubmit.disabled = false; 
         btnSubmit.classList.remove('pointer-events-none', 'cursor-not-allowed');
         btnSubmit.innerHTML = originalText; 
@@ -707,6 +759,7 @@ function aktifkanFilterKedua() {
         } else {
             labelFilter2.innerHTML = '<i class="fas fa-book text-blue-600 mr-2"></i> Untuk Pelajaran Apa?';
             
+            // --- KODE PINTAR BARU ---
             const dataMapel = JADWAL_MAPEL[kelas] || { tulis: [], praktek: [], baca: [] };
             
             let htmlTulis = ''; let htmlPraktek = ''; let htmlMembaca = '';
@@ -746,24 +799,30 @@ function generateTabelAbsen() {
         }); 
     } 
     
+   
    if (kelas.includes('TK')) { 
         document.getElementById('headerTK').style.display = 'table-header-group'; 
         document.getElementById('headerIBT').style.display = 'none'; 
         wadahGlobalMapelTK.classList.remove('hidden'); 
         
+        // Tampilkan Petunjuk Nilai khusus TK
         document.getElementById('petunjukPredikatTK').classList.remove('hidden');
+        // Sembunyikan Peringatan Ibtidaiyah/Sanawiyah
         document.getElementById('peringatanNilaiIbt').classList.add('hidden');
     } else { 
         document.getElementById('headerTK').style.display = 'none'; 
         document.getElementById('headerIBT').style.display = 'table-header-group'; 
         wadahGlobalMapelTK.classList.add('hidden'); 
         
+        // Sembunyikan Petunjuk Nilai jika bukan kelas TK
         document.getElementById('petunjukPredikatTK').classList.add('hidden');
+        // Tampilkan Peringatan Ibtidaiyah/Sanawiyah
         document.getElementById('peringatanNilaiIbt').classList.remove('hidden');
     } 
     document.getElementById('formInputNilaiBulk').classList.remove('hidden'); 
 }
    
+
 document.getElementById('formInputNilaiBulk').addEventListener('submit', function(e) { 
     e.preventDefault(); 
     if (this.querySelectorAll('.border-red-500').length > 0) { 
@@ -804,9 +863,11 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
     
     if (paketBulk.length === 0) { Swal.fire({ icon: 'warning', title: 'Tabel Kosong', text: 'Belum memasukkan nilai satupun.'}); return; } 
     
+    // === SISTEM KUNCI TOMBOL TOTAL ===
     const btnSubmit = this.querySelector('button[type="submit"]'); 
     const originalText = btnSubmit.innerHTML; 
     
+    // Matikan sensor tombol dan jadikan memudar
     btnSubmit.disabled = true; 
     btnSubmit.classList.add('pointer-events-none', 'opacity-70');
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...'; 
@@ -822,13 +883,13 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
         formData.append('hari', filterKedua); 
     } else { 
         formData.append('mapel', filterKedua); 
-        let mapelSemua = (JADWAL_MAPEL[kelasPilih] && JADWAL_MAPEL[kelasPilih].semua) ? JADWAL_MAPEL[kelasPilih].semua : [];
-        formData.append('semua_mapel', JSON.stringify(mapelSemua));
+        formData.append('semua_mapel', JSON.stringify(JADWAL_MAPEL[kelasPilih].semua)); 
     }
     
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); 
         
+        // Hidupkan kembali tombol
         btnSubmit.disabled = false; 
         btnSubmit.classList.remove('pointer-events-none', 'opacity-70');
         btnSubmit.innerHTML = originalText; 
@@ -849,6 +910,7 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
     }).catch(e => { 
         showLoading(false); 
         
+        // Hidupkan kembali jika internet error
         btnSubmit.disabled = false; 
         btnSubmit.classList.remove('pointer-events-none', 'opacity-70');
         btnSubmit.innerHTML = originalText; 
@@ -865,7 +927,7 @@ function loadDataNilaiKelas() {
     const formData = new URLSearchParams();
     formData.append('action', 'getDataNilai');
     formData.append('token', sessionStorage.getItem('tokenMadasa')); 
-    formData.append('kelas', kelasPilih); 
+    formData.append('kelas', kelasPilih); // PERBAIKAN: Sebelumnya tertulis 'kelas'
     
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
         showLoading(false); 
@@ -899,6 +961,7 @@ function renderTabelDataNilai(headers, data) {
         let trBody = `<tr class="hover:bg-blue-50 transition-all">`; 
         trBody += `<td class="p-3 text-center text-gray-500 border-r border-gray-200">${rowIndex + 1}</td>`; 
         
+        // KALKULATOR RATA-RATA OTOMATIS ANTI BUG TANGGAL
         let totalNilai = idxTotal > -1 ? parseFloat(row[idxTotal] || 0) : 0;
         let rataBenar = "0.0";
         if (kls && !kls.includes('TK')) {
@@ -915,9 +978,10 @@ function renderTabelDataNilai(headers, data) {
                 let textNIS = cell.toString().replace("'", ""); trBody += `<td class="p-3 border-r border-gray-200 text-gray-600 whitespace-nowrap">${textNIS}</td>`; 
             } 
             else if (headerName.includes('rata')) {
+                // Terapkan rata-rata hasil hitung ulang agar tidak muncul Teks Tanggal
                 let finalRata = kls.includes('TK') ? (!isNaN(parseFloat(cell)) ? parseFloat(cell).toFixed(1) : "0.0") : rataBenar;
                 trBody += `<td class="p-3 border-r border-gray-200 text-center font-bold text-blue-600 whitespace-nowrap">${finalRata}</td>`;
-                GLOBAL_DATA_NILAI[rowIndex][cellIndex] = finalRata; 
+                GLOBAL_DATA_NILAI[rowIndex][cellIndex] = finalRata; // Sinkronkan untuk menu Edit
             }
             else { 
                 const isNumber = !isNaN(cell) && cell !== ""; trBody += `<td class="p-3 border-r border-gray-200 text-center ${isNumber ? 'font-bold text-emerald-700' : 'text-gray-400'} whitespace-nowrap">${cell}</td>`; 
@@ -956,12 +1020,14 @@ document.getElementById('formEditNilai').addEventListener('submit', function(e) 
         return; 
     } 
     
+    // 1. Tangkap semua tombol yang ada di Modal Edit Nilai
     const btnSubmit = this.querySelector('button[type="submit"]'); 
     const btnBatal = this.querySelector('button[type="button"]'); 
     const btnClose = document.querySelector('#modalEditNilai button[onclick="closeModalEditNilai()"]');
     
     const originalText = btnSubmit.innerHTML; 
     
+    // 2. KUNCI TOTAL SEMUA TOMBOL (Disable, Memudar, & Matikan Click)
     btnSubmit.disabled = true; 
     btnSubmit.classList.add('pointer-events-none', 'cursor-not-allowed');
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...'; 
@@ -992,6 +1058,7 @@ document.getElementById('formEditNilai').addEventListener('submit', function(e) 
     fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); 
         
+        // 3. LEPASKAN KUNCI TOMBOL KETIKA SELESAI
         btnSubmit.disabled = false; 
         btnSubmit.classList.remove('pointer-events-none', 'cursor-not-allowed');
         btnSubmit.innerHTML = originalText; 
@@ -1010,6 +1077,7 @@ document.getElementById('formEditNilai').addEventListener('submit', function(e) 
     }).catch(err => { 
         showLoading(false); 
         
+        // LEPASKAN KUNCI TOMBOL JIKA TERJADI ERROR JARINGAN
         btnSubmit.disabled = false; 
         btnSubmit.classList.remove('pointer-events-none', 'cursor-not-allowed');
         btnSubmit.innerHTML = originalText; 
@@ -1027,13 +1095,14 @@ function loadBintangPelajar() {
     
     const formData = new URLSearchParams(); 
     formData.append('action', 'getBintangPelajar'); 
+    // PERBAIKAN 1: Lampirkan Token Keamanan di sini
     formData.append('token', sessionStorage.getItem('tokenMadasa'));
     
     fetch(GAS_URL, { method: 'POST', body: formData })
     .then(res => res.json())
     .then(async res => {
         if (res.status === 'success' && res.data.length > 0) { 
-            res.data.sort((a,b) => (parseFloat(b.total) || 0) - (parseFloat(a.total) || 0));
+            res.data.sort((a,b) => b.total - a.total); 
             
             wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Sinkronisasi Wali Kelas...</div>';
             
@@ -1044,6 +1113,7 @@ function loadBintangPelajar() {
                 let fd = new URLSearchParams(); 
                 fd.append('action', 'getPengaturan'); 
                 fd.append('kelas', kls);
+                // PERBAIKAN 2: Lampirkan Token Keamanan untuk ambil nama Wali Kelas
                 fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
                 return fetch(GAS_URL, {method:'POST', body:fd})
@@ -1061,9 +1131,12 @@ function loadBintangPelajar() {
                 let isTop1 = idx === 0; 
                 let namaWali = mapWali[santri.kelas];
 
+              // --- KALKULATOR RATA-RATA OTOMATIS ANTI SALAH ---
                 let rataBenar = parseFloat(santri.rata || 0).toFixed(1);
                 if (!santri.kelas.includes('TK')) {
+                    // Hitung jumlah seluruh mapel (Tertulis + Praktek + Membaca) dari array 'semua'
                     let jmlMapel = (JADWAL_MAPEL[santri.kelas] && JADWAL_MAPEL[santri.kelas].semua) ? JADWAL_MAPEL[santri.kelas].semua.length : 0;
+                    
                     if (jmlMapel > 0) {
                         rataBenar = (parseFloat(santri.total || 0) / jmlMapel).toFixed(1);
                     } else {
@@ -1087,6 +1160,7 @@ function loadRankingKelas() {
     
     showLoading(true); 
     
+    // PERBAIKAN: Pisahkan nama variabel agar tidak bertabrakan
     const formDataRanking = new URLSearchParams();
     formDataRanking.append('action', 'getRankingKelas');
     formDataRanking.append('token', sessionStorage.getItem('tokenMadasa'));
@@ -1166,16 +1240,18 @@ function loadSettingRapor() {
     const kelas = document.getElementById('settingKelas').value; 
     if(!kelas) return; 
     
+    // --- LOGIKA SEMBUNYIKAN MAPEL & UBAH LABEL UNTUK TK ---
     const wadahMapel = document.getElementById('wadahKategoriMapel');
     const labelKepala = document.getElementById('labelKepalaSetting');
     
     if (kelas.includes('TK')) {
-        if (wadahMapel) wadahMapel.classList.add('hidden'); 
-        if (labelKepala) labelKepala.innerText = 'Nama Kepala TK / RA'; 
+        if (wadahMapel) wadahMapel.classList.add('hidden'); // Sembunyikan mapel untuk TK
+        if (labelKepala) labelKepala.innerText = 'Nama Kepala TK / RA'; // Ubah label untuk TK
     } else {
-        if (wadahMapel) wadahMapel.classList.remove('hidden'); 
-        if (labelKepala) labelKepala.innerText = 'Nama Kepala Madrasah'; 
+        if (wadahMapel) wadahMapel.classList.remove('hidden'); // Munculkan mapel untuk Ibt/Sana
+        if (labelKepala) labelKepala.innerText = 'Nama Kepala Madrasah'; // Kembalikan label
     }
+    // ------------------------------------------------------
 
     showLoading(true); 
     const formData = new URLSearchParams(); 
@@ -1187,7 +1263,7 @@ function loadSettingRapor() {
         document.getElementById('formSettingRapor').classList.remove('hidden'); 
 
         let u = res.umum || {}; 
-        document.getElementById('set_semester').value = u.semester || '2 (Genap)';
+        document.getElementById('set_semester').value = u.semester || ''; 
         document.getElementById('set_tahun').value = u.tahun || ''; 
         document.getElementById('set_tanggal').value = u.tanggal || ''; 
         document.getElementById('set_kepala').value = u.kepala || ''; 
@@ -1213,44 +1289,13 @@ function loadSettingRapor() {
         tbody.innerHTML = ''; 
         let det = res.detail || {}; 
         
+        // --- TAMBAHAN KODE PENGECEKAN KELAS KOSONG ---
         if (santriKelas.length === 0) {
             tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-red-500 font-bold"><i class="fas fa-exclamation-triangle mr-2 block text-3xl mb-2 text-red-300"></i> Belum ada santri di kelas ini.<br><span class="text-sm font-normal text-gray-500">Silakan tambahkan santri terlebih dahulu di menu Data Santri.</span></td></tr>';
         } else {
             santriKelas.forEach(s => { 
                 let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''}; 
-                tbody.innerHTML += ` 
-<tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}"> 
-    <td class="p-2 sm:p-3 border-r font-bold align-middle sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800">
-    <div class="w-[110px] sm:w-[200px] whitespace-normal text-xs sm:text-sm leading-tight" title="${s.nama}">${s.nama}</div>
-</td>
-    <td class="p-1 sm:p-2 border-r bg-blue-50/30">
-        <input type="text" class="inp-akhlaq w-10 sm:w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs sm:text-sm" value="${d.akhlaq}" maxlength="1">
-    </td> 
-    <td class="p-1 sm:p-2 border-r bg-blue-50/30">
-        <input type="text" class="inp-rajin w-10 sm:w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs sm:text-sm" value="${d.kerajinan}" maxlength="1">
-    </td> 
-    <td class="p-1 sm:p-2 border-r bg-blue-50/30">
-        <input type="text" class="inp-disiplin w-10 sm:w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs sm:text-sm" value="${d.disiplin}" maxlength="1">
-    </td> 
-    <td class="p-1 sm:p-2 border-r bg-blue-50/30">
-        <input type="text" class="inp-rapi w-10 sm:w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs sm:text-sm" value="${d.rapi}" maxlength="1">
-    </td> 
-    <td class="p-1 sm:p-2 border-r bg-orange-50/30">
-        <input type="number" class="inp-sakit w-12 sm:w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs sm:text-sm" value="${d.sakit}">
-    </td> 
-    <td class="p-1 sm:p-2 border-r bg-orange-50/30">
-        <input type="number" class="inp-izin w-12 sm:w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs sm:text-sm" value="${d.izin}">
-    </td> 
-    <td class="p-1 sm:p-2 border-r bg-orange-50/30">
-        <input type="number" class="inp-alpa w-12 sm:w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs sm:text-sm" value="${d.alpa}">
-    </td> 
-    <td class="p-1 sm:p-2 border-r bg-emerald-50/30">
-        <input type="text" class="inp-keputusan w-32 sm:w-48 border-2 border-emerald-200 rounded p-1 sm:p-1.5 text-[10px] sm:text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Naik Ke...">
-    </td> 
-    <td class="p-1 sm:p-2 bg-purple-50/30">
-        <input type="text" class="inp-catatan w-40 sm:w-72 border-2 border-purple-200 rounded p-1 sm:p-1.5 text-[10px] sm:text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Catatan...">
-    </td> 
-</tr>`;
+                tbody.innerHTML += ` <tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}"> <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800">${s.nama}</td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.akhlaq}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.kerajinan}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-disiplin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.disiplin}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rapi w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.rapi}" maxlength="1"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-sakit w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.sakit}"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-izin w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.izin}"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.alpa}"></td> <td class="p-2 border-r bg-emerald-50/30"><input type="text" class="inp-keputusan w-48 border-2 border-emerald-200 rounded p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Ex: Naik Ke Kelas II"></td> <td class="p-2 bg-purple-50/30"><input type="text" class="inp-catatan w-72 border-2 border-purple-200 rounded p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Ex: Tingkatkan prestasimu..."></td> </tr>`; 
             }); 
         }
     }).catch(e => {
@@ -1262,9 +1307,11 @@ function loadSettingRapor() {
 document.getElementById('formSettingRapor').addEventListener('submit', function(e){ 
     e.preventDefault(); 
     
+    // === SISTEM KUNCI TOMBOL TOTAL ===
     const btnSubmit = this.querySelector('button[type="submit"]'); 
     const originalText = btnSubmit.innerHTML; 
     
+    // Matikan sensor tombol dan jadikan memudar
     btnSubmit.disabled = true; 
     btnSubmit.classList.add('pointer-events-none', 'opacity-70', 'cursor-not-allowed');
     btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...'; 
@@ -1290,19 +1337,21 @@ document.getElementById('formSettingRapor').addEventListener('submit', function(
     fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => {
         showLoading(false); 
         
+        // LEPASKAN KUNCI TOMBOL KETIKA SELESAI
         btnSubmit.disabled = false; 
         btnSubmit.classList.remove('pointer-events-none', 'opacity-70', 'cursor-not-allowed');
         btnSubmit.innerHTML = originalText; 
 
         if(res.status === 'success') {
             Swal.fire('Berhasil', res.message, 'success'); 
-            muatSemuaMapel(); 
+            muatSemuaMapel(); // Segarkan database mapel seketika agar langsung update di Input Nilai
         } else { 
             Swal.fire('Gagal', res.message, 'error'); 
         } 
     }).catch(e => {
         showLoading(false); 
         
+        // LEPASKAN KUNCI TOMBOL JIKA ERROR
         btnSubmit.disabled = false; 
         btnSubmit.classList.remove('pointer-events-none', 'opacity-70', 'cursor-not-allowed');
         btnSubmit.innerHTML = originalText; 
@@ -1323,12 +1372,12 @@ function prosesUploadDrive(inputId, previewId, teksId, jenisKode) {
         reader.onload = function(event) { 
             const base64String = event.target.result; previewImg.src = base64String; previewImg.classList.remove('hidden'); teksKosong.classList.add('hidden'); showLoading(true); 
             
-            const formData = new URLSearchParams(); 
-            formData.append('action', 'uploadGambar'); 
-            formData.append('kelas', kelas); 
-            formData.append('jenis', jenisKode); 
-            formData.append('data', base64String); 
-            formData.append('token', sessionStorage.getItem('tokenMadasa')); 
+const formData = new URLSearchParams(); 
+formData.append('action', 'uploadGambar'); 
+formData.append('kelas', kelas); 
+formData.append('jenis', jenisKode); 
+formData.append('data', base64String); 
+formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- TAMBAHKAN BARIS INI
 			
             fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => { showLoading(false); if(res.status === 'success') { Swal.fire({toast:true, position:'top-end', icon:'success', title: 'Tersimpan di Drive!', showConfirmButton:false, timer:2000}); } else { Swal.fire('Gagal Upload', res.message, 'error'); } }).catch(err => { showLoading(false); Swal.fire('Error', 'Jaringan terputus.', 'error'); }); 
         }; reader.readAsDataURL(file); 
@@ -1362,6 +1411,93 @@ function exportBintangPelajarPDF() {
     pdfContainer.innerHTML += ` <div style="margin-top: 40px; padding-top: 15px; border-top: 1px dashed #cbd5e1; text-align: center; color: #64748b; font-size: 11px; font-style: italic; font-family: 'Inter', sans-serif;"> <p style="margin: 0;">Dokumen ini diterbitkan dan dicetak secara otomatis melalui Sistem Informasi Penilaian Santri - Madrasah Darussalam.</p> <p style="margin: 4px 0 0 0;">Dicetak pada: <b>${tanggalCetak}</b></p> </div> `; 
     const opt = { margin: [0.3, 0.3, 0.5, 0.3], filename: `Bintang_Pelajar_Darussalam.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } }; 
     html2pdf().set(opt).from(pdfContainer).save().then(() => { showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'Laporan Bintang Pelajar berhasil diunduh!', timer: 2000, showConfirmButton: false }); }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }); }); 
+}
+
+function cetakDataNilai() {
+    const kelas = document.getElementById('filterKelasDataNilai').value;
+    if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan laporan data nilai terlebih dahulu.' });
+    
+    const elemenTabel = document.getElementById('tabelDataNilai');
+    const teksTabel = document.getElementById('bodyDataNilai').innerText;
+    if (teksTabel.includes('Silakan pilih kelas') || teksTabel.includes('Belum ada data')) {
+        return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data nilai yang bisa dicetak.' });
+    }
+    
+    // Kloning (copy) tabel agar tampilan asli di layar tidak rusak
+    const tabelClone = elemenTabel.cloneNode(true);
+    
+    // Bersihkan semua class CSS Tailwind agar tabel murni diatur oleh CSS Print
+    tabelClone.removeAttribute('class');
+    tabelClone.querySelectorAll('th, td, tr, thead, tbody').forEach(el => el.removeAttribute('class'));
+    
+    // Hapus kolom AKSI (kolom paling kanan) dari header
+    const headerRow = tabelClone.querySelector('thead tr');
+    if (headerRow && headerRow.lastElementChild) headerRow.removeChild(headerRow.lastElementChild);
+    
+    // Hapus tombol AKSI dari isi datanya
+    const bodyRows = tabelClone.querySelectorAll('tbody tr');
+    bodyRows.forEach(tr => { if (tr.lastElementChild) tr.removeChild(tr.lastElementChild); });
+    
+    const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    
+    // Buka Jendela/Tab Baru khusus untuk mode Print
+    const printWindow = window.open('', '_blank');
+    
+    // Peringatan jika Pop-up diblokir oleh browser
+    if (!printWindow) {
+        return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser Anda memblokir tab baru. Silakan izinkan pop-up (Always allow pop-ups) pada address bar.' });
+    }
+    
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <title>Cetak_Nilai_${kelas.replace(/\s+/g, '_')}</title>
+            <style>
+                /* Setingan Kertas Miring (Landscape) dan Margin */
+                @page { size: landscape; margin: 10mm; }
+                body { font-family: 'Arial', sans-serif; font-size: 11px; color: #000; background: #fff; margin: 0; padding: 0; }
+                
+                /* Kop Laporan */
+                .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+                .header h2 { margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold; }
+                .header p { margin: 5px 0 0 0; font-size: 13px; }
+                
+                /* Tabel Nilai (Garis Hitam Tegas) */
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                th, td { border: 1px solid #000; padding: 6px 4px; font-size: 10px; text-align: center; white-space: nowrap; }
+                th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
+                td:nth-child(3) { text-align: left; /* Nama Santri Dibuat Rata Kiri */ }
+                
+                /* Footer Bawah */
+                .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h2>Madrasah Darussalam</h2>
+                <p>Laporan Rekapitulasi Nilai Santri - Kelas: <b>${kelas}</b></p>
+            </div>
+            
+            ${tabelClone.outerHTML}
+            
+            <div class="footer">
+                Dokumen ini dicetak secara otomatis dari Sistem Informasi Penilaian Santri<br>
+                Tanggal Cetak: ${tanggalCetak}
+            </div>
+            
+            <script>
+                // Beri jeda 1 detik agar halaman ke-render penuh sebelum dialog print muncul (Anti-Error HP)
+                window.onload = function() {
+                    setTimeout(function() {
+                        window.print();
+                    }, 1000);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
 }
 
 // =========================================================
@@ -1398,11 +1534,7 @@ function cetakDataSantri() {
     });
 
     const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    
-    let path = window.location.pathname.replace(/index\.html$/i, '');
-    if (!path.endsWith('/')) path += '/';
-    const logoUrl = window.location.origin + path + 'asset/logo.png';
-
+    const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
     const printWindow = window.open('', '_blank');
     if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
 
@@ -1451,11 +1583,7 @@ function cetakDataNilai() {
     bodyRows.forEach(tr => { if (tr.lastElementChild) tr.removeChild(tr.lastElementChild); });
     
     const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    
-    let path = window.location.pathname.replace(/index\.html$/i, '');
-    if (!path.endsWith('/')) path += '/';
-    const logoUrl = window.location.origin + path + 'asset/logo.png';
-
+    const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
     const printWindow = window.open('', '_blank');
     if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
     
@@ -1497,6 +1625,7 @@ function cetakRanking() {
          return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data untuk dicetak.' });
     }
 
+    // Menyusun ulang tabel agar rapi saat dicetak
     const barisData = tbody.querySelectorAll('tr');
     let tabelPrintHTML = `
         <table>
@@ -1518,6 +1647,7 @@ function cetakRanking() {
             const rank = tds[0].innerText;
             const nis = tds[1].innerText;
             
+            // Ekstrak nama dan detail
             const nama = tds[2].querySelector('p.font-bold').innerText;
             const detailLines = tds[2].querySelectorAll('.space-y-0\\.5 p');
             let detailStr = '';
@@ -1543,19 +1673,17 @@ function cetakRanking() {
     tabelPrintHTML += `</tbody></table>`;
 
     const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    
-    let path = window.location.pathname.replace(/index\.html$/i, '');
-    if (!path.endsWith('/')) path += '/';
-    const logoUrl = window.location.origin + path + 'asset/logo.png';
-
+    const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
     const printWindow = window.open('', '_blank');
     if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
 
     printWindow.document.write(`
         <!DOCTYPE html><html lang="id"><head><title>Cetak_Ranking_${kelas.replace(/\s+/g, '_')}</title>
         <style>
-            @page { margin: 15mm; }
-            body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
+       
+           /* PENGATURAN KERTAS DIBEBASKAN KE BROWSER */
+@page { margin: 15mm; }
+body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
             table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
             th, td { border: 1px solid #000; padding: 10px 8px; vertical-align: top; }
             th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
@@ -1585,12 +1713,14 @@ function cetakBintangPelajar() {
          return Swal.fire({ icon: 'error', title: 'Data Kosong', text: 'Tidak ada data Bintang Pelajar saat ini.' });
     }
 
+    // Menyusun ulang kartu juara menjadi grid print
     const cards = wadah.querySelectorAll('.bg-white.rounded-xl');
     let gridHTML = `<div style="display: flex; flex-wrap: wrap; gap: 2%; justify-content: flex-start;">`;
     
+    // Tambahkan parameter 'index' untuk mendapatkan nomor urut
     cards.forEach((card, index) => {
         const isJuaraUmum = card.innerHTML.includes('JUARA UMUM');
-        const nomorUrut = index + 1; 
+        const nomorUrut = index + 1; // Menghitung dari angka 1
         
         const kelas = card.querySelector('p.uppercase').innerText;
         const nama = card.querySelector('h4').innerText;
@@ -1598,7 +1728,7 @@ function cetakBintangPelajar() {
         
         const detailLines = card.querySelectorAll('.border-t p');
         let detailStr = '';
-        detailLines.forEach(p => { detailStr += `<div style="margin-bottom: 4px; font-size: 11px;">-> ${p.innerText}</div>`; });
+        detailLines.forEach(p => { detailStr += `<div style="margin-bottom: 4px; font-size: 11px;">窶｢ ${p.innerText}</div>`; });
 
         gridHTML += `
             <div style="border: 2px solid ${isJuaraUmum ? '#d97706' : '#000'}; padding: 15px; width: 49%; box-sizing: border-box; border-radius: 12px; margin-bottom: 15px; position: relative;">
@@ -1619,19 +1749,16 @@ function cetakBintangPelajar() {
     gridHTML += `</div>`;
 
     const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    
-    let path = window.location.pathname.replace(/index\.html$/i, '');
-    if (!path.endsWith('/')) path += '/';
-    const logoUrl = window.location.origin + path + 'asset/logo.png';
-
+    const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
     const printWindow = window.open('', '_blank');
     if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
 
     printWindow.document.write(`
         <!DOCTYPE html><html lang="id"><head><title>Cetak_Bintang_Pelajar</title>
         <style>
-            @page { margin: 15mm; }
-            body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
+          /* PENGATURAN KERTAS DIBEBASKAN KE BROWSER */
+@page { margin: 15mm; }
+body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
             .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 30px; border-top: 1px dashed #aaa; padding-top: 10px; }
         </style></head><body>
             <div style="display: flex; align-items: center; border-bottom: 3px solid #d97706; padding-bottom: 10px; margin-bottom: 25px;">
@@ -1655,25 +1782,32 @@ function cetakBintangPelajar() {
 function updateWaktuLokal() {
     const sekarang = new Date();
     
+  // 1. Update Jam, Menit, dan Detik (Format: 08:30:45)
     const jam = sekarang.getHours().toString().padStart(2, '0');
     const menit = sekarang.getMinutes().toString().padStart(2, '0');
-    const detik = Thermal = sekarang.getSeconds().toString().padStart(2, '0');
+    const detik = sekarang.getSeconds().toString().padStart(2, '0');
     const elemenJam = document.getElementById('waktu-jam');
     if (elemenJam) elemenJam.innerText = `${jam}:${menit}:${detik}`;
 
-    const offsetWIB = 7 * 60 * 60 * 1000; 
+    // 2. Update Tanggal Masehi & Pasaran Jawa
+    // Rumus menghitung hari Pasaran berdasarkan waktu Unix (Epoch 1970)
+    const offsetWIB = 7 * 60 * 60 * 1000; // Penyesuaian Zona Waktu Indonesia (+7)
     const totalHari = Math.floor((sekarang.getTime() + offsetWIB) / 86400000);
     
     const arrPasaran = ['Legi', 'Pahing', 'Pon', 'Wage', 'Kliwon'];
-    const pasaranJawa = arrPasaran[(totalHari + 3) % 5]; 
+    const pasaranJawa = arrPasaran[(totalHari + 3) % 5]; // +3 adalah konstanta sinkronisasi kalender
 
-    const namaHari = sekarang.toLocaleDateString('id-ID', { weekday: 'long' });
-    const tglBulanTahun = sekarang.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-    let teksMasehi = `${namaHari} ${pasaranJawa}, ${tglBulanTahun} M`;
+    const opsiMasehi = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    let teksMasehi = sekarang.toLocaleDateString('id-ID', opsiMasehi);
+    
+    // Menyisipkan nama pasaran Jawa setelah nama Hari (Misal: Senin -> Senin Kliwon)
+    let bagianTeks = teksMasehi.split(','); 
+    teksMasehi = `${bagianTeks[0]} ${pasaranJawa}, ${bagianTeks[1]} M`;
 
     const elemenMasehi = document.getElementById('waktu-masehi');
     if (elemenMasehi) elemenMasehi.innerText = teksMasehi.toUpperCase();
 
+   // 3. Update Tanggal Hijriyah (Anti-Bug Browser HP)
     try {
         const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { day: 'numeric', month: 'numeric', year: 'numeric' });
         const parts = formatter.formatToParts(sekarang);
@@ -1701,6 +1835,7 @@ function updateWaktuLokal() {
     }
 }
 
+// Jalankan saat web dibuka, lalu perbarui setiap detik
 document.addEventListener("DOMContentLoaded", () => {
     updateWaktuLokal();
     setInterval(updateWaktuLokal, 1000);
@@ -1716,6 +1851,7 @@ let isDragging = false;
 let isMoved = false; 
 let startX, startY;
 
+// --- FUNGSI UNTUK DESKTOP (MOUSE) ---
 waWidget.addEventListener('mousedown', function(e) {
     isDragging = true;
     isMoved = false;
@@ -1746,12 +1882,13 @@ document.addEventListener('mouseup', function() {
     waWidget.style.cursor = 'grab';
 });
 
+// --- FUNGSI UNTUK HP / SMARTPHONE (TOUCH) ---
 waWidget.addEventListener('touchstart', function(e) {
     isDragging = true;
     isMoved = false;
     let touch = e.touches[0];
     startX = touch.clientX - waWidget.getBoundingClientRect().left;
-    startY = touch.startY = touch.clientY - waWidget.getBoundingClientRect().top;
+    startY = touch.clientY - waWidget.getBoundingClientRect().top;
 }, {passive: false});
 
 document.addEventListener('touchmove', function(e) {
@@ -1776,6 +1913,7 @@ document.addEventListener('touchend', function() {
     isDragging = false;
 });
 
+// --- PENCEGAH KLIK TIDAK SENGAJA ---
 waLink.addEventListener('click', function(e) {
     if (isMoved) {
         e.preventDefault(); 
@@ -1794,6 +1932,7 @@ function loadTabelMutasi() {
 
     if (!kelasAsal) return;
 
+    // Menarik data santri dari variabel global yang sudah ada
     const santriKelas = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelasAsal);
     
     if (santriKelas.length === 0) {
@@ -1804,9 +1943,9 @@ function loadTabelMutasi() {
     santriKelas.forEach((s) => {
         tbody.innerHTML += `
             <tr class="hover:bg-indigo-50 transition-all cursor-pointer" onclick="const cb = this.querySelector('.cek-mutasi'); cb.checked = !cb.checked;">
-                <td class="p-3 text-center border-r border-gray-100">
-    <input type="checkbox" class="cek-mutasi w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer" value="${s.nis}" onclick="event.stopPropagation()">
-</td>
+                <td class="p-3 text-center border-r border-gray-100" onclick="event.stopPropagation()">
+                    <input type="checkbox" class="cek-mutasi w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer" value="${s.nis}">
+                </td>
                 <td class="p-3 text-gray-600 font-medium border-r border-gray-100">${s.nis}</td>
                 <td class="p-3 font-bold text-gray-800 border-r border-gray-100">${s.nama}</td>
                 <td class="p-3 text-center"><span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-semibold">${s.kelas}</span></td>
@@ -1840,24 +1979,25 @@ function prosesMutasi() {
         confirmButtonText: 'Ya, Pindahkan!'
     }).then((result) => {
         if (result.isConfirmed) {
-            showLoading(true);
+            showLoading(true, "Memproses Mutasi...");
             
             const formData = new URLSearchParams();
-            formData.append('action', 'mutasiSantri');
-            formData.append('token', sessionStorage.getItem('tokenMadasa')); 
-            formData.append('kelas_tujuan', kelasTujuan);
-            formData.append('nis_list', JSON.stringify(nisList));
+formData.append('action', 'mutasiSantri');
+formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
+formData.append('kelas_tujuan', kelasTujuan);
+formData.append('nis_list', JSON.stringify(nisList));
 
             fetch(GAS_URL, { method: 'POST', body: formData })
             .then(r => r.json())
             .then(res => {
                 if (res.status === 'success') {
-                    showLoading(false); 
+                    showLoading(false); // <-- Perbaikan: Matikan loading screen saat sukses
                     Swal.fire('Berhasil!', res.message, 'success');
                     document.getElementById('mutasiKelasAsal').value = '';
                     document.getElementById('mutasiKelasTujuan').value = '';
                     document.getElementById('bodyTabelMutasi').innerHTML = '<tr><td colspan="4" class="p-8 text-center text-gray-400"><i class="fas fa-check-circle text-4xl mb-2 text-emerald-400 block"></i>Mutasi selesai.</td></tr>';
                     
+                    // Segarkan ulang data lokal agar sinkron
                     loadDataSantri(); 
                 } else {
                     showLoading(false);
@@ -1877,40 +2017,49 @@ function prosesMutasi() {
 function toggleSidebarMobile() {
     const sidebar = document.querySelector('aside');
     
+    // Jika sidebar sedang tersembunyi (hidden), maka TAMPILKAN
     if (sidebar.classList.contains('hidden')) {
+        // --- SUNTIKAN RIWAYAT PALSU ---
         window.history.pushState({ menu: 'sidebar' }, "", "#menu");
         
         sidebar.classList.remove('hidden');
         sidebar.classList.add('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
         
+        // Buat layar gelap (overlay) di belakang sidebar
         if (!document.getElementById('overlay-sidebar')) {
             const overlay = document.createElement('div');
             overlay.id = 'overlay-sidebar';
             overlay.className = 'fixed inset-0 bg-black/50 z-[50] md:hidden backdrop-blur-sm transition-all';
             
+            // Jika layar gelap diklik, kita perintahkan browser untuk mengeksekusi "back" otomatis
             overlay.onclick = () => { window.history.back(); }; 
             
             document.body.appendChild(overlay);
         }
         
     } else {
+        // Jika sidebar sedang tampil, maka SEMBUNYIKAN KEMBALI
         sidebar.classList.add('hidden');
         sidebar.classList.remove('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
         
+        // Hapus layar gelap
         const overlay = document.getElementById('overlay-sidebar');
         if (overlay) overlay.remove();
     }
 }
 
 function tampilkanProfilDeveloper() {
+    // --- SUNTIKAN RIWAYAT PALSU ---
     window.history.pushState({ modal: 'profil' }, "", "#profil");
 
     Swal.fire({
         html: `
             <div class="text-center pt-1">
-                <div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center border-4 border-emerald-500 mb-3 shadow-md overflow-hidden">
-                    <img src="asset/arom.png" alt="Profile" class="w-full h-full object-cover">
-                </div>
+             
+                <!-- Ganti bagian div pembungkus dan img dengan kode ini -->
+<div class="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center border-4 border-emerald-500 mb-3 shadow-md overflow-hidden">
+    <img src="asset/arom.png" alt="Profile" class="w-full h-full object-cover">
+</div>
                 
                 <h3 class="text-lg font-heading font-bold text-gray-800 mb-0.5">Arom Kobama</h3>
                 <p class="text-[11px] text-emerald-600 font-bold mb-3 tracking-widest uppercase">Fullstack Developer</p>
@@ -1938,85 +2087,10 @@ function tampilkanProfilDeveloper() {
             confirmButton: 'rounded-xl font-bold px-5 py-2 text-sm shadow-md'
         }
     }).then(() => {
+        // Jika user menutup pop-up via tombol "X" atau "Tutup" (bukan back HP),
+        // hapus riwayat palsu tersebut agar tombol back tetap rapi.
         if (window.location.hash === "#profil") {
             window.history.back();
         }
     });
 }
-
-// =========================================================
-// ROTASI DOA & SEMANGAT UNTUK GURU (DI HALAMAN UTAMA)
-// =========================================================
-const daftarSalamGuru = [
-    // === KATEGORI 1: SEMANGAT PAGI & MEMULAI HARI ===
-    { judul: "Bismillah, Awali dengan Senyuman", teks: "Senyum tulus Ustadz/Ustadzah adalah energi positif pertama yang diterima santri hari ini. Selamat mengajar!" },
-    { judul: "Jemput Berkah di Pagi Hari", teks: "Langkah kakimu menuju madrasah adalah langkah pejuang ilmu. Semoga Allah mudahkan segala urusan hari ini." },
-    { judul: "Doa Malaikat Menyertaimu", teks: "Ketahuilah, sesungguhnya para malaikat membentangkan sayapnya bagi para pengajar kebaikan di muka bumi." },
-    { judul: "Pancaran Ilmu Darussalam", teks: "Semoga dari lisanmu hari ini, mengalir ilmu yang menjadi cahaya bagi masa depan generasi umat." },
-    { judul: "Niat Suci, Langkah Pasti", teks: "Perbarui niat Lillahita'ala. Tantangan mendidik hari ini adalah jalan pintas menuju surga-Nya." },
-    { judul: "Mengukir Jejak Kebaikan", teks: "Semoga Allah SWT memberkahi setiap langkah dan kesabaran antum dalam mendidik para santri hari ini." },
-
-    // === KATEGORI 2: KESABARAN & MENDIDIK HATI ===
-    { judul: "Sabar Menghadapi Karakter", teks: "Setiap kenakalan santri adalah ujian kesabaran yang akan meninggikan derajatmu di sisi Allah." },
-    { judul: "Menyentuh Hati dengan Kasih", teks: "Pendidikan sejati tidak hanya mengisi akal, tetapi menyentuh hati dengan keteladanan dan kasih sayang." },
-    { judul: "Mengukir di Atas Batu", teks: "Mendidik santri di usia belia bagai mengukir di atas batu. Butuh waktu dan kesabaran, namun hasilnya abadi." },
-    { judul: "Lentera di Kala Gelap", teks: "Saat kau merasa lelah menghadapi santri, ingatlah bahwa kau sedang menyalakan lentera untuk masa depan mereka." },
-    { judul: "Kelembutan Meluluhkan Hati", teks: "Tidak ada kelembutan yang menyertai sesuatu, melainkan akan memperindahnya. Lembutkan hatimu untuk mereka." },
-    { judul: "Lelah yang Menjadi Berkah", teks: "Tidurnya seorang guru yang kelelahan mendidik santri jauh lebih mulia di mata Allah." },
-    { judul: "Menanam Benih Kebaikan", teks: "Kau mungkin tidak memanennya esok hari, tapi percayalah, benih kebaikan itu akan tumbuh subur pada waktunya." },
-
-    // === KATEGORI 3: KEMULIAAN PROFESI & AMAL JARIYAH ===
-    { judul: "Ahlan Wa Sahlan, Pewaris Nabi", teks: "\"Sebaik-baik manusia adalah yang paling bermanfaat bagi lainnya.\" Teruslah semangat mencetak generasi Rabbani." },
-    { judul: "Arsitek Jiwa Manusia", teks: "Profesi guru tidak membangun gedung pencakar langit, tapi membangun jiwa-jiwa yang akan meninggikan agama Allah." },
-    { judul: "Pahala Tanpa Batas", teks: "Saat kita telah tiada, ilmu yang diajarkan akan terus hidup dan pahalanya terus mengalir deras tiada henti." },
-    { judul: "Mahkota Kemuliaan", teks: "Santri yang sukses dan sholeh kelak akan menjadi saksi yang memberatkan timbangan kebaikanmu di Yaumil Mizan." },
-    { judul: "Mencetak Bintang di Bumi", teks: "Dari bilik madrasah yang sederhana ini, di tanganmulah calon-calon pemimpin umat sedang dipersiapkan." },
-    { judul: "Harta yang Tak Lekang Waktu", teks: "Bukan harta yang kau wariskan, melainkan adab dan ilmu yang akan menjaga santrimu sepanjang hayat." },
-    { judul: "Tebarkan Ilmu & Cahaya", teks: "Satu nasihat baik darimu mungkin menjadi penerang jalan hidup seorang santri hingga ia dewasa kelak." },
-
-    // === KATEGORI 4: KEIKHLASAN & PENGABDIAN ===
-    { judul: "Bismillah, Niatkan Lillah", teks: "Setiap huruf yang Ustadz/Ustadzah ajarkan dengan ikhlas adalah benih amal jariyah yang pahalanya mengalir abadi." },
-    { judul: "Tulus Tanpa Mengharap Balas", teks: "Biarlah Allah yang membalas setiap tetes keringatmu dengan surga Firdaus yang tiada tara." },
-    { judul: "Syukur Atas Amanah", teks: "Bersyukurlah terpilih menjadi pendidik. Ini adalah amanah agung dan tanda cinta Allah kepadamu." },
-    { judul: "Doa di Sepertiga Malam", teks: "Jangan lupa sebut nama santri-santrimu dalam doamu. Hidayah milik Allah, tugas kita hanyalah berusaha." },
-    { judul: "Senandung Doa Tanpa Putus", teks: "Ribuan alumni Darussalam mungkin tak bisa membalas jasamu, tapi doa mereka selalu mengangkasa untukmu." },
-    { judul: "Bahagia Melihat Mereka Tumbuh", teks: "Tidak ada kebahagiaan sejati seorang guru selain melihat muridnya tumbuh menjadi pribadi yang berakhlak mulia." },
-    { judul: "Cermin Teladan Kebaikan", teks: "Jadilah cermin yang memantulkan keindahan akhlak Rasulullah agar santrimu memiliki sebaik-baik teladan." },
-    { judul: "Mengabdi Penuh Cinta", teks: "Ketika pendidikan didasari dengan rasa cinta karena Allah, maka keajaiban hidayah akan senantiasa hadir menyertai." }
-];
-
-function gantiSalamAcak() {
-    const elJudul = document.getElementById('salamJudul');
-    const elTeks = document.getElementById('salamTeks');
-    
-    if (!elJudul || !elTeks) return;
-
-    // Atur transisi secara eksplisit lewat JS agar sangat halus (0.5 detik)
-    elJudul.style.transition = "opacity 0.5s ease-in-out";
-    elTeks.style.transition = "opacity 0.5s ease-in-out";
-
-    // Langkah 1: Pudar Menghilang (Fade Out)
-    elJudul.style.opacity = 0;
-    elTeks.style.opacity = 0;
-
-    // Langkah 2: Tunggu 500ms (saat teks benar-benar tak terlihat), ganti teksnya, lalu Pudar Muncul (Fade In)
-    setTimeout(() => {
-        const acakIndex = Math.floor(Math.random() * daftarSalamGuru.length);
-        
-        elJudul.innerText = daftarSalamGuru[acakIndex].judul;
-        elTeks.innerText = daftarSalamGuru[acakIndex].teks;
-        
-        // Langkah 3: Pudar Muncul Kembali
-        elJudul.style.opacity = 1;
-        elTeks.style.opacity = 1;
-    }, 500); // Durasi penundaan pas dengan durasi transisi
-}
-
-// Jalankan ketika halaman aplikasi selesai dimuat
-document.addEventListener("DOMContentLoaded", () => {
-    // Panggil langsung saat pertama kali buka aplikasi
-    gantiSalamAcak(); 
-    
-    // Putar otomatis setiap 10 detik (10000 milidetik)
-    setInterval(gantiSalamAcak, 10000); 
-});
