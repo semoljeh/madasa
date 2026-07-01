@@ -380,3 +380,73 @@ function installPWAOrtu() {
 window.addEventListener('appinstalled', (evt) => { 
     tutupNotifPWAOrtu(); 
 });
+
+// =========================================================
+// ROTASI QUOTES WALI SANTRI
+// =========================================================
+const daftarKutipan = [
+    // --- Tentang Madrasah Darussalam ---
+    "Madrasah Darussalam, oase ilmu di gurun zaman, tempat menanam benih-benih takwa.",
+    "Di bawah panji Darussalam, generasi Rabbani ditempa untuk menjadi penerus perjuangan umat.",
+    "Di sini, ilmu dunawi berpadu dengan hikmah ukhrawi dalam simfoni pendidikan yang harmonis.",
+    "Cahaya ilmu memancar dari setiap bilik Darussalam, menerangi jiwa para santri.",
+    "Darussalam, lebih dari sekadar sekolah, ini adalah keluarga besar yang saling menguatkan dalam kebaikan.",
+    "Semoga Allah selalu meridhoi setiap langkah dan usaha Madrasah Darussalam.",
+    "Terpancarlah cahaya kebenaran dari setiap sudut Darussalam, rumah ilmu dan akhlak mulia.",
+    "Di Darussalam, kami mendidik hati dan akal, mencetak generasi yang cerdas dan saleh.",
+    "Keberkahan mengalir dari doa-doa para Kyai dan Guru Darussalam yang tak pernah putus.",
+    "Darussalam, benteng akidah di tengah badai zaman, penjaga tradisi dan nilai luhur.",
+    "Setiap santri yang melangkah keluar adalah duta kebaikan, membawa nama harum Madrasah Darussalam.",
+    
+    // --- Tentang Peran Wali Santri ---
+    "Wali Santri adalah mitra sejati Madrasah, pilar pendukung yang tak ternilai harganya.",
+    "Kerjasama harmonis antara wali santri dan asatidz adalah kunci kesuksesan pendidikan santri.",
+    "Doa ibu dan bapak di rumah adalah kekuatan utama yang membimbing langkah para santri di Madrasah.",
+    "Wali Santri yang cerdas memahami bahwa pendidikan anak adalah investasi terbaik untuk dunia dan akhirat.",
+    "Bersama, kita bahu-membahu membangun peradaban dari dalam keluarga, dengan Darussalam sebagai pilar utama.",
+    "Keikhlasan dan dukungan wali santri adalah bahan bakar yang menggerakkan roda kemajuan Madrasah Darussalam.",
+    "Hadirnya wali santri di setiap momen penting memperkuat semangat dan tekad Madrasah.",
+    "Jadikan rumah sebagai madrasah pertama bagi anak-anak, dan percayakan Darussalam sebagai pilar utama.",
+    "Mari kita jaga marwah dan nama baik Madrasah Darussalam, demi kebaikan bersama.",
+    "Wali Santri yang solid, Madrasah yang hebat, Santri yang saleh.",
+    "Terima kasih, wali santri, atas kepercayaan dan dukungan yang tak terhingga.",
+
+    // --- Hubungan Alumni, Santri, Wali Santri dengan Guru ---
+    "Alumni Darussalam adalah cerminan dari didikan luhur para asatidz dan Kyai.",
+    "Tali silaturahmi tak pernah putus antara alumni, santri, wali santri, dan guru, dalam satu keluarga besar.",
+    "Santri menghormati guru, alumni mengenang guru, wali santri mempercayai guru.",
+    "Di mana pun alumni berada, nama guru selalu tertanam di dada, sebagai pedoman hidup.",
+    "Keberhasilan alumni adalah kebanggaan dan bukti berkah dari ilmu yang diajarkan oleh para asatidz.",
+    "Santri teladan adalah cermin bakti wali santri kepada para guru dan Madrasah.",
+    "Hormatilah guru, maka ilmu akan berkah dan hidup akan terarah menuju keridhaan Allah.",
+    "Dukungan wali santri kepada guru, demi kemaslahatan bersama para santri dan kemajuan Madrasah.",
+    "Jaringan alumni yang kuat, saling dukung demi kemajuan almamater dan peradaban umat.",
+    "Guru adalah pelita yang menerangi jalan, alumni adalah cahaya yang menyinari dunia, santri adalah generasi penerus perjuangan.",
+    "Saling mendoakan dalam kebaikan, itulah kuncinya."
+];
+
+function rotasiKutipan() {
+    const elemenKutipan = document.getElementById('kutipanTeks');
+    if (!elemenKutipan) return;
+
+    // Hilangkan teks (fade out)
+    elemenKutipan.style.opacity = 0;
+    
+    setTimeout(() => {
+        // Pilih angka acak dari 0 sampai 32
+        const indeksAcak = Math.floor(Math.random() * daftarKutipan.length);
+        
+        // Ubah teks
+        elemenKutipan.innerText = `"${daftarKutipan[indeksAcak]}"`;
+        
+        // Tampilkan teks kembali (fade in)
+        elemenKutipan.style.opacity = 1;
+    }, 500); // Waktu 500ms ini menyesuaikan dengan durasi animasi di HTML (duration-500)
+}
+
+// Jalankan ketika halaman selesai dimuat
+document.addEventListener("DOMContentLoaded", () => {
+    rotasiKutipan();
+    // Ganti kutipan otomatis setiap 8 detik (8000 milidetik)
+    setInterval(rotasiKutipan, 8000);
+});
