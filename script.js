@@ -1218,7 +1218,39 @@ function loadSettingRapor() {
         } else {
             santriKelas.forEach(s => { 
                 let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''}; 
-                tbody.innerHTML += ` <tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}"> <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800">${s.nama}</td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.akhlaq}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.kerajinan}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-disiplin w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.disiplin}" maxlength="1"></td> <td class="p-2 border-r bg-blue-50/30"><input type="text" class="inp-rapi w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.rapi}" maxlength="1"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-sakit w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.sakit}"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-izin w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.izin}"></td> <td class="p-2 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.alpa}"></td> <td class="p-2 border-r bg-emerald-50/30"><input type="text" class="inp-keputusan w-48 border-2 border-emerald-200 rounded p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Ex: Naik Ke Kelas II"></td> <td class="p-2 bg-purple-50/30"><input type="text" class="inp-catatan w-72 border-2 border-purple-200 rounded p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Ex: Tingkatkan prestasimu..."></td> </tr>`; 
+                tbody.innerHTML += ` 
+<tr class="hover:bg-gray-50 set-santri-row" data-nis="${s.nis}"> 
+    <td class="p-2 sm:p-3 border-r font-bold align-middle sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800">
+    <div class="w-[110px] sm:w-[200px] whitespace-normal text-xs sm:text-sm leading-tight" title="${s.nama}">${s.nama}</div>
+</td>
+    <td class="p-1 sm:p-2 border-r bg-blue-50/30">
+        <input type="text" class="inp-akhlaq w-10 sm:w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs sm:text-sm" value="${d.akhlaq}" maxlength="1">
+    </td> 
+    <td class="p-1 sm:p-2 border-r bg-blue-50/30">
+        <input type="text" class="inp-rajin w-10 sm:w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs sm:text-sm" value="${d.kerajinan}" maxlength="1">
+    </td> 
+    <td class="p-1 sm:p-2 border-r bg-blue-50/30">
+        <input type="text" class="inp-disiplin w-10 sm:w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs sm:text-sm" value="${d.disiplin}" maxlength="1">
+    </td> 
+    <td class="p-1 sm:p-2 border-r bg-blue-50/30">
+        <input type="text" class="inp-rapi w-10 sm:w-14 mx-auto block text-center border-2 border-blue-200 rounded p-1 sm:p-1.5 uppercase font-bold text-blue-700 outline-none focus:border-blue-500 text-xs sm:text-sm" value="${d.rapi}" maxlength="1">
+    </td> 
+    <td class="p-1 sm:p-2 border-r bg-orange-50/30">
+        <input type="number" class="inp-sakit w-12 sm:w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs sm:text-sm" value="${d.sakit}">
+    </td> 
+    <td class="p-1 sm:p-2 border-r bg-orange-50/30">
+        <input type="number" class="inp-izin w-12 sm:w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs sm:text-sm" value="${d.izin}">
+    </td> 
+    <td class="p-1 sm:p-2 border-r bg-orange-50/30">
+        <input type="number" class="inp-alpa w-12 sm:w-14 mx-auto block text-center border-2 border-orange-200 rounded p-1 sm:p-1.5 font-bold text-orange-700 outline-none focus:border-orange-500 text-xs sm:text-sm" value="${d.alpa}">
+    </td> 
+    <td class="p-1 sm:p-2 border-r bg-emerald-50/30">
+        <input type="text" class="inp-keputusan w-32 sm:w-48 border-2 border-emerald-200 rounded p-1 sm:p-1.5 text-[10px] sm:text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${d.keputusan}" placeholder="Naik Ke...">
+    </td> 
+    <td class="p-1 sm:p-2 bg-purple-50/30">
+        <input type="text" class="inp-catatan w-40 sm:w-72 border-2 border-purple-200 rounded p-1 sm:p-1.5 text-[10px] sm:text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${d.catatan}" placeholder="Catatan...">
+    </td> 
+</tr>`;
             }); 
         }
     }).catch(e => {
@@ -1919,7 +1951,6 @@ const daftarSalamGuru = [
     // === KATEGORI 1: SEMANGAT PAGI & MEMULAI HARI ===
     { judul: "Bismillah, Awali dengan Senyuman", teks: "Senyum tulus Ustadz/Ustadzah adalah energi positif pertama yang diterima santri hari ini. Selamat mengajar!" },
     { judul: "Jemput Berkah di Pagi Hari", teks: "Langkah kakimu menuju madrasah adalah langkah pejuang ilmu. Semoga Allah mudahkan segala urusan hari ini." },
-    { judul: "Pagi yang Penuh Harapan", teks: "Setiap pagi adalah lembaran baru untuk menorehkan tinta kebaikan di hati para santri. Bismillah!" },
     { judul: "Doa Malaikat Menyertaimu", teks: "Ketahuilah, sesungguhnya para malaikat membentangkan sayapnya bagi para pengajar kebaikan di muka bumi." },
     { judul: "Pancaran Ilmu Darussalam", teks: "Semoga dari lisanmu hari ini, mengalir ilmu yang menjadi cahaya bagi masa depan generasi umat." },
     { judul: "Niat Suci, Langkah Pasti", teks: "Perbarui niat Lillahita'ala. Tantangan mendidik hari ini adalah jalan pintas menuju surga-Nya." },
@@ -1939,7 +1970,6 @@ const daftarSalamGuru = [
     { judul: "Arsitek Jiwa Manusia", teks: "Profesi guru tidak membangun gedung pencakar langit, tapi membangun jiwa-jiwa yang akan meninggikan agama Allah." },
     { judul: "Pahala Tanpa Batas", teks: "Saat kita telah tiada, ilmu yang diajarkan akan terus hidup dan pahalanya terus mengalir deras tiada henti." },
     { judul: "Mahkota Kemuliaan", teks: "Santri yang sukses dan sholeh kelak akan menjadi saksi yang memberatkan timbangan kebaikanmu di Yaumil Mizan." },
-    { judul: "Bukan Sekadar Pekerjaan", teks: "Mengajar di Madrasah bukan sekadar rutinitas kerja, ini adalah ladang pengabdian untuk meraih ridha Sang Pencipta." },
     { judul: "Mencetak Bintang di Bumi", teks: "Dari bilik madrasah yang sederhana ini, di tanganmulah calon-calon pemimpin umat sedang dipersiapkan." },
     { judul: "Harta yang Tak Lekang Waktu", teks: "Bukan harta yang kau wariskan, melainkan adab dan ilmu yang akan menjaga santrimu sepanjang hayat." },
     { judul: "Tebarkan Ilmu & Cahaya", teks: "Satu nasihat baik darimu mungkin menjadi penerang jalan hidup seorang santri hingga ia dewasa kelak." },
