@@ -2109,3 +2109,75 @@ function tampilkanProfilDeveloper() {
         }
     });
 }
+
+// =========================================================
+// FITUR MOTIVASI BANNER UTAMA (IKHLAS MENGABDI)
+// =========================================================
+const dataMotivasiBanner = [
+    { judul: "Benih Kebaikan", teks: "\"Setiap ilmu yang kau ajarkan adalah bibit amal jariyah yang akan terus mengalirkan pahala, bahkan saat engkau telah tiada.\"" },
+    { judul: "Cahaya Ilmu", teks: "\"Jadilah lentera di tengah kegelapan, sebab satu kalimat hikmah yang kau sampaikan lebih berharga daripada dunia dan segala isinya.\"" },
+    { judul: "Pahlawan Senyap", teks: "\"Meski jasamu sering tak terlihat, ingatlah bahwa Allah Maha Melihat setiap tetes keringat yang jatuh demi mencerdaskan ummat.\"" },
+    { judul: "Ikhlas Mendidik", teks: "\"Bukan nominal yang menjadi tujuan, namun ridha Allah yang kau cari dalam setiap langkahmu memasuki ruang kelas setiap hari.\"" },
+    { judul: "Jalan Surga", teks: "\"Barangsiapa menempuh jalan untuk menuntut atau mengajarkan ilmu, maka Allah akan memudahkan baginya jalan menuju surga.\"" },
+    { judul: "Ladang Pahala", teks: "\"Jangan pernah mengeluh lelah, sebab setiap detik yang kau habiskan bersama murid-murid adalah investasi berharga di akhirat kelak.\"" },
+    { judul: "Sabar Tanpa Tepi", teks: "\"Hadapi kenakalan murid dengan kesabaran yang indah, karena itulah ujian yang akan mengangkat derajatmu setinggi-tingginya di sisi Allah.\"" },
+    { judul: "Hati Terpanggil", teks: "\"Panggilan jiwamu menjadi guru bukan sekadar profesi, melainkan amanah besar yang kelak akan dimintai pertanggungjawaban di hadapan-Nya.\"" },
+    { judul: "Pelita Ummat", teks: "\"Tugasmu mulia karena engkau sedang menjaga warisan para Nabi, yakni menyebarkan ilmu yang bermanfaat bagi kehidupan manusia.\"" },
+    { judul: "Tulus Mengabdi", teks: "\"Kemuliaan seorang guru terletak pada keikhlasan hati dalam berbakti, bukan pada pujian manusia maupun besaran materi yang diterima.\"" },
+    { judul: "Batu Bata", teks: "\"Setiap nasihat baik yang kau berikan adalah batu bata yang sedang kau susun untuk membangun peradaban Islam yang kokoh di masa depan.\"" },
+    { judul: "Kunci Hati", teks: "\"Ilmu akan sulit meresap ke dalam akal jika tidak disiram dengan keikhlasan hati. Dekati muridmu dengan kasih sayang, ajari dengan keteladanan.\"" },
+    { judul: "Pewaris Peradaban", teks: "\"Jangan bersedih saat dunia terasa sempit, karena tugasmu adalah mendidik calon-calon pemimpin ummat yang akan mendoakanmu kelak.\"" },
+    { judul: "Tetap Bersinar", teks: "\"Jaga semangatmu tetap menyala, karena engkau adalah sumber energi bagi murid-muridmu dalam menapaki jalan kebenaran.\"" },
+    { judul: "Bakti Murni", teks: "\"Mengajar adalah bentuk ibadah yang agung. Luruskan niatmu semata-mata karena Allah, maka lelahmu akan berganti menjadi berkah.\"" },
+    { judul: "Karsa Mulia", teks: "\"Niat tulusmu dalam mendidik adalah saksi bisu di hari kiamat nanti, bahwa engkau telah berusaha menjaga amanah-Nya sebaik mungkin.\"" },
+    { judul: "Benih Abadi", teks: "\"Apa yang kau tanam di pikiran dan hati muridmu hari ini, akan menjadi panen kebaikan yang terus dipetik hingga akhir zaman.\"" },
+    { judul: "Syukur Guru", teks: "\"Bersyukurlah karena tanganmu dipilih oleh Allah untuk membentuk karakter manusia. Itu adalah kehormatan yang tak dimiliki sembarang orang.\"" },
+    { judul: "Ujian Sabar", teks: "\"Di balik setiap kesulitan mendidik, ada pahala sabar yang sedang dicatat oleh malaikat. Jangan pernah menyerah, Allah bersamamu.\"" },
+    { judul: "Pemberi Harapan", teks: "\"Seringkali engkau adalah alasan seorang anak untuk terus bermimpi. Teruslah menjadi inspirasi yang membawa mereka dekat pada-Nya.\"" },
+    { judul: "Etos Kerja", teks: "\"Profesionalitasmu dalam mendidik adalah cerminan iman. Berikan yang terbaik, karena engkau sedang bekerja untuk Allah SWT.\"" },
+    { judul: "Cinta Ilmu", teks: "\"Mengajar adalah cara terbaik untuk terus belajar. Semakin engkau memberi, semakin Allah akan membukakan pintu hikmah untukmu.\"" },
+    { judul: "Jiwa Tangguh", teks: "\"Badai tantangan dalam mendidik tidak boleh mematahkan semangatmu, karena kekuatanmu bersumber dari pertolongan Allah yang Maha Kuat.\"" },
+    { judul: "Pendidik Sejati", teks: "\"Guru sejati adalah ia yang mendidik dengan cinta dan mengharap balasan hanya dari Allah, bukan dari manusia.\"" },
+    { judul: "Teguh Berdiri", teks: "\"Tetaplah teguh sebagai penunjuk jalan kebaikan, meski keadaan sulit, karena setiap huruf yang kau ajarkan adalah cahaya di dalam kubur.\"" },
+    { judul: "Senyum Ikhlas", teks: "\"Senyum ramahmu di depan kelas adalah sedekah. Ia mampu mencairkan hati murid yang keras dan membuka pintu hidayah.\"" },
+    { judul: "Tangan Berkah", teks: "\"Tangan yang digunakan untuk menuliskan ilmu dan membimbing murid adalah tangan yang didoakan keberkahan oleh penduduk langit dan bumi.\"" },
+    { judul: "Misi Suci", teks: "\"Engkau sedang berjuang mencetak generasi yang lebih baik dan lebih bertakwa dari generasimu. Teruskan perjuangan suci ini!\"" },
+    { judul: "Pendar Cahaya", teks: "\"Jadilah guru yang tidak hanya transfer materi, tapi juga transfer nilai-nilai iman yang akan membimbing mereka hingga akhirat.\"" },
+    { judul: "Dedikasi Hati", teks: "\"Keikhlasanmu adalah kunci keberkahan ilmu. Tanpanya, ilmu hanya akan menjadi pengetahuan, namun dengannya, ilmu menjadi hidayah.\"" },
+    { judul: "Amanah Mulia", teks: "\"Mendidik manusia adalah pekerjaan para Nabi. Sadarilah betapa mulia posisi yang sedang engkau tempati saat ini.\"" },
+    { judul: "Lelah Berkah", teks: "\"Lelahmu hari ini adalah saksi perjuangan di hari penghisaban. Tidurlah dengan tenang, Allah tidak menyia-nyiakan amal hambanya.\"" },
+    { judul: "Waktu Emas", teks: "\"Setiap waktu yang kau habiskan di dalam kelas adalah kesempatan untuk mengukir sejarah kebaikan dalam diri seseorang.\"" }
+];
+
+function rotasiMotivasiBanner() {
+    const elJudul = document.getElementById('judulBanner');
+    const elTeks = document.getElementById('teksBanner');
+    
+    if (!elJudul || !elTeks) return;
+
+    // 1. Efek Redup (Fade Out)
+    elJudul.style.opacity = 0;
+    elTeks.style.opacity = 0;
+
+    // 2. Tunggu sebentar sampai teks menghilang, lalu ganti teksnya
+    setTimeout(() => {
+        const acak = Math.floor(Math.random() * dataMotivasiBanner.length);
+        
+        elJudul.innerText = dataMotivasiBanner[acak].judul;
+        elTeks.innerText = dataMotivasiBanner[acak].teks;
+        
+        // 3. Efek Terang Kembali (Fade In)
+        elJudul.style.opacity = 1;
+        elTeks.style.opacity = 1;
+    }, 700); // 700ms sama dengan durasi efek redup di HTML
+}
+
+// Jalankan ketika web pertama kali dimuat
+document.addEventListener("DOMContentLoaded", () => {
+    // Beri jeda 5 detik pertama sebelum mulai berganti
+    setTimeout(() => {
+        rotasiMotivasiBanner();
+        // Setelah itu, ganti secara otomatis setiap 12 detik
+        setInterval(rotasiMotivasiBanner, 15000); 
+    }, 5000);
+});
