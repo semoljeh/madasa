@@ -1911,3 +1911,82 @@ function tampilkanProfilDeveloper() {
         }
     });
 }
+
+// =========================================================
+// ROTASI DOA & SEMANGAT UNTUK GURU (DI HALAMAN UTAMA)
+// =========================================================
+const daftarSalamGuru = [
+    // === KATEGORI 1: SEMANGAT PAGI & MEMULAI HARI ===
+    { judul: "Bismillah, Awali dengan Senyuman", teks: "Senyum tulus Ustadz/Ustadzah adalah energi positif pertama yang diterima santri hari ini. Selamat mengajar!" },
+    { judul: "Jemput Berkah di Pagi Hari", teks: "Langkah kakimu menuju madrasah adalah langkah pejuang ilmu. Semoga Allah mudahkan segala urusan hari ini." },
+    { judul: "Pagi yang Penuh Harapan", teks: "Setiap pagi adalah lembaran baru untuk menorehkan tinta kebaikan di hati para santri. Bismillah!" },
+    { judul: "Doa Malaikat Menyertaimu", teks: "Ketahuilah, sesungguhnya para malaikat membentangkan sayapnya bagi para pengajar kebaikan di muka bumi." },
+    { judul: "Pancaran Ilmu Darussalam", teks: "Semoga dari lisanmu hari ini, mengalir ilmu yang menjadi cahaya bagi masa depan generasi umat." },
+    { judul: "Niat Suci, Langkah Pasti", teks: "Perbarui niat Lillahita'ala. Tantangan mendidik hari ini adalah jalan pintas menuju surga-Nya." },
+    { judul: "Mengukir Jejak Kebaikan", teks: "Semoga Allah SWT memberkahi setiap langkah dan kesabaran antum dalam mendidik para santri hari ini." },
+
+    // === KATEGORI 2: KESABARAN & MENDIDIK HATI ===
+    { judul: "Sabar Menghadapi Karakter", teks: "Setiap kenakalan santri adalah ujian kesabaran yang akan meninggikan derajatmu di sisi Allah." },
+    { judul: "Menyentuh Hati dengan Kasih", teks: "Pendidikan sejati tidak hanya mengisi akal, tetapi menyentuh hati dengan keteladanan dan kasih sayang." },
+    { judul: "Mengukir di Atas Batu", teks: "Mendidik santri di usia belia bagai mengukir di atas batu. Butuh waktu dan kesabaran, namun hasilnya abadi." },
+    { judul: "Lentera di Kala Gelap", teks: "Saat kau merasa lelah menghadapi santri, ingatlah bahwa kau sedang menyalakan lentera untuk masa depan mereka." },
+    { judul: "Kelembutan Meluluhkan Hati", teks: "Tidak ada kelembutan yang menyertai sesuatu, melainkan akan memperindahnya. Lembutkan hatimu untuk mereka." },
+    { judul: "Lelah yang Menjadi Berkah", teks: "Tidurnya seorang guru yang kelelahan mendidik santri jauh lebih mulia di mata Allah." },
+    { judul: "Menanam Benih Kebaikan", teks: "Kau mungkin tidak memanennya esok hari, tapi percayalah, benih kebaikan itu akan tumbuh subur pada waktunya." },
+
+    // === KATEGORI 3: KEMULIAAN PROFESI & AMAL JARIYAH ===
+    { judul: "Ahlan Wa Sahlan, Pewaris Nabi", teks: "\"Sebaik-baik manusia adalah yang paling bermanfaat bagi lainnya.\" Teruslah semangat mencetak generasi Rabbani." },
+    { judul: "Arsitek Jiwa Manusia", teks: "Profesi guru tidak membangun gedung pencakar langit, tapi membangun jiwa-jiwa yang akan meninggikan agama Allah." },
+    { judul: "Pahala Tanpa Batas", teks: "Saat kita telah tiada, ilmu yang diajarkan akan terus hidup dan pahalanya terus mengalir deras tiada henti." },
+    { judul: "Mahkota Kemuliaan", teks: "Santri yang sukses dan sholeh kelak akan menjadi saksi yang memberatkan timbangan kebaikanmu di Yaumil Mizan." },
+    { judul: "Bukan Sekadar Pekerjaan", teks: "Mengajar di Madrasah bukan sekadar rutinitas kerja, ini adalah ladang pengabdian untuk meraih ridha Sang Pencipta." },
+    { judul: "Mencetak Bintang di Bumi", teks: "Dari bilik madrasah yang sederhana ini, di tanganmulah calon-calon pemimpin umat sedang dipersiapkan." },
+    { judul: "Harta yang Tak Lekang Waktu", teks: "Bukan harta yang kau wariskan, melainkan adab dan ilmu yang akan menjaga santrimu sepanjang hayat." },
+    { judul: "Tebarkan Ilmu & Cahaya", teks: "Satu nasihat baik darimu mungkin menjadi penerang jalan hidup seorang santri hingga ia dewasa kelak." },
+
+    // === KATEGORI 4: KEIKHLASAN & PENGABDIAN ===
+    { judul: "Bismillah, Niatkan Lillah", teks: "Setiap huruf yang Ustadz/Ustadzah ajarkan dengan ikhlas adalah benih amal jariyah yang pahalanya mengalir abadi." },
+    { judul: "Tulus Tanpa Mengharap Balas", teks: "Biarlah Allah yang membalas setiap tetes keringatmu dengan surga Firdaus yang tiada tara." },
+    { judul: "Syukur Atas Amanah", teks: "Bersyukurlah terpilih menjadi pendidik. Ini adalah amanah agung dan tanda cinta Allah kepadamu." },
+    { judul: "Doa di Sepertiga Malam", teks: "Jangan lupa sebut nama santri-santrimu dalam doamu. Hidayah milik Allah, tugas kita hanyalah berusaha." },
+    { judul: "Senandung Doa Tanpa Putus", teks: "Ribuan alumni Darussalam mungkin tak bisa membalas jasamu, tapi doa mereka selalu mengangkasa untukmu." },
+    { judul: "Bahagia Melihat Mereka Tumbuh", teks: "Tidak ada kebahagiaan sejati seorang guru selain melihat muridnya tumbuh menjadi pribadi yang berakhlak mulia." },
+    { judul: "Cermin Teladan Kebaikan", teks: "Jadilah cermin yang memantulkan keindahan akhlak Rasulullah agar santrimu memiliki sebaik-baik teladan." },
+    { judul: "Mengabdi Penuh Cinta", teks: "Ketika pendidikan didasari dengan rasa cinta karena Allah, maka keajaiban hidayah akan senantiasa hadir menyertai." }
+];
+
+function gantiSalamAcak() {
+    const elJudul = document.getElementById('salamJudul');
+    const elTeks = document.getElementById('salamTeks');
+    
+    if (!elJudul || !elTeks) return;
+
+    // Atur transisi secara eksplisit lewat JS agar sangat halus (0.5 detik)
+    elJudul.style.transition = "opacity 0.5s ease-in-out";
+    elTeks.style.transition = "opacity 0.5s ease-in-out";
+
+    // Langkah 1: Pudar Menghilang (Fade Out)
+    elJudul.style.opacity = 0;
+    elTeks.style.opacity = 0;
+
+    // Langkah 2: Tunggu 500ms (saat teks benar-benar tak terlihat), ganti teksnya, lalu Pudar Muncul (Fade In)
+    setTimeout(() => {
+        const acakIndex = Math.floor(Math.random() * daftarSalamGuru.length);
+        
+        elJudul.innerText = daftarSalamGuru[acakIndex].judul;
+        elTeks.innerText = daftarSalamGuru[acakIndex].teks;
+        
+        // Langkah 3: Pudar Muncul Kembali
+        elJudul.style.opacity = 1;
+        elTeks.style.opacity = 1;
+    }, 500); // Durasi penundaan pas dengan durasi transisi
+}
+
+// Jalankan ketika halaman aplikasi selesai dimuat
+document.addEventListener("DOMContentLoaded", () => {
+    // Panggil langsung saat pertama kali buka aplikasi
+    gantiSalamAcak(); 
+    
+    // Putar otomatis setiap 10 detik (10000 milidetik)
+    setInterval(gantiSalamAcak, 10000); 
+});
