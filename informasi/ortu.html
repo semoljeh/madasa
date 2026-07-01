@@ -204,37 +204,35 @@
                     <table class="w-full text-left text-sm">
                         <thead>
                             <tr class="bg-gray-100 text-gray-700 font-bold border-b border-gray-200">
-                                <th class="p-3">Komponen / Mata Pelajaran</th>
-                                <th class="p-3 text-center w-28">Nilai Angka</th>
-                                <th class="p-3 text-center w-36">Kategori</th>
+                                <!-- Class whitespace-nowrap mencegah teks menumpuk -->
+                                <th class="p-3 whitespace-nowrap">Komponen / Mata Pelajaran</th>
+                                <th class="p-3 text-center whitespace-nowrap w-24 sm:w-28">Nilai Angka</th>
+                                <th class="p-3 text-center whitespace-nowrap w-24 sm:w-36">Kategori</th>
                             </tr>
                         </thead>
                        <tbody id="bodyTabelNilaiOrtu" class="divide-y divide-gray-100 bg-white">
                         </tbody>
                         
-                        <!-- ========================================== -->
-                        <!-- TAMBAHAN: FOOTER TOTAL & RANKING KELAS     -->
-                        <!-- ========================================== -->
+                        <!-- FOOTER TOTAL & RANKING KELAS -->
                         <tfoot id="footerTabelNilaiOrtu" class="bg-gray-50 hidden">
                             <tr class="border-t-2 border-gray-200">
-                                <td class="p-3 font-bold text-gray-700 text-right uppercase text-xs">Total Nilai</td>
-                                <td class="p-3 text-center font-black text-base text-gray-800" id="ortuTotalNilai">-</td>
+                                <!-- whitespace-nowrap ditambahkan pada setiap judul dan nilai footer -->
+                                <td class="p-3 font-bold text-gray-700 text-right uppercase text-xs whitespace-nowrap">Total Nilai</td>
+                                <td class="p-3 text-center font-black text-base text-gray-800 whitespace-nowrap" id="ortuTotalNilai">-</td>
                                 <td></td>
                             </tr>
                             <tr class="border-t border-gray-100">
-                                <td class="p-3 font-bold text-gray-700 text-right uppercase text-xs">Rata-Rata</td>
-                                <td class="p-3 text-center font-black text-base text-blue-600" id="ortuRataRata">-</td>
+                                <td class="p-3 font-bold text-gray-700 text-right uppercase text-xs whitespace-nowrap">Rata-Rata</td>
+                                <td class="p-3 text-center font-black text-base text-blue-600 whitespace-nowrap" id="ortuRataRata">-</td>
                                 <td></td>
                             </tr>
                             <tr class="bg-emerald-100/50 border-t border-emerald-200">
-                                <td class="p-3 font-bold text-emerald-800 text-right uppercase text-xs align-middle">Peringkat Kelas</td>
-                                <td class="p-3 text-center align-middle font-bold text-black uppercase text-xs tracking-wide" colspan="2">
+                                <td class="p-3 font-bold text-emerald-800 text-right uppercase text-xs align-middle whitespace-nowrap">Peringkat Kelas</td>
+                                <td class="p-3 text-center align-middle font-bold text-black uppercase text-xs tracking-wide whitespace-nowrap" colspan="2">
                                     KE-<span id="ortuRanking">-</span> DARI <span id="ortuJumlahSantri">-</span> SANTRI
                                 </td>
                             </tr>
                         </tfoot>
-                        <!-- ========================================== -->
-                        
                     </table>
                 </div>
             </div>
