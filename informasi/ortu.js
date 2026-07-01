@@ -447,6 +447,6 @@ function rotasiKutipan() {
 // Jalankan ketika halaman selesai dimuat
 document.addEventListener("DOMContentLoaded", () => {
     rotasiKutipan();
-    // Ganti kutipan otomatis setiap 8 detik (8000 milidetik)
-    setInterval(rotasiKutipan, 8000);
+    // Ganti kutipan otomatis setiap 10 detik (12000 milidetik)
+    setInterval(rotasiKutipan, 12000);
 });
