@@ -87,7 +87,7 @@
         </div>
     </div>
 
-    <div id="kertasRapor" class="bg-white mx-auto shadow-2xl relative box-border hidden" style="width: 215mm; min-height: 330mm; padding: 15mm 15mm;">
+    <div id="kertasRapor" class="bg-white mx-auto shadow-2xl relative box-border hidden" style="width: 215mm; min-height: 330mm; padding: 10mm 15mm;">
         
         <div class="flex items-center justify-between pb-2 border-b-[3px] border-black mb-1 relative">
             <img id="val_stempel" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 opacity-20 hidden object-contain" alt="">
@@ -96,17 +96,20 @@
                 <img src="asset/logo.png" class="w-[70px] h-[70px] object-contain mx-auto" onerror="this.outerHTML='<div class=\\'w-[70px] h-[70px] rounded-full border-2 border-emerald-800 flex items-center justify-center text-emerald-800 text-2xl font-bold bg-gray-50\\'><i class=\\'fas fa-mosque\\'></i></div>'" alt="Logo TK">
             </div>
             <div class="flex-1 text-center relative z-10">
-                <h1 class="text-xl font-heading font-bold text-emerald-800 uppercase tracking-widest mb-1">TK RA</h1>
+                <h1 class="text-lg font-heading font-bold text-emerald-800 uppercase tracking-widest mb-1">TK - RA (RAUDLATUL ATHFAL)</h1>
                 <h2 class="text-2xl font-black uppercase tracking-widest text-black mb-1">DARUSSALAM</h2>
-                <p class="text-[11px] font-medium text-gray-800">Batukessel Bandang Laok Kokop Bangkalan | Website: www.madasa.ponpes.id</p>
+                <p class="text-[10px] font-medium text-gray-600 leading-tight">
+                    Batukessel, Bandang Laok, Kokop, Bangkalan, Kode Pos 69155<br>
+                    Website: www.madasa.ponpes.id | Email: batukessel@gmail.com
+                </p>
             </div>
             <div class="w-20"></div>
         </div>
-        <div class="w-full border-b border-black mb-6 mt-[2px]"></div>
+        <div class="w-full border-b border-black mb-4 mt-[2px]"></div>
 
-        <h3 class="text-center text-[14px] font-bold uppercase mb-6 tracking-widest underline underline-offset-4">PENCAPAIAN KOMPETENSI SANTRI</h3>
+        <h3 class="text-center text-[14px] font-bold uppercase mb-3 tracking-widest underline underline-offset-4">PENCAPAIAN KOMPETENSI SANTRI</h3>
 
-        <div class="flex justify-between items-start mb-6 text-[12px] font-bold">
+        <div class="flex justify-between items-start mb-4 text-[12px] font-bold">
             <div class="w-[48%]">
                 <table class="w-full no-border">
                     <tr><td class="w-28">Nama Santri</td><td class="w-3">:</td><td id="val_nama" class="uppercase text-emerald-700">...</td></tr>
@@ -144,57 +147,66 @@
                 </tbody>
         </table>
 
-        <div class="flex justify-between items-stretch mt-6 text-[11px] w-full">
+        <!-- TABEL KEPRIBADIAN & KETIDAKHADIRAN -->
+        <div class="flex justify-between items-start mt-2 text-[10px] w-full">
             <div class="w-[48%]">
                 <table class="w-full h-full">
                     <thead>
-                        <tr class="bg-gray-100 font-bold"><th colspan="2" class="text-center py-2">KEPRIBADIAN</th></tr>
+                        <!-- PERBAIKAN: Tinggi judul (header) diperbesar menjadi 28px -->
+                        <tr class="bg-gray-100 font-bold" style="height: 28px;"><th colspan="2" class="text-center py-0">KEPRIBADIAN</th></tr>
                     </thead>
                     <tbody class="font-bold">
-                        <tr><td class="w-1/2 px-2 py-1.5">Akhlaq</td><td class="px-2 text-center w-1/2" id="val_akhlaq">...</td></tr>
-                        <tr><td class="px-2 py-1.5">Kerajinan</td><td class="px-2 text-center" id="val_rajin">...</td></tr>
-                        <tr><td class="px-2 py-1.5">Kedisiplinan</td><td class="px-2 text-center" id="val_disiplin">...</td></tr>
-                        <tr><td class="px-2 py-1.5">Kerapihan</td><td class="px-2 text-center" id="val_rapi">...</td></tr>
+                        <!-- PERBAIKAN: Tinggi 4 baris data diperkecil dari 20px menjadi 16px -->
+                        <tr style="height: 16px;"><td class="w-1/2 px-2 py-0">Akhlaq</td><td class="px-2 text-center w-1/2" id="val_akhlaq">...</td></tr>
+                        <tr style="height: 16px;"><td class="px-2 py-0">Kerajinan</td><td class="px-2 text-center" id="val_rajin">...</td></tr>
+                        <tr style="height: 16px;"><td class="px-2 py-0">Kedisiplinan</td><td class="px-2 text-center" id="val_disiplin">...</td></tr>
+                        <tr style="height: 16px;"><td class="px-2 py-0">Kerapihan</td><td class="px-2 text-center" id="val_rapi">...</td></tr>
                     </tbody>
                 </table>
             </div>
             <div class="w-[48%]">
                 <table class="w-full h-full">
                     <thead>
-                        <tr class="bg-gray-100 font-bold"><th colspan="2" class="text-center py-2">KETIDAKHADIRAN</th></tr>
+                        <!-- PERBAIKAN: Tinggi judul (header) diperbesar menjadi 28px -->
+                        <tr class="bg-gray-100 font-bold" style="height: 28px;"><th colspan="2" class="text-center py-0">KETIDAKHADIRAN</th></tr>
                     </thead>
                     <tbody class="font-bold">
-                        <tr><td class="w-1/2 px-2 py-1.5">Sakit</td><td class="px-2 text-center w-1/2"><span id="val_sakit">...</span> Hari</td></tr>
-                        <tr><td class="px-2 py-1.5">Izin</td><td class="px-2 text-center"><span id="val_izin">...</span> Hari</td></tr>
-                        <tr><td class="px-2 py-1.5">Tanpa Keterangan</td><td class="px-2 text-center"><span id="val_alpa">...</span> Hari</td></tr>
+                        <!-- PERBAIKAN: Tinggi 4 baris data diperkecil dari 20px menjadi 16px -->
+                        <tr style="height: 16px;"><td class="w-1/2 px-2 py-0">Sakit</td><td class="px-2 text-center w-1/2"><span id="val_sakit">...</span> Hari</td></tr>
+                        <tr style="height: 16px;"><td class="px-2 py-0">Izin</td><td class="px-2 text-center"><span id="val_izin">...</span> Hari</td></tr>
+                        <tr style="height: 16px;"><td class="px-2 py-0">Tanpa Keterangan</td><td class="px-2 text-center"><span id="val_alpa">...</span> Hari</td></tr>
+                        <tr class="bg-gray-50" style="height: 16px;"><td class="px-2 py-0 text-center uppercase tracking-wider">Jumlah</td><td class="px-2 text-center text-emerald-700"><span id="val_jumlah_absen">0</span> Hari</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <table class="w-full mt-6 text-[11px] font-bold">
-            <tr>
-                <td class="w-[15%] bg-gray-100 text-center py-3">Catatan Wali Kelas</td>
-                <td class="py-3 px-4 italic text-gray-700" id="val_catatan">...</td>
+      <!-- TABEL CATATAN WALI KELAS -->
+        <table class="w-full mt-2 text-[10px] font-bold">
+            <tr style="height: 32px;">
+                <!-- PERBAIKAN: Tinggi baris diperbesar (32px) dan ditambahkan py-1.5 agar lebih lega -->
+                <td class="w-[15%] bg-gray-100 text-center py-1.5 px-1 whitespace-nowrap">Catatan Wali Kelas</td>
+                <td class="py-1.5 px-4 italic text-gray-700" id="val_catatan">...</td>
             </tr>
-            <tr>
-                <td class="bg-gray-100 text-center py-3">Keputusan</td>
-                <td class="py-3 px-4 text-emerald-700 uppercase" id="val_keputusan">...</td>
+            <tr style="height: 28px;">
+                <td class="bg-gray-100 text-center py-1.5 px-1 whitespace-nowrap">Keputusan</td>
+                <td class="py-1.5 px-4 text-emerald-700 uppercase" id="val_keputusan">...</td>
             </tr>
         </table>
 
-        <div class="flex justify-between text-center font-bold text-black mt-8 text-[12px] relative z-10">
-            <div class="w-1/3 flex flex-col justify-between items-center" style="height: 100px;">
+        <!-- BAGIAN TANDA TANGAN (DIKEMBALIKAN LONGGAR/LELUASA) -->
+        <div class="flex justify-between text-center font-bold text-black mt-5 text-[12px] relative z-10">
+            <div class="w-1/3 flex flex-col justify-between items-center" style="height: 95px;">
                 <div><p>Mengetahui,</p><p>Orang Tua / Wali</p></div>
                 <div class="border-b border-black w-[150px]"></div>
             </div>
-            <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 100px;">
-                <img id="img_wali" class="absolute top-2 w-24 h-24 object-contain mix-blend-multiply hidden" alt="">
+            <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 95px;">
+                <img id="img_wali" class="absolute top-1 w-24 h-24 object-contain mix-blend-multiply hidden" alt="">
                 <div><p>&nbsp;</p><p>Wali Kelas</p></div>
                 <div class="border-b border-black w-[150px] relative z-10" id="val_wali">...</div>
             </div>
-            <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 100px;">
-                <img id="img_kepala" class="absolute top-2 w-24 h-24 object-contain mix-blend-multiply hidden" alt="">
+            <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 95px;">
+                <img id="img_kepala" class="absolute top-1 w-24 h-24 object-contain mix-blend-multiply hidden" alt="">
                 <div><p id="val_tanggal">Bangkalan, ...</p><p>Kepala TK-RA</p></div>
                 <div class="border-b border-black w-[150px] relative z-10" id="val_kepala">...</div>
             </div>
@@ -410,9 +422,18 @@
             document.getElementById('val_disiplin').innerText = konversiHuruf(det.disiplin);
             document.getElementById('val_rapi').innerText = konversiHuruf(det.rapi);
             
+            // Ambil nilai dan ubah jadi angka (jika kosong/strip, otomatis jadi 0)
+            let jmlSakit = parseInt(det.sakit) || 0;
+            let jmlIzin  = parseInt(det.izin) || 0;
+            let jmlAlpa  = parseInt(det.alpa) || 0;
+            let totalAbsen = jmlSakit + jmlIzin + jmlAlpa;
+
             document.getElementById('val_sakit').innerText = det.sakit || '-';
             document.getElementById('val_izin').innerText = det.izin || '-';
             document.getElementById('val_alpa').innerText = det.alpa || '-';
+            
+            // Masukkan total ke elemen yang baru kita buat
+            document.getElementById('val_jumlah_absen').innerText = totalAbsen;
             
             let teksCatatan = (det.catatan || '').trim();
             if (teksCatatan === '-' || teksCatatan === '') { document.getElementById('val_catatan').innerText = '-'; } 
@@ -438,62 +459,64 @@
             let totalNilai = 0;
             let barisDiisi = 0; 
 
-          // LOGIKA 10 BARIS STATIS (Disesuaikan agar muat 1 halaman Folio/Legal)
-            for (let i = 0; i < 10; i++) {
-                if (d.nilai && d.nilai[i]) {
-                    const item = d.nilai[i];
-                    const k13 = generateK13Logic(item.mapel, item.nilai);
-                    
-                    // Pengecekan NaN agar aman dari nilai kosong
-                    let parsedNilai = parseFloat(item.nilai);
-                    if (!isNaN(parsedNilai)) {
-                        totalNilai += parsedNilai;
-                        barisDiisi++;
-                    }
+        // LOGIKA 12 BARIS STATIS (Disesuaikan agar muat 1 halaman Folio/Legal)
+for (let i = 0; i < 12; i++) {
+    if (d.nilai && d.nilai[i]) {
+        const item = d.nilai[i];
+        const k13 = generateK13Logic(item.mapel, item.nilai);
+        
+        // Pengecekan NaN agar aman dari nilai kosong
+        let parsedNilai = parseFloat(item.nilai);
+        if (!isNaN(parsedNilai)) {
+            totalNilai += parsedNilai;
+            barisDiisi++;
+        }
 
-                    let warnaPredikat = k13.predikat === 'A' ? "text-emerald-600" : k13.predikat === 'B' ? "text-blue-600" : k13.predikat === 'C' ? "text-orange-500" : "text-red-600";
-                    
-                    // PERUBAHAN: Tinggi baris diatur ke 30px, font deskripsi diperbesar ke text-[10px]
-                    tbody.innerHTML += `
-                        <tr style="height: 30px; max-height: 30px; overflow: hidden;">
-                            <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
-                            <td class="font-bold text-gray-800 px-2 py-0 align-middle truncate">${item.mapel}</td>
-                            <td class="text-center font-bold text-[13px] p-0 align-middle">${item.nilai}</td>
-                            <td class="text-center font-black text-[14px] ${warnaPredikat} p-0 align-middle">${k13.predikat}</td>
-                            <td class="text-justify px-2 py-1 leading-tight text-[10px] align-middle overflow-hidden">${k13.deskripsi}</td>
-                        </tr>
-                    `;
-                } else {
-                    // PERUBAHAN: Tinggi baris kosong disesuaikan ke 30px
-                    tbody.innerHTML += `
-                        <tr style="height: 30px; max-height: 30px; overflow: hidden;">
-                            <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
-                            <td class="px-2 py-0 align-middle">&nbsp;</td>
-                            <td class="p-0 align-middle">&nbsp;</td>
-                            <td class="p-0 align-middle">&nbsp;</td>
-                            <td class="p-0 align-middle">&nbsp;</td>
-                        </tr>
-                    `;
-                }
-            }
+        let warnaPredikat = k13.predikat === 'A' ? "text-emerald-600" : k13.predikat === 'B' ? "text-blue-600" : k13.predikat === 'C' ? "text-orange-500" : "text-red-600";
+        
+        // PERBAIKAN: Gunakan div dengan line-clamp-2 agar teks mapel maksimal 2 baris dan aman
+        tbody.innerHTML += `
+            <tr style="height: 34px; overflow: hidden;">
+                <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
+                <td class="px-2 py-0.5 align-middle">
+                    <div class="font-bold text-gray-800 text-[10px] leading-tight line-clamp-2 break-words" title="${item.mapel}">${item.mapel}</div>
+                </td>
+                <td class="text-center font-bold text-[13px] p-0 align-middle">${item.nilai}</td>
+                <td class="text-center font-black text-[14px] ${warnaPredikat} p-0 align-middle">${k13.predikat}</td>
+                <td class="text-justify px-2 py-0.5 leading-tight text-[10px] align-middle overflow-hidden">${k13.deskripsi}</td>
+            </tr>
+        `;
+    } else {
+        // Baris kosong (height disamakan menjadi 34px)
+        tbody.innerHTML += `
+            <tr style="height: 34px; overflow: hidden;">
+                <td class="text-center font-bold p-0 align-middle">${i + 1}</td>
+                <td class="px-2 py-0 align-middle">&nbsp;</td>
+                <td class="p-0 align-middle">&nbsp;</td>
+                <td class="p-0 align-middle">&nbsp;</td>
+                <td class="p-0 align-middle">&nbsp;</td>
+            </tr>
+        `;
+    }
+}
 
-            let rataRata = barisDiisi > 0 ? (totalNilai / barisDiisi).toFixed(1) : 0;
+           let rataRata = barisDiisi > 0 ? (totalNilai / barisDiisi).toFixed(1) : 0;
             let fixTotal = totalNilai % 1 === 0 ? totalNilai : totalNilai.toFixed(1);
             let fixRata = rataRata % 1 === 0 ? parseInt(rataRata) : parseFloat(rataRata);
 
-            // PERUBAHAN: Tinggi baris footer (Jumlah/Rata-rata) disesuaikan
+            // PERBAIKAN: Menghapus class border kustom agar ketebalan garis seragam semua
             tbody.innerHTML += `
-                <tr class="font-bold border-t-[2.5px] border-black" style="height: 26px;">
+                <tr class="font-bold" style="height: 26px;">
                     <td colspan="2" class="text-right px-4 py-0 align-middle uppercase tracking-widest text-gray-700">Jumlah Nilai</td>
                     <td class="text-center text-[13px] p-0 align-middle text-emerald-800">${fixTotal}</td>
                     <td colspan="2" class="px-4 text-[10px] py-0 align-middle uppercase text-gray-700 italic truncate">${terbilang(fixTotal)}</td>
                 </tr>
-                <tr class="font-bold border-t border-gray-400" style="height: 26px;">
+                <tr class="font-bold" style="height: 26px;">
                     <td colspan="2" class="text-right px-4 py-0 align-middle uppercase tracking-widest text-gray-700">Rata-Rata</td>
                     <td class="text-center text-[13px] p-0 align-middle text-blue-700">${fixRata}</td>
                     <td colspan="2" class="px-4 text-[10px] py-0 align-middle uppercase text-gray-700 italic truncate">${terbilang(fixRata)}</td>
                 </tr>
-                <tr class="font-bold border-t border-black border-b-[2.5px]" style="height: 26px;">
+                <tr class="font-bold" style="height: 26px;">
                     <td colspan="2" class="text-right px-4 py-0 align-middle uppercase tracking-widest text-gray-700">Peringkat Kelas</td>
                     <td class="text-center text-[14px] p-0 align-middle text-purple-700">${peringkat}</td>
                     <td colspan="2" class="px-4 text-[10px] py-0 align-middle uppercase text-gray-700 italic truncate">Dari seluruh santri di kelas ini</td>
