@@ -22,6 +22,7 @@ if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
     if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
     if (action === 'getRekapBulanan') return getRekapBulanan(e);
     if (action === 'getBulanTersedia') return getBulanTersedia();
+    
 
 // (Jika nanti ortu.html memanggil fungsi lain, tambahkan juga di sini)
 
@@ -100,6 +101,8 @@ if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
       case 'saveSppData': return saveSppData(e);
       case 'deleteSppData': return deleteSppData(e);
       case 'getSppSantri': return getSppSantri(e); 
+      case 'toggleStatusAbsen': return toggleStatusAbsen(e);
+      case 'getStatusAbsen': return getStatusAbsen();
       
       // --- KODE BARU: RUTE UNTUK FITUR ABSENSI ---
       case 'setLiburRentang': return setLiburRentang(e);
@@ -1087,16 +1090,18 @@ function simpanAbsenBarcode(e) {
 
   var formatTanggalHariIni = Utilities.formatDate(dateWIB, timezone, "dd/MM/yyyy");
 
-  // B. CEK KALENDER LIBUR (Apakah hari ini dijadwalkan libur?)
-  var sheetLibur = ss.getSheetByName('HARI_LIBUR');
-  if (sheetLibur) {
-    var dataLibur = sheetLibur.getDataRange().getValues();
-    for (var L = 1; L < dataLibur.length; L++) {
-      if (dataLibur[L][0].toString().trim() === formatTanggalHariIni) {
-        return responError('Madrasah sedang LIBUR (' + dataLibur[L][1] + '). Absensi ditolak!');
-      }
+  // B. CEK SAKELAR LIBUR MANUAL (KODE BARU YANG HARUS ADA)
+  var sheetStatus = ss.getSheetByName('STATUS_ABSEN');
+  if (sheetStatus && sheetStatus.getLastRow() >= 2) {
+    var statusSistem = sheetStatus.getRange("A2").getValue();
+    var ketSistem = sheetStatus.getRange("B2").getValue();
+    if (statusSistem === "Libur") {
+      return responError('Madrasah sedang LIBUR (' + ketSistem + '). Absensi ditolak!');
     }
   }
+
+  // C. LANJUTKAN PROSES SIMPAN
+  var sheet = ss.getSheetByName('Absensi');
 
   // C. LANJUTKAN PROSES SIMPAN
   var sheet = ss.getSheetByName('Absensi'); 
@@ -1131,13 +1136,13 @@ function simpanAbsenBarcode(e) {
   }
   
   // Waktu spesifik server
-  var waktuInput = Utilities.formatDate(dateWIB, "GMT+7", "MM/dd/yyyy HH:mm:ss");
+ var waktuInput = Utilities.formatDate(dateWIB, "GMT+7", "yyyy-MM-dd HH:mm:ss");
   sheet.appendRow([waktuInput, "'" + nis, nama, kelas, status]);
   return responSukses({ message: 'Kehadiran berhasil disimpan' });
 }
 
 // =================================================================
-// 2. FUNGSI UNTUK MENGAMBIL BULAN YANG TERSEDIA 
+// 2. FUNGSI UNTUK MENGAMBIL BULAN YANG TERSEDIA (VERSI BERSIH)
 // =================================================================
 function getBulanTersedia(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1152,7 +1157,9 @@ function getBulanTersedia(e) {
     var cellWaktu = data[i][0];
     if (!cellWaktu) continue; 
     
+    // Cukup gunakan pembaca waktu standar karena datanya sudah rapi
     var tgl = new Date(cellWaktu);
+    
     if (!isNaN(tgl.getTime())) {
       var bulan = tgl.getMonth();
       var tahun = tgl.getFullYear();
@@ -1169,7 +1176,7 @@ function getBulanTersedia(e) {
 }
 
 // =================================================================
-// 3. FUNGSI UNTUK MENARIK DATA REKAPITULASI
+// 3. FUNGSI UNTUK MENARIK DATA REKAPITULASI (VERSI BERSIH)
 // =================================================================
 function getRekapBulanan(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1184,26 +1191,36 @@ function getRekapBulanan(e) {
 
   for (var j = 1; j < dataAbsen.length; j++) {
     var cellWaktu = dataAbsen[j][0]; 
+    if (!cellWaktu) continue; 
+    
     var nis = dataAbsen[j][1].toString().replace(/'/g, "").trim();
     var nama = dataAbsen[j][2];
     var kelas = dataAbsen[j][3];
     var status = dataAbsen[j][4];
 
-    if (kelas == kelasReq) {
+    var kelasBersih = kelas.toString().trim();
+    var kelasReqBersih = kelasReq.toString().trim();
+    var statusBersih = status.toString().trim();
+
+    if (kelasBersih === kelasReqBersih) {
+      
+      // Pembacaan waktu natural
       var tglObj = new Date(cellWaktu);
+
       if (!isNaN(tglObj.getTime())) {
-          var bln = (tglObj.getMonth() + 1).toString().padStart(2, '0');
+          var blnAngka = tglObj.getMonth() + 1;
+          var blnStr = blnAngka < 10 ? '0' + blnAngka : blnAngka.toString();
           var thn = tglObj.getFullYear();
-          var blnTahunData = thn + "-" + bln;
+          var blnTahunData = thn + "-" + blnStr;
 
           if (blnTahunData === blnTahunReq) {
             if (!rekapMap[nis]) {
               rekapMap[nis] = { nis: nis, nama: nama, hadir: 0, izin: 0, sakit: 0, alfa: 0 };
             }
-            if (status === "Hadir") rekapMap[nis].hadir++;
-            else if (status === "Izin") rekapMap[nis].izin++;
-            else if (status === "Sakit") rekapMap[nis].sakit++;
-            else if (status === "Alfa") rekapMap[nis].alfa++;
+            if (statusBersih === "Hadir") rekapMap[nis].hadir++;
+            else if (statusBersih === "Izin") rekapMap[nis].izin++;
+            else if (statusBersih === "Sakit") rekapMap[nis].sakit++;
+            else if (statusBersih === "Alfa") rekapMap[nis].alfa++;
           }
       }
     }
@@ -1263,13 +1280,10 @@ function autoTutupAbsenHariIni() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var hariIni = Utilities.formatDate(dateWIB, "GMT+7", "dd/MM/yyyy");
 
-  // 2. CEK JADWAL LIBUR MANUAL (Otomatis tidur jika hari ini terdaftar libur)
-  var sheetLibur = ss.getSheetByName('HARI_LIBUR');
-  if (sheetLibur) {
-    var dataLibur = sheetLibur.getDataRange().getValues();
-    for (var L = 1; L < dataLibur.length; L++) {
-      if (dataLibur[L][0].toString().trim() === hariIni) return;
-    }
+  // 2. CEK SAKELAR LIBUR MANUAL (Robot otomatis tidur jika statusnya "Libur")
+  var sheetStatus = ss.getSheetByName('STATUS_ABSEN');
+  if (sheetStatus && sheetStatus.getLastRow() >= 2) {
+    if (sheetStatus.getRange("A2").getValue() === "Libur") return;
   }
 
   var sheetSantri = ss.getSheetByName('SANTRI');
@@ -1286,22 +1300,22 @@ function autoTutupAbsenHariIni() {
      if (!cellWaktu) continue;
 
      var tglAbsen = Utilities.formatDate(new Date(cellWaktu), "GMT+7", "dd/MM/yyyy");
-     var nisAbsen = dataAbsen[j][1].toString().replace(/'/g, "").trim(); 
-
+     var nisAbsen = dataAbsen[j][1].toString().replace(/'/g, "").trim();
      if (tglAbsen === hariIni) {
         absenHariIni[nisAbsen] = true; 
-        jumlahHadirHariIni++; 
+        jumlahHadirHariIni++;
      }
   }
 
   // 4. DETEKSI LIBUR MENDADAK
-  // Jika sampai jam 18.00 kosong total tidak ada yang absen 1 orang pun, 
-  // berarti sekolah batal buka. Jangan Alfa-kan massal!
+  // Jika sampai jam 18.00 kosong total tidak ada yang absen 1 orang pun, berarti sekolah batal buka.
+  // Jangan Alfa-kan massal!
   if (jumlahHadirHariIni === 0) return; 
 
-  var waktuTutup = Utilities.formatDate(dateWIB, "GMT+7", "MM/dd/yyyy HH:mm:ss");
-  var dataSantri = sheetSantri.getDataRange().getValues();
+  // PERBAIKAN: Gunakan format standar ISO agar sinkron dengan scanner
+  var waktuTutup = Utilities.formatDate(dateWIB, "GMT+7", "yyyy-MM-dd HH:mm:ss");
   
+  var dataSantri = sheetSantri.getDataRange().getValues();
   // 5. EKSEKUSI ALFA UNTUK YANG TIDAK ADA DI DAFTAR
   for (var i = 1; i < dataSantri.length; i++) {
      var nis = dataSantri[i][0].toString().replace(/'/g, "").trim();
@@ -1312,4 +1326,43 @@ function autoTutupAbsenHariIni() {
         sheetAbsen.appendRow([ waktuTutup, "'" + nis, nama, kelas, "Alfa" ]);
      }
   }
+}
+
+// =================================================================
+// FUNGSI SAKELAR BUKA/TUTUP ABSENSI
+// =================================================================
+function toggleStatusAbsen(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('STATUS_ABSEN');
+  
+  // Buat sheet jika belum ada
+  if (!sheet) {
+    sheet = ss.insertSheet('STATUS_ABSEN');
+    sheet.appendRow(['Status', 'Keterangan', 'Waktu Update']);
+    sheet.getRange("A1:C1").setFontWeight("bold").setBackground("#fca5a5");
+  }
+
+  var statusBaru = e.parameter.status; // "Buka" atau "Libur"
+  var keterangan = e.parameter.keterangan || "-";
+  var waktu = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
+
+  // Timpa baris ke-2 (Baris 1 adalah Header)
+  if (sheet.getLastRow() < 2) {
+    sheet.appendRow([statusBaru, keterangan, waktu]);
+  } else {
+    sheet.getRange("A2").setValue(statusBaru);
+    sheet.getRange("B2").setValue(keterangan);
+    sheet.getRange("C2").setValue(waktu);
+  }
+  return responSukses({ message: 'Sistem absensi berhasil diubah menjadi: ' + statusBaru });
+}
+
+function getStatusAbsen() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('STATUS_ABSEN');
+  if (!sheet || sheet.getLastRow() < 2) return responSukses({ status_absen: "Buka", keterangan: "-" });
+
+  var statusSaatIni = sheet.getRange("A2").getValue();
+  var ketSaatIni = sheet.getRange("B2").getValue();
+  return responSukses({ status_absen: statusSaatIni, keterangan: ketSaatIni });
 }
