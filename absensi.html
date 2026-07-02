@@ -215,7 +215,7 @@
         <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 mb-6 no-print flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div class="w-full sm:w-1/2 relative">
                 <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
-                <input type="text" id="filterNama" onkeyup="renderIdCards()" placeholder="Cari berdasarkan NIS, Nama, atau Kelas..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-gray-50 font-medium">
+                <input type="text" id="filterNama" onkeyup="filterCetakTertunda()" placeholder="Cari berdasarkan NIS, Nama, atau Kelas..." class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-gray-50 font-medium">
             </div>
             <button onclick="window.print()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm transition-all shadow-sm">
                 <i class="fas fa-print mr-2"></i> Cetak Kertas F4
@@ -393,16 +393,30 @@
             }
         }
 
-       function renderIdCards() {
+       // ==========================================================
+        // FUNGSI PENCARIAN ID CARD SUPER CEPAT
+        // ==========================================================
+        let timerCariCetak;
+        function filterCetakTertunda() {
+            clearTimeout(timerCariCetak);
+            // Beri jeda 400ms setelah user selesai mengetik baru lakukan pencarian
+            timerCariCetak = setTimeout(() => {
+                renderIdCards();
+            }, 400); 
+        }
+
+        function renderIdCards() {
             const kataKunci = document.getElementById('filterNama').value.toLowerCase();
             const grid = document.getElementById('idCardGrid');
-            grid.innerHTML = '';
-
+            
             const dataTersaring = DATA_SANTRI.filter(s => 
                 s.nama.toLowerCase().includes(kataKunci) || 
                 s.kelas.toLowerCase().includes(kataKunci) ||
                 s.nis.toString().toLowerCase().includes(kataKunci)
             );
+
+            // Kumpulkan semua desain ID Card di memori dulu, jangan langsung dilempar ke layar
+            let kumpulanIdCardHtml = '';
 
             dataTersaring.forEach(s => {
                 const cardHtml = `
@@ -460,11 +474,16 @@
                     </div>
 
                 </div>`;
-                grid.innerHTML += cardHtml;
+                kumpulanIdCardHtml += cardHtml;
             });
+            
+            // Tembakkan semua ID Card ke layar sekaligus (Sangat Cepat)
+            grid.innerHTML = kumpulanIdCardHtml;
+            
+            // Render ulang gambar barcode setelah elemen muncul di layar
             JsBarcode(".barcode-svg").init();
         }
-
+	   
         // ==========================================================
 // 1. INISIALISASI KAMERA SCANNER
 // ==========================================================
