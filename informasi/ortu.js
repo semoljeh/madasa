@@ -450,3 +450,86 @@ document.addEventListener("DOMContentLoaded", () => {
     // Ganti kutipan otomatis setiap 10 detik (12000 milidetik)
     setInterval(rotasiKutipan, 12000);
 });
+
+// =========================================================
+// SCRIPT UNTUK EFEK GESER WIDGET WA (DRAG & DROP)
+// =========================================================
+const waWidget = document.getElementById('wa-widget');
+const waLink = document.getElementById('wa-link');
+
+if (waWidget && waLink) {
+    let isDragging = false;
+    let isMoved = false; 
+    let startX, startY;
+
+    // --- FUNGSI UNTUK DESKTOP (MOUSE) ---
+    waWidget.addEventListener('mousedown', function(e) {
+        isDragging = true;
+        isMoved = false;
+        startX = e.clientX - waWidget.getBoundingClientRect().left;
+        startY = e.clientY - waWidget.getBoundingClientRect().top;
+        waWidget.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        isMoved = true; 
+        e.preventDefault(); 
+        
+        let newX = e.clientX - startX;
+        let newY = e.clientY - startY;
+
+        // Membatasi agar logo tidak keluar dari layar
+        newX = Math.max(0, Math.min(newX, window.innerWidth - waWidget.offsetWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - waWidget.offsetHeight));
+
+        waWidget.style.left = newX + 'px';
+        waWidget.style.top = newY + 'px';
+        waWidget.style.bottom = 'auto'; 
+        waWidget.style.right = 'auto';  
+    });
+
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+        waWidget.style.cursor = 'grab';
+    });
+
+    // --- FUNGSI UNTUK HP / SMARTPHONE (TOUCH) ---
+    waWidget.addEventListener('touchstart', function(e) {
+        isDragging = true;
+        isMoved = false;
+        let touch = e.touches[0];
+        startX = touch.clientX - waWidget.getBoundingClientRect().left;
+        startY = touch.clientY - waWidget.getBoundingClientRect().top;
+    }, {passive: false});
+
+    document.addEventListener('touchmove', function(e) {
+        if (!isDragging) return;
+        isMoved = true;
+        e.preventDefault(); 
+        let touch = e.touches[0];
+        
+        let newX = touch.clientX - startX;
+        let newY = touch.clientY - startY;
+
+        newX = Math.max(0, Math.min(newX, window.innerWidth - waWidget.offsetWidth));
+        newY = Math.max(0, Math.min(newY, window.innerHeight - waWidget.offsetHeight));
+
+        waWidget.style.left = newX + 'px';
+        waWidget.style.top = newY + 'px';
+        waWidget.style.bottom = 'auto';
+        waWidget.style.right = 'auto';
+    }, {passive: false});
+
+    document.addEventListener('touchend', function() {
+        isDragging = false;
+    });
+
+    // --- PENCEGAH KLIK TIDAK SENGAJA ---
+    // Jika user hanya berniat menggeser logo, cegah agar browser tidak membuka WhatsApp
+    waLink.addEventListener('click', function(e) {
+        if (isMoved) {
+            e.preventDefault(); 
+        }
+    });
+}
