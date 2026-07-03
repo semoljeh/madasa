@@ -462,6 +462,11 @@ if (waWidget && waLink) {
     let isMoved = false; 
     let startX, startY;
 
+    // --- KUNCI UTAMANYA: Matikan drag bawaan browser agar logo bisa ditarik bebas ---
+    waWidget.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+    });
+
     // --- FUNGSI UNTUK DESKTOP (MOUSE) ---
     waWidget.addEventListener('mousedown', function(e) {
         isDragging = true;
@@ -479,7 +484,7 @@ if (waWidget && waLink) {
         let newX = e.clientX - startX;
         let newY = e.clientY - startY;
 
-        // Membatasi agar logo tidak keluar dari layar
+        // Membatasi agar logo tidak keluar dari batas layar
         newX = Math.max(0, Math.min(newX, window.innerWidth - waWidget.offsetWidth));
         newY = Math.max(0, Math.min(newY, window.innerHeight - waWidget.offsetHeight));
 
@@ -512,6 +517,7 @@ if (waWidget && waLink) {
         let newX = touch.clientX - startX;
         let newY = touch.clientY - startY;
 
+        // Membatasi agar logo tidak keluar dari batas layar HP
         newX = Math.max(0, Math.min(newX, window.innerWidth - waWidget.offsetWidth));
         newY = Math.max(0, Math.min(newY, window.innerHeight - waWidget.offsetHeight));
 
@@ -526,7 +532,6 @@ if (waWidget && waLink) {
     });
 
     // --- PENCEGAH KLIK TIDAK SENGAJA ---
-    // Jika user hanya berniat menggeser logo, cegah agar browser tidak membuka WhatsApp
     waLink.addEventListener('click', function(e) {
         if (isMoved) {
             e.preventDefault(); 
