@@ -2086,9 +2086,9 @@ function tampilkanProfilDeveloper() {
                 
                 <p class="text-[10px] text-gray-400 mb-2 font-medium uppercase tracking-wider">Temukan saya di:</p>
                 <div class="flex justify-center gap-3">
-                    <a href="#" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-pink-600 hover:bg-pink-100 transition-all shadow-sm"><i class="fab fa-instagram text-base"></i></a>
-                    <a href="#" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-black hover:bg-gray-200 transition-all shadow-sm"><i class="fab fa-tiktok text-base"></i></a>
-                    <a href="#" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-all shadow-sm"><i class="fab fa-facebook-f text-base"></i></a>
+                    <a href="https://www.instagram.com/aromkobama/" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-pink-600 hover:bg-pink-100 transition-all shadow-sm"><i class="fab fa-instagram text-base"></i></a>
+                    <a href="https://www.tiktok.com/@putramadasa/" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-black hover:bg-gray-200 transition-all shadow-sm"><i class="fab fa-tiktok text-base"></i></a>
+                    <a href="https://www.facebook.com/arom.kobama.2025/" target="_blank" class="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-blue-600 hover:bg-blue-100 transition-all shadow-sm"><i class="fab fa-facebook-f text-base"></i></a>
                 </div>
             </div>
         `,
