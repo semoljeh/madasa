@@ -135,10 +135,10 @@
             </div>
 
             <div class="p-5 md:p-8 bg-[#FDFBF3] relative border-t border-white/50 rounded-b-2xl">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5 items-end relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 md:gap-5 items-end relative z-10">
                     
-                    <!-- AREA PILIH KELAS (MOBILE APP STYLE) -->
-                    <div class="lg:col-span-3 relative" id="dropdownContainer">
+                    <!-- 1. AREA PILIH KELAS -->
+                    <div class="lg:col-span-3 md:col-span-2 relative" id="dropdownContainer">
                         <label class="block text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                             Pilih Kelas
@@ -148,35 +148,47 @@
                             <svg class="w-4 h-4 text-emerald-600 flex-none transition-transform duration-200" id="iconDropdown" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                         
-                        <!-- Wrapper Dropdown & Bottom Sheet Kelas -->
                         <div id="panelKelasWrapper" class="hidden z-[100] md:z-50">
-                            <!-- Overlay/Backdrop Mobile -->
                             <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] md:hidden transition-opacity" onclick="closeAllPanels()"></div>
-
-                            <!-- Panel Box -->
                             <div class="fixed inset-x-0 bottom-0 z-[101] bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col max-h-[85vh] mobile-bottom-sheet 
                                         md:absolute md:inset-auto md:top-[100%] md:left-0 md:w-full md:mt-2 md:rounded-xl md:shadow-2xl md:border-2 md:border-emerald-100 md:!animate-none">
-                                
-                                <!-- Header Mobile (Tombol Kembali) -->
                                 <div class="md:hidden flex items-center justify-between p-4 px-5 border-b border-slate-100 bg-white rounded-t-3xl shrink-0">
                                     <span class="text-sm font-black text-emerald-900 uppercase tracking-widest">Pilih Kelas</span>
                                     <button type="button" onclick="closeAllPanels()" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-xl text-xs font-bold transition-colors active:scale-95">Tutup</button>
                                 </div>
-
                                 <div class="p-3 md:p-2 border-b border-emerald-100 bg-emerald-50/50 shrink-0">
                                     <label class="flex items-center gap-4 md:gap-3 px-3 py-2 cursor-pointer hover:bg-emerald-100 rounded-lg transition-colors">
                                         <input type="checkbox" id="checkAllKelas" onclick="toggleSemuaKelas(this)" class="w-5 h-5 md:w-4 md:h-4 text-emerald-600 rounded border-emerald-300 focus:ring-emerald-500 accent-emerald-600 cursor-pointer">
                                         <span class="text-sm md:text-[12px] font-black text-emerald-900 uppercase tracking-wide mt-0.5">Pilih Semua Kelas</span>
                                     </label>
                                 </div>
-                                
-                                <!-- Content Area -->
                                 <div id="listKelasCheckboxes" class="overflow-y-auto p-3 md:p-2 flex flex-col gap-2 md:gap-1 max-h-[60vh] md:max-h-56 pb-8 md:pb-2"></div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- 2. AREA SEMESTER -->
+                    <div class="lg:col-span-2">
+                        <label class="block text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            Semester
+                        </label>
+                        <select id="inputSemester" class="w-full bg-white border-2 border-emerald-100 text-emerald-900 py-3.5 px-3 rounded-xl focus:outline-none focus:border-emerald-600 transition-all font-bold shadow-sm text-sm cursor-pointer">
+                            <option value="Ganjil">Ganjil</option>
+                            <option value="Genap">Genap</option>
+                        </select>
+                    </div>
+
+                    <!-- 3. AREA TAHUN AJARAN -->
+                    <div class="lg:col-span-2">
+                        <label class="block text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>
+                            Tahun Ajaran
+                        </label>
+                        <input type="text" id="inputTahunAjaran" value="2026/2027" class="w-full bg-white border-2 border-emerald-100 text-emerald-900 py-3.5 px-3 rounded-xl focus:outline-none focus:border-emerald-600 transition-all font-bold shadow-sm text-center text-sm" placeholder="2026/2027">
+                    </div>
                     
-                    <!-- AREA MODE SUSUN -->
+                    <!-- 4. AREA MODE SUSUN -->
                     <div class="lg:col-span-2">
                         <label class="block text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
@@ -188,8 +200,8 @@
                         </select>
                     </div>
 
-                    <!-- AREA SETUP RUANGAN DINAMIS (MOBILE APP STYLE) -->
-                    <div class="lg:col-span-3 relative" id="containerAreaRuang">
+                    <!-- 5. AREA SETUP RUANGAN DINAMIS -->
+                    <div class="lg:col-span-3 md:col-span-2 relative" id="containerAreaRuang">
                         <label class="block text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                             Setup Ruangan
@@ -202,29 +214,21 @@
                             <svg class="w-4 h-4 text-emerald-600 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
 
-                        <!-- Wrapper Dropdown & Bottom Sheet Ruang Manual -->
                         <div id="panelRuangWrapper" class="hidden z-[100] md:z-50">
-                            <!-- Overlay/Backdrop Mobile -->
                             <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] md:hidden transition-opacity" onclick="closeAllPanels()"></div>
-
-                            <!-- Panel Box -->
                             <div class="fixed inset-x-0 bottom-0 z-[101] bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col max-h-[90vh] mobile-bottom-sheet 
                                         md:absolute md:inset-auto md:top-[100%] md:left-0 md:w-full lg:w-[130%] xl:w-[150%] md:mt-2 md:rounded-xl md:shadow-2xl md:border-2 md:border-emerald-100 md:!animate-none">
-                                
-                                <!-- Header Mobile (Tombol Selesai) -->
                                 <div class="md:hidden flex items-center justify-between p-4 px-5 border-b border-slate-100 bg-white rounded-t-3xl shrink-0">
                                     <span class="text-sm font-black text-emerald-900 uppercase tracking-widest">Atur Ruangan</span>
                                     <button type="button" onclick="closeAllPanels()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors active:scale-95 shadow-md">Selesai</button>
                                 </div>
-
-                                <!-- Content Area yang diisi otomatis via JS -->
                                 <div id="panelRuangManual" class="overflow-y-auto p-4 md:p-3 flex flex-col gap-3 md:gap-2 max-h-[75vh] md:max-h-64 pb-8 md:pb-3"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- AREA TOMBOL -->
-                    <div class="lg:col-span-4 grid grid-cols-2 lg:grid-cols-2 gap-2 md:gap-3 mt-4 lg:mt-0">
+                    <!-- 6. AREA TOMBOL AKSI -->
+                    <div class="lg:col-span-12 md:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3 mt-4 pt-5 border-t border-emerald-100/60">
                         <button onclick="tarikDataSantri()" id="btnTarik" class="bg-white border-2 border-emerald-700 text-emerald-800 hover:bg-emerald-50 py-3.5 px-2 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2">
                             <svg class="w-4 h-4 flex-none text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             <span id="txtTarik" class="whitespace-nowrap text-xs md:text-sm">Tarik Data</span>
@@ -271,7 +275,7 @@
     <script>
         let semuaSantri = [];
         let dataGlobalCetak = []; 
-        let isPanelOpen = false; // Mencegah history state ganda
+        let isPanelOpen = false; 
 
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
@@ -291,7 +295,6 @@
             }, 4000);
         }
 
-        // --- SISTEM PANEL HISTORY API (ANTI KELUAR APLIKASI SAAT BACK) ---
         function openPanel(panelId, hash) {
             if (isPanelOpen) return;
             document.getElementById(panelId).classList.remove('hidden');
@@ -320,14 +323,13 @@
             if (closedSomething) {
                 isPanelOpen = false;
                 if (!fromPopState) {
-                    history.back(); // Bersihkan hash URL agar bersih
+                    history.back(); 
                 }
             }
         }
 
-        // Event listener saat tombol Back/Kembali di HP ditekan
         window.addEventListener('popstate', function(event) {
-            closeAllPanels(true); // Tutup panel TANPA memanggil history.back() lagi
+            closeAllPanels(true); 
         });
 
         function toggleDropdownKelas() {
@@ -363,7 +365,6 @@
             }
         }
 
-        // Klik di luar area (Khusus Desktop agar behavior tetap berfungsi)
         document.addEventListener('click', function(event) {
             const pKelas = document.getElementById('panelKelasWrapper');
             const containerKelas = document.getElementById('dropdownContainer');
@@ -417,7 +418,7 @@
                 container.innerHTML += `
                     <div class="flex items-center justify-between gap-3 bg-slate-50 md:bg-white p-3 md:p-1.5 rounded-xl md:rounded border md:border-slate-200 border-slate-300/60 shadow-sm md:shadow-none">
                         <label class="text-sm md:text-[11px] font-bold text-emerald-900 truncate flex-1 pl-1" title="${kelas}">${kelas}</label>
-                        <input type="text" data-kelas="${kelas}" value="" class="input-ruang-manual w-24 md:w-20 text-center text-sm md:text-xs font-black border-2 md:border border-emerald-200 rounded-lg md:rounded py-2 md:py-1 px-1 focus:outline-none focus:border-emerald-600 bg-white focus:ring-4 focus:ring-emerald-50 transition-all placeholder-slate-300" placeholder="Misal: 1">
+                        <input type="text" data-kelas="${kelas}" value="" class="input-ruang-manual w-24 md:w-20 text-center text-sm md:text-xs font-black border-2 md:border border-emerald-200 rounded-lg md:rounded py-2 md:py-1 px-1 focus:outline-none focus:border-emerald-600 bg-white focus:ring-4 focus:ring-emerald-50 transition-all placeholder-slate-300" placeholder="Misal: 01">
                     </div>
                 `;
             });
@@ -635,6 +636,11 @@
         function renderKartuHTML() {
             const grid = document.getElementById('gridKartu');
             grid.innerHTML = ''; 
+            
+            // Ambil data semester dan tahun ajaran
+            const strSemester = document.getElementById('inputSemester').value;
+            const strTahun = document.getElementById('inputTahunAjaran').value;
+
             const daftarQuotes = [
                 "Awali ujianmu dengan doa, iringi setiap jawaban dengan kejujuran, dan akhiri perjuanganmu dengan tawakal.",
                 "Menyontek mungkin memberimu nilai tinggi di atas kertas, namun kejujuranlah yang memberimu derajat tinggi di sisi Allah.",
@@ -657,6 +663,7 @@
                         <img src="../asset/logo.png" alt="Logo" class="relative z-10 h-7 w-auto object-contain mb-1 drop-shadow-md">
                         <h2 class="relative z-10 text-[10px] font-black uppercase tracking-[0.15em] leading-none drop-shadow-sm">Kartu Ujian</h2>
                         <h3 class="relative z-10 text-[6px] font-medium tracking-[0.2em] uppercase mt-1 opacity-90">Madrasah Darussalam</h3>
+                        <p class="relative z-10 text-[5px] font-bold tracking-[0.1em] uppercase mt-0.5 text-[#F2C94C] drop-shadow-sm">Semester ${strSemester} - ${strTahun}</p>
                     </div>
 
                     <div class="p-2 pb-5 flex-1 flex flex-col justify-center relative z-10">
@@ -713,6 +720,9 @@
             const area = document.getElementById('areaDaftarHadir');
             area.innerHTML = '';
 
+            const strSemester = document.getElementById('inputSemester').value;
+            const strTahun = document.getElementById('inputTahunAjaran').value;
+
             const mapRuang = {};
             dataGlobalCetak.forEach(s => {
                 if(!mapRuang[s.namaRuangan]) mapRuang[s.namaRuangan] = [];
@@ -751,6 +761,7 @@
                             <div class="text-center flex-1 px-4">
                                 <h1 class="text-xl md:text-2xl font-black uppercase tracking-widest text-gray-900 leading-tight">Daftar Hadir Peserta Ujian</h1>
                                 <h2 class="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-gray-800 mt-1">Madrasah Darussalam</h2>
+                                <p class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-emerald-700 mt-1.5 border-t-2 border-emerald-100/50 inline-block pt-1">Semester ${strSemester} • Tahun Ajaran ${strTahun}</p>
                             </div>
                             <div class="w-16 flex-none"></div>
                         </div>
