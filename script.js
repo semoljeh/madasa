@@ -1293,11 +1293,12 @@ function loadSettingRapor() {
         if (santriKelas.length === 0) {
             tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-red-500 font-bold"><i class="fas fa-exclamation-triangle mr-2 block text-3xl mb-2 text-red-300"></i> Belum ada santri di kelas ini.<br><span class="text-sm font-normal text-gray-500">Silakan tambahkan santri terlebih dahulu di menu Data Santri.</span></td></tr>';
         } else {
-            santriKelas.forEach(s => { 
+           santriKelas.forEach(s => { 
     let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''}; 
     
     tbody.innerHTML += ` 
-    <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 min-w-[130px] max-w-[150px] md:max-w-none md:min-w-[250px] whitespace-normal leading-snug">${s.nama}</td>
+    <tr class="set-santri-row hover:bg-gray-50 transition-all border-b border-gray-100" data-nis="${s.nis}">
+        <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 min-w-[130px] max-w-[150px] md:max-w-none md:min-w-[250px] whitespace-normal leading-snug">${s.nama}</td>
         
         <td class="p-1 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.akhlaq}" maxlength="1"></td> 
         <td class="p-1 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.kerajinan}" maxlength="1"></td> 
