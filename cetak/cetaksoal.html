@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Soal Ujian - Modern</title>
+    <!-- Font Google untuk teks Latin & Arab -->
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Pengaturan Dasar & Variabel Warna Modern */
+        :root {
+            --primary-color: #0b9b52;
+            --primary-hover: #087a40;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #d1d5db;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* Container Utama bergaya Kartu Modern */
+        .container {
+            background-color: var(--card-bg);
+            width: 100%;
+            max-width: 850px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Bagian Header (Warna Hijau) */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h2 {
+            font-family: 'Amiri', serif;
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .header p {
+            margin: 8px 0 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Area Form di dalam Kartu */
+        .form-content {
+            padding: 30px;
+        }
+
+        /* Bagian Identitas (Grid Layout agar rapi) */
+        .identity-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px dashed #e5e7eb;
+        }
+
+        .identity-section input, 
+        .identity-section select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-main);
+            background-color: #f9fafb;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+        }
+
+        .identity-section input:focus, 
+        .identity-section select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(11, 155, 82, 0.2);
+            background-color: #fff;
+        }
+
+        /* Responsif untuk layar Tablet & HP */
+        @media (max-width: 768px) {
+            .identity-section {
+                grid-template-columns: repeat(2, 1fr); /* 2 kolom di tablet */
+            }
+        }
+        @media (max-width: 480px) {
+            .identity-section {
+                grid-template-columns: 1fr; /* 1 kolom berbaris ke bawah di HP */
+            }
+            .form-content {
+                padding: 20px 15px;
+            }
+        }
+
+        /* Bagian Daftar Soal */
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px; 
+        }
+
+        .question-row {
+            display: flex;
+            align-items: flex-start; /* Berubah ke top agar sejajar saat kotak membesar */
+            gap: 15px;
+            background-color: #fff;
+        }
+
+        /* Nomor Arab Modern */
+        .arabic-number {
+            background-color: var(--primary-color);
+            color: white;
+            font-family: 'Amiri', serif;
+            font-size: 20px;
+            font-weight: bold;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%; /* Dibuat bulat agar kekinian */
+            flex-shrink: 0;
+            margin-top: 2px;
+            box-shadow: 0 4px 6px -1px rgba(11, 155, 82, 0.3);
+        }
+
+        /* Kolom Input Soal (Textarea Auto-expand) */
+        .question-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 18px;
+            font-family: 'Amiri', serif;
+            direction: rtl; 
+            line-height: 1.6;
+            background-color: #f9fafb;
+            resize: none; /* Hilangkan ikon tarik di sudut bawah */
+            overflow: hidden; /* Sembunyikan scrollbar bawaan */
+            min-height: 50px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .question-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(11, 155, 82, 0.2);
+            background-color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Header -->
+        <div class="header">
+            <h2>إدخال أسئلة الامتحان</h2>
+            <p>(Input Soal Ujian)</p>
+        </div>
+
+        <div class="form-content">
+            <!-- Kolom Identitas (Atas) -->
+            <div class="identity-section">
+                <select>
+                    <option value="" disabled selected>Pilihan Hari</option>
+                    <option value="sabtu">Sabtu</option>
+                    <option value="ahad">Ahad</option>
+                    <option value="senin">Senin</option>
+                    <option value="selasa">Selasa</option>
+                    <option value="rabu">Rabu</option>
+                    <option value="kamis">Kamis</option>
+                </select>
+
+                <select>
+                    <option value="" disabled selected>Pilihan Mapel</option>
+                    <option value="quran">Al-Qur'an Hadits</option>
+                    <option value="aqidah">Aqidah Akhlak</option>
+                    <option value="fikih">Fikih</option>
+                    <option value="arab">Bahasa Arab</option>
+                </select>
+
+                <select>
+                    <option value="" disabled selected>Pilihan Kelas</option>
+                    <option value="1">Kelas 1</option>
+                    <option value="2">Kelas 2</option>
+                    <option value="3">Kelas 3</option>
+                </select>
+
+                <input type="text" placeholder="Nama Guru">
+            </div>
+
+            <!-- Kolom 10 Soal ke Bawah -->
+            <div class="question-list">
+                
+                <div class="question-row">
+                    <div class="arabic-number">١</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="question-row">
+                    <div class="arabic-number">٢</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="question-row">
+                    <div class="arabic-number">٣</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="question-row">
+                    <div class="arabic-number">٤</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="question-row">
+                    <div class="arabic-number">٥</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="question-row">
+                    <div class="arabic-number">٦</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="question-row">
+                    <div class="arabic-number">٧</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="question-row">
+                    <div class="arabic-number">٨</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="question-row">
+                    <div class="arabic-number">٩</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+                <div class="question-row">
+                    <div class="arabic-number">١٠</div>
+                    <textarea class="question-input" rows="1" placeholder="اكتب السؤال هنا..."></textarea>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Script JavaScript untuk Auto-Expand (Kolom Melebar Otomatis) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const textareas = document.querySelectorAll('.question-input');
+
+            textareas.forEach(textarea => {
+                // Fungsi untuk mengatur tinggi
+                const autoResize = function() {
+                    this.style.height = 'auto'; // Reset tinggi terlebih dahulu
+                    this.style.height = this.scrollHeight + 'px'; // Atur sesuai konten
+                };
+
+                // Panggil saat diketik
+                textarea.addEventListener('input', autoResize, false);
+                
+                // Panggil sekali saat dimuat (untuk berjaga-jaga jika ada teks bawaan)
+                autoResize.call(textarea);
+            });
+        });
+    </script>
+
+</body>
+</html>
