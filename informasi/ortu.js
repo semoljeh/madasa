@@ -223,16 +223,79 @@ function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis, detailRa
             dataMapel.baca.forEach((m, index) => { tbodyNilai.innerHTML += getBarisHTML(m, true, index + 1); adaNilai = true; });
         }
 
-    } else {
-        // Mode Polos (Untuk TK)
-        const filterKolomBukanMapel = ['nis', 'nama lengkap', 'nama', 'kelas', 'hari', 'sakit', 'izin', 'alpa', 'status_spp', 'spp', 'total', 'total nilai', 'rata-rata', 'rata', 'ranking', 'rank'];
-        let noUrutTK = 1;
-        headers.forEach((header) => {
-            if (!filterKolomBukanMapel.includes(header.toLowerCase())) {
-                tbodyNilai.innerHTML += getBarisHTML(header, true, noUrutTK++);
-                adaNilai = true;
-            }
+   } else {
+        // Mode Khusus (Untuk TK) - Agregasi Semua Hari/Baris
+        let subjekTK = [];
+        let grandTotal = 0;
+        let mapelCount = 0;
+
+        const idxNis = headers.findIndex(h => h && h.toString().toUpperCase().includes('NIS'));
+        const idxM1 = headers.findIndex(h => h && (h.toString().toLowerCase() === 'mapel 1' || h.toString().toLowerCase() === 'm1'));
+        const idxN1 = headers.findIndex(h => h && (h.toString().toLowerCase() === 'nilai 1' || h.toString().toLowerCase() === 'n1'));
+        const idxM2 = headers.findIndex(h => h && (h.toString().toLowerCase() === 'mapel 2' || h.toString().toLowerCase() === 'm2'));
+        const idxN2 = headers.findIndex(h => h && (h.toString().toLowerCase() === 'nilai 2' || h.toString().toLowerCase() === 'n2'));
+        const idxM3 = headers.findIndex(h => h && (h.toString().toLowerCase() === 'mapel 3' || h.toString().toLowerCase() === 'm3'));
+        const idxN3 = headers.findIndex(h => h && (h.toString().toLowerCase() === 'nilai 3' || h.toString().toLowerCase() === 'n3'));
+
+        // 1. Tarik SEMUA baris milik anak ini (Bukan cuma baris pertama)
+        const semuaBarisSantriTK = rows.filter(row => row[idxNis] && row[idxNis].toString().replace(/'/g, "").trim() === nis.toString().trim());
+
+        // 2. Kumpulkan semua mata pelajaran dari berbagai hari
+        semuaBarisSantriTK.forEach(row => {
+            const extractData = (iM, iN) => {
+                if (iM > -1 && iN > -1) {
+                    let mapel = row[iM];
+                    let nilai = row[iN];
+                    if (mapel && mapel !== '-' && mapel.toString().trim() !== '') {
+                        subjekTK.push({ namaMapel: mapel, skor: nilai });
+                        let num = parseFloat(nilai);
+                        if (!isNaN(num)) {
+                            grandTotal += num;
+                            mapelCount++;
+                        }
+                    }
+                }
+            };
+            extractData(idxM1, idxN1);
+            extractData(idxM2, idxN2);
+            extractData(idxM3, idxN3);
         });
+
+        // 3. Cetak ke tabel HTML Portal Ortu
+        let noUrutTK = 1;
+        subjekTK.forEach(item => {
+            let kategori = '-';
+            let warnaTeksAngka = 'text-gray-500';
+            
+            if (item.skor && item.skor !== '-') {
+                const numSkor = parseFloat(item.skor);
+                if (!isNaN(numSkor)) {
+                    if (numSkor >= 90) kategori = '<span class="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded text-xs font-bold">A</span>';
+                    else if (numSkor >= 80) kategori = '<span class="bg-blue-100 text-blue-700 px-2.5 py-1 rounded text-xs font-bold">B</span>';
+                    else if (numSkor >= 70) kategori = '<span class="bg-orange-100 text-orange-700 px-2.5 py-1 rounded text-xs font-bold">C</span>';
+                    else kategori = '<span class="bg-red-100 text-red-700 px-2.5 py-1 rounded text-xs font-bold">D</span>';
+                    warnaTeksAngka = numSkor < 75 ? 'text-red-500' : 'text-emerald-600';
+                }
+            }
+
+            tbodyNilai.innerHTML += `
+                <tr class="hover:bg-gray-50/80 transition-all">
+                    <td class="p-3 font-semibold text-gray-700 uppercase text-xs pl-4 whitespace-nowrap">
+                        <span class="text-gray-500 mr-2 font-bold inline-block w-4 text-right">${noUrutTK}.</span>${item.namaMapel}
+                    </td>
+                    <td class="p-3 text-center font-black text-base ${warnaTeksAngka}">${item.skor || '-'}</td>
+                    <td class="p-3 text-center">${kategori}</td>
+                </tr>
+            `;
+            noUrutTK++;
+            adaNilai = true;
+        });
+
+        // 4. Paksa perhitungan Total dan Rata-Rata TK menggunakan angka gabungan
+        setTimeout(() => {
+            document.getElementById('ortuTotalNilai').innerText = grandTotal;
+            document.getElementById('ortuRataRata').innerText = mapelCount > 0 ? (grandTotal / mapelCount).toFixed(1) : "0.0";
+        }, 50);
     }
 
     if (!adaNilai) {
