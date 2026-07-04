@@ -151,7 +151,7 @@
                         <!-- Wrapper Dropdown & Bottom Sheet Kelas -->
                         <div id="panelKelasWrapper" class="hidden z-[100] md:z-50">
                             <!-- Overlay/Backdrop Mobile -->
-                            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] md:hidden transition-opacity" onclick="toggleDropdownKelas()"></div>
+                            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] md:hidden transition-opacity" onclick="closeAllPanels()"></div>
 
                             <!-- Panel Box -->
                             <div class="fixed inset-x-0 bottom-0 z-[101] bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col max-h-[85vh] mobile-bottom-sheet 
@@ -160,7 +160,7 @@
                                 <!-- Header Mobile (Tombol Kembali) -->
                                 <div class="md:hidden flex items-center justify-between p-4 px-5 border-b border-slate-100 bg-white rounded-t-3xl shrink-0">
                                     <span class="text-sm font-black text-emerald-900 uppercase tracking-widest">Pilih Kelas</span>
-                                    <button type="button" onclick="toggleDropdownKelas()" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-xl text-xs font-bold transition-colors active:scale-95">Tutup</button>
+                                    <button type="button" onclick="closeAllPanels()" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-xl text-xs font-bold transition-colors active:scale-95">Tutup</button>
                                 </div>
 
                                 <div class="p-3 md:p-2 border-b border-emerald-100 bg-emerald-50/50 shrink-0">
@@ -205,7 +205,7 @@
                         <!-- Wrapper Dropdown & Bottom Sheet Ruang Manual -->
                         <div id="panelRuangWrapper" class="hidden z-[100] md:z-50">
                             <!-- Overlay/Backdrop Mobile -->
-                            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] md:hidden transition-opacity" onclick="toggleManualRuangPanel()"></div>
+                            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] md:hidden transition-opacity" onclick="closeAllPanels()"></div>
 
                             <!-- Panel Box -->
                             <div class="fixed inset-x-0 bottom-0 z-[101] bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col max-h-[90vh] mobile-bottom-sheet 
@@ -214,7 +214,7 @@
                                 <!-- Header Mobile (Tombol Selesai) -->
                                 <div class="md:hidden flex items-center justify-between p-4 px-5 border-b border-slate-100 bg-white rounded-t-3xl shrink-0">
                                     <span class="text-sm font-black text-emerald-900 uppercase tracking-widest">Atur Ruangan</span>
-                                    <button type="button" onclick="toggleManualRuangPanel()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors active:scale-95 shadow-md">Selesai</button>
+                                    <button type="button" onclick="closeAllPanels()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors active:scale-95 shadow-md">Selesai</button>
                                 </div>
 
                                 <!-- Content Area yang diisi otomatis via JS -->
@@ -271,6 +271,7 @@
     <script>
         let semuaSantri = [];
         let dataGlobalCetak = []; 
+        let isPanelOpen = false; // Mencegah history state ganda
 
         function showToast(message, type = 'info') {
             const container = document.getElementById('toastContainer');
@@ -290,44 +291,90 @@
             }, 4000);
         }
 
-        // --- SISTEM TOGGLE TAMPILAN PANEL (BERBASIS WRAPPER) ---
+        // --- SISTEM PANEL HISTORY API (ANTI KELUAR APLIKASI SAAT BACK) ---
+        function openPanel(panelId, hash) {
+            if (isPanelOpen) return;
+            document.getElementById(panelId).classList.remove('hidden');
+            if (panelId === 'panelKelasWrapper') {
+                document.getElementById('iconDropdown').classList.add('rotate-180');
+            }
+            isPanelOpen = true;
+            history.pushState({ popup: panelId }, "", "#" + hash);
+        }
+
+        function closeAllPanels(fromPopState = false) {
+            let closedSomething = false;
+            const pKelas = document.getElementById('panelKelasWrapper');
+            const pRuang = document.getElementById('panelRuangWrapper');
+
+            if (!pKelas.classList.contains('hidden')) {
+                pKelas.classList.add('hidden');
+                document.getElementById('iconDropdown').classList.remove('rotate-180');
+                closedSomething = true;
+            }
+            if (!pRuang.classList.contains('hidden')) {
+                pRuang.classList.add('hidden');
+                closedSomething = true;
+            }
+
+            if (closedSomething) {
+                isPanelOpen = false;
+                if (!fromPopState) {
+                    history.back(); // Bersihkan hash URL agar bersih
+                }
+            }
+        }
+
+        // Event listener saat tombol Back/Kembali di HP ditekan
+        window.addEventListener('popstate', function(event) {
+            closeAllPanels(true); // Tutup panel TANPA memanggil history.back() lagi
+        });
+
         function toggleDropdownKelas() {
-            document.getElementById('panelKelasWrapper').classList.toggle('hidden');
-            document.getElementById('iconDropdown').classList.toggle('rotate-180');
+            if (document.getElementById('panelKelasWrapper').classList.contains('hidden')) {
+                openPanel('panelKelasWrapper', 'pilihkelas');
+            } else {
+                closeAllPanels();
+            }
         }
 
         function toggleManualRuangPanel() {
-            document.getElementById('panelRuangWrapper').classList.toggle('hidden');
+            if (document.getElementById('panelRuangWrapper').classList.contains('hidden')) {
+                openPanel('panelRuangWrapper', 'aturruang');
+            } else {
+                closeAllPanels();
+            }
         }
 
         function toggleModeRuang() {
             const mode = document.getElementById('modeSusun').value;
             const inputAcak = document.getElementById('inputRuang');
             const btnManual = document.getElementById('btnRuangManual');
-            
+
             if (mode === 'urut') {
                 inputAcak.classList.add('hidden');
                 btnManual.classList.remove('hidden');
-                document.getElementById('panelRuangWrapper').classList.add('hidden'); 
+                closeAllPanels();
                 renderManualRuangList();
             } else {
                 inputAcak.classList.remove('hidden');
                 btnManual.classList.add('hidden');
-                document.getElementById('panelRuangWrapper').classList.add('hidden');
+                closeAllPanels();
             }
         }
 
-        // Tutup dropdown jika klik di luar area pada mode Desktop
+        // Klik di luar area (Khusus Desktop agar behavior tetap berfungsi)
         document.addEventListener('click', function(event) {
+            const pKelas = document.getElementById('panelKelasWrapper');
             const containerKelas = document.getElementById('dropdownContainer');
-            if (containerKelas && !containerKelas.contains(event.target)) {
-                document.getElementById('panelKelasWrapper').classList.add('hidden');
-                document.getElementById('iconDropdown').classList.remove('rotate-180');
+            if (!pKelas.classList.contains('hidden') && containerKelas && !containerKelas.contains(event.target)) {
+                closeAllPanels();
             }
 
+            const pRuang = document.getElementById('panelRuangWrapper');
             const containerRuang = document.getElementById('containerAreaRuang');
-            if (containerRuang && !containerRuang.contains(event.target)) {
-                document.getElementById('panelRuangWrapper').classList.add('hidden');
+            if (!pRuang.classList.contains('hidden') && containerRuang && !containerRuang.contains(event.target)) {
+                closeAllPanels();
             }
         });
 
@@ -346,13 +393,11 @@
             else if (checked.length === total) teks.textContent = `Semua Kelas Dipilih (${total})`;
             else teks.textContent = `${checked.length} Kelas Dipilih`;
 
-            // Update panel mapping secara reaktif
             if (document.getElementById('modeSusun').value === 'urut') {
                 renderManualRuangList();
             }
         }
 
-        // --- RENDER MAPPING RUANG KELAS (MANUAL) ---
         function renderManualRuangList() {
             const checkedBoxes = document.querySelectorAll('.kelas-checkbox:checked');
             const container = document.getElementById('panelRuangManual');
@@ -437,15 +482,13 @@
             if (semuaSantri.length === 0) return showToast("Data kosong!", "error");
             if (arrayKelasDipilih.length === 0) {
                 showToast("Centang minimal 1 kelas!", "error");
-                document.getElementById('panelKelasWrapper').classList.remove('hidden');
-                document.getElementById('iconDropdown').classList.add('rotate-180');
+                openPanel('panelKelasWrapper', 'pilihkelas');
                 return;
             }
 
             let daftarNamaRuangAcak = [];
             let mappingRuangManual = {};
 
-            // 1. Validasi Input
             if (modeSusun === 'urut') {
                 let isValid = true;
                 document.querySelectorAll('.input-ruang-manual').forEach(input => {
@@ -456,7 +499,7 @@
                 
                 if (!isValid) {
                     showToast("Harap isi semua nama ruang dengan angka/huruf!", "error");
-                    document.getElementById('panelRuangWrapper').classList.remove('hidden');
+                    openPanel('panelRuangWrapper', 'aturruang');
                     return;
                 }
             } else {
@@ -562,7 +605,7 @@
                 
                 showToast(`Selesai! Data siap dicetak.`, "success");
                 switchToKartu(); 
-                document.getElementById('panelRuangWrapper').classList.add('hidden'); 
+                closeAllPanels(); 
             }, 600);
         }
 
@@ -676,7 +719,6 @@
                 mapRuang[s.namaRuangan].push(s);
             });
 
-            // Urutkan key nama ruangan
             let sortedRuang = Object.keys(mapRuang).sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
 
             sortedRuang.forEach(ruangNama => {
