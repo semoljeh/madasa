@@ -22,6 +22,15 @@
             print-color-adjust: exact !important;
         }
 
+        /* Animasi Bottom Sheet bergaya Mobile App */
+        @keyframes slideUp {
+            0% { transform: translateY(100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .mobile-bottom-sheet {
+            animation: slideUp 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
         @media print {
             @page { size: legal portrait; margin: 10mm; }
             body { padding: 0 !important; background-color: white !important; }
@@ -125,27 +134,45 @@
                 </div>
             </div>
 
-            <div class="p-6 md:p-8 bg-[#FDFBF3] relative border-t border-white/50 rounded-b-2xl">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end relative z-10">
+            <div class="p-5 md:p-8 bg-[#FDFBF3] relative border-t border-white/50 rounded-b-2xl">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5 items-end relative z-10">
                     
-                    <!-- AREA PILIH KELAS -->
+                    <!-- AREA PILIH KELAS (MOBILE APP STYLE) -->
                     <div class="lg:col-span-3 relative" id="dropdownContainer">
                         <label class="block text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                             Pilih Kelas
                         </label>
                         <button type="button" id="btnDropdownKelas" onclick="toggleDropdownKelas()" class="w-full bg-white border-2 border-emerald-100 text-emerald-900 py-3.5 px-4 rounded-xl flex justify-between items-center focus:outline-none focus:border-emerald-600 transition-all font-bold shadow-sm disabled:opacity-60 disabled:cursor-not-allowed active:scale-[0.98]" disabled>
-                            <span id="textDropdownKelas" class="truncate">Tarik data dahulu...</span>
+                            <span id="textDropdownKelas" class="truncate text-sm md:text-base">Tarik data dahulu...</span>
                             <svg class="w-4 h-4 text-emerald-600 flex-none transition-transform duration-200" id="iconDropdown" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
-                        <div id="panelKelas" class="absolute z-50 w-full mt-2 bg-white border-2 border-emerald-100 rounded-xl shadow-2xl hidden flex-col overflow-hidden text-left">
-                            <div class="p-2 border-b border-emerald-100 bg-emerald-50/50">
-                                <label class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-emerald-100 rounded-lg transition-colors">
-                                    <input type="checkbox" id="checkAllKelas" onclick="toggleSemuaKelas(this)" class="w-4 h-4 text-emerald-600 rounded border-emerald-300 focus:ring-emerald-500 accent-emerald-600 cursor-pointer">
-                                    <span class="text-[12px] font-black text-emerald-900 uppercase tracking-wide mt-0.5">Pilih Semua Kelas</span>
-                                </label>
+                        
+                        <!-- Wrapper Dropdown & Bottom Sheet Kelas -->
+                        <div id="panelKelasWrapper" class="hidden z-[100] md:z-50">
+                            <!-- Overlay/Backdrop Mobile -->
+                            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] md:hidden transition-opacity" onclick="toggleDropdownKelas()"></div>
+
+                            <!-- Panel Box -->
+                            <div class="fixed inset-x-0 bottom-0 z-[101] bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col max-h-[85vh] mobile-bottom-sheet 
+                                        md:absolute md:inset-auto md:top-[100%] md:left-0 md:w-full md:mt-2 md:rounded-xl md:shadow-2xl md:border-2 md:border-emerald-100 md:!animate-none">
+                                
+                                <!-- Header Mobile (Tombol Kembali) -->
+                                <div class="md:hidden flex items-center justify-between p-4 px-5 border-b border-slate-100 bg-white rounded-t-3xl shrink-0">
+                                    <span class="text-sm font-black text-emerald-900 uppercase tracking-widest">Pilih Kelas</span>
+                                    <button type="button" onclick="toggleDropdownKelas()" class="bg-slate-100 text-slate-600 hover:bg-slate-200 px-4 py-2 rounded-xl text-xs font-bold transition-colors active:scale-95">Tutup</button>
+                                </div>
+
+                                <div class="p-3 md:p-2 border-b border-emerald-100 bg-emerald-50/50 shrink-0">
+                                    <label class="flex items-center gap-4 md:gap-3 px-3 py-2 cursor-pointer hover:bg-emerald-100 rounded-lg transition-colors">
+                                        <input type="checkbox" id="checkAllKelas" onclick="toggleSemuaKelas(this)" class="w-5 h-5 md:w-4 md:h-4 text-emerald-600 rounded border-emerald-300 focus:ring-emerald-500 accent-emerald-600 cursor-pointer">
+                                        <span class="text-sm md:text-[12px] font-black text-emerald-900 uppercase tracking-wide mt-0.5">Pilih Semua Kelas</span>
+                                    </label>
+                                </div>
+                                
+                                <!-- Content Area -->
+                                <div id="listKelasCheckboxes" class="overflow-y-auto p-3 md:p-2 flex flex-col gap-2 md:gap-1 max-h-[60vh] md:max-h-56 pb-8 md:pb-2"></div>
                             </div>
-                            <div id="listKelasCheckboxes" class="max-h-56 overflow-y-auto p-2 flex flex-col gap-1"></div>
                         </div>
                     </div>
                     
@@ -161,50 +188,63 @@
                         </select>
                     </div>
 
-                    <!-- AREA SETUP RUANGAN DINAMIS -->
+                    <!-- AREA SETUP RUANGAN DINAMIS (MOBILE APP STYLE) -->
                     <div class="lg:col-span-3 relative" id="containerAreaRuang">
                         <label class="block text-[10px] font-bold text-emerald-800 uppercase tracking-widest mb-2 flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                             Setup Ruangan
                         </label>
                         
-                        <!-- Input biasa untuk mode acak -->
-                        <input type="text" id="inputRuang" placeholder="Misal: 7 atau Aula,R1" value="7" class="w-full bg-white border-2 border-emerald-100 text-emerald-900 py-3.5 px-3 rounded-xl focus:outline-none focus:border-emerald-600 transition-all font-bold shadow-sm text-center text-sm" title="Ketik jumlah atau nama dipisah koma">
+                        <input type="text" id="inputRuang" placeholder="Misal: 7 atau Aula,01" value="7" class="w-full bg-white border-2 border-emerald-100 text-emerald-900 py-3.5 px-3 rounded-xl focus:outline-none focus:border-emerald-600 transition-all font-bold shadow-sm text-center text-sm" title="Ketik jumlah atau nama dipisah koma">
                         
-                        <!-- Tombol untuk buka panel mapping kelas (disembunyikan saat acak) -->
-                        <button type="button" id="btnRuangManual" onclick="toggleManualRuangPanel()" class="hidden w-full bg-emerald-50 border-2 border-emerald-200 text-emerald-900 py-3.5 px-3 rounded-xl focus:outline-none hover:border-emerald-500 transition-all font-bold shadow-sm text-center text-sm flex justify-between items-center">
+                        <button type="button" id="btnRuangManual" onclick="toggleManualRuangPanel()" class="hidden w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-900 py-3.5 px-4 rounded-xl focus:outline-none hover:border-emerald-500 transition-all font-bold shadow-sm text-center text-sm flex justify-between items-center active:scale-[0.98]">
                             <span>Atur Ruang Manual</span>
-                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <svg class="w-4 h-4 text-emerald-600 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
 
-                        <!-- Panel Dropdown List Mapping Manual -->
-                        <div id="panelRuangManual" class="hidden absolute z-[60] w-full lg:w-[150%] bg-white border-2 border-emerald-100 rounded-xl shadow-2xl p-2 flex flex-col gap-2 max-h-56 overflow-y-auto mt-2 top-[100%] left-0">
-                            <!-- Diisi oleh javascript -->
+                        <!-- Wrapper Dropdown & Bottom Sheet Ruang Manual -->
+                        <div id="panelRuangWrapper" class="hidden z-[100] md:z-50">
+                            <!-- Overlay/Backdrop Mobile -->
+                            <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px] md:hidden transition-opacity" onclick="toggleManualRuangPanel()"></div>
+
+                            <!-- Panel Box -->
+                            <div class="fixed inset-x-0 bottom-0 z-[101] bg-white rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.2)] flex flex-col max-h-[90vh] mobile-bottom-sheet 
+                                        md:absolute md:inset-auto md:top-[100%] md:left-0 md:w-full lg:w-[130%] xl:w-[150%] md:mt-2 md:rounded-xl md:shadow-2xl md:border-2 md:border-emerald-100 md:!animate-none">
+                                
+                                <!-- Header Mobile (Tombol Selesai) -->
+                                <div class="md:hidden flex items-center justify-between p-4 px-5 border-b border-slate-100 bg-white rounded-t-3xl shrink-0">
+                                    <span class="text-sm font-black text-emerald-900 uppercase tracking-widest">Atur Ruangan</span>
+                                    <button type="button" onclick="toggleManualRuangPanel()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors active:scale-95 shadow-md">Selesai</button>
+                                </div>
+
+                                <!-- Content Area yang diisi otomatis via JS -->
+                                <div id="panelRuangManual" class="overflow-y-auto p-4 md:p-3 flex flex-col gap-3 md:gap-2 max-h-[75vh] md:max-h-64 pb-8 md:pb-3"></div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- AREA TOMBOL -->
-                    <div class="lg:col-span-4 grid grid-cols-2 lg:grid-cols-2 gap-2 mt-4 lg:mt-0">
+                    <div class="lg:col-span-4 grid grid-cols-2 lg:grid-cols-2 gap-2 md:gap-3 mt-4 lg:mt-0">
                         <button onclick="tarikDataSantri()" id="btnTarik" class="bg-white border-2 border-emerald-700 text-emerald-800 hover:bg-emerald-50 py-3.5 px-2 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2">
                             <svg class="w-4 h-4 flex-none text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            <span id="txtTarik" class="whitespace-nowrap text-xs">Tarik Data</span>
+                            <span id="txtTarik" class="whitespace-nowrap text-xs md:text-sm">Tarik Data</span>
                             <div id="loading" class="loader flex-none !border-emerald-200 !border-t-emerald-800"></div>
                         </button>
 
                         <button onclick="generateData()" id="btnGenerate" class="bg-gradient-to-r from-emerald-700 to-emerald-600 text-white py-3.5 px-2 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:hover:translate-y-0 disabled:active:scale-100" disabled>
                             <svg id="iconGenerate" class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                            <span id="txtGenerate" class="whitespace-nowrap text-xs">Proses</span>
+                            <span id="txtGenerate" class="whitespace-nowrap text-xs md:text-sm">Proses</span>
                             <div id="loadingGenerate" class="loader flex-none !border-white/30 !border-t-white"></div>
                         </button>
                         
                         <button onclick="cetakKartu()" id="btnCetakKartu" class="bg-[#D4AF37] text-yellow-950 border border-[#b8952b] py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-[#F2C94C] transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
-                            <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
-                            <span class="whitespace-nowrap text-xs">Kartu</span>
+                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                            <span class="whitespace-nowrap text-xs md:text-sm">Kartu</span>
                         </button>
 
                         <button onclick="cetakAbsen()" id="btnCetakAbsen" class="bg-indigo-600 text-white border border-indigo-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-indigo-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
-                            <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                            <span class="whitespace-nowrap text-xs">Absen</span>
+                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            <span class="whitespace-nowrap text-xs md:text-sm">Absen</span>
                         </button>
                     </div>
                 </div>
@@ -239,7 +279,7 @@
             let bgColor = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-rose-600' : 'bg-blue-600';
             let icon = type === 'success' ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>` : type === 'error' ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>` : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`;
 
-            toast.className = `flex items-center gap-3 ${bgColor} text-white px-5 py-4 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto`;
+            toast.className = `flex items-center gap-3 ${bgColor} text-white px-5 py-4 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto mt-2 mx-2 md:m-0`;
             toast.innerHTML = `<svg class="w-5 h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icon}</svg> <p class="text-sm font-semibold tracking-wide leading-tight">${message}</p>`;
             
             container.appendChild(toast);
@@ -250,45 +290,44 @@
             }, 4000);
         }
 
-        // --- SISTEM TOGGLE TAMPILAN PANEL ---
+        // --- SISTEM TOGGLE TAMPILAN PANEL (BERBASIS WRAPPER) ---
         function toggleDropdownKelas() {
-            document.getElementById('panelKelas').classList.toggle('hidden');
+            document.getElementById('panelKelasWrapper').classList.toggle('hidden');
             document.getElementById('iconDropdown').classList.toggle('rotate-180');
         }
 
         function toggleManualRuangPanel() {
-            document.getElementById('panelRuangManual').classList.toggle('hidden');
+            document.getElementById('panelRuangWrapper').classList.toggle('hidden');
         }
 
         function toggleModeRuang() {
             const mode = document.getElementById('modeSusun').value;
             const inputAcak = document.getElementById('inputRuang');
             const btnManual = document.getElementById('btnRuangManual');
-            const panelManual = document.getElementById('panelRuangManual');
-
+            
             if (mode === 'urut') {
                 inputAcak.classList.add('hidden');
                 btnManual.classList.remove('hidden');
-                panelManual.classList.add('hidden'); 
+                document.getElementById('panelRuangWrapper').classList.add('hidden'); 
                 renderManualRuangList();
             } else {
                 inputAcak.classList.remove('hidden');
                 btnManual.classList.add('hidden');
-                panelManual.classList.add('hidden');
+                document.getElementById('panelRuangWrapper').classList.add('hidden');
             }
         }
 
-        // Tutup panel jika klik di luar
+        // Tutup dropdown jika klik di luar area pada mode Desktop
         document.addEventListener('click', function(event) {
             const containerKelas = document.getElementById('dropdownContainer');
             if (containerKelas && !containerKelas.contains(event.target)) {
-                document.getElementById('panelKelas').classList.add('hidden');
+                document.getElementById('panelKelasWrapper').classList.add('hidden');
                 document.getElementById('iconDropdown').classList.remove('rotate-180');
             }
 
             const containerRuang = document.getElementById('containerAreaRuang');
             if (containerRuang && !containerRuang.contains(event.target)) {
-                document.getElementById('panelRuangManual').classList.add('hidden');
+                document.getElementById('panelRuangWrapper').classList.add('hidden');
             }
         });
 
@@ -307,30 +346,33 @@
             else if (checked.length === total) teks.textContent = `Semua Kelas Dipilih (${total})`;
             else teks.textContent = `${checked.length} Kelas Dipilih`;
 
-            // Update panel mapping jika mode manual aktif
+            // Update panel mapping secara reaktif
             if (document.getElementById('modeSusun').value === 'urut') {
                 renderManualRuangList();
             }
         }
 
-        // --- RENDER MAPPING RUANG KELAS (MANUAL) - KOSONG BY DEFAULT ---
+        // --- RENDER MAPPING RUANG KELAS (MANUAL) ---
         function renderManualRuangList() {
             const checkedBoxes = document.querySelectorAll('.kelas-checkbox:checked');
             const container = document.getElementById('panelRuangManual');
-            container.innerHTML = '<div class="text-[10px] font-bold text-emerald-700 mb-1 border-b pb-1">KETIK NAMA RUANG TIAP KELAS:</div>';
+            container.innerHTML = '<div class="text-[10px] font-bold text-emerald-700 mb-1 md:mb-2 border-b pb-1 hidden md:block">KETIK NAMA RUANG TIAP KELAS:</div>';
             
             if (checkedBoxes.length === 0) {
-                container.innerHTML += '<div class="text-xs text-gray-500 italic p-2 text-center">Pilih kelas ujian terlebih dahulu di kotak sebelah kiri.</div>';
+                container.innerHTML += `
+                    <div class="flex flex-col items-center justify-center p-8 text-center opacity-70">
+                        <svg class="w-10 h-10 text-slate-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        <span class="text-xs font-semibold text-slate-500">Pilih kelas di kotak sebelumnya terlebih dahulu.</span>
+                    </div>`;
                 return;
             }
 
             checkedBoxes.forEach((cb) => {
                 const kelas = cb.value;
                 container.innerHTML += `
-                    <div class="flex items-center justify-between gap-2 bg-slate-50 p-1.5 rounded border border-slate-200">
-                        <label class="text-[11px] font-bold text-emerald-900 truncate flex-1" title="${kelas}">${kelas}</label>
-                        <!-- value sengaja dikosongkan agar panitia mengisi manual -->
-                        <input type="text" data-kelas="${kelas}" value="" class="input-ruang-manual w-24 text-center text-xs font-bold border border-emerald-300 rounded py-1 px-1 focus:outline-none focus:border-emerald-600 bg-white" placeholder="Misal: 1">
+                    <div class="flex items-center justify-between gap-3 bg-slate-50 md:bg-white p-3 md:p-1.5 rounded-xl md:rounded border md:border-slate-200 border-slate-300/60 shadow-sm md:shadow-none">
+                        <label class="text-sm md:text-[11px] font-bold text-emerald-900 truncate flex-1 pl-1" title="${kelas}">${kelas}</label>
+                        <input type="text" data-kelas="${kelas}" value="" class="input-ruang-manual w-24 md:w-20 text-center text-sm md:text-xs font-black border-2 md:border border-emerald-200 rounded-lg md:rounded py-2 md:py-1 px-1 focus:outline-none focus:border-emerald-600 bg-white focus:ring-4 focus:ring-emerald-50 transition-all placeholder-slate-300" placeholder="Misal: 01">
                     </div>
                 `;
             });
@@ -376,9 +418,9 @@
             
             daftarKelas.forEach(kelas => {
                 listContainer.innerHTML += `
-                    <label class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-emerald-50 rounded-lg transition-colors">
-                        <input type="checkbox" value="${kelas}" onchange="updateTeksDropdown()" class="kelas-checkbox w-4 h-4 text-emerald-600 rounded border-emerald-300 focus:ring-emerald-500 accent-emerald-600 cursor-pointer">
-                        <span class="text-xs font-semibold text-slate-700 mt-0.5">${kelas}</span>
+                    <label class="flex items-center gap-4 md:gap-3 px-3 py-2.5 md:py-2 cursor-pointer hover:bg-emerald-50 rounded-lg transition-colors border-b border-slate-100 md:border-none">
+                        <input type="checkbox" value="${kelas}" onchange="updateTeksDropdown()" class="kelas-checkbox w-5 h-5 md:w-4 md:h-4 text-emerald-600 rounded border-emerald-300 focus:ring-emerald-500 accent-emerald-600 cursor-pointer flex-none">
+                        <span class="text-sm md:text-xs font-semibold text-slate-700 mt-0.5">${kelas}</span>
                     </label>
                 `;
             });
@@ -395,7 +437,7 @@
             if (semuaSantri.length === 0) return showToast("Data kosong!", "error");
             if (arrayKelasDipilih.length === 0) {
                 showToast("Centang minimal 1 kelas!", "error");
-                document.getElementById('panelKelas').classList.remove('hidden');
+                document.getElementById('panelKelasWrapper').classList.remove('hidden');
                 document.getElementById('iconDropdown').classList.add('rotate-180');
                 return;
             }
@@ -403,7 +445,7 @@
             let daftarNamaRuangAcak = [];
             let mappingRuangManual = {};
 
-            // 1. Validasi Input Sebelum Memulai Proses
+            // 1. Validasi Input
             if (modeSusun === 'urut') {
                 let isValid = true;
                 document.querySelectorAll('.input-ruang-manual').forEach(input => {
@@ -414,7 +456,7 @@
                 
                 if (!isValid) {
                     showToast("Harap isi semua nama ruang dengan angka/huruf!", "error");
-                    document.getElementById('panelRuangManual').classList.remove('hidden');
+                    document.getElementById('panelRuangWrapper').classList.remove('hidden');
                     return;
                 }
             } else {
@@ -433,7 +475,6 @@
             let dataProses = semuaSantri.filter(s => arrayKelasDipilih.includes(s.kelas));
             if (dataProses.length === 0) return showToast("Kelas terpilih kosong.", "error");
 
-            // UI Loading...
             const btnGenerate = document.getElementById('btnGenerate');
             const txtGenerate = document.getElementById('txtGenerate');
             const iconGenerate = document.getElementById('iconGenerate');
@@ -448,27 +489,23 @@
                 dataGlobalCetak = [];
 
                 if (modeSusun === 'urut') {
-                    // --- LOGIKA BARU: MODE PER KELAS (MANUAL MAPPING) ---
                     let grupKelas = {};
                     dataProses.forEach(s => { if (!grupKelas[s.kelas]) grupKelas[s.kelas] = []; grupKelas[s.kelas].push(s); });
                     
                     for(let kelas in grupKelas) {
                         let santriKelas = grupKelas[kelas];
-                        // Urutkan berdasarkan Abjad Nama Santri
                         santriKelas.sort((a,b) => a.nama.localeCompare(b.nama));
-                        // Ambil nama ruangan dari input manual yang diisi panitia
                         let namaRuangan = mappingRuangManual[kelas] || "Ruang ?";
                         
                         santriKelas.forEach((s, idx) => {
                             dataGlobalCetak.push({
                                 ...s,
                                 namaRuangan: namaRuangan,
-                                nomorMeja: idx + 1 // Meja 1, 2, 3 berurutan
+                                nomorMeja: idx + 1 
                             });
                         });
                     }
                 } else {
-                    // --- LOGIKA LAMA: MODE ACAK KELAS (CAMPUR) ---
                     const jumlahRuang = daftarNamaRuangAcak.length;
                     let grupKelas = {};
                     dataProses.forEach(s => { if (!grupKelas[s.kelas]) grupKelas[s.kelas] = []; grupKelas[s.kelas].push(s); });
@@ -517,16 +554,15 @@
                 loadingGenerate.style.display = "none";
                 btnGenerate.disabled = false; 
 
-                // Hitung Info Statistik Ruangan
                 let setRuang = new Set(dataGlobalCetak.map(s => s.namaRuangan));
 
                 const info = document.getElementById('infoStatistik');
-                document.getElementById('infoContent').innerHTML = `<span class="block font-bold text-emerald-900 text-base">Berhasil Diproses!</span><span class="text-emerald-700 font-medium"><b>${dataGlobalCetak.length}</b> santri telah dialokasikan ke dalam <b>${setRuang.size}</b> ruangan berbeda. Silakan klik tombol Cetak.</span>`;
+                document.getElementById('infoContent').innerHTML = `<span class="block font-bold text-emerald-900 text-base">Berhasil Diproses!</span><span class="text-emerald-700 font-medium"><b>${dataGlobalCetak.length}</b> santri telah dialokasikan ke dalam <b>${setRuang.size}</b> ruangan. Silakan klik tombol Cetak.</span>`;
                 info.classList.remove('hidden');
                 
                 showToast(`Selesai! Data siap dicetak.`, "success");
                 switchToKartu(); 
-                document.getElementById('panelRuangManual').classList.add('hidden'); // tutup pop-up setelah sukses
+                document.getElementById('panelRuangWrapper').classList.add('hidden'); 
             }, 600);
         }
 
@@ -640,7 +676,7 @@
                 mapRuang[s.namaRuangan].push(s);
             });
 
-            // Urutkan key nama ruangan agar cetak absen berurutan (misal Ruang I, Ruang II, dst)
+            // Urutkan key nama ruangan
             let sortedRuang = Object.keys(mapRuang).sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
 
             sortedRuang.forEach(ruangNama => {
