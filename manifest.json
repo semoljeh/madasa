@@ -1,7 +1,7 @@
 {
-  "name": "E-Rapor Madasa",
-  "short_name": "Madasa Digital",
-  "description": "Madasa Digital",
+  "name": "Madrasah Darussalam",
+  "short_name": "MADASA",
+  "description": "Sistem Penilaian Santri Madrasah Darussalam.",
   "start_url": "./index.html",
   "scope": "./", 
   "display": "standalone",
