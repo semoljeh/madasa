@@ -53,23 +53,26 @@ function selesaikanOnboarding() {
     const pageOnboarding = document.getElementById('onboardingPage');
     const pageLogin = document.getElementById('loginPage');
 
-    // 1. Tandai bahwa pengguna sudah melewati layar selamat datang
+    // 1. Simpan status pengguna
     localStorage.setItem('madasaOnboardingDone', 'true');
 
-    // 2. Memicu izin Notifikasi OneSignal
-    if (window.OneSignalDeferred) {
-        window.OneSignalDeferred.push(function(OneSignal) {
-            OneSignal.Slidedown.promptPush();
-        });
-    }
-
-    // 3. Efek memudar dan pindah ke halaman Login
-    pageOnboarding.classList.add('opacity-0');
-    setTimeout(() => {
-        pageOnboarding.classList.add('hidden');
+    // 2. HILANGKAN layar Selamat Datang seketika agar tidak menghalangi
+    if (pageOnboarding) pageOnboarding.classList.add('hidden');
+    
+    // 3. Tampilkan halaman Login
+    if (pageLogin) {
         pageLogin.classList.remove('hidden');
         pageLogin.classList.add('animasi-masuk'); 
-    }, 500);
+    }
+
+    // 4. PANGGIL ONESIGNAL SETELAH JEDA (Aman untuk HP)
+    // Beri jeda 1 detik agar form login selesai dimuat, lalu panggil pop-up
+    setTimeout(() => {
+        window.OneSignalDeferred = window.OneSignalDeferred || [];
+        window.OneSignalDeferred.push(async function(OneSignal) {
+            await OneSignal.Slidedown.promptPush();
+        });
+    }, 1000); 
 }
 
 
