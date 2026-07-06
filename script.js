@@ -13,26 +13,64 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 // ---------------------------------------------------------
-// 1. PENGATURAN GLOBAL & DATABASE
+// 1. PENGATURAN GLOBAL, KEAMANAN & ONBOARDING
 // ---------------------------------------------------------
 
 let GLOBAL_DATA_SANTRI = [];
 let GLOBAL_HEADERS_NILAI = [];
 let GLOBAL_DATA_NILAI = [];
-let JADWAL_MAPEL = {}; // Sekarang dikosongkan agar bisa diisi otomatis
+let JADWAL_MAPEL = {}; 
 
-// --- KODE KEAMANAN 1: AUTO-KICK ---
 document.addEventListener("DOMContentLoaded", () => {
-    // Mengecek apakah ada token di memori browser
+    // Cek status Onboarding dan Login
+    const sudahOnboarding = localStorage.getItem('madasaOnboardingDone');
     const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
     
-    // Jika tidak ada token (belum login), sembunyikan dashboard, paksa ke login
-    if (!tokenTersimpan) {
-        document.getElementById('dashboardPage').classList.add('hidden');
-        document.getElementById('loginPage').classList.remove('hidden');
+    const pageOnboarding = document.getElementById('onboardingPage');
+    const pageLogin = document.getElementById('loginPage');
+    const pageDashboard = document.getElementById('dashboardPage');
+
+    if (!sudahOnboarding) {
+        // Tampilkan Welcome Screen untuk pengguna baru
+        if (pageOnboarding) pageOnboarding.classList.remove('hidden');
+        pageLogin.classList.add('hidden');
+        pageDashboard.classList.add('hidden');
+    } else if (!tokenTersimpan) {
+        // Sudah lewat Welcome Screen, tapi belum login
+        if (pageOnboarding) pageOnboarding.classList.add('hidden');
+        pageLogin.classList.remove('hidden');
+        pageDashboard.classList.add('hidden');
+    } else {
+        // Sudah login, langsung masuk aplikasi
+        if (pageOnboarding) pageOnboarding.classList.add('hidden');
+        pageLogin.classList.add('hidden');
+        pageDashboard.classList.remove('hidden');
     }
 });
-// ----------------------------------
+
+// Fungsi saat tombol "Mulai" ditekan
+function selesaikanOnboarding() {
+    const pageOnboarding = document.getElementById('onboardingPage');
+    const pageLogin = document.getElementById('loginPage');
+
+    // 1. Tandai bahwa pengguna sudah melewati layar selamat datang
+    localStorage.setItem('madasaOnboardingDone', 'true');
+
+    // 2. Memicu izin Notifikasi OneSignal
+    if (window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(function(OneSignal) {
+            OneSignal.Slidedown.promptPush();
+        });
+    }
+
+    // 3. Efek memudar dan pindah ke halaman Login
+    pageOnboarding.classList.add('opacity-0');
+    setTimeout(() => {
+        pageOnboarding.classList.add('hidden');
+        pageLogin.classList.remove('hidden');
+        pageLogin.classList.add('animasi-masuk'); 
+    }, 500);
+}
 
 
 function formatTanggalIndo(tanggalYYYYMMDD) {

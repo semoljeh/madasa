@@ -40,7 +40,7 @@
     
     <link rel="stylesheet" href="style.css?v=4">
 	
-<!-- KODE ONESIGNAL PUSH NOTIFICATION (DIPERBARUI) -->
+<!-- KODE ONESIGNAL PUSH NOTIFICATION -->
     <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
     <script>
       window.OneSignalDeferred = window.OneSignalDeferred || [];
@@ -49,17 +49,44 @@
           appId: "8f0faf3e-0fea-464e-b12c-ae077ad2cbcb",
           notifyButton: {
             enable: true,
-            position: 'bottom-left' // <--- Memindah lonceng ke kiri agar tidak tertutup WA
+            position: 'bottom-left'
           },
         });
-        
-        // Memaksa pop-up notifikasi untuk langsung tampil
-        OneSignal.Slidedown.promptPush(); 
+        // Baris promptPush() dihapus dari sini
       });
     </script>
 	
 </head>
 <body class="bg-gray-50 text-gray-800">
+
+<!-- ============================================== -->
+    <!-- HALAMAN ONBOARDING (WELCOME SCREEN) -->
+    <!-- ============================================== -->
+    <div id="onboardingPage" class="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center p-6 transition-opacity duration-500 hidden">
+        <div class="text-center w-full max-w-sm flex flex-col items-center">
+            
+            <!-- Logo Madasa -->
+            <div class="mb-8">
+                <img src="asset/logo.png" class="w-32 h-32 object-contain drop-shadow-md mx-auto" alt="Logo">
+            </div>
+
+            <!-- Teks Sambutan -->
+            <h1 class="text-2xl font-heading font-bold text-gray-800 mb-3">
+                Selamat datang di Madasa<br>
+                <span class="text-emerald-600">Super App</span>
+            </h1>
+            <p class="text-gray-500 text-sm leading-relaxed mb-12 px-2">
+                Aplikasi yang memberikan layanan informasi akademik serta rekapitulasi data penilaian santri Madrasah Darussalam.
+            </p>
+
+            <!-- Tombol Mulai -->
+            <button onclick="selesaikanOnboarding()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base py-3.5 rounded-xl shadow-lg transition-all transform hover:-translate-y-1">
+                Mulai
+            </button>
+            
+        </div>
+    </div>
+    <!-- ============================================== -->
 
     <div id="pwaInstallPrompt" class="fixed top-4 right-4 z-[100] w-[calc(100%-2rem)] sm:w-80 bg-white/90 backdrop-blur-xl border border-emerald-100 shadow-2xl rounded-2xl p-4 transition-all duration-700 transform translate-x-[150%] opacity-0 flex items-start gap-4">
         <button onclick="tutupNotifPWA()" class="absolute top-2 right-2 w-7 h-7 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all cursor-pointer">
