@@ -1,3 +1,6 @@
+// TAMBAHKAN BARIS INI DI PALING ATAS
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+
 const CACHE_NAME = 'madasa-pwa-v7'; // Versi dinaikkan untuk memicu pembaruan
 const urlsToCache = [
   './',
