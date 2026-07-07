@@ -22,7 +22,9 @@ let GLOBAL_DATA_NILAI = [];
 let JADWAL_MAPEL = {}; 
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Cek status Onboarding dan Login
+    // Beri tanda bahwa halaman sudah dimuat
+    document.body.classList.add('app-ready');
+
     const sudahOnboarding = localStorage.getItem('madasaOnboardingDone');
     const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
     

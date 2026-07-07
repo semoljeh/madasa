@@ -41,3 +41,13 @@ body { -webkit-font-smoothing: antialiased; }
     font-weight: 700; /* Membuat teks terlihat lebih tegas */
     transition: opacity 1s ease; /* Menjaga animasi transisi tetap halus saat berganti */
 }
+
+/* Sembunyikan semua konten utama saat pertama kali loading */
+#loginPage {
+    visibility: hidden;
+}
+
+/* Setelah aplikasi siap, tampilkan kembali */
+body.app-ready #loginPage {
+    visibility: visible;
+}
