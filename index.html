@@ -40,21 +40,29 @@
     
     <link rel="stylesheet" href="style.css?v=4">
 	
-<!-- KODE ONESIGNAL PUSH NOTIFICATION -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "8f0faf3e-0fea-464e-b12c-ae077ad2cbcb",
-          notifyButton: {
-            enable: true,
-            position: 'bottom-left'
-          },
-        });
-        // Baris promptPush() dihapus dari sini
-      });
-    </script>
+<!-- KODE ONESIGNAL PUSH NOTIFICATION (MODERN SLIDE PROMPT) -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "8f0faf3e-0fea-464e-b12c-ae077ad2cbcb",
+      // Konfigurasi Slide Prompt (Pop-up kustom yang modern)
+      promptOptions: {
+        slidedown: {
+          enabled: true,
+          actionMessage: "Ingin mendapatkan informasi terbaru dan update dari Madrasah Darussalam?",
+          acceptButtonText: "Ya, Izinkan",
+          cancelButtonText: "Nanti Saja"
+        }
+      },
+      // Tombol notifikasi di pojok (opsional, bisa dimatikan jika ingin lebih bersih)
+      notifyButton: {
+        enable: false 
+      },
+    });
+  });
+</script>
 	
 </head>
 <body class="bg-gray-50 text-gray-800">
