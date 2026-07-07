@@ -105,6 +105,9 @@
             .bg-emerald-50\/60, .bg-emerald-50\/50 { background-color: #ecfdf5 !important; }
             .bg-emerald-700\/50 { background-color: #047857 !important; }
             .border-emerald-700\/70 { border-color: #047857 !important; }
+			
+			#areaDaftarHadir { height: auto !important; overflow: visible !important; }
+            #kertasAbsenWrapper { transform: none !important; width: 100% !important; min-width: auto !important; }
         }
 		
         .tabel-absen { border-collapse: collapse !important; width: 100% !important; }
@@ -279,7 +282,9 @@
         </div>
     </div>
 
-    <div id="areaDaftarHadir" class="max-w-6xl mx-auto hidden flex-col items-center relative z-10 pb-10 px-4 md:px-0 mt-6 md:mt-0">
+    <div id="areaDaftarHadir" class="max-w-6xl mx-auto hidden relative z-10 pb-10 px-4 md:px-0 mt-6 md:mt-0 w-full overflow-visible">
+        <div id="kertasAbsenWrapper" class="flex flex-col items-center mx-auto origin-top transition-transform duration-300" style="min-width: 215.9mm;">
+            </div>
     </div>
 
     <script>
@@ -627,6 +632,7 @@
         function switchToAbsen() {
             document.getElementById('gridKartu').classList.add('hidden');
             document.getElementById('areaDaftarHadir').classList.remove('hidden');
+			setTimeout(sesuaikanSkalaAbsen, 100);
         }
 
         function cetakKartu() {
@@ -726,7 +732,8 @@
         }
 
        function renderAbsenHTML() {
-            const area = document.getElementById('areaDaftarHadir');
+            // ✨ UBAH ID KE kertasAbsenWrapper ✨
+            const area = document.getElementById('kertasAbsenWrapper');
             area.innerHTML = '';
 
             const strSemester = document.getElementById('inputSemester').value;
@@ -826,6 +833,42 @@
                 `;
             });
         }
+		
+		
+		// ==========================================
+        // FUNGSI ZOOM OTOMATIS DAFTAR HADIR
+        // ==========================================
+        function sesuaikanSkalaAbsen() {
+            const wadahUtama = document.getElementById('areaDaftarHadir');
+            const kertas = document.getElementById('kertasAbsenWrapper');
+            
+            if (wadahUtama.classList.contains('hidden')) return;
+
+            // Lebar kertas ukuran asli (215.9mm = sekitar 816px)
+            const lebarKertasAsli = 816; 
+            const lebarLayarTersedia = wadahUtama.clientWidth - 20; // Dikurangi sedikit margin
+            
+            if (lebarLayarTersedia < lebarKertasAsli && lebarLayarTersedia > 0) {
+                // Mengecilkan sesuai sisa ruang layar
+                const rasioScale = lebarLayarTersedia / lebarKertasAsli;
+                kertas.style.transform = `scale(${rasioScale})`;
+                
+                // Memotong ruang kosong di bagian bawah layar akibat pengecilan kertas
+                const tinggiAsli = kertas.scrollHeight;
+                wadahUtama.style.height = `${tinggiAsli * rasioScale + 40}px`;
+            } else {
+                // Layar besar (PC/Laptop), ukurannya dibiarkan 100%
+                kertas.style.transform = 'scale(1)';
+                wadahUtama.style.height = 'auto';
+            }
+        }
+
+        // Jalankan zoom ulang secara presisi saat ukuran jendela/layar HP diputar
+        window.addEventListener('resize', () => {
+            if (!document.getElementById('areaDaftarHadir').classList.contains('hidden')) {
+                sesuaikanSkalaAbsen();
+            }
+        });
     </script>
 </body>
 </html>

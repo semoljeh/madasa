@@ -7,13 +7,13 @@ function tampilkanWidgetWA() {
     if (document.getElementById('wa-widget')) return;
 
     // 2. Buat elemen HTML (Hanya Icon WA murni)
-    const waHTML = `
+const waHTML = `
     <div id="wa-widget" class="fixed bottom-6 right-6 z-[9999] flex flex-col items-center cursor-grab select-none" style="touch-action: none; position: fixed; transition: transform 0.3s;">
-        <a id="wa-link" href="https://wa.me/6282333166659?text=Assalamu'alaikum%20Admin,%20afwan,%20saya%20membutuhkan%20bantuan%20terkait%20Sistem%20Madasa." target="_blank" class="relative flex items-center justify-center w-14 h-14 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full shadow-2xl transition-transform transform hover:scale-105 pointer-events-auto">
-            <i class="fab fa-whatsapp text-3xl relative z-10"></i>
+        <a id="wa-link" href="https://wa.me/6282333166659?text=Assalamu'alaikum%20Admin,%20afwan,%20saya%20membutuhkan%20bantuan%20terkait%20Sistem%20Madasa." target="_blank" class="relative flex items-center justify-center w-12 h-12 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-full shadow-2xl transition-transform transform hover:scale-105 pointer-events-auto">
+            <i class="fab fa-whatsapp text-2xl relative z-10"></i>
         </a>
     </div>
-    `;
+`;
     
     // Suntikkan ke body
     document.body.insertAdjacentHTML('beforeend', waHTML);

@@ -25,6 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const sudahOnboarding = localStorage.getItem('madasaOnboardingDone');
     const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
     
+    // ✨ PANGGIL VARIABEL DARI SESSION STORAGE
+    const namaTersimpan = sessionStorage.getItem('namaMadasa');
+    const roleTersimpan = sessionStorage.getItem('roleMadasa');
+
     const pageOnboarding = document.getElementById('onboardingPage');
     const pageLogin = document.getElementById('loginPage');
     const pageDashboard = document.getElementById('dashboardPage');
@@ -47,6 +51,23 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             pageLogin.classList.add('hidden');
             pageDashboard.classList.remove('hidden');
+			
+            // ✨ TAMBAHKAN LOGIKA INI UNTUK MENCEGAH BUG REFRESH
+            if (namaTersimpan && roleTersimpan) {
+                document.getElementById('userNameDisplay').innerText = namaTersimpan;
+                document.getElementById('userRoleDisplay').innerText = roleTersimpan;
+
+                const adminElements = document.querySelectorAll('.admin-only');
+                if (roleTersimpan === 'Guru Kelas' || roleTersimpan === 'Guru') {
+                    adminElements.forEach(el => el.style.display = 'none');
+                } else {
+                    adminElements.forEach(el => el.style.display = '');
+                }
+                
+                // SUNTIKAN KODE BARU DI SINI:
+                showView('home', false); 
+            }
+            // ===================================================
         }
     }
 });
@@ -214,6 +235,11 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             // --- KODE KEAMANAN 2: SIMPAN TOKEN ---
             sessionStorage.setItem('tokenMadasa', d.token);
             // -------------------------------------
+			
+			// ✨ TAMBAHKAN 2 BARIS INI:
+    sessionStorage.setItem('namaMadasa', d.name);
+    sessionStorage.setItem('roleMadasa', d.role);
+    // ========================
 
             document.getElementById('userNameDisplay').innerText = d.name; 
             document.getElementById('userRoleDisplay').innerText = d.role; 
@@ -306,6 +332,11 @@ function logout() {
             // --- KODE KEAMANAN 4: HAPUS TOKEN ---
             sessionStorage.removeItem('tokenMadasa');
             // ------------------------------------
+			
+			// ✨ TAMBAHKAN PENGHAPUSAN NAMA DAN ROLE
+            sessionStorage.removeItem('namaMadasa');
+            sessionStorage.removeItem('roleMadasa');
+            // =====================================
             
             document.getElementById('dashboardPage').classList.add('hidden'); 
             document.getElementById('loginPage').classList.remove('hidden'); 
@@ -2141,7 +2172,8 @@ const dataMotivasiBanner = [
     { judul: "Waktu Emas", teks: "\"Setiap waktu yang kau habiskan di dalam kelas adalah kesempatan untuk mengukir sejarah kebaikan dalam diri seseorang.\"" }
 ];
 
-let timerBannerMotivasi; // Menyimpan ID timer agar tidak bertabrakan
+let timerBannerMotivasi; 
+let timeoutBannerTransisi; // Variabel baru untuk menampung sisa animasi
 
 function rotasiMotivasiBanner() {
     const elJudul = document.getElementById('judulBanner');
@@ -2149,12 +2181,15 @@ function rotasiMotivasiBanner() {
     
     if (!elJudul || !elTeks) return;
 
+    // Bersihkan sisa animasi sebelumnya agar tidak bertabrakan saat menu diklik cepat
+    clearTimeout(timeoutBannerTransisi);
+
     // 1. Efek Redup (Fade Out)
     elJudul.style.opacity = '0';
     elTeks.style.opacity = '0';
 
     // 2. Tunggu sebentar sampai teks menghilang, lalu ganti teksnya
-    setTimeout(() => {
+    timeoutBannerTransisi = setTimeout(() => {
         const acak = Math.floor(Math.random() * dataMotivasiBanner.length);
         
         elJudul.innerText = dataMotivasiBanner[acak].judul;
