@@ -114,6 +114,10 @@ function showView(viewName, pushToHistory = true) {
     
     // Panggil motivasi acak setiap kali pindah menu
     gantiMotivasiAcak(); 
+	
+	// --- TAMBAHKAN BARIS INI UNTUK QUOTES ATAS ---
+    if (viewName === 'home') { jalankanBannerOtomatis(); }
+    // ---------------------------------------------
     
     // Efek Aktif Sidebar
     const navLinks = document.querySelectorAll('.nav-link');
@@ -283,9 +287,14 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 
 }).catch(er => { 
         showLoading(false); 
-        Swal.fire('Error', 'Gagal terhubung ke database.', 'error'); 
+        
+        // Menampilkan error asli di Console Browser
+        console.error("Detail Error Sistem:", er); 
+        
+        // Memunculkan pesan yang lebih akurat
+        Swal.fire('Terjadi Kesalahan Script', 'Silakan tekan F12 dan buka tab Console untuk melihat detailnya.', 'error'); 
     }); 
-}); // <--- TAMBAHKAN BARIS INI 
+}); // Penutup event listener login form
 
 function logout() {
 
@@ -1917,84 +1926,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setInterval(updateWaktuLokal, 1000);
 });
 
-// =========================================================
-// SCRIPT UNTUK EFEK GESER WIDGET WA (DRAG & DROP)
-// =========================================================
-const waWidget = document.getElementById('wa-widget');
-const waLink = document.getElementById('wa-link');
-
-let isDragging = false;
-let isMoved = false; 
-let startX, startY;
-
-// --- FUNGSI UNTUK DESKTOP (MOUSE) ---
-waWidget.addEventListener('mousedown', function(e) {
-    isDragging = true;
-    isMoved = false;
-    startX = e.clientX - waWidget.getBoundingClientRect().left;
-    startY = e.clientY - waWidget.getBoundingClientRect().top;
-    waWidget.style.cursor = 'grabbing';
-});
-
-document.addEventListener('mousemove', function(e) {
-    if (!isDragging) return;
-    isMoved = true; 
-    e.preventDefault(); 
-    
-    let newX = e.clientX - startX;
-    let newY = e.clientY - startY;
-
-    newX = Math.max(0, Math.min(newX, window.innerWidth - waWidget.offsetWidth));
-    newY = Math.max(0, Math.min(newY, window.innerHeight - waWidget.offsetHeight));
-
-    waWidget.style.left = newX + 'px';
-    waWidget.style.top = newY + 'px';
-    waWidget.style.bottom = 'auto'; 
-    waWidget.style.right = 'auto';  
-});
-
-document.addEventListener('mouseup', function() {
-    isDragging = false;
-    waWidget.style.cursor = 'grab';
-});
-
-// --- FUNGSI UNTUK HP / SMARTPHONE (TOUCH) ---
-waWidget.addEventListener('touchstart', function(e) {
-    isDragging = true;
-    isMoved = false;
-    let touch = e.touches[0];
-    startX = touch.clientX - waWidget.getBoundingClientRect().left;
-    startY = touch.clientY - waWidget.getBoundingClientRect().top;
-}, {passive: false});
-
-document.addEventListener('touchmove', function(e) {
-    if (!isDragging) return;
-    isMoved = true;
-    e.preventDefault(); 
-    let touch = e.touches[0];
-    
-    let newX = touch.clientX - startX;
-    let newY = touch.clientY - startY;
-
-    newX = Math.max(0, Math.min(newX, window.innerWidth - waWidget.offsetWidth));
-    newY = Math.max(0, Math.min(newY, window.innerHeight - waWidget.offsetHeight));
-
-    waWidget.style.left = newX + 'px';
-    waWidget.style.top = newY + 'px';
-    waWidget.style.bottom = 'auto';
-    waWidget.style.right = 'auto';
-}, {passive: false});
-
-document.addEventListener('touchend', function() {
-    isDragging = false;
-});
-
-// --- PENCEGAH KLIK TIDAK SENGAJA ---
-waLink.addEventListener('click', function(e) {
-    if (isMoved) {
-        e.preventDefault(); 
-    }
-});
 
 
 // =========================================================
@@ -2210,6 +2141,8 @@ const dataMotivasiBanner = [
     { judul: "Waktu Emas", teks: "\"Setiap waktu yang kau habiskan di dalam kelas adalah kesempatan untuk mengukir sejarah kebaikan dalam diri seseorang.\"" }
 ];
 
+let timerBannerMotivasi; // Menyimpan ID timer agar tidak bertabrakan
+
 function rotasiMotivasiBanner() {
     const elJudul = document.getElementById('judulBanner');
     const elTeks = document.getElementById('teksBanner');
@@ -2217,8 +2150,8 @@ function rotasiMotivasiBanner() {
     if (!elJudul || !elTeks) return;
 
     // 1. Efek Redup (Fade Out)
-    elJudul.style.opacity = 0;
-    elTeks.style.opacity = 0;
+    elJudul.style.opacity = '0';
+    elTeks.style.opacity = '0';
 
     // 2. Tunggu sebentar sampai teks menghilang, lalu ganti teksnya
     setTimeout(() => {
@@ -2228,20 +2161,21 @@ function rotasiMotivasiBanner() {
         elTeks.innerText = dataMotivasiBanner[acak].teks;
         
         // 3. Efek Terang Kembali (Fade In)
-        elJudul.style.opacity = 1;
-        elTeks.style.opacity = 1;
-    }, 700); // 700ms sama dengan durasi efek redup di HTML
+        elJudul.style.opacity = '1';
+        elTeks.style.opacity = '1';
+    }, 700); 
 }
 
-// Jalankan ketika web pertama kali dimuat
-document.addEventListener("DOMContentLoaded", () => {
-    // Beri jeda 5 detik pertama sebelum mulai berganti
-    setTimeout(() => {
-        rotasiMotivasiBanner();
-        // Setelah itu, ganti secara otomatis setiap 12 detik
-        setInterval(rotasiMotivasiBanner, 15000); 
-    }, 5000);
-});
+function jalankanBannerOtomatis() {
+    // Hentikan timer lama (jika ada)
+    clearInterval(timerBannerMotivasi);
+    
+    // Langsung ganti teks 1 kali saat menu Utama dibuka
+    rotasiMotivasiBanner();
+    
+    // Putar otomatis setiap 10 detik
+    timerBannerMotivasi = setInterval(rotasiMotivasiBanner, 10000);
+}
 
 // --- JALANKAN WIDGET WA HANYA JIKA SUDAH LOGIN ---
 document.addEventListener("DOMContentLoaded", () => {
