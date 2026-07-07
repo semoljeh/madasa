@@ -404,13 +404,12 @@ const installPromptOrtu = document.getElementById('pwaInstallPromptOrtu');
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        // Menggunakan ../sw.js karena file sw.js ada di luar folder 'informasi'
-        navigator.serviceWorker.register('../sw.js')
+        // Ubah menjadi ./sw.js agar fokus pada scope folder informasi saja
+        navigator.serviceWorker.register('./sw.js')
         .then(reg => console.log('PWA Portal Ortu aktif!'))
         .catch(err => console.log('PWA Portal Ortu gagal: ', err));
     });
 }
-
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault(); 
     deferredPromptOrtu = e;
