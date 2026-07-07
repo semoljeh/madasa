@@ -22,9 +22,6 @@ let GLOBAL_DATA_NILAI = [];
 let JADWAL_MAPEL = {}; 
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Beri tanda bahwa halaman sudah dimuat
-    document.body.classList.add('app-ready');
-
     const sudahOnboarding = localStorage.getItem('madasaOnboardingDone');
     const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
     
@@ -33,48 +30,51 @@ document.addEventListener("DOMContentLoaded", () => {
     const pageDashboard = document.getElementById('dashboardPage');
 
     if (!sudahOnboarding) {
-        // Tampilkan Welcome Screen untuk pengguna baru
+        // Tampilkan Welcome Screen, biarkan loginPage tetap hidden
         if (pageOnboarding) pageOnboarding.classList.remove('hidden');
         pageLogin.classList.add('hidden');
         pageDashboard.classList.add('hidden');
-    } else if (!tokenTersimpan) {
-        // Sudah lewat Welcome Screen, tapi belum login
-        if (pageOnboarding) pageOnboarding.classList.add('hidden');
-        pageLogin.classList.remove('hidden');
-        pageDashboard.classList.add('hidden');
     } else {
-        // Sudah login, langsung masuk aplikasi
+        // Jika sudah onboarding, baru boleh tampilkan login/dashboard
         if (pageOnboarding) pageOnboarding.classList.add('hidden');
-        pageLogin.classList.add('hidden');
-        pageDashboard.classList.remove('hidden');
+        
+        // Hapus style hidden agar loginPage muncul
+        pageLogin.style.visibility = 'visible'; 
+        
+        if (!tokenTersimpan) {
+            pageLogin.classList.remove('hidden');
+            pageDashboard.classList.add('hidden');
+        } else {
+            pageLogin.classList.add('hidden');
+            pageDashboard.classList.remove('hidden');
+        }
     }
 });
 
-// Fungsi saat tombol "Mulai" ditekan
 function selesaikanOnboarding() {
     const pageOnboarding = document.getElementById('onboardingPage');
     const pageLogin = document.getElementById('loginPage');
 
-    // 1. Simpan status pengguna
     localStorage.setItem('madasaOnboardingDone', 'true');
 
-    // 2. HILANGKAN layar Selamat Datang seketika agar tidak menghalangi
-    if (pageOnboarding) pageOnboarding.classList.add('hidden');
-    
-    // 3. Tampilkan halaman Login
-    if (pageLogin) {
-        pageLogin.classList.remove('hidden');
-        pageLogin.classList.add('animasi-masuk'); 
+    // Memicu Notifikasi
+    if (window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(function(OneSignal) {
+            OneSignal.Slidedown.promptPush();
+        });
     }
 
-    // 4. PANGGIL ONESIGNAL SETELAH JEDA (Aman untuk HP)
-    // Beri jeda 1 detik agar form login selesai dimuat, lalu panggil pop-up
+    // Transisi
+    pageOnboarding.classList.add('opacity-0');
+    
+    // Tampilkan Login secara bersih
+    pageLogin.style.visibility = 'visible'; 
+    pageLogin.classList.remove('hidden');
+    pageLogin.classList.add('animasi-masuk');
+
     setTimeout(() => {
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        window.OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.Slidedown.promptPush();
-        });
-    }, 1000); 
+        pageOnboarding.classList.add('hidden');
+    }, 500);
 }
 
 
