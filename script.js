@@ -232,6 +232,11 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             window.history.replaceState({ view: 'home' }, "", "#home");
             showView('home', false); 
             muatSemuaMapel();
+			
+			// --- TAMBAHKAN KODE INI UNTUK MEMUNCULKAN INSTALL PWA ---
+    if (typeof tampilkanPromptPWA === 'function') {
+        tampilkanPromptPWA();
+    }
 
             // === FITUR LACAK GPS ===
             let mentahanPerangkat = navigator.userAgent;
@@ -379,13 +384,19 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault(); 
     deferredPrompt = e;
-    if (installPrompt) { 
+    // Kode setTimeout dihapus dari sini agar tidak langsung muncul di halaman login
+});
+
+// Buat fungsi baru untuk memunculkan notifikasi nanti
+function tampilkanPromptPWA() {
+    const installPrompt = document.getElementById('pwaInstallPrompt');
+    if (deferredPrompt && installPrompt) { 
         setTimeout(() => { 
             installPrompt.classList.remove('translate-x-[150%]', 'opacity-0'); 
             installPrompt.classList.add('translate-x-0', 'opacity-100'); 
-        }, 1000); 
+        }, 2000); // Tunda 2 detik setelah masuk dashboard agar terasa lebih elegan
     }
-});
+}
 
 function tutupNotifPWA() { 
     if(installPrompt) { 
@@ -2237,5 +2248,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sessionStorage.getItem('tokenMadasa')) {
         // Beri jeda 500ms agar dashboard selesai dirender
         setTimeout(tampilkanWidgetWA, 500);
+
+        // --- TAMBAHKAN BARIS INI ---
+        setTimeout(tampilkanPromptPWA, 1500);
     }
 });
