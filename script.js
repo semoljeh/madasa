@@ -223,6 +223,12 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
             
             document.getElementById('loginPage').classList.add('hidden'); 
             document.getElementById('dashboardPage').classList.remove('hidden'); 
+			
+			// TAMBAHKAN PEMICU DI SINI:
+    if (typeof tampilkanWidgetWA === 'function') {
+        tampilkanWidgetWA();
+    }
+			
             window.history.replaceState({ view: 'home' }, "", "#home");
             showView('home', false); 
             muatSemuaMapel();
@@ -2224,4 +2230,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Setelah itu, ganti secara otomatis setiap 12 detik
         setInterval(rotasiMotivasiBanner, 15000); 
     }, 5000);
+});
+
+// --- JALANKAN WIDGET WA HANYA JIKA SUDAH LOGIN ---
+document.addEventListener("DOMContentLoaded", () => {
+    if (sessionStorage.getItem('tokenMadasa')) {
+        // Beri jeda 500ms agar dashboard selesai dirender
+        setTimeout(tampilkanWidgetWA, 500);
+    }
 });
