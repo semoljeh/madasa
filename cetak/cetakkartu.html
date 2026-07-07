@@ -105,8 +105,8 @@
             .bg-emerald-700\/50 { background-color: #047857 !important; }
             .border-emerald-700\/70 { border-color: #047857 !important; }
 			
-			#areaDaftarHadir { height: auto !important; overflow: visible !important; }
-            #kertasAbsenWrapper { transform: none !important; width: 100% !important; min-width: auto !important; }
+			#areaDaftarHadir { height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; }
+            #kertasAbsenWrapper { transform: none !important; margin: 0 auto !important; width: 215.9mm !important; min-width: auto !important; }
         }
 		
         .tabel-absen { border-collapse: collapse !important; width: 100% !important; }
@@ -281,8 +281,8 @@
         </div>
     </div>
 
-    <div id="areaDaftarHadir" class="max-w-6xl mx-auto hidden relative z-10 pb-10 px-4 md:px-0 mt-6 md:mt-0 w-full overflow-visible">
-        <div id="kertasAbsenWrapper" class="flex flex-col items-center mx-auto origin-top transition-transform duration-300" style="min-width: 215.9mm;">
+    <div id="areaDaftarHadir" class="hidden relative z-10 pb-10 mt-6 md:mt-0 w-full overflow-visible">
+        <div id="kertasAbsenWrapper" class="flex flex-col transition-transform duration-300 shrink-0" style="width: 215.9mm; min-width: 215.9mm;">
             </div>
     </div>
 
@@ -834,8 +834,8 @@
         }
 		
 		
-		// ==========================================
-        // FUNGSI ZOOM OTOMATIS DAFTAR HADIR
+// ==========================================
+        // FUNGSI ZOOM OTOMATIS DAFTAR HADIR (PRESISI TENGAH)
         // ==========================================
         function sesuaikanSkalaAbsen() {
             const wadahUtama = document.getElementById('areaDaftarHadir');
@@ -843,21 +843,32 @@
             
             if (wadahUtama.classList.contains('hidden')) return;
 
-            // Lebar kertas ukuran asli (215.9mm = sekitar 816px)
+            // Lebar kertas ukuran Legal dalam pixel (~816px)
             const lebarKertasAsli = 816; 
-            const lebarLayarTersedia = wadahUtama.clientWidth - 20; // Dikurangi sedikit margin
+            const lebarLayar = window.innerWidth;
             
-            if (lebarLayarTersedia < lebarKertasAsli && lebarLayarTersedia > 0) {
-                // Mengecilkan sesuai sisa ruang layar
-                const rasioScale = lebarLayarTersedia / lebarKertasAsli;
+            if (lebarLayar < lebarKertasAsli) {
+                // 1. Targetkan ukuran visual mengecil agar ada jarak (margin) 20px di kiri-kanan layar HP
+                const targetLebarVisual = lebarLayar - 20;
+                const rasioScale = targetLebarVisual / lebarKertasAsli;
+                
+                // 2. Kunci titik zoom dari pojok kiri atas
+                kertas.style.transformOrigin = 'top left';
                 kertas.style.transform = `scale(${rasioScale})`;
                 
-                // Memotong ruang kosong di bagian bawah layar akibat pengecilan kertas
+                // 3. Hitung sisa jarak, lalu geser kertasnya tepat ke tengah-tengah layar
+                const geserKiri = (lebarLayar - targetLebarVisual) / 2;
+                kertas.style.marginLeft = `${geserKiri}px`;
+                
+                // 4. Potong ruang kosong di bawah layar akibat efek pengecilan kertas
                 const tinggiAsli = kertas.scrollHeight;
-                wadahUtama.style.height = `${tinggiAsli * rasioScale + 40}px`;
+                wadahUtama.style.height = `${(tinggiAsli * rasioScale) + 40}px`;
             } else {
-                // Layar besar (PC/Laptop), ukurannya dibiarkan 100%
+                // Untuk layar besar (PC/Laptop), biarkan ukuran 100% dan kunci di tengah
+                kertas.style.transformOrigin = 'top center';
                 kertas.style.transform = 'scale(1)';
+                kertas.style.marginLeft = 'auto';
+                kertas.style.marginRight = 'auto';
                 wadahUtama.style.height = 'auto';
             }
         }
