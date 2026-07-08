@@ -24,7 +24,7 @@
         body { -webkit-font-smoothing: antialiased; background-color: #f3f4f6; } 
         *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
         table { border-collapse:collapse; }
-        table th, table td { border: 1.5px solid #000; }
+        table th, table td { border: 1px solid #000; }
         .no-border th, .no-border td { border: none !important; }
 		
 		@media print {
@@ -289,7 +289,7 @@
                     <td class="border border-black p-0 text-center text-[11px]">${nama ? no : '&nbsp;'}</td>
                     <td class="border border-black px-1.5 font-semibold text-[11px]">${nama}</td>
                     <td class="border border-black text-center font-bold text-[11px]">${nilai}</td>
-                    <td class="border border-black px-1.5 text-[9px] uppercase leading-tight">${hIndo}</td>
+                   <td class="border border-black px-1.5 text-[9px] uppercase leading-tight whitespace-nowrap tracking-tighter">${hIndo}</td>
                 </tr>`;
                 
                 barisArab += `<tr style="height: 23.5px;">
@@ -352,9 +352,9 @@
                     </div>
                 </div>
 
-                <div class="flex justify-between items-stretch mb-2 text-black w-full">
+               <div class="flex justify-between items-stretch mb-2 text-black w-full">
                     <div class="w-[49.3%]">
-                        <table class="w-full h-full text-left border-collapse border-[1.5px] border-black text-[10px]" style="table-layout: fixed;">
+                        <table class="w-full h-full text-left border-collapse border border-black text-[10px]" style="table-layout: fixed;">
                             <colgroup>
                                 <col style="width: 7%;">  <col style="width: 43%;"> <col style="width: 14%;"> <col style="width: 36%;"> 
                             </colgroup>
@@ -370,7 +370,7 @@
                             </thead>
                             <tbody>
                                 ${barisIndo}
-                                <tr style="height: 36px;" class="font-bold border-t-2 border-black">
+                                <tr style="height: 36px;" class="font-bold border-t border-black">
                                     <td colspan="2" class="border border-black px-1.5 uppercase text-[11px]">JUMLAH</td>
                                     <td class="border border-black p-0 text-center text-[11px]">${total}</td>
                                     <td class="border border-black p-0 text-[8px] uppercase align-middle">
@@ -378,15 +378,15 @@
                                     </td>
                                 </tr>
                                 <tr style="height: 24px;" class="font-bold">
-                                    <td colspan="2" class="border border-black px-1.5 uppercase border-b-2 border-black text-[11px]">RANGKING</td>
-                                    <td colspan="2" class="border border-black p-0 text-center border-b-2 border-black text-[11px]">${rank}</td>
+                                    <td colspan="2" class="border border-black px-1.5 uppercase border-b border-black text-[11px]">RANGKING</td>
+                                    <td colspan="2" class="border border-black p-0 text-center border-b border-black text-[11px]">${rank}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
                     <div class="w-[49.3%]">
-                        <table class="w-full h-full text-right border-collapse border-[1.5px] border-black text-[10px]" dir="rtl" style="table-layout: fixed;">
+                        <table class="w-full h-full text-right border-collapse border border-black text-[10px]" dir="rtl" style="table-layout: fixed;">
                             <colgroup>
                                 <col style="width: 7%;">  <col style="width: 43%;"> <col style="width: 14%;"> <col style="width: 36%;"> 
                             </colgroup>
@@ -402,7 +402,7 @@
                             </thead>
                             <tbody>
                                 ${barisArab}
-                                <tr style="height: 36px;" class="font-bold border-t-2 border-black">
+                                <tr style="height: 36px;" class="font-bold border-t border-black">
                                     <td colspan="2" class="border border-black px-2 text-right text-[14px] leading-none" style="font-family: 'Traditional Arabic', serif;">الجملة</td>
                                     <td class="border border-black p-0 text-center text-[11px]">${toArabicNumeral(total)}</td>
                                     <td class="border border-black p-0 text-center text-[10px] align-middle" style="font-family: 'Traditional Arabic', serif;">
@@ -410,8 +410,8 @@
                                     </td>
                                 </tr>
                                 <tr style="height: 24px;" class="font-bold">
-                                    <td colspan="2" class="border border-black px-2 text-right text-[14px] border-b-2 border-black leading-none" style="font-family: 'Traditional Arabic', serif;">الدرجة</td>
-                                    <td colspan="2" class="border border-black p-0 text-center border-b-2 border-black text-[11px]">${toArabicNumeral(rank === '-' ? '-' : rank)}</td>
+                                    <td colspan="2" class="border border-black px-2 text-right text-[14px] border-b border-black leading-none" style="font-family: 'Traditional Arabic', serif;">الدرجة</td>
+                                    <td colspan="2" class="border border-black p-0 text-center border-b border-black text-[11px]">${toArabicNumeral(rank === '-' ? '-' : rank)}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -420,10 +420,10 @@
 
                 <div class="flex justify-between items-stretch mb-2 text-black w-full">
                     <div class="w-[49.3%]">
-                        <table class="w-full h-full border-collapse border-[1.5px] border-black text-[10px]" style="table-layout: fixed;">
+                        <table class="w-full h-full border-collapse border border-black text-[10px]" style="table-layout: fixed;">
                             <colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup>
                             <thead>
-                                <tr class="font-bold border-b-2 border-black">
+                                <tr class="font-bold border-b border-black">
                                     <th class="border border-black text-center py-0.5 text-[11px]">KEPRIBADIAN</th>
                                     <th class="border border-black text-center py-0.5 text-[14px] leading-none" style="font-family: 'Traditional Arabic', serif;">أحوال الطالب</th>
                                 </tr>
@@ -450,10 +450,10 @@
                     </div>
                     
                     <div class="w-[49.3%]">
-                        <table class="w-full h-full border-collapse border-[1.5px] border-black text-[10px]" style="table-layout: fixed;">
+                        <table class="w-full h-full border-collapse border border-black text-[10px]" style="table-layout: fixed;">
                             <colgroup><col style="width: 50%;"><col style="width: 50%;"></colgroup>
                             <thead>
-                                <tr class="font-bold border-b-2 border-black">
+                                <tr class="font-bold border-b border-black">
                                     <th class="border border-black text-center py-0.5 text-[11px]">Absensi</th>
                                     <th class="border border-black text-center py-0.5 text-[14px] leading-none" style="font-family: 'Traditional Arabic', serif;">كشف الغياب</th>
                                 </tr>
@@ -481,36 +481,36 @@
                 </div>
 
                 <div class="flex justify-between items-stretch mb-4 text-[10px] text-black w-full">
-                    <div class="w-[49.3%] border-[1.5px] border-black flex flex-col min-h-[60px]">
+                    <div class="w-[49.3%] border border-black flex flex-col min-h-[60px]">
                         <div class="text-center font-bold border-b border-black py-1 text-[11px]">CATATAN GURU</div>
                         <div class="p-1 italic flex-1 flex items-center justify-center text-center w-full"><span>${setDetail.catatan || '-'}</span></div>
                     </div>
                     
-                    <div class="w-[49.3%] border-[1.5px] border-black flex flex-col min-h-[60px]">
+                    <div class="w-[49.3%] border border-black flex flex-col min-h-[60px]">
                         <div class="text-center font-bold border-b border-black py-1 text-[11px]">KEPUTUSAN</div>
                         <div class="p-1.5 flex-1 leading-tight flex items-center justify-start text-left w-full"><div>${teksKeputusan}</div></div>
                     </div>
                 </div>
 
-                <div class="flex justify-between text-center font-bold text-black mt-4 text-[11px]">
-                    <div class="w-1/3 flex flex-col justify-between items-center" style="height: 90px;">
-                        <div class="w-full relative z-20"><p class="font-normal mb-0.5">&nbsp;</p> <p>Orang Tua/Wali</p></div>
-                        <div class="w-full relative z-20 bg-white/90"><div class="border-b border-black inline-block min-w-[130px]"></div></div>
+                <div class="flex justify-between text-center font-bold text-black mt-5 text-[11px] relative z-10">
+                    <div class="w-1/3 flex flex-col justify-between items-center" style="height: 95px;">
+                        <div class="w-full relative z-10"><p class="font-normal mb-0.5">&nbsp;</p><p>Orang Tua/Wali</p></div>
+                        <div class="w-full relative z-10"><div class="border-b border-black w-[140px] mx-auto pb-0.5"></div></div>
                     </div>
-
-                    <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 90px;">
-                        <div class="w-full relative z-20"><p class="font-normal mb-0.5">&nbsp;</p> <p>Guru Wali Kelas</p></div>
-                        <div class="absolute inset-0 flex items-center justify-center z-10 pt-4"><img src="${setUmum.url_wali || ''}" class="h-16 object-contain mix-blend-multiply ${setUmum.url_wali ? '' : 'hidden'}" alt=""></div>
-                        <div class="w-full relative z-20 bg-white/90"><div class="border-b border-black inline-block min-w-[130px] pb-0.5 uppercase">${setUmum.wali || '&nbsp;'}</div></div>
-                    </div>
-
-                    <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 90px;">
-                        <div class="w-full relative z-20"><p class="font-normal mb-0.5">${setUmum.tanggal || 'Bangkalan, ........................'}</p><p>Kepala Madrasah</p></div>
-                        <div class="absolute inset-0 flex items-center justify-center z-10 pt-4">
-                            <img src="${setUmum.url_stempel || ''}" class="absolute h-16 opacity-85 object-contain mix-blend-multiply -ml-4 mt-2 ${setUmum.url_stempel ? '' : 'hidden'}" style="z-index: 5;" alt="">
-                            <img src="${setUmum.url_kepala || ''}" class="relative z-10 h-16 object-contain mix-blend-multiply ${setUmum.url_kepala ? '' : 'hidden'}" alt="">
+                    <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 95px;">
+                        <div class="w-full relative z-10"><p class="font-normal mb-0.5">&nbsp;</p><p>Guru Wali Kelas</p></div>
+                        <div class="absolute inset-0 flex items-center justify-center z-30 pt-4 pointer-events-none">
+                            <img src="${setUmum.url_wali || ''}" class="h-20 object-contain mix-blend-multiply ${setUmum.url_wali ? '' : 'hidden'}" alt="TTD Wali">
                         </div>
-                        <div class="w-full relative z-20 bg-white/90"><div class="border-b border-black inline-block min-w-[130px] pb-0.5 uppercase">${setUmum.kepala || '&nbsp;'}</div></div>
+                        <div class="w-full relative z-10"><div class="border-b border-black w-[140px] mx-auto pb-0.5 uppercase">${setUmum.wali || '&nbsp;'}</div></div>
+                    </div>
+                    <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 95px;">
+                        <div class="w-full relative z-10"><p class="font-normal mb-0.5">${setUmum.tanggal || 'Bangkalan, ........................'}</p><p>Kepala Madrasah</p></div>
+                        <div class="absolute inset-0 flex items-center justify-center z-30 pt-4 pointer-events-none">
+                            <img src="${setUmum.url_stempel || ''}" class="absolute h-24 opacity-85 object-contain mix-blend-multiply -ml-8 mt-2 ${setUmum.url_stempel ? '' : 'hidden'}" style="z-index: 30;" alt="Stempel">
+                            <img src="${setUmum.url_kepala || ''}" class="relative z-20 h-20 object-contain mix-blend-multiply ${setUmum.url_kepala ? '' : 'hidden'}" alt="TTD Kepala">
+                        </div>
+                        <div class="w-full relative z-10"><div class="border-b border-black w-[140px] mx-auto pb-0.5 uppercase">${setUmum.kepala || '&nbsp;'}</div></div>
                     </div>
                 </div>
             `;

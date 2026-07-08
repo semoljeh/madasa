@@ -157,9 +157,9 @@ function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis, detailRa
         // Ubah juga Keputusan Akhir agar kapital semua
         document.getElementById('ortuKeputusan').innerText = (detSantri.keputusan || '-').toString().toUpperCase();
         
-        // Ubah Catatan Wali Kelas agar kapital semua
-        let teksCatatan = detSantri.catatan ? detSantri.catatan.toString().toUpperCase() : "-";
-        document.getElementById('ortuCatatan').innerText = `"${teksCatatan}"`;
+       // Catatan Wali Kelas sesuai aslinya
+        let teksCatatan = detSantri.catatan ? detSantri.catatan.toString() : "-";
+        document.getElementById('ortuCatatan').innerText = teksCatatan;
     }
     // ==============================================================
 
@@ -328,26 +328,54 @@ function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis, detailRa
         }
         document.getElementById('ortuRataRata').innerText = rataBenar;
 
-        // 2. Hitung Peringkat Kelas secara dinamis
+       // 2. Hitung Peringkat Kelas secara dinamis (Perbaikan Deduplikasi & TK)
         const idxTotal = headers.findIndex(h => h.toString().toLowerCase() === 'total nilai' || h.toString().toLowerCase() === 'total');
         const idxNis = headers.findIndex(h => h.toString().toLowerCase() === 'nis');
         
         let rank = '-';
         let jmlSantri = 0;
         
-        if (idxTotal > -1 && idxNis > -1) {
-            // Saring santri di kelas ini yang nilainya sudah diinput
-            let santriDinilai = rows.filter(r => r[idxTotal] !== "" && !isNaN(r[idxTotal]))
-                .map(r => ({
-                    nis: r[idxNis].toString().replace(/'/g, "").trim(),
-                    total: parseFloat(r[idxTotal])
-                }));
+        if (idxNis > -1) {
+            let rekapNilai = new Map();
+
+            if (kelas.includes('TK')) {
+                const idxN1 = headers.findIndex(h => h && (h.toString().toLowerCase() === 'nilai 1' || h.toString().toLowerCase() === 'n1'));
+                const idxN2 = headers.findIndex(h => h && (h.toString().toLowerCase() === 'nilai 2' || h.toString().toLowerCase() === 'n2'));
+                const idxN3 = headers.findIndex(h => h && (h.toString().toLowerCase() === 'nilai 3' || h.toString().toLowerCase() === 'n3'));
+
+                rows.forEach(r => {
+                    let nisSiswa = r[idxNis] ? r[idxNis].toString().replace(/'/g, "").trim() : null;
+                    if (!nisSiswa) return;
+                    
+                    let totalBaris = 0;
+                    [idxN1, idxN2, idxN3].forEach(idx => {
+                        if (idx > -1 && r[idx] && r[idx] !== '-' && !isNaN(parseFloat(r[idx]))) {
+                            totalBaris += parseFloat(r[idx]);
+                        }
+                    });
+
+                    if (rekapNilai.has(nisSiswa)) {
+                        rekapNilai.set(nisSiswa, rekapNilai.get(nisSiswa) + totalBaris);
+                    } else {
+                        rekapNilai.set(nisSiswa, totalBaris);
+                    }
+                });
+            } else if (idxTotal > -1) {
+                rows.forEach(r => {
+                    let nisSiswa = r[idxNis] ? r[idxNis].toString().replace(/'/g, "").trim() : null;
+                    if (nisSiswa && r[idxTotal] !== "" && !isNaN(parseFloat(r[idxTotal]))) {
+                        if (!rekapNilai.has(nisSiswa)) {
+                            rekapNilai.set(nisSiswa, parseFloat(r[idxTotal]));
+                        }
+                    }
+                });
+            }
+
+            let santriDinilai = Array.from(rekapNilai, ([nisSiswa, total]) => ({ nis: nisSiswa, total: total }));
                 
-            // Urutkan nilai teman sekelas dari tertinggi ke terendah
             santriDinilai.sort((a, b) => b.total - a.total);
-            jmlSantri = santriDinilai.length;
+            jmlSantri = santriDinilai.length; 
             
-            // Cari ranking (posisi) anak ini
             let pos = santriDinilai.findIndex(s => s.nis === nis.toString().trim());
             if (pos > -1) rank = pos + 1;
         }

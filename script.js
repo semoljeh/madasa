@@ -1191,20 +1191,17 @@ document.getElementById('formEditNilai').addEventListener('submit', function(e) 
 
 function loadBintangPelajar() { 
     const wadah = document.getElementById('wadahBintangPelajar'); 
-    wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Memuat kandidat juara...</div>'; 
+    wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Memuat kandidat juara...</div>'; 
     
     const formData = new URLSearchParams(); 
     formData.append('action', 'getBintangPelajar'); 
-    // PERBAIKAN 1: Lampirkan Token Keamanan di sini
     formData.append('token', sessionStorage.getItem('tokenMadasa'));
     
     fetch(GAS_URL, { method: 'POST', body: formData })
     .then(res => res.json())
     .then(async res => {
         if (res.status === 'success' && res.data.length > 0) { 
-            res.data.sort((a,b) => b.total - a.total); 
-            
-            wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Sinkronisasi Wali Kelas...</div>';
+            wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Sinkronisasi Wali Kelas...</div>';
             
             let kelasUnik = [...new Set(res.data.map(s => s.kelas))];
             let mapWali = {};
@@ -1213,7 +1210,6 @@ function loadBintangPelajar() {
                 let fd = new URLSearchParams(); 
                 fd.append('action', 'getPengaturan'); 
                 fd.append('kelas', kls);
-                // PERBAIKAN 2: Lampirkan Token Keamanan untuk ambil nama Wali Kelas
                 fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
                 return fetch(GAS_URL, {method:'POST', body:fd})
@@ -1225,33 +1221,64 @@ function loadBintangPelajar() {
             });
             
             await Promise.all(ambilWali);
+            
+            // ==========================================
+            // LOGIKA PEMISAHAN TINGKATAN
+            // ==========================================
+            let dataTK = res.data.filter(s => s.kelas.includes('TK'));
+            let dataIBT = res.data.filter(s => s.kelas.includes('IBT'));
+            let dataSANA = res.data.filter(s => s.kelas.includes('SANA'));
+            
+            const urutkan = (arr) => arr.sort((a,b) => parseFloat(b.total || 0) - parseFloat(a.total || 0));
+            
+            urutkan(dataTK);
+            urutkan(dataIBT);
+            urutkan(dataSANA);
 
             wadah.innerHTML = ''; 
-            res.data.forEach((santri, idx) => { 
-                let isTop1 = idx === 0; 
-                let namaWali = mapWali[santri.kelas];
-
-              // --- KALKULATOR RATA-RATA OTOMATIS ANTI SALAH ---
-                let rataBenar = parseFloat(santri.rata || 0).toFixed(1);
-                if (!santri.kelas.includes('TK')) {
-                    // Hitung jumlah seluruh mapel (Tertulis + Praktek + Membaca) dari array 'semua'
-                    let jmlMapel = (JADWAL_MAPEL[santri.kelas] && JADWAL_MAPEL[santri.kelas].semua) ? JADWAL_MAPEL[santri.kelas].semua.length : 0;
-                    
-                    if (jmlMapel > 0) {
-                        rataBenar = (parseFloat(santri.total || 0) / jmlMapel).toFixed(1);
-                    } else {
-                        rataBenar = "0.0"; 
-                    }
-                }
-
-                let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${isTop1 ? '<div class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>' : ''} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400'} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 ${isTop1 ? 'bg-red-500' : 'bg-gray-500'} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${idx + 1}</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${santri.nama}</h4> <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata: <span class="font-bold text-gray-800">${rataBenar}</span></p> </div> </div> <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1"> <p class="truncate" title="${santri.jk}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${santri.jk}</b></p> <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p> <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p> <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p> <p class="truncate mt-1 pt-1" title="Wali Kelas"><i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${namaWali}</b></p> </div> </div>`; 
+            
+            // Fungsi render kartu berdasarkan kategori
+            const renderKategori = (judul, icon, dataKategori, warnaBadge) => {
+                if(dataKategori.length === 0) return;
                 
-                wadah.innerHTML += html; 
-            }); 
+                // Tambahkan Header Tingkatan (Lebar Penuh)
+                wadah.innerHTML += `<div class="col-span-full text-white font-bold text-lg mt-4 mb-2 border-b border-white/30 pb-2 shadow-sm"><i class="${icon} mr-2"></i>${judul}</div>`;
+                
+                dataKategori.forEach((santri, idx) => {
+                    let isTop1 = idx === 0;
+                    let namaWali = mapWali[santri.kelas];
+
+                    let rataBenar = parseFloat(santri.rata || 0).toFixed(1);
+                    if (!santri.kelas.includes('TK')) {
+                        let jmlMapel = (JADWAL_MAPEL[santri.kelas] && JADWAL_MAPEL[santri.kelas].semua) ? JADWAL_MAPEL[santri.kelas].semua.length : 0;
+                        if (jmlMapel > 0) rataBenar = (parseFloat(santri.total || 0) / jmlMapel).toFixed(1);
+                        else rataBenar = "0.0"; 
+                    }
+
+                    // Memberikan warna dinamis (Hijau untuk TK, Biru untuk IBT, Ungu untuk SANA)
+                    let badgeJuara = isTop1 ? `<div class="absolute top-0 right-0 ${warnaBadge} text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>` : '';
+                    let colorAvatar = isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400';
+                    let colorNumber = isTop1 ? warnaBadge.split(' ')[0] : 'bg-gray-500'; 
+
+                    let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${badgeJuara} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${colorAvatar} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 ${colorNumber} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${idx + 1}</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${santri.nama}</h4> 
+					
+					<p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata-rata: <span class="font-bold text-gray-800">${rataBenar}</span></p>
+					
+					</div> </div> <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1"> <p class="truncate" title="${santri.jk}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${santri.jk}</b></p> <p class="truncate" title="${santri.ttl}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${santri.ttl}</p> <p class="truncate" title="${santri.ayah} & ${santri.ibu}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${santri.ayah} & ${santri.ibu}</p> <p class="truncate" title="${santri.alamat}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${santri.alamat}</p> <p class="truncate mt-1 pt-1" title="Wali Kelas"><i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${namaWali}</b></p> </div> </div>`; 
+                    
+                    wadah.innerHTML += html; 
+                });
+            };
+
+            // Panggil fungsi render untuk masing-masing tingkatan
+            renderKategori('Tingkat TK / RA', 'fas fa-child text-emerald-100', dataTK, 'bg-emerald-600');
+            renderKategori('Tingkat Madrasah Ibtidaiyah', 'fas fa-book-open text-blue-100', dataIBT, 'bg-blue-600');
+            renderKategori('Tingkat Madrasah Sanawiyah', 'fas fa-graduation-cap text-purple-100', dataSANA, 'bg-purple-600');
+            
         } else { 
             wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-info-circle text-2xl mb-2 block"></i>Belum ada data nilai yang diinput di kelas mana pun.</div>'; 
         } 
-    }).catch(e => { wadah.innerHTML = '<div class="text-white">Gagal memuat data. Periksa jaringan Anda.</div>'; }); 
+    }).catch(e => { wadah.innerHTML = '<div class="text-white text-center col-span-full mt-4">Gagal memuat data. Periksa jaringan Anda.</div>'; }); 
 }
 
 function loadRankingKelas() { 
@@ -1829,42 +1856,49 @@ function cetakBintangPelajar() {
          return Swal.fire({ icon: 'error', title: 'Data Kosong', text: 'Tidak ada data Bintang Pelajar saat ini.' });
     }
 
-    // Menyusun ulang kartu juara menjadi grid print
-    const cards = wadah.querySelectorAll('.bg-white.rounded-xl');
+    // Menyusun ulang kartu juara menjadi grid print dengan pemisah kategori
     let gridHTML = `<div style="display: flex; flex-wrap: wrap; gap: 2%; justify-content: flex-start;">`;
     
-    // Tambahkan parameter 'index' untuk mendapatkan nomor urut
-    cards.forEach((card, index) => {
-        const isJuaraUmum = card.innerHTML.includes('JUARA UMUM');
-        const nomorUrut = index + 1; // Menghitung dari angka 1
-        
-        const kelas = card.querySelector('p.uppercase').innerText;
-        const nama = card.querySelector('h4').innerText;
-        const totalRata = card.querySelector('p.text-xs.text-gray-500').innerText; 
-        
-        const detailLines = card.querySelectorAll('.border-t p');
-        let detailStr = '';
-        detailLines.forEach(p => { detailStr += `<div style="margin-bottom: 4px; font-size: 11px;">窶｢ ${p.innerText}</div>`; });
+    Array.from(wadah.children).forEach(el => {
+        // Jika elemen ini adalah Header Kategori (TK/IBT/SANA)
+        if (el.classList.contains('col-span-full')) {
+            gridHTML += `<div style="width: 100%; margin-top: 15px; margin-bottom: 10px; font-size: 16px; font-weight: bold; color: #b45309; border-bottom: 2px solid #b45309; padding-bottom: 5px;">${el.innerText}</div>`;
+        } 
+        // Jika elemen ini adalah Kartu Santri
+        else if (el.classList.contains('bg-white')) {
+            const isJuaraUmum = el.innerHTML.includes('JUARA UMUM');
+            
+            // Ambil nomor urut secara dinamis
+            const nomorUrutDiv = el.querySelector('.absolute.-bottom-1.-right-1');
+            const nomorUrut = nomorUrutDiv ? nomorUrutDiv.innerText : '1';
+            
+            const kelas = el.querySelector('p.uppercase').innerText;
+            const nama = el.querySelector('h4').innerText;
+            const totalRata = el.querySelector('p.text-xs.text-gray-500').innerText; 
+            
+            const detailLines = el.querySelectorAll('.border-t p');
+            let detailStr = '';
+            detailLines.forEach(p => { detailStr += `<div style="margin-bottom: 4px; font-size: 11px;">• ${p.innerText}</div>`; });
 
-        gridHTML += `
-            <div style="border: 2px solid ${isJuaraUmum ? '#d97706' : '#000'}; padding: 15px; width: 49%; box-sizing: border-box; border-radius: 12px; margin-bottom: 15px; position: relative;">
-                
-                ${isJuaraUmum ? '<div style="position: absolute; top: 0; right: 0; background: #d97706; color: white; padding: 4px 8px; font-size: 10px; font-weight: bold; border-bottom-left-radius: 8px;">JUARA UMUM</div>' : ''}
-                
-                <div style="position: absolute; top: 12px; left: 15px; font-size: 22px; font-weight: 900; color: ${isJuaraUmum ? '#d97706' : '#64748b'};">#${nomorUrut}</div>
-
-                <div style="text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px;">
-                    <div style="font-size: 11px; font-weight: bold; background: #e5e7eb; display: inline-block; padding: 4px 12px; border-radius: 15px; margin-bottom: 8px;">${kelas}</div>
-                    <h3 style="margin: 0; font-size: 18px; font-weight: bold;">${nama}</h3>
-                    <div style="font-size: 12px; margin-top: 8px; font-weight: bold;">${totalRata}</div>
+            // Tambahan page-break-inside: avoid agar kartu tidak terpotong separuh di kertas
+            gridHTML += `
+                <div style="border: 2px solid ${isJuaraUmum ? '#d97706' : '#000'}; padding: 15px; width: 49%; box-sizing: border-box; border-radius: 12px; margin-bottom: 15px; position: relative; page-break-inside: avoid;">
+                    ${isJuaraUmum ? '<div style="position: absolute; top: 0; right: 0; background: #d97706; color: white; padding: 4px 8px; font-size: 10px; font-weight: bold; border-bottom-left-radius: 8px;">JUARA UMUM</div>' : ''}
+                    <div style="position: absolute; top: 12px; left: 15px; font-size: 22px; font-weight: 900; color: ${isJuaraUmum ? '#d97706' : '#64748b'};">#${nomorUrut}</div>
+                    <div style="text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px;">
+                        <div style="font-size: 11px; font-weight: bold; background: #e5e7eb; display: inline-block; padding: 4px 12px; border-radius: 15px; margin-bottom: 8px;">${kelas}</div>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: bold;">${nama}</h3>
+                        <div style="font-size: 12px; margin-top: 8px; font-weight: bold;">${totalRata}</div>
+                    </div>
+                    <div style="color: #333;">${detailStr}</div>
                 </div>
-                <div style="color: #333;">${detailStr}</div>
-            </div>
-        `;
+            `;
+        }
     });
     gridHTML += `</div>`;
 
     const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const tglTtd = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }); // Tanggal untuk area TTD
     const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
     const printWindow = window.open('', '_blank');
     if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
@@ -1872,19 +1906,29 @@ function cetakBintangPelajar() {
     printWindow.document.write(`
         <!DOCTYPE html><html lang="id"><head><title>Cetak_Bintang_Pelajar</title>
         <style>
-          /* PENGATURAN KERTAS DIBEBASKAN KE BROWSER */
-@page { margin: 15mm; }
-body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
-            .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 30px; border-top: 1px dashed #aaa; padding-top: 10px; }
+          @page { margin: 15mm; }
+          body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; background: #fff; margin: 0; padding: 0; }
+          .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 30px; border-top: 1px dashed #aaa; padding-top: 10px; }
         </style></head><body>
             <div style="display: flex; align-items: center; border-bottom: 3px solid #d97706; padding-bottom: 10px; margin-bottom: 25px;">
                 <img src="${logoUrl}" style="width: 70px; height: 70px; object-fit: contain; margin-right: 15px;" onerror="this.style.display='none'">
                 <div style="flex: 1; text-align: center; padding-right: 85px;">
                     <h2 style="margin: 0; font-size: 24px; text-transform: uppercase; font-weight: bold; color: #b45309;">Madrasah Darussalam</h2>
-                    <p style="margin: 5px 0 0 0; font-size: 14px; font-weight: bold;">Laporan Eksekutif: Daftar Bintang Pelajar (Juara Umum Per Kelas)</p>
+                    <p style="margin: 5px 0 0 0; font-size: 14px; font-weight: bold;">Laporan Eksekutif: Daftar Bintang Pelajar (Juara Umum Per Tingkatan)</p>
                 </div>
             </div>
+            
             ${gridHTML}
+            
+            <div style="margin-top: 40px; display: flex; justify-content: flex-end; padding-right: 20px; page-break-inside: avoid;">
+                <div style="text-align: center; width: 250px;">
+                    <p style="margin: 0 0 5px 0; font-size: 14px;">Bangkalan, ${tglTtd}</p>
+                    <p style="margin: 0; font-size: 14px; font-weight: bold;">Panitia Ujian Madrasah</p>
+                    <div style="height: 80px;"></div>
+                    <p style="margin: 0; font-size: 14px; font-weight: bold; text-decoration: underline;">( .................................................... )</p>
+                </div>
+            </div>
+
             <div class="footer">Dokumen ini dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
             <script>window.onload = function() { setTimeout(function() { window.print(); }, 1000); };<\/script>
         </body></html>
