@@ -1270,10 +1270,10 @@ function loadBintangPelajar() {
                 });
             };
 
-            // Panggil fungsi render untuk masing-masing tingkatan
-            renderKategori('Tingkat TK / RA', 'fas fa-child text-emerald-100', dataTK, 'bg-emerald-600');
-            renderKategori('Tingkat Madrasah Ibtidaiyah', 'fas fa-book-open text-blue-100', dataIBT, 'bg-blue-600');
-            renderKategori('Tingkat Madrasah Sanawiyah', 'fas fa-graduation-cap text-purple-100', dataSANA, 'bg-purple-600');
+// Panggil fungsi render untuk masing-masing tingkatan
+renderKategori('Tingkat TK / RA', 'fas fa-star text-amber-400', dataTK, 'bg-emerald-600');
+renderKategori('Tingkat Madrasah Ibtidaiyah', 'fas fa-star text-amber-400', dataIBT, 'bg-blue-600');
+renderKategori('Tingkat Madrasah Sanawiyah', 'fas fa-star text-amber-400', dataSANA, 'bg-purple-600');
             
         } else { 
             wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-info-circle text-2xl mb-2 block"></i>Belum ada data nilai yang diinput di kelas mana pun.</div>'; 
