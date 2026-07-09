@@ -1313,13 +1313,14 @@ function loadRankingKelas() {
 
        if (resRanking.status === 'success' && resRanking.data.length > 0) { 
             
-            resRanking.data.forEach(s => {
+           resRanking.data.forEach(s => {
                 if (!kelasPilih.includes('TK')) {
                     let jmlMapel = (JADWAL_MAPEL[kelasPilih] && JADWAL_MAPEL[kelasPilih].semua) ? JADWAL_MAPEL[kelasPilih].semua.length : 0;
                     if (jmlMapel > 0) {
                         s.rata = (parseFloat(s.total || 0) / jmlMapel).toFixed(1);
                     } else {
-                        s.rata = "0.0";
+                        // Tarik nilai asli dari database jika Mapel di Pengaturan masih kosong
+                        s.rata = parseFloat(s.rata || 0).toFixed(1); 
                     }
                 } else {
                     s.rata = parseFloat(s.rata || 0).toFixed(1);

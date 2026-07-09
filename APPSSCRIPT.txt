@@ -396,11 +396,19 @@ function updateDataNilai(e) {
   
   if (kelas.includes('TK')) {
       var count = 0;
-      for (var h = 5; h < headers.length; h++) {
-         var val = currentRowData[h];
-         if (val !== "" && !isNaN(val)) { total += parseFloat(val); count++; }
-      }
+      // --- KODE PERBAIKAN: AMBIL DARI KOLOM N1, N2, N3 SECARA SPESIFIK ---
+      var idxN1 = headers.findIndex(h => h.toString().toLowerCase() === 'nilai 1' || h.toString().toLowerCase() === 'n1');
+      var idxN2 = headers.findIndex(h => h.toString().toLowerCase() === 'nilai 2' || h.toString().toLowerCase() === 'n2');
+      var idxN3 = headers.findIndex(h => h.toString().toLowerCase() === 'nilai 3' || h.toString().toLowerCase() === 'n3');
+      
+      [idxN1, idxN2, idxN3].forEach(function(c) {
+          if (c > -1) {
+              var val = currentRowData[c];
+              if (val !== "" && !isNaN(val)) { total += parseFloat(val); count++; }
+          }
+      });
       var rata = count > 0 ? (total/count).toFixed(1) : 0;
+      // -----------------------------------------------------------
   } else {
       for (var h = 5; h < headers.length; h++) {
          var val = currentRowData[h];
@@ -518,17 +526,33 @@ function getBintangPelajar() {
         var nisCol = headers.indexOf('NIS');
         var kelasVal = sheetName.replace('NILAI ', '');
         
-        var kelasRanking = [];
+        // --- KODE PERBAIKAN: AGREGASI BINTANG PELAJAR UNTUK TK ---
+        var agregasiKelas = {};
         for (var i = 1; i < dataNilai.length; i++) {
           var nisStr = dataNilai[i][nisCol].toString().replace(/'/g, "").trim();
-          kelasRanking.push({
-            nis: nisStr,
-            nama: dataNilai[i][namaCol], total: parseFloat(dataNilai[i][totalCol]) || 0,
-            rata: parseFloat(dataNilai[i][rataCol]) || 0, kelas: kelasVal
-          });
+          
+          if (!agregasiKelas[nisStr]) {
+              agregasiKelas[nisStr] = {
+                  nis: nisStr, nama: dataNilai[i][namaCol], total: 0, rata: 0, hitungBaris: 0, kelas: kelasVal
+              };
+          }
+          agregasiKelas[nisStr].total += parseFloat(dataNilai[i][totalCol]) || 0;
+          agregasiKelas[nisStr].rata += parseFloat(dataNilai[i][rataCol]) || 0;
+          agregasiKelas[nisStr].hitungBaris++;
         }
         
-        // Cari juara 1 di kelas ini
+        var kelasRanking = [];
+        for (var key in agregasiKelas) {
+            var r = agregasiKelas[key];
+            if (kelasVal.includes('TK')) {
+                r.rata = r.hitungBaris > 0 ? (r.total / r.hitungBaris).toFixed(1) : 0;
+            } else {
+                r.rata = r.rata.toFixed(1);
+            }
+            kelasRanking.push(r);
+        }
+        
+        // Cari juara 1 di kelas ini berdasarkan agregasi total
         kelasRanking.sort(function(a, b) { return b.total - a.total; });
         
         if (kelasRanking.length > 0) {
@@ -735,8 +759,12 @@ function uploadGambarDrive(e) {
 
     // 4. Simpan File Baru
     var file = folder.createFile(blob);
-    // Gunakan link lh3 googleusercontent agar lolos sistem keamanan Cetak PDF (CORS)
-    var fileUrl = "https://lh3.googleusercontent.com/d/" + file.getId(); 
+    
+    // Pastikan hak akses file langsung dibuka untuk publik (Mencegah delay izin folder)
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    // Gunakan API Thumbnail Drive yang kebal dari pemblokiran keamanan (CORS)
+    var fileUrl = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1000";
 
     // 5. Catat URL ke Database (Kolom G, H, I)
     var ss = SpreadsheetApp.getActiveSpreadsheet();

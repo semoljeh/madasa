@@ -317,9 +317,14 @@ function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis, detailRa
         let rataBenar = '-';
         if (stringTotal !== '-' && !isNaN(numTotal)) {
             if (!kelas.includes('TK')) {
-                // Hitung mandiri: Total dibagi Jumlah Mapel agar tidak jadi teks tanggal
                 let jmlMapel = (JADWAL_MAPEL[kelas] && JADWAL_MAPEL[kelas].semua) ? JADWAL_MAPEL[kelas].semua.length : 0;
-                rataBenar = jmlMapel > 0 ? (numTotal / jmlMapel).toFixed(1) : "0.0";
+                if (jmlMapel > 0) {
+                    rataBenar = (numTotal / jmlMapel).toFixed(1);
+                } else {
+                    // Tarik dari database jika mapel kosong
+                    let valRataSheet = dataMap['rata-rata'] || dataMap['rata'] || 0;
+                    rataBenar = !isNaN(parseFloat(valRataSheet)) ? parseFloat(valRataSheet).toFixed(1) : "0.0";
+                }
             } else {
                 // Khusus TK
                 let valRataSheet = dataMap['rata-rata'] || dataMap['rata'] || 0;
@@ -373,11 +378,26 @@ function prosesDanTampilkanData(nis, kelas, headers, rows, statusRilis, detailRa
 
             let santriDinilai = Array.from(rekapNilai, ([nisSiswa, total]) => ({ nis: nisSiswa, total: total }));
                 
+            // 1. Urutkan berdasarkan total nilai terbesar
             santriDinilai.sort((a, b) => b.total - a.total);
             jmlSantri = santriDinilai.length; 
             
-            let pos = santriDinilai.findIndex(s => s.nis === nis.toString().trim());
-            if (pos > -1) rank = pos + 1;
+            // 2. Terapkan Logika Ranking Kembar (Tied Ranks)
+            let rankAktual = 1;
+            for (let k = 0; k < santriDinilai.length; k++) {
+                if (k > 0 && santriDinilai[k].total === santriDinilai[k-1].total) {
+                    santriDinilai[k].rank = rankAktual; // Ranking sama jika nilai sama
+                } else {
+                    rankAktual = k + 1; // Lompat ke ranking semestinya
+                    santriDinilai[k].rank = rankAktual;
+                }
+            }
+            
+            // 3. Cari ranking untuk santri yang sedang dicek oleh Orang Tua
+            let santriIni = santriDinilai.find(s => s.nis === nis.toString().trim());
+            if (santriIni) {
+                rank = santriIni.rank;
+            }
         }
         
         document.getElementById('ortuRanking').innerText = rank;
