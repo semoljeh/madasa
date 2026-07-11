@@ -472,20 +472,36 @@ function getRankingKelas(e) {
     agregasiRanking[nisStr].hitungBaris++;
   }
   
-  var rankingList = [];
+ var rankingList = [];
   for (var key in agregasiRanking) {
      var r = agregasiRanking[key];
      if (kelasPilih.includes('TK')) {
          r.rata = (r.total / r.hitungBaris).toFixed(1);
      } else {
-         r.rata = r.rata.toFixed(1); // Ambil Rata-rata ASLI anti error dari sheet
+         r.rata = r.rata.toFixed(1); 
      }
      rankingList.push(r);
   }
   
-  rankingList.sort(function(a, b) { return b.total - a.total; });
-  for (var k = 0; k < rankingList.length; k++) { rankingList[k].rank = k + 1; }
+  // --- KODE LOGIKA RANKING KEMBAR ---
+  rankingList.sort(function(a, b) { 
+      if (b.total !== a.total) {
+          return b.total - a.total; 
+      }
+      return parseFloat(b.rata) - parseFloat(a.rata);
+  });
   
+  var rankAktual = 1;
+  for (var k = 0; k < rankingList.length; k++) { 
+      if (k > 0 && rankingList[k].total === rankingList[k-1].total && rankingList[k].rata === rankingList[k-1].rata) {
+          rankingList[k].rank = rankAktual; 
+      } else {
+          rankAktual = k + 1; 
+          rankingList[k].rank = rankAktual;
+      }
+  }
+  // ----------------------------------
+
   return responSukses({ data: rankingList });
 }
 
@@ -552,17 +568,43 @@ function getBintangPelajar() {
             kelasRanking.push(r);
         }
         
-        // Cari juara 1 di kelas ini berdasarkan agregasi total
-        kelasRanking.sort(function(a, b) { return b.total - a.total; });
+        // Cari juara 1 di kelas ini berdasarkan Total Nilai. 
+        // Jika Total Nilai kembar, pemenangnya ditentukan oleh Rata-rata terbesar.
+        kelasRanking.sort(function(a, b) { 
+            if (b.total !== a.total) {
+                return b.total - a.total; 
+            }
+            return parseFloat(b.rata) - parseFloat(a.rata);
+        });
+        
         
         if (kelasRanking.length > 0) {
-          var juara1 = kelasRanking[0];
-          var biodata = santriMap[juara1.nis] || {jk: '-', ttl: '-', ayah: '-', ibu: '-', alamat: '-'};
-          juara1.jk = biodata.jk;
-          juara1.ttl = biodata.ttl; juara1.ayah = biodata.ayah; 
-          juara1.ibu = biodata.ibu; juara1.alamat = biodata.alamat;
+          // Ambil patokan nilai Juara 1 (Nilai Tertinggi di kelas tersebut)
+          var topTotal = kelasRanking[0].total;
+          var topRata = kelasRanking[0].rata;
           
-          juaraList.push(juara1);
+          // Lakukan perulangan untuk mengecek semua anak di kelas tersebut
+          for (var j = 0; j < kelasRanking.length; j++) {
+              // Jika nilai anak ini SAMA PERSIS dengan nilai patokan Juara 1, masukkan ke daftar
+              if (kelasRanking[j].total === topTotal && kelasRanking[j].rata === topRata) {
+                  var juara = kelasRanking[j];
+                  var biodata = santriMap[juara.nis] || {jk: '-', ttl: '-', ayah: '-', ibu: '-', alamat: '-'};
+                  
+                  // Penegas nilai rank agar di web otomatis tertulis angka 1 untuk semua juara kembar
+                  juara.rank = 1; 
+                  
+                  juara.jk = biodata.jk;
+                  juara.ttl = biodata.ttl; 
+                  juara.ayah = biodata.ayah; 
+                  juara.ibu = biodata.ibu; 
+                  juara.alamat = biodata.alamat;
+                  
+                  juaraList.push(juara);
+              } else {
+                  // Jika nilainya sudah lebih kecil dari Juara 1, hentikan pencarian di kelas ini
+                  break; 
+              }
+          }
         }
       }
     }
