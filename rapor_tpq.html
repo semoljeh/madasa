@@ -623,7 +623,6 @@ for (let i = 0; i < 12; i++) {
             const kertas = document.getElementById('kertasRapor');
             kertas.classList.remove('hidden');
             
-            // Format HTML khusus untuk TK disesuaikan agar sama persis konsepnya tanpa mix-blend
             kertas.innerHTML = `
                 <!-- SAMPUL TK -->
                 <div class="flex flex-col justify-center items-center text-center" style="height: 270mm; page-break-after: always; box-sizing: border-box; padding: 20px;">
@@ -645,17 +644,23 @@ for (let i = 0; i < 12; i++) {
                     </div>
                 </div>
 
-                <!-- BIODATA TK -->
-                <div style="font-family: 'Times New Roman', Times, serif; padding: 5mm 10mm; color: #000; min-height: 270mm; position: relative; box-sizing: border-box;">
-                    <div class="text-center mb-8">
+                <!-- BIODATA TK (FLEX COL agar otomatis dorong ke bawah) -->
+                <div class="flex flex-col" style="font-family: 'Times New Roman', Times, serif; padding: 5mm 10mm; color: #000; min-height: 270mm; position: relative; box-sizing: border-box;">
+                    
+                    <div class="text-center mb-8 shrink-0">
                         <img src="asset/logo.png" class="w-20 h-20 object-contain mx-auto mb-4" alt="Logo">
                         <h2 class="text-[16px] font-bold uppercase tracking-wider m-0 text-emerald-800">LAPORAN HASIL BELAJAR SANTRI</h2>
                         <h1 class="text-[18px] font-bold uppercase tracking-widest m-0">TK - RA DARUSSALAM</h1>
                     </div>
 
-                    <div class="text-[14px] font-bold underline mb-4 tracking-wide text-emerald-800">IDENTITAS SANTRI</div>
+                    <div class="text-[14px] font-bold underline mb-4 tracking-wide text-emerald-800 shrink-0">IDENTITAS SANTRI</div>
 
-                    <table class="w-full text-[13px] leading-relaxed no-border" style="border: none !important;">
+                    <!-- CSS untuk memastikan padding tabel tetap renggang -->
+                    <style>
+                        #tabelBiodataTK td { padding: 6px 0; }
+                    </style>
+
+                    <table id="tabelBiodataTK" class="w-full text-[13px] leading-relaxed no-border shrink-0" style="border: none !important;">
                         <tr style="border:none;"><td class="w-[4%] align-top" style="border:none;">1.</td><td class="w-[38%] align-top" style="border:none;">Nama Lengkap</td><td class="w-[2%] align-top" style="border:none;">:</td><td class="align-top uppercase font-bold" style="border:none;">${namaB}</td></tr>
                         <tr style="border:none;"><td class="align-top" style="border:none;">2.</td><td class="align-top" style="border:none;">Nomor Induk Santri</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">${santriInfo.nis || '-'}</td></tr>
                         <tr style="border:none;"><td class="align-top" style="border:none;">3.</td><td class="align-top" style="border:none;">Jenis Kelamin</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${santriInfo.jk || '-'}</td></tr>
@@ -680,7 +685,9 @@ for (let i = 0; i < 12; i++) {
                         <tr style="border:none;"><td class="align-top" style="border:none;">16.</td><td class="align-top" style="border:none;">Pekerjaan Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
                     </table>
 
-                    <div class="flex justify-between items-end mt-8 px-4">
+                    <!-- mt-auto akan mendesak bagian ini mentok ke area terbawah kertas -->
+                    <!-- Jika masih kurang turun, ganti mt-auto menjadi mt-[3cm] atau mt-8 -->
+                 <div class="flex justify-between items-end px-4 mt-[2cm] pb-4">
                         <div class="w-[3cm] h-[4cm] border-2 border-emerald-800 flex flex-col items-center justify-center text-center relative z-10 bg-white">
                             <span class="text-[11px] text-emerald-800">Pas Photo</span><br>
                             <span class="text-[11px] font-bold text-emerald-800">3 x 4</span>
