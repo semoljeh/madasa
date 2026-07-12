@@ -500,24 +500,36 @@
                 </div>
 
                <div class="flex justify-between text-center font-bold text-black mt-5 text-[11px] relative z-10">
+                    
                     <div class="w-1/3 flex flex-col justify-between items-center" style="height: 95px;">
-                        <div class="w-full relative z-40"><p class="font-normal mb-0.5">&nbsp;</p><p>Orang Tua/Wali</p></div>
-                        <div class="w-full relative z-40"><div class="border-b border-black w-[140px] mx-auto pb-0.5"></div></div>
+                        <div class="w-full relative z-10"><p class="font-normal mb-0.5">&nbsp;</p><p>Orang Tua/Wali</p></div>
+                        <div class="w-full relative z-10"><div class="border-b border-black w-[140px] mx-auto pb-0.5"></div></div>
                     </div>
+                    
                     <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 95px;">
-                        <div class="w-full relative z-40"><p class="font-normal mb-0.5">&nbsp;</p><p>Guru Wali Kelas</p></div>
+                        <div class="w-full relative z-10"><p class="font-normal mb-0.5">&nbsp;</p><p>Guru Wali Kelas</p></div>
+                        
                         <div class="absolute inset-0 flex items-center justify-center z-30 pt-4 pointer-events-none">
-                            <img src="${setUmum.url_wali || ''}" class="h-20 max-w-[140px] object-contain ${setUmum.url_wali ? '' : 'hidden'}" alt="TTD Wali">
+                            <img src="${setUmum.url_wali || ''}" class="h-20 max-w-[140px] object-contain relative z-20 ${setUmum.url_wali ? '' : 'hidden'}" alt="TTD Wali">
                         </div>
-                        <div class="w-full relative z-40"><div class="border-b border-black w-[140px] mx-auto pb-0.5 uppercase">${setUmum.wali || '&nbsp;'}</div></div>
+                        
+                        <div class="w-full relative z-10"><div class="border-b border-black w-[140px] mx-auto pb-0.5 uppercase">${setUmum.wali || '&nbsp;'}</div></div>
                     </div>
+                    
                     <div class="w-1/3 flex flex-col justify-between items-center relative" style="height: 95px;">
-                        <div class="w-full relative z-40"><p class="font-normal mb-0.5">${setUmum.tanggal || 'Bangkalan, ........................'}</p><p>Kepala Madrasah</p></div>
+                        <!-- Teks Atas (Z-10: Paling Belakang) -->
+                        <div class="w-full relative z-10"><p class="font-normal mb-0.5">${setUmum.tanggal || 'Bangkalan, ........................'}</p><p>Kepala Madrasah</p></div>
+                        
+                        <!-- Wadah Gambar (Z-30: Di Atas Teks) -->
                         <div class="absolute inset-0 flex items-center justify-center z-30 pt-4 pointer-events-none">
-                            <img src="${setUmum.url_stempel || ''}" class="absolute h-24 max-w-[140px] object-contain -ml-8 mt-2 ${setUmum.url_stempel ? '' : 'hidden'}" style="z-index: 30;" alt="Stempel">
+                            <!-- TTD (Z-20: Di Atas Teks, Di Bawah Stempel) -->
                             <img src="${setUmum.url_kepala || ''}" class="relative z-20 h-20 max-w-[140px] object-contain ${setUmum.url_kepala ? '' : 'hidden'}" alt="TTD Kepala">
+                            <!-- Stempel (Z-30: Paling Depan) -->
+                            <img src="${setUmum.url_stempel || ''}" class="absolute z-30 h-24 max-w-[140px] object-contain -ml-8 mt-2 ${setUmum.url_stempel ? '' : 'hidden'}" alt="Stempel">
                         </div>
-                        <div class="w-full relative z-40"><div class="border-b border-black w-[140px] mx-auto pb-0.5 uppercase">${setUmum.kepala || '&nbsp;'}</div></div>
+                        
+                        <!-- Teks Nama (Z-10: Paling Belakang) -->
+                        <div class="w-full relative z-10"><div class="border-b border-black w-[140px] mx-auto pb-0.5 uppercase">${setUmum.kepala || '&nbsp;'}</div></div>
                     </div>
                 </div>
             `;
@@ -549,127 +561,162 @@
             }, 500);
         }
         
-       // =========================================================
-        // FUNGSI CETAK SAMPUL & BIODATA MURNI (VEKTOR) - DESAIN TK
+      // =========================================================
+        // FUNGSI CETAK SAMPUL & BIODATA (DINAMIS & FIX Z-INDEX)
         // =========================================================
         function cetakSampulBiodata() {
             const nis = document.getElementById('raporSantri').value;
             const kelasLengkap = document.getElementById('raporKelas').value;
             
-            if(!nis) return Swal.fire('Perhatian', 'Pilih kelas dan nama santri terlebih dahulu.', 'warning');
+            if(!nis || !kelasLengkap) return Swal.fire('Perhatian', 'Pilih kelas dan nama santri terlebih dahulu.', 'warning');
 
             const santriInfo = GLOBAL_DATA_SANTRI.find(x => x.nis == nis);
             if(!santriInfo) return Swal.fire('Error', 'Data santri tidak ditemukan.', 'error');
 
-            const namaKelas = kelasLengkap.split('-')[1] ? kelasLengkap.split('-')[1].trim() : kelasLengkap;
-
-            const bersihkanTeks = (teks) => {
-                if (!teks) return '-';
-                return teks.toString().replace(/\uFFFD/g, "'").replace(/[’‘`]/g, "'");
-            };
-
-            const namaB = bersihkanTeks(santriInfo.nama);
-            const ayahB = bersihkanTeks(santriInfo.ayah);
-            const ibuB  = bersihkanTeks(santriInfo.ibu);
-            const almtB = bersihkanTeks(santriInfo.alamat);
-
-            const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
-            const tanggalCetak = new Date().toLocaleDateString('id-ID', opsiTanggal);
-
-            const kertas = document.getElementById('kertasRapor');
-            kertas.classList.remove('hidden');
+            // 1. Tarik Pengaturan dari Server
+            showLoading(true, "Menarik Data Pengaturan...");
             
-            kertas.innerHTML = `
-                <!-- SAMPUL SANAWIYAH -->
-                <div class="flex flex-col justify-center items-center text-center" style="height: 270mm; page-break-after: always; box-sizing: border-box; padding: 20px;">
-                    <img src="asset/logo.png" class="w-48 h-48 object-contain mb-8" alt="Logo">
-                    <h1 class="text-3xl font-black uppercase tracking-widest mb-1 text-emerald-800">Buku Laporan Penilaian</h1>
-                    <h2 class="text-2xl font-bold uppercase tracking-widest text-black mb-8">Hasil Belajar Santri</h2>
-                    <div class="w-3/4 border-b-2 border-emerald-800 mb-12"></div>
-                    <h1 class="text-[40px] font-bold leading-none mb-2 text-emerald-800" style="font-family: 'Traditional Arabic', serif;">مدرسة دار السلام</h1>
-                    <h2 class="text-xl font-black uppercase tracking-widest text-black mb-1">MADRASAH DARUSSALAM</h2>
-                    <p class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-12">Batukessel Bandang Laok Kokop Bangkalan</p>
+            const fdSet = new URLSearchParams(); 
+            fdSet.append('action', 'getPengaturan'); 
+            fdSet.append('kelas', kelasLengkap);
+            
+            const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
+            if (tokenTersimpan) fdSet.append('token', tokenTersimpan);
+
+            fetch(GAS_URL, { method: 'POST', body: fdSet })
+                .then(r => r.json())
+                .then(resSet => {
+                    showLoading(false);
                     
-                    <div class="w-3/4 border-2 border-emerald-800 p-6 rounded-lg bg-white relative mt-4">
-                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-4 text-xs font-bold uppercase tracking-wider text-emerald-800">Nama Santri</div>
-                        <h3 class="text-2xl font-black uppercase tracking-widest text-black mb-3">${namaB}</h3>
-                        <div class="flex justify-center items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-700">
-                            <span>NIS / NISN :</span>
-                            <span class="border-b border-black border-dashed px-4 text-black">${santriInfo.nis || '-'}</span>
-                        </div>
-                    </div>
-                </div>
+                    let setUmum = {};
+                    if(resSet.status === 'success') {
+                        setUmum = resSet.umum || {};
+                    }
 
-                <!-- BIODATA SANAWIYAH (FLEX COL) -->
-                <div class="flex flex-col" style="font-family: 'Times New Roman', Times, serif; padding: 5mm 10mm; color: #000; min-height: 270mm; position: relative; box-sizing: border-box;">
+                    const bersihkanTeks = (teks) => {
+                        if (!teks) return '-';
+                        return teks.toString().replace(/\uFFFD/g, "'").replace(/[’‘`]/g, "'");
+                    };
+
+                    const namaB = bersihkanTeks(santriInfo.nama);
+                    const ayahB = bersihkanTeks(santriInfo.ayah);
+                    const ibuB  = bersihkanTeks(santriInfo.ibu);
+                    const almtB = bersihkanTeks(santriInfo.alamat);
+
+                    // 2. Tentukan Tanggal & Pejabat
+                    const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
+                    const tanggalCetakDefault = new Date().toLocaleDateString('id-ID', opsiTanggal);
                     
-                    <!-- CSS Khusus untuk melonggarkan baris tabel Biodata -->
-                    <style>
-                        #tabelBiodata td { padding: 6px 0; }
-                    </style>
+                    const tanggalTampil = setUmum.tanggal || ('Bangkalan, ' + tanggalCetakDefault);
+                    const namaKepala = setUmum.kepala || '..............................';
+                    const urlKepala = setUmum.url_kepala || '';
+                    const urlStempel = setUmum.url_stempel || '';
 
-                    <div class="text-center mb-8 shrink-0">
-                        <img src="asset/logo.png" class="w-20 h-20 object-contain mx-auto mb-4" alt="Logo">
-                        <h2 class="text-[16px] font-bold uppercase tracking-wider m-0 text-emerald-800">LAPORAN HASIL BELAJAR SANTRI</h2>
-                        <h1 class="text-[18px] font-bold uppercase tracking-widest m-0">MADRASAH DARUSSALAM</h1>
-                    </div>
-
-                    <div class="text-[14px] font-bold underline mb-4 tracking-wide text-emerald-800 shrink-0">IDENTITAS SANTRI</div>
-
-                    <table id="tabelBiodata" class="w-full text-[13px] leading-relaxed no-border shrink-0" style="border: none !important;">
-                        <tr style="border:none;"><td class="w-[4%] align-top" style="border:none;">1.</td><td class="w-[38%] align-top" style="border:none;">Nama Lengkap</td><td class="w-[2%] align-top" style="border:none;">:</td><td class="align-top uppercase font-bold" style="border:none;">${namaB}</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">2.</td><td class="align-top" style="border:none;">Nomor Induk Santri</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">${santriInfo.nis || '-'}</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">3.</td><td class="align-top" style="border:none;">Jenis Kelamin</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${santriInfo.jk || '-'}</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">4.</td><td class="align-top" style="border:none;">Tempat Tanggal Lahir</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${santriInfo.ttl || '-'}</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">5.</td><td class="align-top" style="border:none;">Agama</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Islam</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">6.</td><td class="align-top" style="border:none;">Alamat Santri</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${almtB}</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">7.</td><td class="align-top" style="border:none;">Madrasah</td><td class="align-top" style="border:none;"></td><td class="align-top" style="border:none;"></td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">a. Nama Madrasah</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Madrasah Darussalam</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">b. Alamat Madrasah</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Batukessel Bandang Laok</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">c. Kecamatan</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Kokop</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">d. Kabupaten</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Bangkalan</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">8.</td><td class="align-top" style="border:none;">Nama Orang Tua</td><td class="align-top" style="border:none;"></td><td class="align-top" style="border:none;"></td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">a. Ayah</td><td class="align-top" style="border:none;">:</td><td class="align-top uppercase" style="border:none;">${ayahB}</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">b. Ibu</td><td class="align-top" style="border:none;">:</td><td class="align-top uppercase" style="border:none;">${ibuB}</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">9.</td><td class="align-top" style="border:none;">Alamat Orang Tua</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${almtB}</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">10.</td><td class="align-top" style="border:none;">Agama Orang Tua</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Islam</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">11.</td><td class="align-top" style="border:none;">Pekerjaan Orang Tua</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">12.</td><td class="align-top" style="border:none;">Nama Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">13.</td><td class="align-top" style="border:none;">Alamat Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">14.</td><td class="align-top" style="border:none;">Nomor Telepon</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">15.</td><td class="align-top" style="border:none;">Agama Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
-                        <tr style="border:none;"><td class="align-top" style="border:none;">16.</td><td class="align-top" style="border:none;">Pekerjaan Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
-                    </table>
-
-                    <!-- mt-[4cm] akan mendesak bagian ini mentok ke area terbawah kertas -->
-                  <div class="flex justify-between items-end px-4 mt-11 pb-4">
-                        <div class="w-[3cm] h-[4cm] border-2 border-emerald-800 flex flex-col items-center justify-center text-center relative z-10 bg-white">
-                            <span class="text-[11px] text-emerald-800">Pas Photo</span><br>
-                            <span class="text-[11px] font-bold text-emerald-800">3 x 4</span>
-                        </div>
-                        
-                        <div class="text-center w-[250px] relative">
-                            <p class="m-0 text-[13px] mb-1">Bangkalan, ${tanggalCetak}</p>
-                            <p class="m-0 text-[13px] font-bold mb-1">Kepala Madrasah</p>
+                    const kertas = document.getElementById('kertasRapor');
+                    kertas.classList.remove('hidden');
+                    
+                    kertas.innerHTML = `
+                        <!-- SAMPUL SANAWIYAH -->
+                        <div class="flex flex-col justify-center items-center text-center" style="height: 270mm; page-break-after: always; box-sizing: border-box; padding: 20px;">
+                            <img src="asset/logo.png" class="w-48 h-48 object-contain mb-8" alt="Logo">
+                            <h1 class="text-3xl font-black uppercase tracking-widest mb-1 text-emerald-800">Buku Laporan Penilaian</h1>
+                            <h2 class="text-2xl font-bold uppercase tracking-widest text-black mb-8">Hasil Belajar Santri</h2>
+                            <div class="w-3/4 border-b-2 border-emerald-800 mb-12"></div>
+                            <h1 class="text-[40px] font-bold leading-none mb-2 text-emerald-800" style="font-family: 'Traditional Arabic', serif;">مدرسة دار السلام</h1>
+                            <h2 class="text-xl font-black uppercase tracking-widest text-black mb-1">MADRASAH DARUSSALAM</h2>
+                            <p class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-12">Batukessel Bandang Laok Kokop Bangkalan</p>
                             
-                            <div class="relative flex justify-center items-center h-[75px] w-full my-1 pointer-events-none">
-                                <img src="asset/ttdkepala.png" class="relative h-20" style="z-index: 20;" alt="TTD Kepala" onerror="this.style.display='none'">
-                                <img src="asset/stempel.png" class="absolute h-24 -ml-16" style="z-index: 30;" alt="Stempel" onerror="this.style.display='none'">
+                            <div class="w-3/4 border-2 border-emerald-800 p-6 rounded-lg bg-white relative mt-4">
+                                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-4 text-xs font-bold uppercase tracking-wider text-emerald-800">Nama Santri</div>
+                                <h3 class="text-2xl font-black uppercase tracking-widest text-black mb-3">${namaB}</h3>
+                                <div class="flex justify-center items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-700">
+                                    <span>NIS / NISN :</span>
+                                    <span class="border-b border-black border-dashed px-4 text-black">${santriInfo.nis || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BIODATA SANAWIYAH (FLEX COL) -->
+                        <div class="flex flex-col" style="font-family: 'Times New Roman', Times, serif; padding: 5mm 10mm; color: #000; min-height: 270mm; position: relative; box-sizing: border-box;">
+                            
+                            <style>
+                                #tabelBiodata td { padding: 6px 0; }
+                            </style>
+
+                            <div class="text-center mb-8 shrink-0">
+                                <img src="asset/logo.png" class="w-20 h-20 object-contain mx-auto mb-4" alt="Logo">
+                                <h2 class="text-[16px] font-bold uppercase tracking-wider m-0 text-emerald-800">LAPORAN HASIL BELAJAR SANTRI</h2>
+                                <h1 class="text-[18px] font-bold uppercase tracking-widest m-0">MADRASAH DARUSSALAM</h1>
                             </div>
 
-                            <p class="m-0 text-[14px] font-bold underline tracking-wide uppercase relative z-30">KH. UMAR FARUQ</p>
+                            <div class="text-[14px] font-bold underline mb-4 tracking-wide text-emerald-800 shrink-0">IDENTITAS SANTRI</div>
+
+                            <table id="tabelBiodata" class="w-full text-[13px] leading-relaxed no-border shrink-0" style="border: none !important;">
+                                <tr style="border:none;"><td class="w-[4%] align-top" style="border:none;">1.</td><td class="w-[38%] align-top" style="border:none;">Nama Lengkap</td><td class="w-[2%] align-top" style="border:none;">:</td><td class="align-top uppercase font-bold" style="border:none;">${namaB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">2.</td><td class="align-top" style="border:none;">Nomor Induk Santri</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">${santriInfo.nis || '-'}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">3.</td><td class="align-top" style="border:none;">Jenis Kelamin</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${santriInfo.jk || '-'}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">4.</td><td class="align-top" style="border:none;">Tempat Tanggal Lahir</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${santriInfo.ttl || '-'}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">5.</td><td class="align-top" style="border:none;">Agama</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Islam</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">6.</td><td class="align-top" style="border:none;">Alamat Santri</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${almtB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">7.</td><td class="align-top" style="border:none;">Madrasah</td><td class="align-top" style="border:none;"></td><td class="align-top" style="border:none;"></td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">a. Nama Madrasah</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Madrasah Darussalam</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">b. Alamat Madrasah</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Batukessel Bandang Laok</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">c. Kecamatan</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Kokop</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">d. Kabupaten</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Bangkalan</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">8.</td><td class="align-top" style="border:none;">Nama Orang Tua</td><td class="align-top" style="border:none;"></td><td class="align-top" style="border:none;"></td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">a. Ayah</td><td class="align-top" style="border:none;">:</td><td class="align-top uppercase" style="border:none;">${ayahB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">b. Ibu</td><td class="align-top" style="border:none;">:</td><td class="align-top uppercase" style="border:none;">${ibuB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">9.</td><td class="align-top" style="border:none;">Alamat Orang Tua</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${almtB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">10.</td><td class="align-top" style="border:none;">Agama Orang Tua</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Islam</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">11.</td><td class="align-top" style="border:none;">Pekerjaan Orang Tua</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">12.</td><td class="align-top" style="border:none;">Nama Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">13.</td><td class="align-top" style="border:none;">Alamat Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">14.</td><td class="align-top" style="border:none;">Nomor Telepon</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">15.</td><td class="align-top" style="border:none;">Agama Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">16.</td><td class="align-top" style="border:none;">Pekerjaan Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                            </table>
+
+                            <!-- BLOK TANDA TANGAN (FIX LAYER) -->
+                            <div class="flex justify-between items-end px-4 mt-11 pb-4">
+                                <div class="w-[3cm] h-[4cm] border-2 border-emerald-800 flex flex-col items-center justify-center text-center relative z-10 bg-white">
+                                    <span class="text-[11px] text-emerald-800">Pas Photo</span><br>
+                                    <span class="text-[11px] font-bold text-emerald-800">3 x 4</span>
+                                </div>
+                                
+                                <div class="text-center w-[250px] relative">
+                                    <!-- Teks Atas (Z-10) -->
+                                    <div class="relative z-10">
+                                        <p class="m-0 text-[13px] mb-1">${tanggalTampil}</p>
+                                        <p class="m-0 text-[13px] font-bold mb-1">Kepala Madrasah</p>
+                                    </div>
+                                    
+                                    <!-- Wadah Tanda Tangan & Stempel (Z-30) -->
+                                    <div class="relative flex justify-center items-center h-[75px] w-full my-1 pointer-events-none z-30">
+                                        <img src="${urlKepala}" class="relative h-20 z-20 ${urlKepala ? '' : 'hidden'}" alt="TTD Kepala">
+                                        <img src="${urlStempel}" class="absolute h-24 -ml-16 z-30 ${urlStempel ? '' : 'hidden'}" alt="Stempel">
+                                    </div>
+
+                                    <!-- Teks Nama (Z-10) -->
+                                    <div class="relative z-10">
+                                        <p class="m-0 text-[14px] font-bold underline tracking-wide uppercase">${namaKepala}</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            `;
+                    `;
 
-            const judulAsli = document.title;
-            document.title = "Biodata_Sanawiyah_" + santriInfo.nis + "_" + namaB;
+                    const judulAsli = document.title;
+                    document.title = "Biodata_Sanawiyah_" + santriInfo.nis + "_" + namaB;
 
-            setTimeout(() => {
-                window.print();
-                document.title = judulAsli;
-            }, 500);
+                    setTimeout(() => {
+                        window.print();
+                        document.title = judulAsli;
+                    }, 500);
+                    
+                }).catch(err => {
+                    showLoading(false);
+                    Swal.fire('Error', 'Gagal memuat pengaturan dari server.', 'error');
+                });
         }
 		
 		
