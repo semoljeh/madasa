@@ -2052,29 +2052,35 @@ function prosesMutasi() {
     let nisList = [];
     checkboxes.forEach(cb => nisList.push(cb.value));
 
+    // KODE PERBAIKAN: Menambahkan Kotak Peringatan Cetak Rapor
     Swal.fire({
-        title: 'Proses Mutasi?',
-        text: `Anda akan memindahkan ${nisList.length} santri ke: ${kelasTujuan}`,
+        title: 'Peringatan Mutasi!',
+        html: `Anda akan memindahkan <b>${nisList.length} santri</b> ke: <b class="text-indigo-600">${kelasTujuan}</b><br><br>
+               <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-800 text-sm text-left shadow-inner">
+                   <i class="fas fa-exclamation-triangle text-amber-600 mr-2 text-lg"></i> <b>PERHATIAN PENTING:</b><br>
+                   Pastikan semua <b>Rapor</b> kelas asal sudah dicetak! Setelah dimutasi, nama santri tidak akan muncul lagi di menu cetak kelas sebelumnya.
+               </div>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#4f46e5',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'Ya, Pindahkan!'
+        confirmButtonText: '<i class="fas fa-check mr-2"></i> Ya, Lanjutkan Mutasi',
+        cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
             showLoading(true, "Memproses Mutasi...");
             
             const formData = new URLSearchParams();
-formData.append('action', 'mutasiSantri');
-formData.append('token', sessionStorage.getItem('tokenMadasa')); // <--- SUNTIKKAN INI
-formData.append('kelas_tujuan', kelasTujuan);
-formData.append('nis_list', JSON.stringify(nisList));
+            formData.append('action', 'mutasiSantri');
+            formData.append('token', sessionStorage.getItem('tokenMadasa')); 
+            formData.append('kelas_tujuan', kelasTujuan);
+            formData.append('nis_list', JSON.stringify(nisList));
 
             fetch(GAS_URL, { method: 'POST', body: formData })
             .then(r => r.json())
             .then(res => {
                 if (res.status === 'success') {
-                    showLoading(false); // <-- Perbaikan: Matikan loading screen saat sukses
+                    showLoading(false); 
                     Swal.fire('Berhasil!', res.message, 'success');
                     document.getElementById('mutasiKelasAsal').value = '';
                     document.getElementById('mutasiKelasTujuan').value = '';
