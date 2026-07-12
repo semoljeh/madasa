@@ -52,22 +52,24 @@ document.addEventListener("DOMContentLoaded", () => {
             pageLogin.classList.add('hidden');
             pageDashboard.classList.remove('hidden');
 			
-            // ✨ TAMBAHKAN LOGIKA INI UNTUK MENCEGAH BUG REFRESH
-            if (namaTersimpan && roleTersimpan) {
-                document.getElementById('userNameDisplay').innerText = namaTersimpan;
-                document.getElementById('userRoleDisplay').innerText = roleTersimpan;
+         // ✨ TAMBAHKAN LOGIKA INI UNTUK MENCEGAH BUG REFRESH
+if (namaTersimpan && roleTersimpan) {
+    document.getElementById('userNameDisplay').innerText = namaTersimpan;
+    document.getElementById('userRoleDisplay').innerText = roleTersimpan;
 
-                const adminElements = document.querySelectorAll('.admin-only');
-                if (roleTersimpan === 'Guru Kelas' || roleTersimpan === 'Guru') {
-                    adminElements.forEach(el => el.style.display = 'none');
-                } else {
-                    adminElements.forEach(el => el.style.display = '');
-                }
-                
-                // SUNTIKAN KODE BARU DI SINI:
-                showView('home', false); 
-            }
-            // ===================================================
+    const adminElements = document.querySelectorAll('.admin-only');
+    if (roleTersimpan === 'Guru Kelas' || roleTersimpan === 'Guru') {
+        adminElements.forEach(el => el.style.display = 'none');
+    } else {
+        adminElements.forEach(el => el.style.display = '');
+    }
+    
+    // SUNTIKAN KODE BARU DI SINI:
+    showView('home', false); 
+    
+    // 👇 TAMBAHKAN BARIS INI 👇
+    muatSemuaMapel(); 
+}
         }
     }
 });
