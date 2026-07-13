@@ -97,6 +97,21 @@ function formatRp(angka) {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(angka);
 }
 
+// --- KODE BARU: Auto-Format saat diketik & Pengubah ke Angka Murni ---
+function formatInputRupiah(input) {
+    let angkaMurni = input.value.replace(/[^0-9]/g, '');
+    if (angkaMurni) {
+        input.value = new Intl.NumberFormat('id-ID').format(angkaMurni);
+    } else {
+        input.value = '';
+    }
+}
+
+function getAngkaMurni(stringInput) {
+    if (!stringInput) return 0;
+    return parseFloat(stringInput.toString().replace(/\./g, '')) || 0;
+}
+
 // Inisialisasi Tampilan Ketetapan
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('info_spp_bulan').innerText = formatRp(TARIF_SPP_BULAN) + ' / bln';
@@ -116,28 +131,23 @@ function ambilSettingSpp() {
             JUMLAH_BULAN_SPP = parseFloat(res.bulan) || 0;
             TOTAL_TAGIHAN_SETAHUN = TARIF_SPP_BULAN * JUMLAH_BULAN_SPP;
             
-            // Masukkan angka ke form HTML
-            document.getElementById('input_tarif_spp').value = TARIF_SPP_BULAN;
-            document.getElementById('input_bulan_spp').value = JUMLAH_BULAN_SPP;
+            // KUNCI PERBAIKAN: Jika angka lebih dari 0 maka tampilkan, jika 0 maka kosongkan ("")
+            document.getElementById('input_tarif_spp').value = TARIF_SPP_BULAN > 0 ? new Intl.NumberFormat('id-ID').format(TARIF_SPP_BULAN) : "";
+            document.getElementById('input_bulan_spp').value = JUMLAH_BULAN_SPP > 0 ? JUMLAH_BULAN_SPP : "";
+            
             document.getElementById('info_spp_total').innerText = formatRp(TOTAL_TAGIHAN_SETAHUN);
         }
     });
 }
 
 function kalkulasiTotalSppUi() {
-    let nominal = parseFloat(document.getElementById('input_tarif_spp').value) || 0;
+    let nominal = getAngkaMurni(document.getElementById('input_tarif_spp').value);
     let bulan = parseFloat(document.getElementById('input_bulan_spp').value) || 0;
     document.getElementById('info_spp_total').innerText = formatRp(nominal * bulan);
 }
 
-function clearSettingSpp() {
-    document.getElementById('input_tarif_spp').value = "";
-    document.getElementById('input_bulan_spp').value = "";
-    kalkulasiTotalSppUi();
-}
-
 function simpanSettingSpp() {
-    let nominal = parseFloat(document.getElementById('input_tarif_spp').value) || 0;
+    let nominal = getAngkaMurni(document.getElementById('input_tarif_spp').value);
     let bulan = parseFloat(document.getElementById('input_bulan_spp').value) || 0;
     
     if (nominal <= 0 || bulan <= 0) return Swal.fire('Perhatian', 'Isi nominal dan bulan dengan benar.', 'warning');
@@ -247,21 +257,18 @@ function loadDataSpp() {
 }
 
 function kalkulasiOtomatisBulan() {
-    // Jangan ubah nominal jika mode Bintang Pelajar sedang aktif
     if (document.getElementById('cek_bintang_pelajar').checked) return; 
 
-    // Hitung berapa banyak kotak bulan yang dicentang
     const jumlahBulanDipilih = document.querySelectorAll('.cek-bulan:checked').length;
     const inputNominal = document.getElementById('spp_nominal');
 
     if (jumlahBulanDipilih > 0) {
-        inputNominal.value = TARIF_SPP_BULAN * jumlahBulanDipilih; // Kalikan otomatis!
+        inputNominal.value = new Intl.NumberFormat('id-ID').format(TARIF_SPP_BULAN * jumlahBulanDipilih);
     } else {
-        inputNominal.value = TARIF_SPP_BULAN; // Nilai default 1 bulan
+        inputNominal.value = new Intl.NumberFormat('id-ID').format(TARIF_SPP_BULAN);
     }
 }
 
-// LOGIKA CEKLIS BINTANG PELAJAR
 function toggleBintangPelajar() {
     const isChecked = document.getElementById('cek_bintang_pelajar').checked;
     const areaTgl = document.getElementById('area_tanggal_bulan');
@@ -270,8 +277,8 @@ function toggleBintangPelajar() {
     const inputThn = document.getElementById('spp_tahun');
     
     if(isChecked) {
-        areaTgl.style.display = 'none'; // Sembunyikan area bulan
-        inputNominal.value = TOTAL_TAGIHAN_SETAHUN;
+        areaTgl.style.display = 'none'; 
+        inputNominal.value = new Intl.NumberFormat('id-ID').format(TOTAL_TAGIHAN_SETAHUN); // Tambahkan format ini
         inputNominal.readOnly = true;
         document.getElementById('spp_status').value = "LUNAS";
         
@@ -292,7 +299,7 @@ function openModalSpp(targetNis = null) {
     if (!kelas) return Swal.fire('Perhatian', 'Pilih kelas terlebih dahulu.', 'warning');
 
     document.getElementById('formInputSpp').reset();
-    document.getElementById('spp_nominal').value = TARIF_SPP_BULAN; 
+    document.getElementById('spp_nominal').value = new Intl.NumberFormat('id-ID').format(TARIF_SPP_BULAN);
     
     // --- KODE BARU: Bersihkan semua centang bulan ---
     document.querySelectorAll('.cek-bulan').forEach(cb => cb.checked = false);
@@ -319,6 +326,7 @@ function openModalSpp(targetNis = null) {
 
 function closeModalSpp() { document.getElementById('modalFormSpp').classList.add('hidden'); }
 
+// --- KODE YANG BENAR (PEMBUKA FUNGSI DIKEMBALIKAN) ---
 document.getElementById('formInputSpp').addEventListener('submit', function(e) {
     e.preventDefault();
     const btnSubmit = this.querySelector('button[type="submit"]');
@@ -329,8 +337,69 @@ document.getElementById('formInputSpp').addEventListener('submit', function(e) {
     const nis = document.getElementById('spp_nis_nama').value;
     const kelas = document.getElementById('filterKelasSpp').value;
     const namaSantri = LOKAL_DATA_SANTRI.find(s => s.nis.toString() === nis)?.nama || '';
-    const nominal = document.getElementById('spp_nominal').value;
+    
+// --- KODE YANG BENAR (PEMBUKA FUNGSI DIKEMBALIKAN) ---
+document.getElementById('formInputSpp').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btnSubmit = this.querySelector('button[type="submit"]');
+    const teksAsli = btnSubmit.innerHTML;
+    
+    btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
+
+    const nis = document.getElementById('spp_nis_nama').value;
+    const kelas = document.getElementById('filterKelasSpp').value;
+    const namaSantri = LOKAL_DATA_SANTRI.find(s => s.nis.toString() === nis)?.nama || '';
+    
+    // Tarik nilai nominal yang bersih dari titik
+    const nominal = getAngkaMurni(document.getElementById('spp_nominal').value);
     const status = document.getElementById('spp_status').value;
+    
+    let stringKeterangan = "";
+    if (document.getElementById('cek_bintang_pelajar').checked) {
+        stringKeterangan = "Bintang Pelajar - Beasiswa Lunas 1 Tahun";
+    } else {
+        const tgl = document.getElementById('spp_tanggal').value;
+        const thn = document.getElementById('spp_tahun').value;
+        
+        // Tarik semua nama bulan yang dicentang
+        const arrayBulanDiceklis = Array.from(document.querySelectorAll('.cek-bulan:checked')).map(cb => cb.value);
+        
+        // Peringatan jika admin lupa mencentang bulan satupun
+        if (arrayBulanDiceklis.length === 0) {
+            btnSubmit.disabled = false; btnSubmit.innerHTML = teksAsli;
+            return Swal.fire('Perhatian', 'Mohon centang minimal 1 bulan yang akan dibayar!', 'warning');
+        }
+        
+        // Gabungkan menjadi teks (Contoh: "05 Muharram, Safar 1448")
+        const gabunganBulan = arrayBulanDiceklis.join(", ");
+        stringKeterangan = `${tgl} ${gabunganBulan} ${thn}`;
+    }
+
+    showLoading(true);
+    const fd = new URLSearchParams();
+    fd.append('action', 'saveSppData');
+    fd.append('token', sessionStorage.getItem('tokenMadasa'));
+    fd.append('nis', nis);
+    fd.append('nama', namaSantri);
+    fd.append('kelas', kelas);
+    fd.append('keterangan', stringKeterangan);
+    fd.append('nominal', nominal);
+    fd.append('status', status);
+
+    fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+        showLoading(false);
+        btnSubmit.disabled = false; btnSubmit.innerHTML = teksAsli;
+        if (res.status === 'success') {
+            closeModalSpp();
+            Swal.fire({toast:true, position:'top-end', icon:'success', title:'Transaksi dicatat!', showConfirmButton:false, timer:2000});
+            loadDataSpp();
+        } else Swal.fire('Gagal', res.message, 'error');
+    }).catch(e => {
+        showLoading(false);
+        btnSubmit.disabled = false; btnSubmit.innerHTML = teksAsli;
+        Swal.fire('Error', 'Koneksi gagal.', 'error');
+    });
+});
     
 let stringKeterangan = "";
     if (document.getElementById('cek_bintang_pelajar').checked) {
