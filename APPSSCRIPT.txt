@@ -1000,7 +1000,7 @@ function getAllMapel() {
 }
 
 // =================================================================
-// FUNGSI IMPORT SANTRI MASSAL (EXCEL/CSV)
+// FUNGSI IMPORT SANTRI MASSAL (EXCEL/CSV) - VERSI UPSERT & ANTI HILANG 0 / +
 // =================================================================
 function importSantriBulk(e) {
   try {
@@ -1008,26 +1008,66 @@ function importSantriBulk(e) {
     var sheet = ss.getSheetByName('SANTRI');
     var dataMentah = JSON.parse(e.parameter.data_import);
     
-    // Hapus baris pertama jika baris tersebut adalah judul kolom (Header Excel)
-    // Cek apakah data di kolom pertama bukan sebuah angka NIS
+    // Hapus baris pertama jika itu adalah header (judul kolom)
     if (dataMentah.length > 0 && isNaN(parseInt(dataMentah[0][0]))) {
-      dataMentah.shift(); // Buang baris pertama
+      dataMentah.shift(); 
     }
     
-    if (dataMentah.length > 0) {
-      // Ambil baris terakhir yang ada datanya, agar DATA LAMA TIDAK TERTIMPA
-      var lastRow = sheet.getLastRow() + 1;
-      var jumlahKolom = dataMentah[0].length;
-      
-      // Tulis data rombongan sekaligus (metode sangat cepat dan aman)
-      sheet.getRange(lastRow, 1, dataMentah.length, jumlahKolom).setValues(dataMentah);
-      
-      return responSukses({
-        message: dataMentah.length + ' Data santri berhasil di-import!'
-      });
-    } else {
+    if (dataMentah.length === 0) {
       return responError('File kosong atau format salah.');
     }
+    
+    // 1. Tarik data yang sudah ada di sheet untuk dicocokkan
+    var existingData = sheet.getDataRange().getValues();
+    var nisMap = {};
+    
+    for (var i = 1; i < existingData.length; i++) {
+      var nisLama = existingData[i][0].toString().replace(/'/g, "").trim();
+      nisMap[nisLama] = i + 1; 
+    }
+    
+    var dataBaruDitambah = [];
+    var jumlahDiupdate = 0;
+    
+    // 2. Proses data yang di-import satu per satu
+    for (var j = 0; j < dataMentah.length; j++) {
+      var barisImport = dataMentah[j];
+      var nisImport = barisImport[0].toString().replace(/'/g, "").trim();
+      
+      // KUNCI PERBAIKAN: Amankan format NIS agar 0 di depan tidak hilang
+      barisImport[0] = "'" + nisImport;
+      
+      // KUNCI PERBAIKAN: Amankan kolom No HP (Kolom ke-9 / Indeks 8)
+      if (barisImport.length > 8 && barisImport[8] !== null && barisImport[8] !== undefined) {
+          // Bersihkan jika ada tanda petik bawaan dari CSV, lalu ambil teks aslinya
+          var hpAsli = barisImport[8].toString().replace(/^'/, "").trim();
+          
+          // Suntikkan tanda petik tunggal (') di paling depan
+          // Google Sheets akan membaca ini sebagai Teks. Jadi 08..., +62..., +60... akan aman.
+          barisImport[8] = "'" + hpAsli;
+      }
+      
+      // 3. Cek apakah NIS sudah ada di database (Upsert)
+      if (nisMap[nisImport]) {
+        var barisTarget = nisMap[nisImport];
+        sheet.getRange(barisTarget, 1, 1, barisImport.length).setValues([barisImport]);
+        jumlahDiupdate++;
+      } else {
+        dataBaruDitambah.push(barisImport);
+      }
+    }
+    
+    // 4. Tambahkan data yang benar-benar baru sekaligus di baris paling bawah
+    if (dataBaruDitambah.length > 0) {
+      var lastRow = sheet.getLastRow() + 1;
+      var jumlahKolom = dataBaruDitambah[0].length;
+      sheet.getRange(lastRow, 1, dataBaruDitambah.length, jumlahKolom).setValues(dataBaruDitambah);
+    }
+    
+    return responSukses({
+      message: 'Import Selesai! ' + jumlahDiupdate + ' data diperbarui & ' + dataBaruDitambah.length + ' santri baru ditambahkan.'
+    });
+    
   } catch (err) {
     return responError('Gagal import: ' + err.message);
   }
