@@ -22,6 +22,7 @@ if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
     if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
     if (action === 'getRekapBulanan') return getRekapBulanan(e);
     if (action === 'getBulanTersedia') return getBulanTersedia();
+    if (action === 'getSettingSpp') return getSettingSpp();
     
 
 // (Jika nanti ortu.html memanggil fungsi lain, tambahkan juga di sini)
@@ -103,6 +104,9 @@ if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
       case 'getSppSantri': return getSppSantri(e); 
       case 'toggleStatusAbsen': return toggleStatusAbsen(e);
       case 'getStatusAbsen': return getStatusAbsen();
+
+      case 'getSettingSpp': return getSettingSpp();
+      case 'saveSettingSpp': return saveSettingSpp(e);
       
       // --- KODE BARU: RUTE UNTUK FITUR ABSENSI ---
       case 'setLiburRentang': return setLiburRentang(e);
@@ -1074,29 +1078,33 @@ function importSantriBulk(e) {
 }
 
 // =================================================================
-// FUNGSI SPP (BACA, SIMPAN, HAPUS)
+// FUNGSI SPP (BACA, SIMPAN, HAPUS) - VERSI KALKULASI KEUANGAN
 // =================================================================
-
 function getSppData(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('SPP');
   var kelasReq = e.parameter.kelas;
   
-  // Jika sheet SPP belum ada, jangan error, kembalikan array kosong
   if (!sheet) return responSukses({ data: [] });
   
   var data = sheet.getDataRange().getValues();
   var result = [];
   
-  // Looping mulai dari baris ke-2 (mengabaikan header)
   for (var i = 1; i < data.length; i++) {
-    if (data[i][2] == kelasReq) { // Asumsi Kelas ada di kolom ke-3 (C)
+    if (data[i][2] == kelasReq) { 
+      // Pelindung jika sheet terlanjur mengubahnya jadi object Date
+      var ket = data[i][3];
+      if (ket instanceof Date) {
+        ket = Utilities.formatDate(ket, Session.getScriptTimeZone(), "dd MMMM yyyy");
+      }
+      
       result.push({
         nis: data[i][0],
         nama: data[i][1],
         kelas: data[i][2],
-        keterangan: data[i][3], // Bulan / Keterangan
-        status: data[i][4]      // Lunas / Belum Lunas
+        keterangan: ket.toString(), 
+        nominal: parseFloat(data[i][4]) || 0, // Tarik data nominal
+        status: data[i][5] || ""              // Tarik status
       });
     }
   }
@@ -1107,38 +1115,40 @@ function saveSppData(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('SPP');
   
-  // Buat sheet SPP otomatis jika belum ada
   if (!sheet) {
     sheet = ss.insertSheet('SPP');
-    sheet.appendRow(['NIS', 'Nama Lengkap', 'Kelas', 'Keterangan Pembayaran', 'Status']);
-    sheet.getRange(1, 1, 1, 5).setFontWeight("bold").setBackground("#d1fae5");
+    sheet.appendRow(['NIS', 'Nama Lengkap', 'Kelas', 'Keterangan Pembayaran', 'Nominal Bayar', 'Status']);
+    sheet.getRange(1, 1, 1, 6).setFontWeight("bold").setBackground("#d1fae5");
   }
   
   var nis = e.parameter.nis;
   var nama = e.parameter.nama;
   var kelas = e.parameter.kelas;
   var keterangan = e.parameter.keterangan;
+  var nominal = e.parameter.nominal; 
   var status = e.parameter.status;
   
   var data = sheet.getDataRange().getValues();
   var isUpdated = false;
   
-  // Cek apakah data pembayaran (NIS & Keterangan yang sama) sudah ada. Jika ada, Update statusnya.
   for (var i = 1; i < data.length; i++) {
     if (data[i][0] == nis && data[i][3] == keterangan) {
-      sheet.getRange(i + 1, 5).setValue(status); // Update status
+      sheet.getRange(i + 1, 5).setValue(nominal); 
+      sheet.getRange(i + 1, 6).setValue(status);  
       isUpdated = true;
       break;
     }
   }
   
-  // Jika belum ada, buat baris baru
   if (!isUpdated) {
-    sheet.appendRow(["'" + nis, nama, kelas, keterangan, status]);
+    // KUNCI PERBAIKAN: Tambahkan "'" sebelum keterangan agar selalu dibaca sebagai teks biasa
+    sheet.appendRow(["'" + nis, nama, kelas, "'" + keterangan, nominal, status]);
   }
   
   return responSukses({ message: 'Data SPP berhasil disimpan!' });
 }
+
+
 
 function deleteSppData(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1165,25 +1175,23 @@ function deleteSppData(e) {
 function getSppSantri(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('SPP');
-  
-  // Jika sheet SPP belum ada atau kosong
   if (!sheet) return responSukses({ data: [] });
   
-  var nisReq = e.parameter.nis; // Menangkap NIS yang dikirim dari web
+  var nisReq = e.parameter.nis;
   var data = sheet.getDataRange().getValues();
   var result = [];
   
-  // Membaca data dari baris ke-2 sampai bawah
   for (var i = 1; i < data.length; i++) {
-    if (data[i][0] == nisReq) { // Jika NIS di database sama dengan NIS anak yang dicari
+    if (data[i][0] == nisReq) { 
       result.push({
-        keterangan: data[i][3], // Mengambil kolom Tanggal/Bulan/Tahun
-        status: data[i][4]      // Mengambil kolom Lunas/Belum Lunas
+        keterangan: data[i][3], 
+        nominal: parseFloat(data[i][4]) || 0, // Ambil angka Nominal
+        status: data[i][5] || ""              // Ambil Status
       });
     }
   }
   
-  result.reverse(); // Membalik urutan agar pembayaran terbaru ada di paling atas
+  result.reverse(); 
   return responSukses({ data: result });
 }
 
@@ -1475,4 +1483,36 @@ function getStatusAbsen() {
   var statusSaatIni = sheet.getRange("A2").getValue();
   var ketSaatIni = sheet.getRange("B2").getValue();
   return responSukses({ status_absen: statusSaatIni, keterangan: ketSaatIni });
+}
+
+// =================================================================
+// FUNGSI PENGATURAN KETETAPAN SPP
+// =================================================================
+function getSettingSpp() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('SETTING_SPP');
+  
+  if (!sheet) return responSukses({ nominal: 0, bulan: 0 });
+  
+  var nominal = sheet.getRange("B1").getValue() || 0;
+  var bulan = sheet.getRange("B2").getValue() || 0;
+  return responSukses({ nominal: nominal, bulan: bulan });
+}
+
+function saveSettingSpp(e) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('SETTING_SPP');
+  
+  // Buat sheet otomatis jika belum ada
+  if (!sheet) {
+    sheet = ss.insertSheet('SETTING_SPP');
+    sheet.getRange("A1").setValue("Nominal Per Bulan");
+    sheet.getRange("A2").setValue("Jumlah Bulan");
+    sheet.getRange("A1:A2").setFontWeight("bold").setBackground("#fef08a");
+  }
+  
+  sheet.getRange("B1").setValue(e.parameter.nominal);
+  sheet.getRange("B2").setValue(e.parameter.bulan);
+  
+  return responSukses({ message: "Pengaturan berhasil disimpan." });
 }

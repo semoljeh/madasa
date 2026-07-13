@@ -326,82 +326,24 @@ function openModalSpp(targetNis = null) {
 
 function closeModalSpp() { document.getElementById('modalFormSpp').classList.add('hidden'); }
 
-// --- KODE YANG BENAR (PEMBUKA FUNGSI DIKEMBALIKAN) ---
+// --- KODE YANG BENAR & BERSIH DARI DUPLIKASI ---
 document.getElementById('formInputSpp').addEventListener('submit', function(e) {
     e.preventDefault();
     const btnSubmit = this.querySelector('button[type="submit"]');
     const teksAsli = btnSubmit.innerHTML;
     
-    btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
+    btnSubmit.disabled = true; 
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
 
     const nis = document.getElementById('spp_nis_nama').value;
     const kelas = document.getElementById('filterKelasSpp').value;
     const namaSantri = LOKAL_DATA_SANTRI.find(s => s.nis.toString() === nis)?.nama || '';
     
-// --- KODE YANG BENAR (PEMBUKA FUNGSI DIKEMBALIKAN) ---
-document.getElementById('formInputSpp').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const btnSubmit = this.querySelector('button[type="submit"]');
-    const teksAsli = btnSubmit.innerHTML;
-    
-    btnSubmit.disabled = true; btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Menyimpan...';
-
-    const nis = document.getElementById('spp_nis_nama').value;
-    const kelas = document.getElementById('filterKelasSpp').value;
-    const namaSantri = LOKAL_DATA_SANTRI.find(s => s.nis.toString() === nis)?.nama || '';
-    
-    // Tarik nilai nominal yang bersih dari titik
+    // KUNCI PERBAIKAN: nominal ditarik dan dibersihkan dari titik di sini
     const nominal = getAngkaMurni(document.getElementById('spp_nominal').value);
     const status = document.getElementById('spp_status').value;
     
     let stringKeterangan = "";
-    if (document.getElementById('cek_bintang_pelajar').checked) {
-        stringKeterangan = "Bintang Pelajar - Beasiswa Lunas 1 Tahun";
-    } else {
-        const tgl = document.getElementById('spp_tanggal').value;
-        const thn = document.getElementById('spp_tahun').value;
-        
-        // Tarik semua nama bulan yang dicentang
-        const arrayBulanDiceklis = Array.from(document.querySelectorAll('.cek-bulan:checked')).map(cb => cb.value);
-        
-        // Peringatan jika admin lupa mencentang bulan satupun
-        if (arrayBulanDiceklis.length === 0) {
-            btnSubmit.disabled = false; btnSubmit.innerHTML = teksAsli;
-            return Swal.fire('Perhatian', 'Mohon centang minimal 1 bulan yang akan dibayar!', 'warning');
-        }
-        
-        // Gabungkan menjadi teks (Contoh: "05 Muharram, Safar 1448")
-        const gabunganBulan = arrayBulanDiceklis.join(", ");
-        stringKeterangan = `${tgl} ${gabunganBulan} ${thn}`;
-    }
-
-    showLoading(true);
-    const fd = new URLSearchParams();
-    fd.append('action', 'saveSppData');
-    fd.append('token', sessionStorage.getItem('tokenMadasa'));
-    fd.append('nis', nis);
-    fd.append('nama', namaSantri);
-    fd.append('kelas', kelas);
-    fd.append('keterangan', stringKeterangan);
-    fd.append('nominal', nominal);
-    fd.append('status', status);
-
-    fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
-        showLoading(false);
-        btnSubmit.disabled = false; btnSubmit.innerHTML = teksAsli;
-        if (res.status === 'success') {
-            closeModalSpp();
-            Swal.fire({toast:true, position:'top-end', icon:'success', title:'Transaksi dicatat!', showConfirmButton:false, timer:2000});
-            loadDataSpp();
-        } else Swal.fire('Gagal', res.message, 'error');
-    }).catch(e => {
-        showLoading(false);
-        btnSubmit.disabled = false; btnSubmit.innerHTML = teksAsli;
-        Swal.fire('Error', 'Koneksi gagal.', 'error');
-    });
-});
-    
-let stringKeterangan = "";
     if (document.getElementById('cek_bintang_pelajar').checked) {
         stringKeterangan = "Bintang Pelajar - Beasiswa Lunas 1 Tahun";
     } else {
