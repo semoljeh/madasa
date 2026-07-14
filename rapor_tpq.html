@@ -243,6 +243,21 @@
       <script src="config.js?v=4"></script>
 		
 <script>
+
+function showLoading(show, teks="Memproses...") { 
+    // Pastikan ID 'loadingState' atau 'loadingScreen' sesuai dengan HTML Anda
+    let loadingEl = document.getElementById('loadingState') || document.getElementById('loadingScreen');
+    let teksEl = document.getElementById('teksLoading');
+    
+    if(loadingEl) {
+        loadingEl.style.display = show ? 'flex' : 'none'; 
+    }
+    if(teksEl) {
+        teksEl.innerText = teks;
+    }
+}
+
+
     let GLOBAL_DATA_SANTRI = [];
 
         window.onload = async () => {
