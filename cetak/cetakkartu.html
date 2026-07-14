@@ -489,7 +489,7 @@
             document.getElementById('checkAllKelas').checked = false;
         }
 
-        function generateData() {
+      function generateData() {
             const checkedBoxes = document.querySelectorAll('.kelas-checkbox:checked');
             const arrayKelasDipilih = Array.from(checkedBoxes).map(cb => cb.value);
             const modeSusun = document.getElementById('modeSusun').value;
@@ -550,16 +550,25 @@
                     let grupKelas = {};
                     dataProses.forEach(s => { if (!grupKelas[s.kelas]) grupKelas[s.kelas] = []; grupKelas[s.kelas].push(s); });
                     
+                    // ==========================================
+                    // MEMORI PELACAK RUANGAN (PERBAIKAN NOMOR MEJA)
+                    // ==========================================
+                    let pelacakMeja = {}; 
+
                     for(let kelas in grupKelas) {
                         let santriKelas = grupKelas[kelas];
                         santriKelas.sort((a,b) => a.nama.localeCompare(b.nama));
                         let namaRuangan = mappingRuangManual[kelas] || "Ruang ?";
                         
-                        santriKelas.forEach((s, idx) => {
+                        santriKelas.forEach((s) => {
+                            if (!pelacakMeja[namaRuangan]) {
+                                pelacakMeja[namaRuangan] = 1;
+                            }
+                            
                             dataGlobalCetak.push({
                                 ...s,
                                 namaRuangan: namaRuangan,
-                                nomorMeja: idx + 1 
+                                nomorMeja: pelacakMeja[namaRuangan]++ 
                             });
                         });
                     }
