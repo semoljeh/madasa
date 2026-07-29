@@ -65,14 +65,11 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
             <div>
                 <label class="block text-xs font-bold text-gray-700 mb-1">1. Pilih Kelas TK</label>
-                <select id="raporKelas" onchange="populateSantriRapor()" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium">
-                    <option value="" disabled selected>-- Pilih Kelas TK --</option>
-                    <option value="TK - TK 1">TK 1</option>
-                    <option value="TK - TK 2">TK 2</option>
-                    <option value="TK - TK 3">TK 3</option>
-                    <option value="TK - TK 4">TK 4</option>
-                    <option value="TK - TK 5">TK 5</option>
-                </select>
+				
+				<select id="raporKelas" onchange="populateSantriRapor()" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-emerald-500 outline-none text-sm bg-white font-medium">
+    <option value="" disabled selected>-- Pilih Kelas TK --</option>
+</select>
+				
             </div>
             <div>
                 <label class="block text-xs font-bold text-gray-700 mb-1">2. Pilih Santri</label>
@@ -260,34 +257,37 @@ function showLoading(show, teks="Memproses...") {
 
     let GLOBAL_DATA_SANTRI = [];
 
-        window.onload = async () => {
-            // 1. Narik data santri secara background
-            document.getElementById('teksLoading').innerText = "Memuat Database Santri...";
-            document.getElementById('loadingState').style.display = 'flex';
+window.onload = async () => {
+    document.getElementById('teksLoading').innerText = "Memuat Database Santri...";
+    document.getElementById('loadingState').style.display = 'flex';
 
-            try {
-                const formData = new URLSearchParams(); 
-                formData.append('action', 'getSantri');
-				formData.append('token', sessionStorage.getItem('tokenMadasa'));
-				
-                const res = await fetch(GAS_URL, { method: 'POST', body: formData });
-                const data = await res.json();
-                if(data.status === 'success') {
-                    GLOBAL_DATA_SANTRI = data.data;
-                }
-            } catch (e) {
-                console.log("Gagal memuat list santri");
-            }
+    try {
+        const formData = new URLSearchParams(); 
+        formData.append('action', 'getSantri');
+        formData.append('token', sessionStorage.getItem('tokenMadasa'));
+        
+        const res = await fetch(GAS_URL, { method: 'POST', body: formData });
+        const data = await res.json();
+        
+        if(data.status === 'success') {
+            GLOBAL_DATA_SANTRI = data.data;
             
-            document.getElementById('loadingState').style.display = 'none';
+            // ---> TAMBAHKAN BARIS INI DI SINI <---
+            buatOpsiKelasOtomatis();
+        }
+    } catch (e) {
+        console.log("Gagal memuat list santri");
+    }
+    
+    document.getElementById('loadingState').style.display = 'none';
 
-            // 2. Jika ada parameter url (dari halaman ibtidaiyah), langsung render
-            const urlParams = new URLSearchParams(window.location.search);
-            const nisCari = urlParams.get('nis');
-            if(nisCari) {
-                muatDataRapor(nisCari);
-            }
-        };
+    // (Kode lanjutan Anda lainnya)
+    const urlParams = new URLSearchParams(window.location.search);
+    const nisCari = urlParams.get('nis');
+    if(nisCari) {
+        muatDataRapor(nisCari);
+    }
+};
 
         function populateSantriRapor() {
             const kelasPilih = document.getElementById('raporKelas').value;
@@ -765,6 +765,27 @@ for (let i = 0; i < 12; i++) {
                     Swal.fire('Error', 'Gagal memuat pengaturan dari server.', 'error');
                 });
         }
+		
+		
+		
+		function buatOpsiKelasOtomatis() {
+    const selectKelas = document.getElementById('raporKelas');
+    if (!selectKelas) return;
+    
+    // 1. Ambil semua data kelas dari GLOBAL_DATA_SANTRI, 
+    //    filter yang mengandung kata "TK", lalu hapus duplikat (unik), dan urutkan.
+    const kelasTKUnik = [...new Set(GLOBAL_DATA_SANTRI.map(s => s.kelas))]
+                          .filter(kelas => kelas && kelas.toUpperCase().includes('TK'))
+                          .sort();
+
+    // 2. Kosongkan pilihan yang ada dan setel ulang defaultnya
+    selectKelas.innerHTML = '<option value="" disabled selected>-- Pilih Kelas TK --</option>';
+
+    // 3. Masukkan kelas unik tersebut ke dalam elemen <select> secara otomatis
+    kelasTKUnik.forEach(kelas => {
+        selectKelas.innerHTML += `<option value="${kelas}">${kelas}</option>`;
+    });
+}
 		
 		
 </script>

@@ -1,0 +1,31 @@
+CATATAN KEAMANAN DEPLOY MADASA
+
+1. File Excel/CSV data santri telah dikeluarkan dari bundle website publik.
+   Simpan file sumber tersebut secara privat, jangan upload ke GitHub Pages publik.
+
+2. Portal wali tetap TANPA token admin/guru.
+   Akses dibatasi dengan verifikasi NIS + tanggal lahir di server.
+   Nilai hanya dikirim server jika status kelas = Rilis.
+
+3. Absensi barcode tetap dapat digunakan tanpa token, tetapi sekarang:
+   - format NIS divalidasi,
+   - NIS harus terdaftar,
+   - request per NIS dibatasi agar tidak mudah dispam.
+   Ini mengurangi penyalahgunaan, tetapi absensi publik tidak bisa dibuat sekuat login
+   tanpa menambah mekanisme identitas/perangkat/QR dinamis.
+
+4. Password:
+   Apps Script telah diberi helper SHA-256 untuk migrasi bertahap.
+   Jangan mengubah seluruh password Sheet LOGIN secara sembarang sebelum memastikan
+   fungsi login sudah menggunakan passwordCocokMadasa_ pada instalasi Anda.
+
+5. Setelah mengganti APPSSCRIPT.txt:
+   Deploy > Manage deployments > Edit > New version > Deploy.
+
+6. Uji sebelum produksi:
+   - login Admin dan Guru,
+   - portal wali dengan NIS/tanggal lahir benar dan salah,
+   - nilai status Sembunyi dan Rilis,
+   - SPP wali,
+   - scan absensi,
+   - PWA install/offline.
