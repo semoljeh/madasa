@@ -11,27 +11,20 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 	
-	
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-	
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-	
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
         tailwind.config = { theme: { extend: { colors: { blue: { 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af' } }, fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] } } } }
     </script>
-	
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style> 
         body { -webkit-font-smoothing: antialiased; background-color: #f3f4f6; } 
         *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
         table { border-collapse:collapse; }
-      table th, table td { border: 1px solid #000; }
+        table th, table td { border: 1px solid #000; }
         .no-border th, .no-border td { border: none !important; }
 		
 		@media print {
@@ -40,7 +33,6 @@
             #wadahKertasRapor { background: none !important; border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
             #kertasRapor { box-shadow: none !important; margin: 0 auto !important; }
         }
-		
 		
 		/* STYLE KHUSUS SAMPUL RAPOR */
         .bingkai-sampul {
@@ -55,12 +47,7 @@
             align-items: center;
             text-align: center;
         }
-		
-		
-		
     </style>
-	
-	
 </head>
 <body class="text-gray-800 p-4 sm:p-8">
 
@@ -85,14 +72,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
             <div>
                 <label class="block text-xs font-bold text-gray-700 mb-1">1. Pilih Kelas</label>
+                <!-- PERUBAHAN: Pilihan Kelas Dibersihkan -->
                 <select id="raporKelas" onchange="populateSantriRapor()" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-blue-500 outline-none text-sm bg-white font-medium">
                     <option value="" disabled selected>-- Pilih Kelas Ibtidaiyah --</option>
-                    <option value="IBT - Kelas I">Kelas I</option>
-                    <option value="IBT - Kelas II">Kelas II</option>
-                    <option value="IBT - Kelas III">Kelas III</option>
-                    <option value="IBT - Kelas IV">Kelas IV</option>
-                    <option value="IBT - Kelas V">Kelas V</option>
-                    <option value="IBT - Kelas VI">Kelas VI</option>
                 </select>
             </div>
             <div>
@@ -114,16 +96,14 @@
         </div>
     </div>
 
-       <!-- WADAH KERTAS RAPOR (Dilepas kunciannya agar bisa di-zoom out) -->
+       <!-- WADAH KERTAS RAPOR -->
     <div id="wadahKertasRapor" class="hidden w-full py-4">
         <div id="kertasRapor" class="bg-white shadow-2xl text-black font-sans relative box-border mx-auto shrink-0" style="width: 210mm; min-width: 210mm; min-height: 330mm; padding: 8mm;"></div>
     </div>
 
+    <script src="config.js?v=4"></script>
 
-   
-       <script src="config.js?v=4"></script>
-
-<script>
+    <script>
         let GLOBAL_DATA_SANTRI = [];
         
         function showLoading(show, teks="Memproses...") { 
@@ -131,26 +111,55 @@
             document.getElementById('teksLoading').innerText = teks;
         }
 
-        window.onload = () => {
+        // PERUBAHAN: window.onload menggunakan async/await dan memanggil fungsi pembuat kelas
+        window.onload = async () => {
             showLoading(true, "Memuat Database Santri...");
-            const formData = new URLSearchParams(); 
-			formData.append('action', 'getSantri');
-			formData.append('token', sessionStorage.getItem('tokenMadasa'));
-			
-            fetch(GAS_URL, { method: 'POST', body: formData })
-                .then(res => res.json())
-                .then(res => {
-                    showLoading(false);
-                    if(res.status === 'success') GLOBAL_DATA_SANTRI = res.data;
-                }).catch(err => { showLoading(false); Swal.fire('Error', 'Gagal memuat data dari server', 'error'); });
+            try {
+                const formData = new URLSearchParams(); 
+                formData.append('action', 'getSantri');
+                formData.append('token', sessionStorage.getItem('tokenMadasa'));
+                
+                const response = await fetch(GAS_URL, { method: 'POST', body: formData });
+                const res = await response.json();
+                
+                if(res.status === 'success') {
+                    GLOBAL_DATA_SANTRI = res.data;
+                    buatOpsiKelasOtomatis(); // Panggil pembuatan kelas otomatis
+                } else {
+                    Swal.fire('Peringatan', res.message || 'Gagal memuat data', 'warning');
+                }
+            } catch (err) {
+                Swal.fire('Error', 'Gagal memuat data dari server', 'error');
+            } finally {
+                showLoading(false);
+            }
         };
+
+        // PERUBAHAN: Fungsi pembuat opsi kelas otomatis
+        function buatOpsiKelasOtomatis() {
+            const selectKelas = document.getElementById('raporKelas');
+            if (!selectKelas) return;
+            
+            // Filter kelas yang mengandung kata 'IBT', unik, dan urutkan
+            const kelasIbtidaiyahUnik = [...new Set(GLOBAL_DATA_SANTRI.map(s => s.kelas))]
+                                  .filter(kelas => kelas && kelas.toUpperCase().includes('IBT'))
+                                  .sort();
+
+            // Kosongkan dan set default
+            selectKelas.innerHTML = '<option value="" disabled selected>-- Pilih Kelas Ibtidaiyah --</option>';
+
+            // Tambahkan opsi secara dinamis
+            kelasIbtidaiyahUnik.forEach(kelas => {
+                selectKelas.innerHTML += `<option value="${kelas}">${kelas}</option>`;
+            });
+        }
 
         function populateSantriRapor() {
             const kelasPilih = document.getElementById('raporKelas').value;
             const selectSantri = document.getElementById('raporSantri');
             selectSantri.innerHTML = '<option value="" disabled selected>-- Pilih Santri --</option>';
             const santriKelasIni = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelasPilih);
-            santriKelasIni.forEach(s => { selectSantri.innerHTML += `<option value="${s.nis}">${s.nis} - ${s.nama}</option>`; });
+            santriKelasIni.forEach(s => { selectSantri.innerHTML += `<option value="${s.nis}">${s.nis} -${s.nama}</option>`; });
             selectSantri.disabled = false;
         }
 
@@ -230,10 +239,8 @@
                 }
 				
                 if(!rowNilai) {
-    // Jika tidak ada data nilai, manipulasi dengan memberikan array kosong
-    // sehingga sistem akan melanjutkan proses dan tetap merender tabel mapel.
-    rowNilai = Array(resNilai.headers ? resNilai.headers.length : 50).fill('');
-}
+                    rowNilai = Array(resNilai.headers ? resNilai.headers.length : 50).fill('');
+                }
 
                 let rank = '-';
                 if(resRank.status === 'success' && resRank.data) {
@@ -252,11 +259,9 @@
             document.getElementById('wadahKertasRapor').classList.remove('hidden');
             const kertas = document.getElementById('kertasRapor');
             
-            // --- VARIABEL UTAMA ---
             let setUmum = pengaturan.umum || {};
             let setDetail = pengaturan.detail[info.nis] || {};
             
-            // PERBAIKAN: Pencarian "Total Nilai" kini aman dari masalah spasi dan huruf besar/kecil
             let idxTotal = headers.findIndex(h => String(h).trim().toLowerCase() === 'total nilai');
 			
            let total = (idxTotal > -1 && nilaiRow[idxTotal]) ? (parseFloat(nilaiRow[idxTotal]) || 0) : '';
@@ -264,7 +269,6 @@
             let barisIndo = '';
             let barisArab = '';
             
-            // 1. KAMUS ARAB DINAMIS
             let kamusDinamis = {};
             if (pengaturan.kamus) {
                 pengaturan.kamus.split(',').forEach(p => {
@@ -273,12 +277,10 @@
                 });
             }
 
-            // 2. KATEGORI MAPEL
             const katTulis = (pengaturan.mapel_tulis || "").split(',').map(s => s.trim().toUpperCase()).filter(s => s !== "");
             const katPraktek = (pengaturan.mapel_praktek || "").split(',').map(s => s.trim().toUpperCase()).filter(s => s !== "");
             const katMembaca = (pengaturan.mapel_baca || "").split(',').map(s => s.trim().toUpperCase()).filter(s => s !== "");
 
-            // 3. PENGELOMPOKAN MAPEL (SISTEM KOTAK TETAP / FIXED ROWS)
             let mapelTertulis = [], mapelPraktek = [], mapelMembaca = [];
 
             function getScore(mapelName) {
@@ -291,7 +293,6 @@
                 return { nilai: '', found: false };
             }
 
-            // MENAMBAH KOLOM 
             katTulis.forEach(m => {
                 let sc = getScore(m);
                 mapelTertulis.push({ nama: m, nilai: isNaN(sc.nilai) ? '' : sc.nilai });
@@ -310,7 +311,6 @@
             });
             while(mapelMembaca.length < 2) mapelMembaca.push({nama: '', nilai: ''}); 
 
-           // 4. LOGIKA BUILD ROW & HEADER (DIKUNCI ANTI-MOLOR)
             function buildRow(no, item) {
                 let nama = item && item.nama ? item.nama : '';
                 let nilai = item && item.nilai !== '' && !isNaN(item.nilai) ? item.nilai : '';
@@ -340,7 +340,6 @@
                 barisArab += `<tr class="font-bold bg-gray-50" style="height: 24px;"><td class="border border-black text-center text-[14px] p-0 leading-none" style="font-family: 'Traditional Arabic', serif;">${abjadArab}</td><td class="border border-black px-2 text-right text-[13px] py-0 leading-none" colspan="3" style="font-family: 'Traditional Arabic', serif;">${judulArab}</td></tr>`;
             }
 
-            // 5. RENDER TABEL
             buildHeader('A', 'Tertulis', 'أ', 'تحريري');
             mapelTertulis.forEach((m, i) => buildRow(i + 1, m));
             
