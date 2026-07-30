@@ -11,6 +11,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
 	
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -59,9 +60,11 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
             <div>
                 <label class="block text-xs font-bold text-gray-700 mb-1">1. Pilih Kelas</label>
-                <!-- PERUBAHAN: Daftar Kelas Sanawiyah Dibuat Dinamis -->
                 <select id="raporKelas" onchange="populateSantriRapor()" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-purple-500 outline-none text-sm bg-white font-medium">
                     <option value="" disabled selected>-- Pilih Kelas Sanawiyah --</option>
+                    <option value="SANA - Kelas 1">Kelas 1</option>
+                    <option value="SANA - Kelas 2">Kelas 2</option>
+                    <option value="SANA - Kelas 3">Kelas 3</option>
                 </select>
             </div>
             <div>
@@ -94,74 +97,26 @@
             document.getElementById('teksLoading').innerText = teks;
         }
 
-        window.onload = async () => {
-            // PERUBAHAN: Load data secara asinkron seperti di rapor_tpq
+        window.onload = () => {
             showLoading(true, "Memuat Database Santri...");
-            try {
-                const formData = new URLSearchParams(); 
-                formData.append('action', 'getSantri');
-                formData.append('token', sessionStorage.getItem('tokenMadasa'));
-                
-                const response = await fetch(GAS_URL, { method: 'POST', body: formData });
-                const res = await response.json();
-                if(res.status === 'success') {
-                    GLOBAL_DATA_SANTRI = res.data;
-                    buatOpsiKelasOtomatis(); // Panggil fungsi otomatisasi setelah data terisi
-                } else {
-                    Swal.fire('Peringatan', res.message || 'Gagal memuat data', 'warning');
-                }
-            } catch (err) {
-                Swal.fire('Error', 'Gagal memuat data dari server', 'error');
-            } finally {
-                showLoading(false);
-            }
+            const formData = new URLSearchParams(); 
+			formData.append('action', 'getSantri');
+			formData.append('token', sessionStorage.getItem('tokenMadasa'));
+			
+            fetch(GAS_URL, { method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(res => {
+                    showLoading(false);
+                    if(res.status === 'success') GLOBAL_DATA_SANTRI = res.data;
+                }).catch(err => { showLoading(false); Swal.fire('Error', 'Gagal memuat data dari server', 'error'); });
         };
-
-// PERUBAHAN: Fungsi otomatisasi dropdown agar mendeteksi Sanawiyah & Aliyah
-        function buatOpsiKelasOtomatis() {
-            const selectKelas = document.getElementById('raporKelas');
-            if (!selectKelas) return;
-            
-            // Filter kelas yang mengandung kata 'SANA' atau 'ALIYAH', unik, dan urutkan
-            const kelasUnik = [...new Set(GLOBAL_DATA_SANTRI.map(s => s.kelas))]
-                                  .filter(kelas => {
-                                      if (!kelas) return false;
-                                      let kUpper = kelas.toUpperCase();
-                                      return kUpper.includes('SANA') || kUpper.includes('ALIYAH') || kUpper.includes('MTS') || kUpper.includes('MA');
-                                  })
-                                  .sort();
-
-            // Kosongkan dan set default
-            selectKelas.innerHTML = '<option value="" disabled selected>-- Pilih Kelas Sanawiyah / Aliyah --</option>';
-
-            // Kelompokkan dalam <optgroup> agar tampil rapi di dropdown
-            let kelompok = {};
-            kelasUnik.forEach(k => {
-                let kU = k.toUpperCase();
-                let grup = kU.includes('ALIYAH') || kU.includes('MA') ? 'ALIYAH' : 'SANAWIYAH';
-                if (!kelompok[grup]) kelompok[grup] = [];
-                kelompok[grup].push(k);
-            });
-
-            for (let [grupNama, daftarKelas] of Object.entries(kelompok)) {
-                let optgroup = document.createElement('optgroup');
-                optgroup.label = grupNama;
-                daftarKelas.forEach(kelas => {
-                    let option = document.createElement('option');
-                    option.value = kelas;
-                    option.textContent = kelas;
-                    optgroup.appendChild(option);
-                });
-                selectKelas.appendChild(optgroup);
-            }
-        }
 
         function populateSantriRapor() {
             const kelasPilih = document.getElementById('raporKelas').value;
             const selectSantri = document.getElementById('raporSantri');
             selectSantri.innerHTML = '<option value="" disabled selected>-- Pilih Santri --</option>';
             const santriKelasIni = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelasPilih);
-            santriKelasIni.forEach(s => { selectSantri.innerHTML += `<option value="${s.nis}">${s.nis} -${s.nama}</option>`; });
+            santriKelasIni.forEach(s => { selectSantri.innerHTML += `<option value="${s.nis}">${s.nis} - ${s.nama}</option>`; });
             selectSantri.disabled = false;
         }
 
@@ -242,8 +197,8 @@
                 }
                 
 				if(!rowNilai) {
-                    rowNilai = Array(resNilai.headers ? resNilai.headers.length : 50).fill('');
-                }
+    rowNilai = Array(resNilai.headers ? resNilai.headers.length : 50).fill('');
+}
 
                 let rank = '-';
                 if(resRank.status === 'success' && resRank.data) {

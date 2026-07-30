@@ -1,7 +1,7 @@
 // TAMBAHKAN BARIS INI DI PALING ATAS
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = 'madasa-pwa-v8'; // Versi dinaikkan untuk memicu pembaruan
+const CACHE_NAME = 'madasa-pwa-v7'; // Versi dinaikkan untuk memicu pembaruan
 const urlsToCache = [
   './',
   './index.html',
@@ -13,9 +13,9 @@ const urlsToCache = [
   './rapor_ibtidaiyah.html',
   './rapor_sanawiyah.html',
   // Portal Ortu & SPP (Wajib ditambahkan)
-'./informasi/index.html',
-'./informasi/style.css',
-'./informasi/script.js',
+'./informasi/ortu.html',
+'./informasi/ortu.css',
+'./informasi/ortu.js',
 
 './administrasi/spp.html',
 './administrasi/spp.js',
@@ -31,7 +31,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        return Promise.allSettled(urlsToCache.map(url => cache.add(url)));
+        return cache.addAll(urlsToCache);
       })
   );
 });
@@ -48,7 +48,7 @@ self.addEventListener('fetch', event => {
     caches.open(CACHE_NAME).then(cache => {
      return cache.match(event.request, { ignoreSearch: true }).then(response => {
         const fetchPromise = fetch(event.request).then(networkResponse => {
-          if (networkResponse && networkResponse.ok && networkResponse.type !== 'opaque') {
+          if (networkResponse && networkResponse.status === 200) {
             cache.put(event.request, networkResponse.clone());
           }
           return networkResponse;
