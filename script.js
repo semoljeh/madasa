@@ -979,27 +979,131 @@ function aktifkanFilterKedua() {
     } 
 }
 
-function generateTabelAbsen() { 
+// =========================================================
+// FUNGSI HIGHLIGHT BARIS SAAT INPUT NILAI DIFOKUSKAN (BARU)
+// =========================================================
+function sorotBaris(inputEl, isFocus) {
+    let tr = inputEl.closest('tr');
+    if (!tr) return;
+    
+    // Pastikan kita menargetkan kolom "Nama" secara absolut (index ke-2)
+    let tdNama = tr.children[2];
+    
+    if (isFocus) {
+        tr.classList.add('bg-emerald-100'); 
+        if (tdNama) {
+            tdNama.classList.remove('bg-white', 'group-hover:bg-emerald-50');
+            tdNama.classList.add('bg-emerald-100');
+        }
+    } else {
+        tr.classList.remove('bg-emerald-100'); 
+        if (tdNama) {
+            tdNama.classList.remove('bg-emerald-100');
+            tdNama.classList.add('bg-white', 'group-hover:bg-emerald-50');
+        }
+    }
+}
+
+// =========================================================
+// FUNGSI RENDER TABEL INPUT NILAI (DIUPGRADE: KUNCI PRIVASI & CONTRENG)
+// =========================================================
+async function generateTabelAbsen() { 
     const kelas = document.getElementById('pilihKelasNilai').value; 
     const subFilterValue = document.getElementById('pilihFilterKedua').value; 
     const santriKelasIni = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelas); 
     const tbody = document.getElementById('bodyTabelAbsen'); 
     const wadahGlobalMapelTK = document.getElementById('wadahGlobalMapelTK'); 
     
+    if (!kelas || !subFilterValue) return;
+
+    showLoading(true, "Memeriksa Data Tersimpan...");
+
+    let mapNilaiLama = {};
+
+    try {
+        const formData = new URLSearchParams();
+        formData.append('action', 'getDataNilai');
+        formData.append('token', sessionStorage.getItem('tokenMadasa'));
+        formData.append('kelas', kelas);
+
+        const res = await fetch(GAS_URL, { method: 'POST', body: formData }).then(r => r.json());
+
+        if (res.status === 'success' && res.data && res.data.length > 0) {
+            const headers = res.headers || [];
+            const dataRows = res.data;
+            
+            const bersihTeks = (str) => String(str).toLowerCase().replace(/'/g, "").trim();
+
+            if (kelas.includes('TK')) {
+                const idxNis = headers.findIndex(h => bersihTeks(h) === 'nis');
+                const idxHari = headers.findIndex(h => bersihTeks(h) === 'hari');
+                const idxN1 = headers.findIndex(h => bersihTeks(h).includes('nilai 1') || bersihTeks(h) === 'n1');
+                const idxN2 = headers.findIndex(h => bersihTeks(h).includes('nilai 2') || bersihTeks(h) === 'n2');
+                
+                dataRows.forEach(row => {
+                    if (idxHari > -1 && bersihTeks(row[idxHari]) === bersihTeks(subFilterValue)) {
+                        let nis = bersihTeks(row[idxNis]);
+                        mapNilaiLama[nis] = { 
+                            n1: (idxN1 > -1 && row[idxN1] !== "") ? row[idxN1] : "", 
+                            n2: (idxN2 > -1 && row[idxN2] !== "") ? row[idxN2] : "" 
+                        };
+                    }
+                });
+            } else {
+                const idxNis = headers.findIndex(h => bersihTeks(h) === 'nis');
+                const idxMapel = headers.findIndex(h => bersihTeks(h) === bersihTeks(subFilterValue));
+
+                if (idxNis > -1 && idxMapel > -1) {
+                    dataRows.forEach(row => {
+                        let nis = bersihTeks(row[idxNis]);
+                        let nilaiMapel = row[idxMapel];
+                        if (nilaiMapel !== undefined && nilaiMapel !== null && nilaiMapel !== "") {
+                            mapNilaiLama[nis] = nilaiMapel; 
+                        }
+                    });
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Gagal menarik nilai lama:", e);
+    }
+
+    showLoading(false); 
+
     if (santriKelasIni.length === 0) { 
         tbody.innerHTML = '<tr><td colspan="10" class="p-6 text-center text-red-500 font-bold"><i class="fas fa-exclamation-triangle mr-2"></i> Kelas ini masih kosong, belum ada santri.</td></tr>'; 
     } else { 
         let barisHTML = [];
         
         santriKelasIni.forEach((s, idx) => { 
-            let html = `<tr class="hover:bg-emerald-50 transition-all santri-absen-row"> <td class="p-3 text-center text-gray-500 font-medium border-r border-gray-200">${idx + 1}</td>`; 
+            let nisBersih = String(s.nis).trim().toLowerCase();
+            let html = `<tr class="group hover:bg-emerald-50 transition-colors duration-200 santri-absen-row"> <td class="p-3 text-center text-gray-500 font-medium border-r border-gray-200">${idx + 1}</td>`; 
             
             if (kelas.includes('TK')) { 
-                html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px]"> <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${s.nama}</p> </td> <td class="p-2 border-r border-gray-200 bg-gray-50"><input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)"></td> <td class="p-2 bg-gray-50"><input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-gray-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500" placeholder="N2" oninput="validasiInputNilai(this)"></td>`; 
+                let valN1 = mapNilaiLama[nisBersih] !== undefined ? mapNilaiLama[nisBersih].n1 : "";
+                let valN2 = mapNilaiLama[nisBersih] !== undefined ? mapNilaiLama[nisBersih].n2 : "";
+                
+                // Jika sudah ada nilai, render kotak abu-abu dengan contreng. Jika belum, render kotak input.
+                let colN1 = valN1 !== "" 
+                    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i></div>` 
+                    : `<input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
+                
+                let colN2 = valN2 !== "" 
+                    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i></div>` 
+                    : `<input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" placeholder="N2" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
+                
+                html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white group-hover:bg-emerald-50 z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px] transition-colors duration-200"> <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${s.nama}</p> </td> <td class="p-2 border-r border-gray-200 bg-gray-50/50">${colN1}</td> <td class="p-2 bg-gray-50/50">${colN2}</td>`; 
             } else { 
                 document.getElementById('judulKolomNilai').innerText = `NILAI ${subFilterValue}`;
-                html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px]"> 
-                <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${escapeHTML(s.nama)}</p> </td> <td class="p-3 text-center bg-gray-50"><input type="number" class="input-ibt w-full min-w-[90px] max-w-[120px] mx-auto block p-2 border-2 border-gray-300 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500 shadow-inner outline-none" data-nis="${escapeHTML(s.nis)}" data-nama="${escapeHTML(s.nama)}" placeholder="0-100" oninput="validasiInputNilai(this)"></td>`; 
+                let valMapel = mapNilaiLama[nisBersih] !== undefined ? mapNilaiLama[nisBersih] : "";
+                
+                // Jika sudah ada nilai, render kotak abu-abu dengan contreng. Jika belum, render kotak input.
+                let colMapel = valMapel !== "" 
+                    ? `<div class="w-full min-w-[90px] max-w-[120px] mx-auto bg-gray-100 border-2 border-gray-200 rounded-lg p-2 flex items-center justify-center gap-2 cursor-not-allowed shadow-inner" title="Privasi: Nilai sudah diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-xs font-bold text-gray-400">Selesai</span></div>` 
+                    : `<input type="number" class="input-ibt w-full min-w-[90px] max-w-[120px] mx-auto block p-2 border-2 border-emerald-400 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500 shadow-inner outline-none bg-white" data-nis="${escapeHTML(s.nis)}" data-nama="${escapeHTML(s.nama)}" placeholder="0-100" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
+                
+                html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white group-hover:bg-emerald-50 z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px] transition-colors duration-200"> 
+                <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${escapeHTML(s.nama)}</p> </td> <td class="p-3 text-center bg-gray-50/50">${colMapel}</td>`; 
             } 
             html += `</tr>`; 
             
@@ -1009,6 +1113,7 @@ function generateTabelAbsen() {
         tbody.innerHTML = barisHTML.join('');
     } 
     
+    // Setup Visual Header & Footer
     if (kelas.includes('TK')) { 
         document.getElementById('headerTK').style.display = 'table-header-group'; 
         document.getElementById('headerIBT').style.display = 'none'; 
@@ -1137,6 +1242,9 @@ function loadDataNilaiKelas(silent = false) {
     }); 
 }
 
+// =========================================================
+// FUNGSI RENDER TABEL DATA NILAI (DITAMBAH TOMBOL HAPUS ADMIN)
+// =========================================================
 function renderTabelDataNilai(headers, data) { 
     GLOBAL_HEADERS_NILAI = headers; 
     GLOBAL_DATA_NILAI = data; 
@@ -1154,6 +1262,10 @@ function renderTabelDataNilai(headers, data) {
     let idxTotal = headers.findIndex(h => h.toLowerCase().includes('total'));
     let kls = document.getElementById('filterKelasDataNilai').value;
 
+    // Cek apakah akun yang sedang login adalah Admin
+    const roleSaatIni = sessionStorage.getItem('roleMadasa') || '';
+    const isAdmin = !roleSaatIni.includes('Guru');
+
     let trHead = '<tr>'; 
     trHead += `<th class="p-3 text-center border-r border-gray-200 w-10 bg-gray-100">No</th>`; 
     headers.forEach((h) => { 
@@ -1166,17 +1278,44 @@ function renderTabelDataNilai(headers, data) {
             trHead += `<th class="p-3 border-r border-gray-200 text-center whitespace-nowrap bg-gray-100">${h}</th>`; 
         } 
     }); 
-    trHead += `<th class="p-3 text-center bg-gray-100 w-24">AKSI</th></tr>`; 
+    trHead += `<th class="p-3 text-center bg-gray-100 w-32">AKSI</th></tr>`; 
     thead.innerHTML = trHead; 
     
+    // Ambil jumlah mapel yang sah dari Master Mapel (khusus IBT/SANA/ALIYAH)
+    let jmlMapelTotal = (!kls.includes('TK') && JADWAL_MAPEL[kls] && JADWAL_MAPEL[kls].semua) ? JADWAL_MAPEL[kls].semua.length : 0;
+
     data.forEach((row, rowIndex) => { 
         let trBody = `<tr class="hover:bg-blue-50 transition-all">`; 
         trBody += `<td class="p-3 text-center text-gray-500 border-r border-gray-200">${rowIndex + 1}</td>`; 
         
-let totalNilai = idxTotal > -1 ? parseFloat(row[idxTotal] || 0) : 0;
-// PERBAIKAN: Cari index kolom rata-rata dari server
-let idxRata = headers.findIndex(h => h.toLowerCase().includes('rata'));
-let rataBenar = idxRata > -1 ? parseFloat(row[idxRata] || 0).toFixed(1) : "0.0";
+        let totalNilai = idxTotal > -1 ? parseFloat(row[idxTotal] || 0) : 0;
+        
+        // ============================================================
+        // PERBAIKAN: Hitung rata-rata secara dinamis agar 100% akurat 
+        // dan menghindari error nilai aneh (seperti 2026.0) dari Database
+        // ============================================================
+        let rataBenar = "0.0";
+        if (kls.includes('TK')) {
+            // Untuk TK, hitung rata-rata berdasarkan kolom yang sudah terisi nilai (n1, n2)
+            let countTerisi = 0;
+            let idxN1 = headers.findIndex(h => h.toLowerCase() === 'nilai 1' || h.toLowerCase() === 'n1');
+            let idxN2 = headers.findIndex(h => h.toLowerCase() === 'nilai 2' || h.toLowerCase() === 'n2');
+            
+            if(idxN1 > -1 && row[idxN1] !== "" && !isNaN(row[idxN1])) countTerisi++;
+            if(idxN2 > -1 && row[idxN2] !== "" && !isNaN(row[idxN2])) countTerisi++;
+            
+            rataBenar = countTerisi > 0 ? (totalNilai / countTerisi).toFixed(1) : "0.0";
+        } else {
+            // Untuk Ibtidaiyah/Sanawiyah dll, bagi Total dengan total seluruh Mata Pelajaran 
+            // Hal ini agar hasilnya sama persis dengan yang ada di Halaman Ranking
+            if (jmlMapelTotal > 0) {
+                rataBenar = (totalNilai / jmlMapelTotal).toFixed(1);
+            } else {
+                // Fallback (Penyelamat) jika Master Mapel belum disetel
+                let mapelCols = headers.length - 5; 
+                rataBenar = mapelCols > 0 ? (totalNilai / mapelCols).toFixed(1) : "0.0";
+            }
+        }
 
         row.forEach((cell, cellIndex) => { 
             const headerName = headers[cellIndex].toLowerCase(); 
@@ -1186,20 +1325,90 @@ let rataBenar = idxRata > -1 ? parseFloat(row[idxRata] || 0).toFixed(1) : "0.0";
                 let textNIS = cell.toString().replace("'", ""); 
                 trBody += `<td class="p-3 border-r border-gray-200 text-gray-600 whitespace-nowrap">${escapeHTML(textNIS)}</td>`; 
             } else if (headerName.includes('rata')) {
-              let finalRata = !isNaN(parseFloat(cell)) ? parseFloat(cell).toFixed(1) : "0.0";
-                trBody += `<td class="p-3 border-r border-gray-200 text-center font-bold text-blue-600 whitespace-nowrap">${finalRata}</td>`;
-                GLOBAL_DATA_NILAI[rowIndex][cellIndex] = finalRata; 
+                // GUNAKAN RATA-RATA DINAMIS YANG SUDAH KITA HITUNG DI ATAS
+                trBody += `<td class="p-3 border-r border-gray-200 text-center font-bold text-blue-600 whitespace-nowrap">${rataBenar}</td>`;
+                GLOBAL_DATA_NILAI[rowIndex][cellIndex] = rataBenar; // Update nilai mentah untuk Modal Edit agar tidak memunculkan nilai cacat
             } else { 
                 const isNumber = !isNaN(cell) && cell !== ""; 
                 trBody += `<td class="p-3 border-r border-gray-200 text-center ${isNumber ? 'font-bold text-emerald-700' : 'text-gray-400'} whitespace-nowrap">${cell}</td>`; 
             } 
         }); 
-        trBody += `<td class="p-3 text-center whitespace-nowrap"><button onclick="openModalEditNilai(${rowIndex})" class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition-all shadow-sm border border-blue-200" title="Edit Data"><i class="fas fa-edit"></i> Edit</button></td></tr>`; 
+        
+        // Memunculkan tombol hapus HANYA jika bukan Guru
+        const tombolHapus = isAdmin ? `<button onclick="hapusSemuaNilaiSantri(${rowIndex})" class="text-red-500 hover:bg-red-100 p-2 rounded-lg transition-all shadow-sm border border-red-200 ml-1" title="Kosongkan Semua Nilai Santri Ini"><i class="fas fa-trash-alt"></i></button>` : '';
+
+        trBody += `<td class="p-3 text-center whitespace-nowrap flex items-center justify-center">
+            <button onclick="openModalEditNilai(${rowIndex})" class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition-all shadow-sm border border-blue-200" title="Edit Data"><i class="fas fa-edit"></i> Edit</button>
+            ${tombolHapus}
+        </td></tr>`; 
         
         barisHTML.push(trBody); 
     }); 
     
     tbody.innerHTML = barisHTML.join(''); 
+}
+
+// =========================================================
+// FUNGSI HAPUS (KOSONGKAN) SELURUH NILAI SANTRI OLEH ADMIN
+// =========================================================
+function hapusSemuaNilaiSantri(index) {
+    const headers = GLOBAL_HEADERS_NILAI; 
+    const row = GLOBAL_DATA_NILAI[index]; 
+    const kelasPilih = document.getElementById('filterKelasDataNilai').value;
+    
+    const idxNis = headers.findIndex(h => h.toLowerCase() === 'nis');
+    const idxNama = headers.findIndex(h => h.toLowerCase().includes('nama'));
+    
+    const nisStr = row[idxNis].toString().replace(/'/g, "");
+    const namaStr = row[idxNama];
+
+    Swal.fire({
+        title: 'Kosongkan Nilai?',
+        html: `Yakin ingin mengosongkan <b>SELURUH NILAI</b> milik <b>${namaStr}</b>?<br><br><span class="text-red-500 text-xs font-bold"><i class="fas fa-exclamation-triangle"></i> Peringatan: Semua nilai mapel anak ini di kelas ${kelasPilih} akan dikosongkan dan guru harus menginput ulang.</span>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '<i class="fas fa-trash-alt mr-1"></i> Ya, Kosongkan!',
+        cancelButtonText: 'Batal',
+        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl', cancelButton: 'rounded-xl' }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            showLoading(true, "Mengosongkan Nilai...");
+            
+            // Membuat paket data kosong untuk semua pelajaran
+            let payloadKosong = {}; 
+            for(let i = 0; i < headers.length; i++) { 
+                let h = headers[i]; 
+                let isReadOnly = ['NIS', 'Nama Lengkap', 'Kelas', 'Hari', 'Total Nilai', 'Rata-rata'].includes(h); 
+                if(!isReadOnly) { 
+                    payloadKosong[h] = ""; // Mengosongkan data
+                } 
+            } 
+
+            const formData = new URLSearchParams(); 
+            formData.append('action', 'updateDataNilai'); 
+            formData.append('kelas', kelasPilih); 
+            formData.append('nis', nisStr); 
+            formData.append('data_nilai', JSON.stringify(payloadKosong)); 
+            formData.append('token', sessionStorage.getItem('tokenMadasa'));
+            
+            fetch(GAS_URL, { method: 'POST', body: formData })
+            .then(res => res.json())
+            .then(data => { 
+                showLoading(false); 
+                if(data.status === 'success') { 
+                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'Seluruh nilai berhasil dikosongkan!', showConfirmButton: false, timer: 3000 });
+                    loadDataNilaiKelas(true); 
+                } else { 
+                    Swal.fire('Gagal', data.message, 'error'); 
+                }
+            }).catch(err => { 
+                showLoading(false); 
+                Swal.fire('Error', 'Gagal memproses data. Periksa jaringan Anda.', 'error'); 
+            });
+        }
+    });
 }
 
 function openModalEditNilai(index) { 
