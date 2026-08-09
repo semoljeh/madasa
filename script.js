@@ -2164,6 +2164,10 @@ function cetakRanking() {
             table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
             th, td { border: 1px solid #000; padding: 10px 8px; vertical-align: top; }
             th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
+            
+            /* PERBAIKAN: Mencegah baris terpotong saat pindah halaman */
+            tr { page-break-inside: avoid; break-inside: avoid; }
+            
             .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
         </style></head><body>
             <div style="display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px;">
