@@ -605,12 +605,21 @@
 </div>
 								
 								
+                          <!-- KODE BARU (Sudah ditambahkan tombol Download Excel): -->
                                 <button onclick="loadDataNilaiKelas()" class="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2">
                                     <i class="fas fa-search"></i> Tampilkan Laporan
                                 </button>
+                                
                                 <button onclick="cetakDataNilai()" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2">
-    <i class="fas fa-print"></i> Cetak / Print
-</button>
+                                    <i class="fas fa-print"></i> Cetak / Print
+                                </button>
+
+                                <!-- 🟢 TOMBOL DOWNLOAD EXCEL 🟢 -->
+                                <button id="btn-download-excel" onclick="downloadExcelNilai()" class="w-full sm:w-auto px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-bold text-sm shadow-sm flex items-center justify-center gap-2">
+                                    <i class="fas fa-file-excel"></i> Download Excel
+                                </button>
+						  
+						  
                             </div>
                         </div>
                         <div class="overflow-x-auto rounded-xl border border-gray-200 w-full shadow-sm">
@@ -727,21 +736,21 @@
                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-gray-50 rounded-2xl border border-gray-100">
                             
                             <!-- 1. RAPOR TK (target="_blank" sudah dihapus) -->
-                            <a href="rapor_tpq.html" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-emerald-50 to-emerald-100 rounded-2xl border-2 border-emerald-200 hover:border-emerald-500 transition-all cursor-pointer text-emerald-800 relative overflow-hidden" style="animation-delay: 0s;">
+                           <a href="rapor/rapor_tpq.html" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-emerald-50 to-emerald-100 rounded-2xl border-2 border-emerald-200 hover:border-emerald-500 transition-all cursor-pointer text-emerald-800 relative overflow-hidden" style="animation-delay: 0s;">
                                 <i class="fas fa-child text-5xl mb-4 group-hover:scale-110 group-hover:text-emerald-600 transition-transform duration-300"></i>
                                 <h3 class="text-xl font-bold font-heading mb-1">Rapor TK / RA</h3>
                                 <p class="text-xs text-center text-emerald-600 font-medium px-2">Masuk ke sistem cetak rapor khusus Taman Kanak-Kanak</p>
                             </a>
 
                             <!-- 2. RAPOR IBTIDAIYAH (target="_blank" sudah dihapus) -->
-                            <a href="rapor_ibtidaiyah.html" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 hover:border-blue-500 transition-all cursor-pointer text-blue-800 relative overflow-hidden" style="animation-delay: 0.4s;">
+                           <a href="rapor/rapor_ibtidaiyah.html" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-blue-50 to-blue-100 rounded-2xl border-2 border-blue-200 hover:border-blue-500 transition-all cursor-pointer text-blue-800 relative overflow-hidden" style="animation-delay: 0.4s;">
                                 <i class="fas fa-book-open text-5xl mb-4 group-hover:scale-110 group-hover:text-blue-600 transition-transform duration-300"></i>
                                 <h3 class="text-xl font-bold font-heading mb-1">Ibtidaiyah</h3>
                                 <p class="text-xs text-center text-blue-600 font-medium px-2">Masuk ke cetak rapor Madrasah Ibtidaiyah</p>
                             </a>
 
                             <!-- 3. RAPOR SANAWIYAH & ALIYAH (target="_blank" sudah dihapus) -->
-                            <a href="rapor_sanawiyah.html" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-200 hover:border-purple-500 transition-all cursor-pointer text-purple-800 relative overflow-hidden" style="animation-delay: 0.8s;">
+                           <a href="rapor/rapor_sanawiyah.html" class="animasi-klik-saya group flex flex-col items-center justify-center p-8 bg-gradient-to-b from-purple-50 to-purple-100 rounded-2xl border-2 border-purple-200 hover:border-purple-500 transition-all cursor-pointer text-purple-800 relative overflow-hidden" style="animation-delay: 0.8s;">
                                 <i class="fas fa-graduation-cap text-5xl mb-4 group-hover:scale-110 group-hover:text-purple-600 transition-transform duration-300"></i>
                                 <h3 class="text-xl font-bold font-heading mb-1">Sanawiyah & Aliyah</h3>
                                 <p class="text-xs text-center text-purple-600 font-medium px-2">Masuk ke cetak rapor Madrasah Sanawiyah & Aliyah</p>
@@ -938,26 +947,46 @@
                         </div>
 
                         <div class="overflow-x-auto rounded-xl border border-gray-200 shadow-sm w-full">
-                            <table class="w-full text-left border-collapse min-w-max">
-                                <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
-                                    <tr>
-                                        <th class="p-3 text-center border-r border-gray-200 w-12">
-                                            <input type="checkbox" id="cekSemuaMutasi" onchange="toggleSemuaMutasi(this)" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer">
-                                        </th>
-                                        <th class="p-3 border-r border-gray-200 w-24">NIS</th>
-                                        <th class="p-3 border-r border-gray-200">Nama Lengkap Santri</th>
-                                        <th class="p-3 text-center w-32">Kelas Saat Ini</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="bodyTabelMutasi" class="text-sm divide-y divide-gray-100 bg-white">
-                                    <tr>
-                                        <td colspan="4" class="p-8 text-center text-gray-400">
-                                            <i class="fas fa-users text-4xl mb-2 text-gray-200 block"></i>Silakan pilih Kelas Asal terlebih dahulu.
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                           <table class="w-full text-left border-collapse min-w-max">
+    <thead class="bg-gray-100 text-gray-600 text-xs uppercase border-b border-gray-200">
+        <tr>
+            <th class="p-3 text-center border-r border-gray-200 w-12">
+                <input type="checkbox" id="cekSemuaMutasi" onchange="toggleSemuaMutasi(this)" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer">
+            </th>
+            <!-- TAMBAHAN KOLOM NOMOR -->
+            <th class="p-3 text-center border-r border-gray-200 w-12">No</th>
+            <th class="p-3 border-r border-gray-200 w-24">NIS</th>
+            <th class="p-3 border-r border-gray-200">Nama Lengkap Santri</th>
+            <th class="p-3 text-center w-32">Kelas Saat Ini</th>
+        </tr>
+    </thead>
+    <tbody id="bodyTabelMutasi" class="text-sm divide-y divide-gray-100 bg-white">
+        <tr>
+            <!-- UBAH COLSPAN MENJADI 5 -->
+            <td colspan="5" class="p-8 text-center text-gray-400">
+                <i class="fas fa-users text-4xl mb-2 text-gray-200 block"></i>Silakan pilih Kelas Asal terlebih dahulu.
+            </td>
+        </tr>
+    </tbody>
+</table>
                         </div>
+						
+						<!-- 🟢 TAMBAHKAN KODE INI DI SINI 🟢 -->
+                        <!-- DANGER ZONE: Reset Data Tahun Ajaran -->
+                        <div class="mt-8 bg-red-50 p-5 rounded-2xl border border-red-200">
+                            <h4 class="font-bold text-red-800 mb-2 flex items-center">
+                                <i class="fas fa-exclamation-triangle mr-2 text-xl"></i> Zona Berbahaya: Reset Data Tahun Ajaran
+                            </h4>
+                            <p class="text-sm text-red-600 mb-4 leading-relaxed">
+                                Gunakan fitur ini <b>HANYA</b> saat pergantian Tahun Ajaran Baru. Fitur ini akan menghapus seluruh rekaman data di lembar <b>NILAI</b> dan <b>DETAIL RAPOR</b> dari kelas sebelumnya agar bersih dan tidak bertumpuk untuk santri baru.
+                            </p>
+                            <button onclick="resetTahunAjaran()" class="px-6 py-3 bg-red-600 text-white font-bold rounded-xl shadow-sm hover:bg-red-700 transition-all flex items-center gap-2">
+                                <i class="fas fa-trash-alt"></i> Bersihkan Data Rapor Lama
+                            </button>
+                        </div>
+                        <!-- ================================ -->
+						
+						
                     </div>
                 </div>
 
@@ -1157,6 +1186,9 @@
 <script src="config.js?v=4"></script>
 <script src="widget-wa.js"></script>
 <script src="script.js?v=4"></script>
+
+
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
 </body>
 </html>

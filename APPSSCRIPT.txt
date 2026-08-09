@@ -6,26 +6,22 @@ function doPost(e) {
     var action = e.parameter.action;
 
     // 1. IZINKAN AKSES LOGIN & PORTAL ORTU TANPA TOKEN
-if (action === 'login') return prosesLogin(e);
-if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
+    if (action === 'login') return prosesLogin(e);
+    if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
 
-// --- JALUR KHUSUS PORTAL WALI SANTRI ---
+    // --- JALUR KHUSUS PORTAL WALI SANTRI ---
     if (action === 'getSppSantri') return getSppSantri(e);
     if (action === 'getRaporTK') return getRaporTK(e);
     
-    // TAMBAHAN: Izinkan Wali Santri menarik data ini tanpa Token Login
+    // IZINKAN WALI SANTRI MENARIK DATA INI TANPA TOKEN LOGIN
     if (action === 'getSantri') return ambilDataSantri();
     if (action === 'getAllMapel') return getAllMapel();
     if (action === 'getDataNilai') return getDataNilai(e);
     if (action === 'getPengaturan') return getPengaturan(e);
     if (action === 'getRankingKelas') return getRankingKelas(e);
-    if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
     if (action === 'getRekapBulanan') return getRekapBulanan(e);
     if (action === 'getBulanTersedia') return getBulanTersedia();
     if (action === 'getSettingSpp') return getSettingSpp();
-    
-
-// (Jika nanti ortu.html memanggil fungsi lain, tambahkan juga di sini)
 
     // ==========================================
     // 2. AREA SATPAM: VALIDASI TOKEN (SESI)
@@ -43,7 +39,7 @@ if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
     if (!sheetSesi) {
       sheetSesi = ss.insertSheet('SesiAktif');
       sheetSesi.appendRow(['Token', 'Username', 'Role', 'Waktu Login']);
-      sheetSesi.getRange("A1:D1").setFontWeight("bold").setBackground("#f87171"); // Warna merah sbg tanda file sistem
+      sheetSesi.getRange("A1:D1").setFontWeight("bold").setBackground("#f87171");
     }
 
     var dataSesi = sheetSesi.getDataRange().getValues();
@@ -59,7 +55,6 @@ if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
       }
     }
 
-    // Jika token palsu/tidak ada di database, tendang!
     if (!tokenValid) {
       return responError('Sesi tidak valid atau telah kadaluarsa. Silakan login ulang.');
     }
@@ -67,16 +62,12 @@ if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
     // AREA SATPAM SELESAI
     // ==========================================
 
-
     // ==========================================
     // 3. JIKA TOKEN VALID, LANJUTKAN KE ROUTER
     // ==========================================
+    var adminOnly = ['mutasiSantri', 'importSantriBulk', 'deleteSppData', 'updateDataNilai', 'deleteSantri', 'resetDataTahunAjaran'];
+    var roleBersih = userRole.toString().trim();
     
-    // (Opsional) Keamanan Ekstra: Kunci fitur khusus hanya untuk Admin
-    var adminOnly = ['mutasiSantri', 'importSantriBulk', 'deleteSppData', 'updateDataNilai', 'deleteSantri'];
-    var roleBersih = userRole.toString().trim(); // Bersihkan spasi gaib jika ada
-    
-    // Tambahkan 'Administrator' ke dalam daftar putih (whitelist)
     if (adminOnly.indexOf(action) !== -1 && roleBersih !== 'Admin' && roleBersih !== 'Administrator' && roleBersih !== 'Ustadz Admin Utama') {
         return responError('Akses Ditolak: Anda tidak memiliki hak akses Admin untuk fitur ini!');
     }
@@ -105,23 +96,19 @@ if (action === 'simpanAbsenBarcode') return simpanAbsenBarcode(e);
       case 'getSppSantri': return getSppSantri(e); 
       case 'toggleStatusAbsen': return toggleStatusAbsen(e);
       case 'getStatusAbsen': return getStatusAbsen();
-
       case 'getSettingSpp': return getSettingSpp();
       case 'saveSettingSpp': return saveSettingSpp(e);
-
       case 'getBukuKas': return getBukuKas();
       case 'addPengeluaran': return addPengeluaran(e);
       case 'getLaporanKas': return getLaporanKas(e);
       case 'deleteKas': return deleteKas(e);
-      
-      // --- KODE BARU: RUTE UNTUK FITUR ABSENSI ---
       case 'setLiburRentang': return setLiburRentang(e);
-      case 'simpanAbsenBarcode': return simpanAbsenBarcode(e);
-      case 'getBulanTersedia': return getBulanTersedia(e);
+      case 'getBulanTersedia': return getBulanTersedia();
       case 'getRekapBulanan': return getRekapBulanan(e);
       case 'simpanWaktuAbsen': return simpanWaktuAbsen(e);
       case 'simpanLokasiAbsen': return simpanLokasiAbsen(e);
       case 'hapusLokasiAbsen': return hapusLokasiAbsen(e);
+      case 'resetDataTahunAjaran': return resetDataTahunAjaran(e);
       
       default: return responError('Aksi tidak dikenali oleh server.');
     }
@@ -139,32 +126,26 @@ function prosesLogin(e) {
   
   if (!sheet) return responError('Sistem Error: Sheet "LOGIN" tidak ditemukan di database.');
 
-  // Bersihkan spasi kosong jika ada
   var user = e.parameter.username ? e.parameter.username.toString().trim() : "";
   var pass = e.parameter.password ? e.parameter.password.toString().trim() : "";
   var data = sheet.getDataRange().getValues();
 
   for (var i = 1; i < data.length; i++) {
-    // Cocokkan data (pastikan huruf besar/kecil dan spasi akurat)
     if (data[i][0].toString().trim() === user && data[i][1].toString().trim() === pass) {
       var roleUser = data[i][2];
       var namaUser = data[i][3];
 
-      // --- KODE BARU: PEMBUATAN TOKEN ---
       var token = Utilities.getUuid();
       var sheetSesi = ss.getSheetByName('SesiAktif');
       
-      // Buat sheet jika belum ada
       if (!sheetSesi) {
         sheetSesi = ss.insertSheet('SesiAktif');
         sheetSesi.appendRow(['Token', 'Username', 'Role', 'Waktu Login']);
         sheetSesi.getRange("A1:D1").setFontWeight("bold").setBackground("#f87171");
       }
 
-      // Simpan token ke database SesiAktif
       sheetSesi.appendRow([token, user, roleUser, new Date()]);
 
-      // Kirim balik data ke browser beserta Token-nya
       return responSukses({ 
         role: roleUser, 
         name: namaUser,
@@ -179,30 +160,49 @@ function prosesLogin(e) {
 // 2. FUNGSI AMBIL DATA SANTRI
 // =================================================================
 function ambilDataSantri() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('SANTRI');
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('SANTRI');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('SANTRI');
+    sheet.appendRow(['NIS', 'Nama Lengkap', 'L/P', 'Tempat, Tgl Lahir', 'Kelas', 'Alamat', 'Nama Ayah', 'Nama Ibu', 'No HP/WA']);
+    sheet.getRange(1, 1, 1, 9).setFontWeight("bold").setBackground("#d1fae5");
+  }
+
   var data = sheet.getDataRange().getValues();
   var result = [];
-  for (var i = 1; i < data.length; i++) {
-    result.push({
-      nis: data[i][0], 
-      nama: data[i][1], 
-      jk: data[i][2], 
-      ttl: data[i][3] || '',     // <-- POSISI BARU (Indeks 3)
-      kelas: data[i][4],         // <-- Bergeser jadi indeks 4
-      alamat: data[i][5] || '',  // <-- Bergeser jadi indeks 5
-      ayah: data[i][6] || '',    // <-- Bergeser jadi indeks 6
-      ibu: data[i][7] || '',     // <-- Bergeser jadi indeks 7
-      hp: data[i][8] || ''       // <-- Bergeser jadi indeks 8
-    });
+  
+  if (data.length > 1) {
+    for (var i = 1; i < data.length; i++) {
+      result.push({
+        nis: data[i][0], 
+        nama: data[i][1], 
+        jk: data[i][2], 
+        ttl: data[i][3] || '',     
+        kelas: data[i][4],         
+        alamat: data[i][5] || '',  
+        ayah: data[i][6] || '',    
+        ibu: data[i][7] || '',     
+        hp: data[i][8] || ''       
+      });
+    }
   }
   return responSukses({ data: result });
 }
 
 // =================================================================
-// 3. FUNGSI TAMBAH DATA SANTRI 
+// 3. FUNGSI TAMBAH DATA SANTRI
 // =================================================================
 function tambahDataSantri(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('SANTRI');
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('SANTRI');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('SANTRI');
+    sheet.appendRow(['NIS', 'Nama Lengkap', 'L/P', 'Tempat, Tgl Lahir', 'Kelas', 'Alamat', 'Nama Ayah', 'Nama Ibu', 'No HP/WA']);
+    sheet.getRange(1, 1, 1, 9).setFontWeight("bold").setBackground("#d1fae5");
+  }
+
   var inputNis = e.parameter.nis;
   var existingData = sheet.getDataRange().getValues();
   
@@ -213,7 +213,6 @@ function tambahDataSantri(e) {
   var saveNis = "'" + inputNis;
   var saveHp = "'" + e.parameter.hp;
   
-  // <-- POSISI BARU: e.parameter.ttl ditaruh setelah jk
   sheet.appendRow([
     saveNis, e.parameter.nama, e.parameter.jk, e.parameter.ttl, 
     e.parameter.kelas, e.parameter.alamat, e.parameter.ayah, e.parameter.ibu, saveHp
@@ -223,12 +222,12 @@ function tambahDataSantri(e) {
 }
 
 // =================================================================
-// 4. FUNGSI UPDATE/EDIT DATA SANTRI (DIPERBARUI UNTUK EDIT NIS)
+// 4. FUNGSI UPDATE/EDIT DATA SANTRI
 // =================================================================
 function updateDataSantri(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('SANTRI');
-  var inputNisLama = e.parameter.nis_lama; // NIS asli untuk mencari data
-  var inputNisBaru = e.parameter.nis;      // NIS baru hasil editan
+  var inputNisLama = e.parameter.nis_lama;
+  var inputNisBaru = e.parameter.nis;
   
   var data = sheet.getDataRange().getValues();
   var isUpdated = false;
@@ -236,9 +235,8 @@ function updateDataSantri(e) {
   var saveNisBaru = "'" + inputNisBaru;
 
   for (var i = 1; i < data.length; i++) {
-    // Cari baris berdasarkan NIS Lama
     if (data[i][0] == inputNisLama) {
-      sheet.getRange(i + 1, 1).setValue(saveNisBaru);        // <-- Update NIS (Kolom 1)
+      sheet.getRange(i + 1, 1).setValue(saveNisBaru);
       sheet.getRange(i + 1, 2).setValue(e.parameter.nama);
       sheet.getRange(i + 1, 3).setValue(e.parameter.jk);
       sheet.getRange(i + 1, 4).setValue(e.parameter.ttl);    
@@ -254,16 +252,11 @@ function updateDataSantri(e) {
   else return responError('Gagal: Data santri tidak ditemukan.');
 }
 
-
 // =================================================================
-// FUNGSI MUTASI KELAS MASSAL (OPTIMASI SKALA BESAR)
+// FUNGSI MUTASI KELAS MASSAL
 // =================================================================
 function mutasiSantri(e) {
-  // 1. Terapkan LockService (Lampu Lalu Lintas)
-  // Mencegah data bentrok jika ada 2 admin melakukan mutasi di detik yang sama
   var lock = LockService.getScriptLock();
-  
-  // Tunggu maksimal 10 detik. Jika masih ada proses lain, tolak dengan halus.
   if (!lock.tryLock(10000)) {
     return responError('Sistem sedang sibuk memproses data lain. Silakan coba beberapa saat lagi.');
   }
@@ -276,30 +269,22 @@ function mutasiSantri(e) {
     var sheetSantri = ss.getSheetByName('SANTRI');
     var lastRow = sheetSantri.getLastRow();
     
-    // Cegah error jika sheet hanya berisi header
     if (lastRow < 2) {
       return responError('Tidak ada data santri untuk dimutasi.');
     }
 
-    // 2. Tarik hanya kolom yang dibutuhkan (Kolom 1: NIS, Kolom 5: Kelas) ke dalam memori
-    // Membaca area spesifik jauh lebih ringan daripada getDataRange() untuk 1000 baris
     var dataNis = sheetSantri.getRange(2, 1, lastRow - 1, 1).getValues();
     var dataKelas = sheetSantri.getRange(2, 5, lastRow - 1, 1).getValues();
-    
     var jumlahDiupdate = 0;
 
-    // 3. Proses pencocokan di dalam memori lokal (Sangat Cepat)
     for (var i = 0; i < dataNis.length; i++) {
       var nisBaris = dataNis[i][0].toString().replace(/'/g, "").trim();
-
-      // Jika NIS di baris ini ada di dalam daftar centangan admin
       if (nisList.indexOf(nisBaris) !== -1) {
-        dataKelas[i][0] = kelasTujuan; // Ubah data di dalam memori array
+        dataKelas[i][0] = kelasTujuan;
         jumlahDiupdate++;
       }
     }
 
-    // 4. BATCH PROCESSING: Tulis kembali seluruh perubahan ke Sheet dalam 1X Perintah
     if (jumlahDiupdate > 0) {
       sheetSantri.getRange(2, 5, dataKelas.length, 1).setValues(dataKelas);
     }
@@ -311,17 +296,14 @@ function mutasiSantri(e) {
   } catch (error) {
     return responError('Terjadi kesalahan sistem: ' + error.message);
   } finally {
-    // 5. Wajib lepaskan kunci agar admin lain bisa menggunakan sistem kembali
     lock.releaseLock();
   }
 }
 
-
 // =================================================================
-// 5. FUNGSI SIMPAN BUKU NILAI MASSAL (OPTIMASI BATCH & LOCK)
+// 5. FUNGSI SIMPAN BUKU NILAI MASSAL
 // =================================================================
 function simpanDataNilai(e) {
-  // 1. Lampu Lalu Lintas: Antre maksimal 15 detik jika ada guru lain yang sedang menyimpan
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(15000)) {
     return responError('Server sedang sibuk memproses nilai dari guru lain. Silakan coba klik simpan lagi dalam beberapa detik.');
@@ -334,9 +316,6 @@ function simpanDataNilai(e) {
     var sheetName = 'NILAI ' + kelasPilih;
     var sheet = ss.getSheetByName(sheetName);
 
-    // ==========================================
-    // LOGIKA KHUSUS TK / RA
-    // ==========================================
     if (kelasPilih.includes('TK')) {
       var hari = e.parameter.hari;
       if (!sheet) {
@@ -347,7 +326,6 @@ function simpanDataNilai(e) {
 
       var dataTK = sheet.getDataRange().getValues();
       
-      // Validasi Anti-Duplikat di Memori (Cepat)
       for (var n = 0; n < listNilai.length; n++) {
         for (var i = 1; i < dataTK.length; i++) {
           if (dataTK[i][0].toString() === listNilai[n].nis.toString() && dataTK[i][3].toString() === hari.toString()) {
@@ -356,7 +334,6 @@ function simpanDataNilai(e) {
         }
       }
 
-      // Siapkan Array untuk Batch Insert
       var barisBaruTK = [];
       for (var n = 0; n < listNilai.length; n++) {
         barisBaruTK.push([
@@ -367,16 +344,11 @@ function simpanDataNilai(e) {
         ]);
       }
 
-      // Tulis Sekaligus ke Database
       if (barisBaruTK.length > 0) {
         sheet.getRange(sheet.getLastRow() + 1, 1, barisBaruTK.length, barisBaruTK[0].length).setValues(barisBaruTK);
       }
       return responSukses({ message: 'Nilai TK berhasil disimpan secara massal.' });
     } 
-    
-    // ==========================================
-    // LOGIKA IBTIDAIYAH, SANAWIYAH, ALIYAH
-    // ==========================================
     else {
       var mapel = e.parameter.mapel;
       var semuaMapel = JSON.parse(e.parameter.semua_mapel);
@@ -393,7 +365,6 @@ function simpanDataNilai(e) {
       var sheetHeaders = data[0];
       var colIndex = sheetHeaders.indexOf(mapel);
       
-      // Petakan index baris berdasarkan NIS agar pencarian O(1) sangat cepat
       var mapExisting = {};
       for (var i = 1; i < data.length; i++) {
         var nisData = data[i][0].toString().replace(/'/g, "").trim();
@@ -402,17 +373,14 @@ function simpanDataNilai(e) {
 
       var barisBaru = [];
 
-      // Kalkulasi seluruh nilai di dalam Memori
       for (var n = 0; n < listNilai.length; n++) {
         var student = listNilai[n];
         var nisStudent = student.nis.toString().replace(/'/g, "").trim();
         var existingIndex = mapExisting[nisStudent];
 
         if (existingIndex !== undefined) {
-          // UPDATE DATA LAMA DI MEMORI
           data[existingIndex][colIndex] = student.nilai;
 
-          // Hitung ulang total dan rata-rata secara langsung
           var total = 0; 
           var totalMapel = sheetHeaders.length - 5;
           for (var h = 5; h < sheetHeaders.length; h++) {
@@ -421,11 +389,10 @@ function simpanDataNilai(e) {
           }
           var rata = totalMapel > 0 ? (total / totalMapel).toFixed(1) : 0;
 
-          data[existingIndex][3] = total; // Index 3: Total Kolom
-          data[existingIndex][4] = rata;  // Index 4: Rata-rata Kolom
+          data[existingIndex][3] = total;
+          data[existingIndex][4] = rata;
 
         } else {
-          // JIKA ADA SANTRI BARU SUSULAN (Belum ada di sheet)
           var totalMapel = sheetHeaders.length - 5;
           var rataAwal = totalMapel > 0 ? (parseFloat(student.nilai) / totalMapel).toFixed(1) : student.nilai;
           var newRow = ["'" + student.nis, student.nama, kelasPilih, student.nilai, rataAwal];
@@ -438,12 +405,10 @@ function simpanDataNilai(e) {
         }
       }
 
-      // Tulis Ulang Semua Perubahan Sekaligus (Batch Update)
       if (data.length > 1) {
         sheet.getRange(1, 1, data.length, data[0].length).setValues(data);
       }
 
-      // Tambahkan Baris Baru Sekaligus (Batch Insert)
       if (barisBaru.length > 0) {
         sheet.getRange(sheet.getLastRow() + 1, 1, barisBaru.length, barisBaru[0].length).setValues(barisBaru);
       }
@@ -453,7 +418,6 @@ function simpanDataNilai(e) {
   } catch (err) {
     return responError('Gagal memproses nilai: ' + err.message);
   } finally {
-    // 2. Wajib melepaskan sistem antrean agar tidak macet
     lock.releaseLock(); 
   }
 }
@@ -486,7 +450,6 @@ function updateDataNilai(e) {
   }
   if (rowIndex === -1) return responError("Data tidak ditemukan.");
   
-  // 1. Tulis nilai yang diedit ke sheet
   for(var key in newData) {
     var colIndex = headers.indexOf(key);
     if (colIndex > -1) {
@@ -494,14 +457,12 @@ function updateDataNilai(e) {
     }
   }
   
-  // 2. Baca ulang seluruh baris untuk menghitung Total yang akurat anti-salah
   var currentRowData = sheet.getRange(rowIndex, 1, 1, headers.length).getValues()[0];
   var total = 0; 
   var totalMapel = headers.length - 5;
   
   if (kelas.includes('TK')) {
       var count = 0;
-      // --- KODE PERBAIKAN: AMBIL DARI KOLOM N1, N2, N3 SECARA SPESIFIK ---
       var idxN1 = headers.findIndex(h => h.toString().toLowerCase() === 'nilai 1' || h.toString().toLowerCase() === 'n1');
       var idxN2 = headers.findIndex(h => h.toString().toLowerCase() === 'nilai 2' || h.toString().toLowerCase() === 'n2');
       var idxN3 = headers.findIndex(h => h.toString().toLowerCase() === 'nilai 3' || h.toString().toLowerCase() === 'n3');
@@ -513,13 +474,12 @@ function updateDataNilai(e) {
           }
       });
       var rata = count > 0 ? (total/count).toFixed(1) : 0;
-      // -----------------------------------------------------------
   } else {
       for (var h = 5; h < headers.length; h++) {
          var val = currentRowData[h];
          if (val !== "" && !isNaN(val)) { total += parseFloat(val); }
       }
-      var rata = totalMapel > 0 ? (total/totalMapel).toFixed(1) : 0; // Dibagi jumlah kolom mapel
+      var rata = totalMapel > 0 ? (total/totalMapel).toFixed(1) : 0;
   }
   
   var totalCol = headers.indexOf('Total Nilai');
@@ -534,7 +494,7 @@ function responSukses(dataObj) { dataObj.status = 'success'; return ContentServi
 function responError(pesan) { return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: pesan })).setMimeType(ContentService.MimeType.JSON); }
 
 // =================================================================
-// 8. FUNGSI RANKING KELAS (DIPERBARUI UNTUK AGREGASI TK)
+// 8. FUNGSI RANKING KELAS
 // =================================================================
 function getRankingKelas(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -578,17 +538,16 @@ function getRankingKelas(e) {
   }
   
  var rankingList = [];
-  for (var key in agregasiRanking) {
+for (var key in agregasiRanking) {
      var r = agregasiRanking[key];
      if (kelasPilih.includes('TK')) {
-         r.rata = (r.total / r.hitungBaris).toFixed(1);
+         r.rata = (r.rata / r.hitungBaris).toFixed(1); // PERBAIKAN: Gunakan r.rata
      } else {
          r.rata = r.rata.toFixed(1); 
      }
      rankingList.push(r);
-  }
+}
   
-  // --- KODE LOGIKA RANKING KEMBAR ---
   rankingList.sort(function(a, b) { 
       if (b.total !== a.total) {
           return b.total - a.total; 
@@ -605,19 +564,17 @@ function getRankingKelas(e) {
           rankingList[k].rank = rankAktual;
       }
   }
-  // ----------------------------------
 
   return responSukses({ data: rankingList });
 }
 
 // =================================================================
-// 9. FUNGSI BINTANG PELAJAR (LENGKAP DENGAN JENIS KELAMIN)
+// 9. FUNGSI BINTANG PELAJAR
 // =================================================================
 function getBintangPelajar() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheets = ss.getSheets();
   
-  // 1. Map Biodata Santri
   var sheetSantri = ss.getSheetByName('SANTRI');
   var dataSantri = sheetSantri ? sheetSantri.getDataRange().getValues() : [];
   var santriMap = {};
@@ -634,7 +591,6 @@ function getBintangPelajar() {
 
   var juaraList = [];
 
-  // 2. Loop ke seluruh sheet mencari awalan "NILAI "
   for (var s = 0; s < sheets.length; s++) {
     var sheetName = sheets[s].getName();
     if (sheetName.indexOf('NILAI ') === 0) { 
@@ -647,7 +603,6 @@ function getBintangPelajar() {
         var nisCol = headers.indexOf('NIS');
         var kelasVal = sheetName.replace('NILAI ', '');
         
-        // --- KODE PERBAIKAN: AGREGASI BINTANG PELAJAR UNTUK TK ---
         var agregasiKelas = {};
         for (var i = 1; i < dataNilai.length; i++) {
           var nisStr = dataNilai[i][nisCol].toString().replace(/'/g, "").trim();
@@ -666,15 +621,13 @@ function getBintangPelajar() {
         for (var key in agregasiKelas) {
             var r = agregasiKelas[key];
             if (kelasVal.includes('TK')) {
-                r.rata = r.hitungBaris > 0 ? (r.total / r.hitungBaris).toFixed(1) : 0;
+                r.rata = r.hitungBaris > 0 ? (r.rata / r.hitungBaris).toFixed(1) : 0; 
             } else {
                 r.rata = r.rata.toFixed(1);
             }
-            kelasRanking.push(r);
-        }
+            kelasRanking.push(r); // Menyimpan data ke dalam array kelasRanking
+        } // Menutup loop agregasiKelas
         
-        // Cari juara 1 di kelas ini berdasarkan Total Nilai. 
-        // Jika Total Nilai kembar, pemenangnya ditentukan oleh Rata-rata terbesar.
         kelasRanking.sort(function(a, b) { 
             if (b.total !== a.total) {
                 return b.total - a.total; 
@@ -682,22 +635,16 @@ function getBintangPelajar() {
             return parseFloat(b.rata) - parseFloat(a.rata);
         });
         
-        
         if (kelasRanking.length > 0) {
-          // Ambil patokan nilai Juara 1 (Nilai Tertinggi di kelas tersebut)
           var topTotal = kelasRanking[0].total;
           var topRata = kelasRanking[0].rata;
           
-          // Lakukan perulangan untuk mengecek semua anak di kelas tersebut
           for (var j = 0; j < kelasRanking.length; j++) {
-              // Jika nilai anak ini SAMA PERSIS dengan nilai patokan Juara 1, masukkan ke daftar
               if (kelasRanking[j].total === topTotal && kelasRanking[j].rata === topRata) {
                   var juara = kelasRanking[j];
                   var biodata = santriMap[juara.nis] || {jk: '-', ttl: '-', ayah: '-', ibu: '-', alamat: '-'};
                   
-                  // Penegas nilai rank agar di web otomatis tertulis angka 1 untuk semua juara kembar
                   juara.rank = 1; 
-                  
                   juara.jk = biodata.jk;
                   juara.ttl = biodata.ttl; 
                   juara.ayah = biodata.ayah; 
@@ -706,7 +653,6 @@ function getBintangPelajar() {
                   
                   juaraList.push(juara);
               } else {
-                  // Jika nilainya sudah lebih kecil dari Juara 1, hentikan pencarian di kelas ini
                   break; 
               }
           }
@@ -718,16 +664,14 @@ function getBintangPelajar() {
   return responSukses({ data: juaraList });
 }
 
-
 // =================================================================
-// 10.B FUNGSI SIMPAN PENGATURAN RAPOR (YANG HILANG)
+// 10. FUNGSI SIMPAN PENGATURAN RAPOR
 // =================================================================
 function simpanPengaturan(e) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var kelas = e.parameter.kelas;
     
-    // 1. Simpan Pengaturan Umum (Semester, Tahun, dll) ke SETTING_RAPOR
     var setUmum = JSON.parse(e.parameter.set_umum);
     var sheetSet = ss.getSheetByName('SETTING_RAPOR');
     if (!sheetSet) {
@@ -742,7 +686,7 @@ function simpanPengaturan(e) {
     }
     
     if (rowIndexSet === -1) {
-      sheetSet.appendRow([kelas, setUmum.semester, setUmum.tahun, setUmum.tanggal, setUmum.wali, setUmum.kepala, '', '', '']);
+      sheetSet.appendRow([kelas, setUmum.semester, setUmum.tahun, setUmum.tanggal, setUmum.wali, setUmum.kepala, '', '', '', setUmum.status_rilis || 'Sembunyi']);
     } else {
       sheetSet.getRange(rowIndexSet, 2).setValue(setUmum.semester);
       sheetSet.getRange(rowIndexSet, 3).setValue(setUmum.tahun);
@@ -752,7 +696,6 @@ function simpanPengaturan(e) {
       sheetSet.getRange(rowIndexSet, 10).setValue(setUmum.status_rilis || 'Sembunyi');
     }
 
-    // 2. Simpan Master Mapel & Kamus ke MASTER_MAPEL
     var mapelTulis = e.parameter.mapel_tulis;
     var mapelPraktek = e.parameter.mapel_praktek;
     var mapelBaca = e.parameter.mapel_baca;
@@ -778,7 +721,6 @@ function simpanPengaturan(e) {
         sheetMapel.getRange(rowMapel, 5).setValue(kamus);
     }
     
-    // 3. Simpan Detail Santri (Absensi, Kepribadian) ke DETAIL_RAPOR
     var detSantri = JSON.parse(e.parameter.det_santri);
     var sheetDet = ss.getSheetByName('DETAIL_RAPOR');
     if (!sheetDet) {
@@ -816,19 +758,17 @@ function simpanPengaturan(e) {
 }
 
 // =================================================================
-// 10. MESIN PENGATURAN RAPOR (ABSENSI, SIKAP, IDENTITAS)
+// 11. MESIN PENGATURAN RAPOR
 // =================================================================
 function getPengaturan(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var kelas = e.parameter.kelas;
 
-  // A. Tarik Pengaturan Umum
   var sheetSet = ss.getSheetByName('SETTING_RAPOR');
   var setUmum = {};
   if(sheetSet) {
     var dSet = sheetSet.getDataRange().getValues();
     for(var i=1; i<dSet.length; i++) {
-      // Menggunakan toString().trim() agar kebal spasi ghaib
       if(dSet[i][0].toString().trim() === kelas.toString().trim()) {
         setUmum = {
           semester: dSet[i][1],
@@ -846,7 +786,6 @@ function getPengaturan(e) {
     }
   }
 
-  // B. Tarik Detail Santri
   var sheetDet = ss.getSheetByName('DETAIL_RAPOR');
   var detSantri = {};
   if(sheetDet) {
@@ -859,13 +798,11 @@ function getPengaturan(e) {
     }
   }
 
-  // C. Tarik Master Mapel & Kamus
   var sheetMapel = ss.getSheetByName('MASTER_MAPEL');
   var mTulis = "", mPraktek = "", mBaca = "", mKamus = "";
   if(sheetMapel) {
     var dMapel = sheetMapel.getDataRange().getValues();
     for(var j=1; j<dMapel.length; j++) {
-      // Menggunakan toString().trim() agar tepat sasaran
       if(dMapel[j][0].toString().trim() === kelas.toString().trim()) {
           mTulis = dMapel[j][1];
           mPraktek = dMapel[j][2];
@@ -880,43 +817,45 @@ function getPengaturan(e) {
 }
 
 // =================================================================
-// 11. MESIN UPLOAD GAMBAR KE GOOGLE DRIVE
+// 12. MESIN UPLOAD GAMBAR KE GOOGLE DRIVE
 // =================================================================
 function uploadGambarDrive(e) {
   try {
     var kelas = e.parameter.kelas;
-    var jenis = e.parameter.jenis; // 'wali', 'kepala', 'stempel'
+    var jenis = e.parameter.jenis; 
     var base64Data = e.parameter.data;
 
-    // 1. Ekstrak data base64
     var cleanBase64 = base64Data.split(',')[1];
     var decoded = Utilities.base64Decode(cleanBase64);
-    var fileName = jenis.toUpperCase() + "_" + kelas + ".png"; // Nama otomatis
+    var fileName = jenis.toUpperCase() + "_" + kelas + ".png"; 
     var blob = Utilities.newBlob(decoded, 'image/png', fileName);
 
-    // 2. Buat atau Cari Folder Khusus di Drive
     var folderName = "ASET_RAPOR_MADRASAH";
     var folders = DriveApp.getFoldersByName(folderName);
     var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
     folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
 
-    // 3. Hapus file lama jika ada (Agar Drive tidak penuh)
     var existingFiles = folder.getFilesByName(fileName);
     while (existingFiles.hasNext()) { existingFiles.next().setTrashed(true); }
 
-    // 4. Simpan File Baru
     var file = folder.createFile(blob);
-    
-    // Pastikan hak akses file langsung dibuka untuk publik (Mencegah delay izin folder)
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     
-    // Gunakan API Thumbnail Drive yang kebal dari pemblokiran keamanan (CORS)
-    var fileUrl = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1000";
+  var fileUrl = "https://drive.google.com/thumbnail?id=" + file.getId() + "&sz=w1000";
 
-    // 5. Catat URL ke Database (Kolom G, H, I)
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheetSet = ss.getSheetByName('SETTING_RAPOR');
-    var dSet = sheetSet.getDataRange().getValues();
+var ss = SpreadsheetApp.getActiveSpreadsheet();
+var sheetSet = ss.getSheetByName('SETTING_RAPOR');
+
+// Terapkan pelindung ini agar fungsi upload bisa otomatis membuat sheet
+if (!sheetSet) {
+   sheetSet = ss.insertSheet('SETTING_RAPOR');
+   sheetSet.appendRow(['Kelas', 'Semester', 'Tahun', 'Tanggal', 'Wali', 'Kepala', 'URL Wali', 'URL Kepala', 'URL Stempel', 'Status Rilis']);
+}
+
+var dSet = sheetSet.getDataRange().getValues();
+
+var dSet = sheetSet.getDataRange().getValues();
+
     var rowIndex = -1;
     for(var i=1; i<dSet.length; i++) { if(dSet[i][0] == kelas) { rowIndex = i + 1; break; } }
 
@@ -935,14 +874,8 @@ function uploadGambarDrive(e) {
   }
 }
 
-function mintaIzinDrive() {
-  // Pancingan tingkat lanjut agar Google memberikan izin Edit, Buat, dan Hapus
-  var folder = DriveApp.createFolder("TEST_IZIN_SEMENTARA");
-  folder.setTrashed(true); // Langsung dibuang ke tong sampah agar Drive Anda tidak kotor
-}
-
 // =================================================================
-// 12. FUNGSI TARIK DATA RAPOR TK
+// 13. FUNGSI TARIK DATA RAPOR TK
 // =================================================================
 function getRaporTK(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -951,7 +884,6 @@ function getRaporTK(e) {
 
   var nisBersih = inputNis.toString().replace(/'/g, "").trim();
 
-  // 1. Cari Biodata Santri
   var sheetSantri = ss.getSheetByName('SANTRI');
   if (!sheetSantri) return responError("Database Santri tidak ditemukan.");
   var dataSantri = sheetSantri.getDataRange().getValues();
@@ -974,7 +906,6 @@ function getRaporTK(e) {
 
   if (!biodata) return responError("Santri dengan NIS " + inputNis + " tidak ditemukan.");
 
-  // 2. Cari Pengaturan Umum & Detail Rapor
   var sheetSet = ss.getSheetByName('SETTING_RAPOR');
   var setUmum = { semester: "-", tahun: "-", tanggal: "-", wali: "-", kepala: "-", url_wali: "", url_kepala: "", url_stempel: "" };
   if (sheetSet) {
@@ -1008,7 +939,6 @@ function getRaporTK(e) {
     }
   }
 
-  // 3. Kumpulkan Nilai TK dari semua Hari
   var sheetNilai = ss.getSheetByName('NILAI ' + kelasSantri);
   var daftarNilai = [];
   if (sheetNilai) {
@@ -1027,18 +957,16 @@ function getRaporTK(e) {
 }
 
 // =================================================================
-// FUNGSI PENGIRIM NOTIFIKASI KE EMAIL (DENGAN GPS)
+// FUNGSI NOTIFIKASI LOGIN EMAIL DENGAN TAUTAN GOOGLE MAPS STANDAR
 // =================================================================
 function kirimNotifLogin(e) {
   try {
       var nama = e.parameter.nama;
       var role = e.parameter.role;
       var perangkat = e.parameter.perangkat;
-      var lokasi = e.parameter.lokasi || "Tidak terlacak"; // <-- Tangkap URL Maps
+      var lokasi = e.parameter.lokasi || "Tidak terlacak";
       
-      // Waktu WIB
       var waktu = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
-      
       var emailTujuan = "aromtemplate@gmail.com";
       var subjekEmail = "🚨 Peringatan Keamanan: Login Sistem Madasa";
       
@@ -1066,15 +994,6 @@ function kirimNotifLogin(e) {
   }
 }
 
-function testKirimEmail() {
-  MailApp.sendEmail({
-    to: "aromtemplate@gmail.com",
-    subject: "✅ Uji Coba Berhasil!",
-    body: "Alhamdulillah, sistem pengirim email dari Google Apps Script sudah berfungsi normal."
-  });
-}
-
-
 // =================================================================
 // PENARIK SELURUH MASTER MAPEL UNTUK DROPDOWN
 // =================================================================
@@ -1091,7 +1010,6 @@ function getAllMapel() {
       
       var namaKelas = dMapel[i][0].toString().trim();
       if(namaKelas !== "") {
-          // Kirim dalam format paket pintar agar web tidak perlu menebak lagi
           mapelDict[namaKelas] = { 
               semua: arrTulis.concat(arrPraktek).concat(arrBaca),
               tulis: arrTulis, 
@@ -1105,81 +1023,102 @@ function getAllMapel() {
 }
 
 // =================================================================
-// FUNGSI IMPORT SANTRI MASSAL (EXCEL/CSV) - VERSI UPSERT & ANTI HILANG 0 / +
+// FUNGSI IMPORT SANTRI MASSAL (EXCEL/CSV) - DIPERBAIKI (BATCH UPDATE)
 // =================================================================
 function importSantriBulk(e) {
+  var lock = LockService.getScriptLock();
   try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('SANTRI');
-    var dataMentah = JSON.parse(e.parameter.data_import);
+    lock.waitLock(10000); 
     
-    // Hapus baris pertama jika itu adalah header (judul kolom)
-    if (dataMentah.length > 0 && isNaN(parseInt(dataMentah[0][0]))) {
-      dataMentah.shift(); 
-    }
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("SANTRI");
+    if (!sheet) return responError('Sheet "SANTRI" tidak ditemukan di Database!');
+
+    var dataImportStr = e.parameter.data_import;
+    if(!dataImportStr) return responError("Data Excel kosong atau gagal diterima server.");
     
-    if (dataMentah.length === 0) {
-      return responError('File kosong atau format salah.');
-    }
+    var dataImport = JSON.parse(dataImportStr);
     
-    // 1. Tarik data yang sudah ada di sheet untuk dicocokkan
+    // Tarik semua data sekaligus ke memori (RAM) agar pemrosesan super cepat
     var existingData = sheet.getDataRange().getValues();
+    
+    // Peta (Map) NIS untuk mencari INDEX array dari data lama
     var nisMap = {};
-    
-    for (var i = 1; i < existingData.length; i++) {
-      var nisLama = existingData[i][0].toString().replace(/'/g, "").trim();
-      nisMap[nisLama] = i + 1; 
+    for (var i = 1; i < existingData.length; i++) { 
+      var currentNis = String(existingData[i][0]).replace(/'/g, "").trim();
+      if (currentNis !== "") nisMap[currentNis] = i; 
     }
-    
-    var dataBaruDitambah = [];
-    var jumlahDiupdate = 0;
-    
-    // 2. Proses data yang di-import satu per satu
-    for (var j = 0; j < dataMentah.length; j++) {
-      var barisImport = dataMentah[j];
-      var nisImport = barisImport[0].toString().replace(/'/g, "").trim();
-      
-      // KUNCI PERBAIKAN: Amankan format NIS agar 0 di depan tidak hilang
-      barisImport[0] = "'" + nisImport;
-      
-      // KUNCI PERBAIKAN: Amankan kolom No HP (Kolom ke-9 / Indeks 8)
-      if (barisImport.length > 8 && barisImport[8] !== null && barisImport[8] !== undefined) {
-          // Bersihkan jika ada tanda petik bawaan dari CSV, lalu ambil teks aslinya
-          var hpAsli = barisImport[8].toString().replace(/^'/, "").trim();
-          
-          // Suntikkan tanda petik tunggal (') di paling depan
-          // Google Sheets akan membaca ini sebagai Teks. Jadi 08..., +62..., +60... akan aman.
-          barisImport[8] = "'" + hpAsli;
-      }
-      
-      // 3. Cek apakah NIS sudah ada di database (Upsert)
-      if (nisMap[nisImport]) {
-        var barisTarget = nisMap[nisImport];
-        sheet.getRange(barisTarget, 1, 1, barisImport.length).setValues([barisImport]);
-        jumlahDiupdate++;
+
+    var dataToInsert = [];
+    var rowsUpdated = 0;
+    var rowsInserted = 0;
+
+    for (var j = 0; j < dataImport.length; j++) {
+      var row = dataImport[j];
+      var nis = row[0] ? String(row[0]).replace(/'/g, "").trim() : "";
+      if (nis === "") continue; 
+
+      if (nisMap.hasOwnProperty(nis)) {
+        // =========================================================
+        // LOGIKA UPDATE: Menjaga data lama jika kolom Excel kosong
+        // =========================================================
+        var rowIdx = nisMap[nis];
+        var oldData = existingData[rowIdx]; // Tarik baris data saat ini
+        
+        // Timpa HANYA jika data di Excel diisi (tidak kosong)
+        if (row.length > 1 && row[1] != null && String(row[1]).trim() !== "") oldData[1] = String(row[1]).trim();
+        if (row.length > 2 && row[2] != null && String(row[2]).trim() !== "") oldData[2] = String(row[2]).trim();
+        if (row.length > 3 && row[3] != null && String(row[3]).trim() !== "") oldData[3] = String(row[3]).trim();
+        if (row.length > 4 && row[4] != null && String(row[4]).trim() !== "") oldData[4] = String(row[4]).trim();
+        if (row.length > 5 && row[5] != null && String(row[5]).trim() !== "") oldData[5] = String(row[5]).trim();
+        if (row.length > 6 && row[6] != null && String(row[6]).trim() !== "") oldData[6] = String(row[6]).trim();
+        if (row.length > 7 && row[7] != null && String(row[7]).trim() !== "") oldData[7] = String(row[7]).trim();
+        if (row.length > 8 && row[8] != null && String(row[8]).trim() !== "") oldData[8] = "'" + String(row[8]).trim();
+        
+        oldData[0] = "'" + nis; // Pastikan NIS tetap format teks
+        rowsUpdated++;
+
       } else {
-        dataBaruDitambah.push(barisImport);
+        // =========================================================
+        // LOGIKA INSERT: Data Baru, jika kolom Excel kosong beri "-"
+        // =========================================================
+        var nama = (row.length > 1 && row[1] != null && String(row[1]).trim() !== "") ? String(row[1]).trim() : "-";
+        var jk = (row.length > 2 && row[2] != null && String(row[2]).trim() !== "") ? String(row[2]).trim() : "-";
+        var ttl = (row.length > 3 && row[3] != null && String(row[3]).trim() !== "") ? String(row[3]).trim() : "-";
+        var kelas = (row.length > 4 && row[4] != null && String(row[4]).trim() !== "") ? String(row[4]).trim() : "-";
+        var alamat = (row.length > 5 && row[5] != null && String(row[5]).trim() !== "") ? String(row[5]).trim() : "-";
+        var ayah = (row.length > 6 && row[6] != null && String(row[6]).trim() !== "") ? String(row[6]).trim() : "-";
+        var ibu = (row.length > 7 && row[7] != null && String(row[7]).trim() !== "") ? String(row[7]).trim() : "-";
+        var hp = (row.length > 8 && row[8] != null && String(row[8]).trim() !== "") ? "'" + String(row[8]).trim() : "-";
+
+        dataToInsert.push(["'" + nis, nama, jk, ttl, kelas, alamat, ayah, ibu, hp]);
+        rowsInserted++;
       }
     }
-    
-    // 4. Tambahkan data yang benar-benar baru sekaligus di baris paling bawah
-    if (dataBaruDitambah.length > 0) {
-      var lastRow = sheet.getLastRow() + 1;
-      var jumlahKolom = dataBaruDitambah[0].length;
-      sheet.getRange(lastRow, 1, dataBaruDitambah.length, jumlahKolom).setValues(dataBaruDitambah);
+
+    // =========================================================
+    // EKSEKUSI BATCH UPDATE (Sekali Proses ke Spreadsheet = Super Cepat)
+    // =========================================================
+    if (rowsUpdated > 0) {
+      sheet.getRange(1, 1, existingData.length, existingData[0].length).setValues(existingData);
     }
     
-    return responSukses({
-      message: 'Import Selesai! ' + jumlahDiupdate + ' data diperbarui & ' + dataBaruDitambah.length + ' santri baru ditambahkan.'
+    if (dataToInsert.length > 0) {
+      sheet.getRange(sheet.getLastRow() + 1, 1, dataToInsert.length, dataToInsert[0].length).setValues(dataToInsert);
+    }
+
+    return responSukses({ 
+      message: 'Impor Sukses! ' + rowsUpdated + ' data lama diupdate, ' + rowsInserted + ' data baru ditambahkan.' 
     });
-    
+
   } catch (err) {
-    return responError('Gagal import: ' + err.message);
+    return responError('Error Backend: ' + err.message);
+  } finally {
+    lock.releaseLock();
   }
 }
 
 // =================================================================
-// FUNGSI SPP (BACA, SIMPAN, HAPUS) - VERSI KALKULASI KEUANGAN
+// FUNGSI SPP (BACA, SIMPAN, HAPUS)
 // =================================================================
 function getSppData(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1193,7 +1132,6 @@ function getSppData(e) {
   
   for (var i = 1; i < data.length; i++) {
     if (data[i][2] == kelasReq) { 
-      // Pelindung jika sheet terlanjur mengubahnya jadi object Date
       var ket = data[i][3];
       if (ket instanceof Date) {
         ket = Utilities.formatDate(ket, Session.getScriptTimeZone(), "dd MMMM yyyy");
@@ -1204,20 +1142,15 @@ function getSppData(e) {
         nama: data[i][1],
         kelas: data[i][2],
         keterangan: ket.toString(), 
-        nominal: parseFloat(data[i][4]) || 0, // Tarik data nominal
-        status: data[i][5] || ""              // Tarik status
+        nominal: parseFloat(data[i][4]) || 0,
+        status: data[i][5] || ""
       });
     }
   }
   return responSukses({ data: result });
 }
 
-
-// =================================================================
-// FUNGSI SPP (SIMPAN & UPDATE) - OPTIMASI BATCH & ANTI-TABRAKAN
-// =================================================================
 function saveSppData(e) {
-  // 1. Lampu Lalu Lintas untuk Keuangan (Wajib Antre)
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(15000)) {
     return responError('Sistem keuangan sedang digunakan admin lain. Silakan coba lagi.');
@@ -1243,7 +1176,6 @@ function saveSppData(e) {
     var data = sheet.getDataRange().getValues();
     var isUpdated = false;
     
-    // 2. Cek dan Update di dalam Memori Array
     for (var i = 1; i < data.length; i++) {
       if (data[i][0] == nis && data[i][3] == keterangan) {
         data[i][4] = nominal; 
@@ -1253,7 +1185,6 @@ function saveSppData(e) {
       }
     }
     
-    // 3. Eksekusi Penulisan (Tulis sekaligus jika ada update, atau tambah baris jika baru)
     if (isUpdated) {
       sheet.getRange(1, 1, data.length, data[0].length).setValues(data);
     } else {
@@ -1265,16 +1196,14 @@ function saveSppData(e) {
   } catch (err) {
     return responError('Gagal menyimpan SPP: ' + err.message);
   } finally {
-    // 4. Buka kembali gembok antrean
     lock.releaseLock();
   }
 }
 
 // =================================================================
-// FUNGSI BUKU KAS & PENGELUARAN - KEAMANAN SALDO MINUS
+// FUNGSI BUKU KAS & PENGELUARAN (TUNGGAL & AMAN SALDO)
 // =================================================================
 function addPengeluaran(e) {
-  // 1. Lampu Lalu Lintas Pengeluaran Kas
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(15000)) {
     return responError('Sistem Kas sedang sibuk. Silakan coba lagi.');
@@ -1283,9 +1212,6 @@ function addPengeluaran(e) {
   try {
     var nominalReq = parseFloat(e.parameter.nominal) || 0;
     
-    // 2. Cek saldo SECARA LANGSUNG di dalam gembok pengaman
-    // Ini memastikan bahwa jika ada 2 admin, admin kedua akan melihat saldo 
-    // setelah dipotong oleh admin pertama.
     var dataKas = JSON.parse(getBukuKas().getContent());
     if (nominalReq > dataKas.saldo) {
        return responError("Transaksi ditolak! Saldo riil saat ini hanya tersisa Rp " + dataKas.saldo);
@@ -1316,7 +1242,6 @@ function addPengeluaran(e) {
   }
 }
 
-
 function deleteSppData(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('SPP');
@@ -1336,9 +1261,6 @@ function deleteSppData(e) {
   return responError('Data yang akan dihapus tidak ditemukan.');
 }
 
-// =================================================================
-// FUNGSI SPP UNTUK HALAMAN WALI SANTRI
-// =================================================================
 function getSppSantri(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('SPP');
@@ -1352,8 +1274,8 @@ function getSppSantri(e) {
     if (data[i][0] == nisReq) { 
       result.push({
         keterangan: data[i][3], 
-        nominal: parseFloat(data[i][4]) || 0, // Ambil angka Nominal
-        status: data[i][5] || ""              // Ambil Status
+        nominal: parseFloat(data[i][4]) || 0,
+        status: data[i][5] || ""
       });
     }
   }
@@ -1363,73 +1285,92 @@ function getSppSantri(e) {
 }
 
 // =================================================================
-// 1. FUNGSI SIMPAN ABSENSI BARCODE & MANUAL (ANTI GANDA & ANTI LIBUR)
+// FUNGSI ABSENSI BARCODE & MANUAL (DENGAN LOCKSERVICE & OPTIMASI)
 // =================================================================
 function simpanAbsenBarcode(e) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var timezone = Session.getScriptTimeZone();
+  // 1. PASANG SATPAM ANTREAN (LOCK SERVICE)
+  var lock = LockService.getScriptLock();
   
-  // A. CEK HARI JUM'AT DI SERVER (Keamanan Lapis 2)
-  var dateWIB = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
-  if (dateWIB.getDay() === 5) return responError("Hari ini Jum'at. Madrasah libur.");
-
-  var formatTanggalHariIni = Utilities.formatDate(dateWIB, timezone, "dd/MM/yyyy");
-
-  // B. CEK SAKELAR LIBUR MANUAL (KODE BARU YANG HARUS ADA)
-  var sheetStatus = ss.getSheetByName('STATUS_ABSEN');
-  if (sheetStatus && sheetStatus.getLastRow() >= 2) {
-    var statusSistem = sheetStatus.getRange("A2").getValue();
-    var ketSistem = sheetStatus.getRange("B2").getValue();
-    if (statusSistem === "Libur") {
-      return responError('Madrasah sedang LIBUR (' + ketSistem + '). Absensi ditolak!');
-    }
+  // Jika sistem sedang dipakai scanner lain, tunggu maksimal 10 detik.
+  // Jika lebih dari 10 detik masih macet, kembalikan pesan error.
+  if (!lock.tryLock(10000)) {
+    return responError('Sistem sedang memproses antrean. Silakan scan ulang.');
   }
 
-  // C. LANJUTKAN PROSES SIMPAN
-  var sheet = ss.getSheetByName('Absensi');
-
-  // C. LANJUTKAN PROSES SIMPAN
-  var sheet = ss.getSheetByName('Absensi'); 
-  if (!sheet) {
-    sheet = ss.insertSheet('Absensi');
-    sheet.appendRow(['Waktu Absen', 'NIS', 'Nama Santri', 'Kelas', 'Status']);
-  }
-
-  var nis = e.parameter.nis;
-  var nama = e.parameter.nama;
-  var kelas = e.parameter.kelas;
-  var status = e.parameter.status;
-  var data = sheet.getDataRange().getValues();
-  var sudahAbsen = false;
-
-  for (var i = data.length - 1; i > 0; i--) {
-    var barisTanggal = data[i][0];
-    var barisNis = data[i][1];     
-    var nisDiDatabase = barisNis.toString().replace(/'/g, "").trim();
-    var nisMasuk = nis.toString().replace(/'/g, "").trim();
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var timezone = Session.getScriptTimeZone();
     
-    if (barisTanggal && nisDiDatabase == nisMasuk) {
-      var formatTanggalSheet = Utilities.formatDate(new Date(barisTanggal), timezone, "dd/MM/yyyy");
-      if (formatTanggalSheet === formatTanggalHariIni) {
-        sudahAbsen = true; break;
+    var dateWIB = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
+    if (dateWIB.getDay() === 5) return responError("Hari ini Jum'at. Madrasah libur.");
+
+    var formatTanggalHariIni = Utilities.formatDate(dateWIB, timezone, "dd/MM/yyyy");
+
+    var sheetStatus = ss.getSheetByName('STATUS_ABSEN');
+    if (sheetStatus && sheetStatus.getLastRow() >= 2) {
+      var statusSistem = sheetStatus.getRange("A2").getValue();
+      var ketSistem = sheetStatus.getRange("B2").getValue();
+      if (statusSistem === "Libur") {
+        return responError('Madrasah sedang LIBUR (' + ketSistem + '). Absensi ditolak!');
       }
     }
+
+    var sheet = ss.getSheetByName('Absensi'); 
+    if (!sheet) {
+      sheet = ss.insertSheet('Absensi');
+      sheet.appendRow(['Waktu Absen', 'NIS', 'Nama Santri', 'Kelas', 'Status']);
+    }
+
+    var nis = e.parameter.nis;
+    var nama = e.parameter.nama;
+    var kelas = e.parameter.kelas;
+    var status = e.parameter.status;
+    var data = sheet.getDataRange().getValues();
+    var sudahAbsen = false;
+
+    // 2. OPTIMASI LOOPING MUNDUR
+    for (var i = data.length - 1; i > 0; i--) {
+      var barisTanggal = data[i][0];
+      var barisNis = data[i][1];     
+      
+      if (!barisTanggal) continue;
+
+      var formatTanggalSheet = Utilities.formatDate(new Date(barisTanggal), timezone, "dd/MM/yyyy");
+      
+      // OPTIMASI: Jika tanggal di baris ini sudah bukan hari ini, 
+      // HENTIKAN PENCARIAN. Tidak perlu mengecek data hari kemarin / bulan lalu.
+      if (formatTanggalSheet !== formatTanggalHariIni) {
+        break; 
+      }
+      
+      var nisDiDatabase = barisNis.toString().replace(/'/g, "").trim();
+      var nisMasuk = nis.toString().replace(/'/g, "").trim();
+      
+      // Jika di hari yang sama NIS sudah ada, tandai sudah absen
+      if (nisDiDatabase === nisMasuk) {
+        sudahAbsen = true; 
+        break;
+      }
+    }
+    
+    if (sudahAbsen) {
+      return responError('Afwan, Kakak ' + nama + ' sudah tercatat hari ini.');
+    }
+    
+    var waktuInput = Utilities.formatDate(dateWIB, "GMT+7", "yyyy-MM-dd HH:mm:ss");
+    sheet.appendRow([waktuInput, "'" + nis, nama, kelas, status]);
+    
+    return responSukses({ message: 'Kehadiran berhasil disimpan' });
+
+  } catch (error) {
+    return responError('Terjadi kesalahan server: ' + error.message);
+  } finally {
+    // 3. WAJIB: BUKA KUNCI SETELAH SELESAI AGAR SCANNER LAIN BISA MASUK
+    lock.releaseLock();
   }
-  
-  if (sudahAbsen) {
-    return responError('Afwan, Kakak ' + nama + ' sudah tercatat hari ini.');
-  }
-  
-  // Waktu spesifik server
- var waktuInput = Utilities.formatDate(dateWIB, "GMT+7", "yyyy-MM-dd HH:mm:ss");
-  sheet.appendRow([waktuInput, "'" + nis, nama, kelas, status]);
-  return responSukses({ message: 'Kehadiran berhasil disimpan' });
 }
 
-// =================================================================
-// 2. FUNGSI UNTUK MENGAMBIL BULAN YANG TERSEDIA (VERSI BERSIH)
-// =================================================================
-function getBulanTersedia(e) {
+function getBulanTersedia() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('Absensi');
   if (!sheet) return responSukses({ data: [] });
@@ -1442,7 +1383,6 @@ function getBulanTersedia(e) {
     var cellWaktu = data[i][0];
     if (!cellWaktu) continue; 
     
-    // Cukup gunakan pembaca waktu standar karena datanya sudah rapi
     var tgl = new Date(cellWaktu);
     
     if (!isNaN(tgl.getTime())) {
@@ -1460,9 +1400,6 @@ function getBulanTersedia(e) {
   return responSukses({ data: result });
 }
 
-// =================================================================
-// 3. FUNGSI UNTUK MENARIK DATA REKAPITULASI (VERSI BERSIH)
-// =================================================================
 function getRekapBulanan(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var blnTahunReq = e.parameter.bulan_tahun; 
@@ -1488,8 +1425,6 @@ function getRekapBulanan(e) {
     var statusBersih = status.toString().trim();
 
     if (kelasBersih === kelasReqBersih) {
-      
-      // Pembacaan waktu natural
       var tglObj = new Date(cellWaktu);
 
       if (!isNaN(tglObj.getTime())) {
@@ -1516,9 +1451,6 @@ function getRekapBulanan(e) {
   return responSukses({ data: resultArray });
 }
 
-// =================================================================
-// FUNGSI PENYIMPAN RENTANG HARI LIBUR
-// =================================================================
 function setLiburRentang(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheetLibur = ss.getSheetByName('HARI_LIBUR');
@@ -1553,19 +1485,13 @@ function setLiburRentang(e) {
   return responSukses({message: "Jadwal libur ditambahkan."});
 }
 
-// =================================================================
-// FUNGSI ROBOT AUTO-ALFA (BERJALAN SETIAP SORE)
-// =================================================================
 function autoTutupAbsenHariIni() {
   var dateWIB = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"}));
-  
-  // 1. CEK JUM'AT (Otomatis tidur)
   if (dateWIB.getDay() === 5) return; 
 
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var hariIni = Utilities.formatDate(dateWIB, "GMT+7", "dd/MM/yyyy");
 
-  // 2. CEK SAKELAR LIBUR MANUAL (Robot otomatis tidur jika statusnya "Libur")
   var sheetStatus = ss.getSheetByName('STATUS_ABSEN');
   if (sheetStatus && sheetStatus.getLastRow() >= 2) {
     if (sheetStatus.getRange("A2").getValue() === "Libur") return;
@@ -1579,7 +1505,6 @@ function autoTutupAbsenHariIni() {
   var absenHariIni = {};
   var jumlahHadirHariIni = 0;
   
-  // 3. REKAP YANG SUDAH ABSEN (Hadir/Izin/Sakit)
   for (var j = 1; j < dataAbsen.length; j++) {
      var cellWaktu = dataAbsen[j][0];
      if (!cellWaktu) continue;
@@ -1592,16 +1517,11 @@ function autoTutupAbsenHariIni() {
      }
   }
 
-  // 4. DETEKSI LIBUR MENDADAK
-  // Jika sampai jam 18.00 kosong total tidak ada yang absen 1 orang pun, berarti sekolah batal buka.
-  // Jangan Alfa-kan massal!
   if (jumlahHadirHariIni === 0) return; 
 
-  // PERBAIKAN: Gunakan format standar ISO agar sinkron dengan scanner
   var waktuTutup = Utilities.formatDate(dateWIB, "GMT+7", "yyyy-MM-dd HH:mm:ss");
-  
   var dataSantri = sheetSantri.getDataRange().getValues();
-  // 5. EKSEKUSI ALFA UNTUK YANG TIDAK ADA DI DAFTAR
+
   for (var i = 1; i < dataSantri.length; i++) {
      var nis = dataSantri[i][0].toString().replace(/'/g, "").trim();
      var nama = dataSantri[i][1];
@@ -1613,25 +1533,20 @@ function autoTutupAbsenHariIni() {
   }
 }
 
-// =================================================================
-// FUNGSI SAKELAR BUKA/TUTUP ABSENSI
-// =================================================================
 function toggleStatusAbsen(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('STATUS_ABSEN');
   
-  // Buat sheet jika belum ada
   if (!sheet) {
     sheet = ss.insertSheet('STATUS_ABSEN');
     sheet.appendRow(['Status', 'Keterangan', 'Waktu Update']);
     sheet.getRange("A1:C1").setFontWeight("bold").setBackground("#fca5a5");
   }
 
-  var statusBaru = e.parameter.status; // "Buka" atau "Libur"
+  var statusBaru = e.parameter.status; 
   var keterangan = e.parameter.keterangan || "-";
   var waktu = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
 
-  // Timpa baris ke-2 (Baris 1 adalah Header)
   if (sheet.getLastRow() < 2) {
     sheet.appendRow([statusBaru, keterangan, waktu]);
   } else {
@@ -1655,7 +1570,6 @@ function getStatusAbsen() {
   var jamBuka = sheet.getRange("D2").getValue();
   var jamTutup = sheet.getRange("E2").getValue();
   
-  // Ambil data Lokasi
   var lat = sheet.getRange("F2").getValue();
   var lng = sheet.getRange("G2").getValue();
   var radius = sheet.getRange("H2").getValue();
@@ -1671,9 +1585,6 @@ function getStatusAbsen() {
   });
 }
 
-// =================================================================
-// FUNGSI PENGATURAN KETETAPAN SPP
-// =================================================================
 function getSettingSpp() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('SETTING_SPP');
@@ -1689,7 +1600,6 @@ function saveSettingSpp(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('SETTING_SPP');
   
-  // Buat sheet otomatis jika belum ada
   if (!sheet) {
     sheet = ss.insertSheet('SETTING_SPP');
     sheet.getRange("A1").setValue("Nominal Per Bulan");
@@ -1703,9 +1613,6 @@ function saveSettingSpp(e) {
   return responSukses({ message: "Pengaturan berhasil disimpan." });
 }
 
-// =================================================================
-// FUNGSI SIMPAN PENGATURAN JAM ABSENSI
-// =================================================================
 function simpanWaktuAbsen(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('STATUS_ABSEN');
@@ -1716,7 +1623,6 @@ function simpanWaktuAbsen(e) {
   var jamBuka = e.parameter.jam_buka;
   var jamTutup = e.parameter.jam_tutup;
 
-  // Pastikan Header ada di Kolom D dan E
   sheet.getRange("D1").setValue("Jam Buka");
   sheet.getRange("E1").setValue("Jam Tutup");
 
@@ -1729,34 +1635,27 @@ function simpanWaktuAbsen(e) {
   return responSukses({ message: 'Jam absensi berhasil diperbarui!' });
 }
 
-// =================================================================
-// FUNGSI BUKU KAS (MENGHITUNG SALDO & MENCATAT PENGELUARAN)
-// =================================================================
-
 function getBukuKas() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   
-  // 1. Hitung Total Pemasukan SPP
   var sheetSPP = ss.getSheetByName('SPP');
   var totalMasuk = 0;
   if (sheetSPP) {
     var dataMasuk = sheetSPP.getDataRange().getValues();
     for (var i = 1; i < dataMasuk.length; i++) {
-      totalMasuk += parseFloat(dataMasuk[i][4]) || 0; // Kolom ke-5 adalah Nominal
+      totalMasuk += parseFloat(dataMasuk[i][4]) || 0; 
     }
   }
   
-  // 2. Hitung Total Pengeluaran
   var sheetKeluar = ss.getSheetByName('PENGELUARAN');
   var totalKeluar = 0;
   if (sheetKeluar) {
     var dataKeluar = sheetKeluar.getDataRange().getValues();
     for (var j = 1; j < dataKeluar.length; j++) {
-      totalKeluar += parseFloat(dataKeluar[j][2]) || 0; // Kolom ke-3 adalah Nominal
+      totalKeluar += parseFloat(dataKeluar[j][2]) || 0; 
     }
   }
   
-  // 3. Kalkulasi Saldo
   var saldoAkhir = totalMasuk - totalKeluar;
   
   return responSukses({ 
@@ -1766,54 +1665,15 @@ function getBukuKas() {
   });
 }
 
-function addPengeluaran(e) {
-  try {
-    var nominalReq = parseFloat(e.parameter.nominal) || 0;
-    
-    // [KEAMANAN SERVER] Cek saldo secara live di backend sebelum memproses
-    // Mencegah tembusan hacker jika mencoba mem-bypass peringatan di Frontend
-    var dataKas = JSON.parse(getBukuKas().getContent());
-    if (nominalReq > dataKas.saldo) {
-       return responError("Transaksi ditolak! Saldo saat ini hanya tersisa Rp " + dataKas.saldo);
-    }
-    
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName('PENGELUARAN');
-    
-    // Buat Sheet Pengeluaran otomatis jika belum ada
-    if (!sheet) {
-      sheet = ss.insertSheet('PENGELUARAN');
-      sheet.appendRow(['Tanggal', 'Keterangan Pengeluaran', 'Nominal Keluar', 'Diinput Oleh', 'Waktu Sistem']);
-      sheet.getRange(1, 1, 1, 5).setFontWeight("bold").setBackground("#fca5a5");
-    }
-    
-    var tgl = e.parameter.tanggal;
-    var ket = e.parameter.keterangan;
-    var usr = e.parameter.user;
-    var wkt = Utilities.formatDate(new Date(), "GMT+7", "dd/MM/yyyy HH:mm:ss");
-    
-    sheet.appendRow(["'" + tgl, ket, nominalReq, usr, wkt]);
-    
-    return responSukses({ message: "Pengeluaran sukses dicatat." });
-    
-  } catch (err) {
-    return responError("Gagal memproses: " + err.message);
-  }
-}
-
-// =================================================================
-// FUNGSI GABUNGAN BUKU KAS (UNTUK LAPORAN CETAK)
-// =================================================================
 function getLaporanKas(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var keyword = e.parameter.keyword ? e.parameter.keyword.toString().toLowerCase() : "";
-  var jenisReq = e.parameter.jenis; // "Semua", "Masuk", "Keluar"
+  var jenisReq = e.parameter.jenis; 
 
   var result = [];
   var totMasuk = 0;
   var totKeluar = 0;
 
-  // 1. Tarik Data SPP (Pemasukan)
   if (jenisReq === "Semua" || jenisReq === "Masuk") {
     var sheetSPP = ss.getSheetByName('SPP');
     if (sheetSPP) {
@@ -1826,7 +1686,6 @@ function getLaporanKas(e) {
         var nominal = parseFloat(dataSPP[i][4]) || 0;
         var rincian = "Terima SPP dari " + dataSPP[i][1] + " (" + ket + ")";
 
-        // Cek kecocokan teks
         if (keyword === "" || rincian.toLowerCase().indexOf(keyword) !== -1) {
           result.push({ rincian: rincian, jenis: "Masuk", masuk: nominal, keluar: 0 });
           totMasuk += nominal;
@@ -1835,7 +1694,6 @@ function getLaporanKas(e) {
     }
   }
 
-  // 2. Tarik Data Pengeluaran
   if (jenisReq === "Semua" || jenisReq === "Keluar") {
     var sheetKeluar = ss.getSheetByName('PENGELUARAN');
     if (sheetKeluar) {
@@ -1849,7 +1707,6 @@ function getLaporanKas(e) {
         var nominal = parseFloat(dataKeluar[j][2]) || 0;
         var rincian = tgl + " - " + ket;
 
-        // Cek kecocokan teks
         if (keyword === "" || rincian.toLowerCase().indexOf(keyword) !== -1) {
           result.push({ rincian: rincian, jenis: "Keluar", masuk: 0, keluar: nominal });
           totKeluar += nominal;
@@ -1858,15 +1715,11 @@ function getLaporanKas(e) {
     }
   }
 
-  // Balik urutan agar transaksi terbaru ada di paling atas (Z ke A)
   result.reverse();
 
   return responSukses({ data: result, masuk: totMasuk, keluar: totKeluar });
 }
 
-// =================================================================
-// FUNGSI MENGHAPUS DATA SANTRI DARI DATABASE
-// =================================================================
 function hapusDataSantriServer(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('SANTRI');
@@ -1876,11 +1729,10 @@ function hapusDataSantriServer(e) {
   var nisTarget = e.parameter.nis;
   var data = sheet.getDataRange().getValues();
   
-  // Looping dari bawah agar indeks baris akurat saat dihapus
   for (var i = data.length - 1; i > 0; i--) {
     var nisData = data[i][0].toString().replace(/'/g, "").trim();
     if (nisData === nisTarget.toString().trim()) {
-      sheet.deleteRow(i + 1); // +1 karena array dimulai dari 0
+      sheet.deleteRow(i + 1); 
       return responSukses({ message: 'Data santri berhasil dihapus dari sistem.' });
     }
   }
@@ -1888,11 +1740,7 @@ function hapusDataSantriServer(e) {
   return responError('Data santri tidak ditemukan atau sudah terhapus sebelumnya.');
 }
 
-// =================================================================
-// FUNGSI HAPUS KAS (PEMASUKAN / PENGELUARAN) DARI BUKU KAS
-// =================================================================
 function deleteKas(e) {
-  // 1. Kunci sistem (Lock Service) agar penghapusan data tidak tabrakan
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(15000)) {
     return responError('Sistem Kas sedang sibuk. Silakan coba lagi.');
@@ -1900,10 +1748,9 @@ function deleteKas(e) {
 
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var rincianTarget = e.parameter.rincian; // Teks yang diklik untuk dihapus
-    var jenisTarget = e.parameter.jenis;     // 'Masuk' atau 'Keluar'
+    var rincianTarget = e.parameter.rincian; 
+    var jenisTarget = e.parameter.jenis;     
     
-    // --- SKENARIO 1: MENGHAPUS PEMASUKAN (SPP) ---
     if (jenisTarget === 'Masuk') {
       var sheetSPP = ss.getSheetByName('SPP');
       if (!sheetSPP) return responError('Database SPP tidak ditemukan.');
@@ -1911,20 +1758,17 @@ function deleteKas(e) {
       var dataSPP = sheetSPP.getDataRange().getValues();
       var isDeleted = false;
       
-      // Loop dari bawah (rekomendasi terbaik saat menghapus baris)
       for (var i = dataSPP.length - 1; i > 0; i--) {
-        // Rangkai rincian yang sama dengan yang ditampilkan di laporan kas
         var ket = dataSPP[i][3];
         if (ket instanceof Date) ket = Utilities.formatDate(ket, Session.getScriptTimeZone(), "dd MMMM yyyy");
         else ket = ket.toString();
         
         var rincianData = "Terima SPP dari " + dataSPP[i][1] + " (" + ket + ")";
         
-        // Cek kecocokan persis
         if (rincianData === rincianTarget) {
           sheetSPP.deleteRow(i + 1);
           isDeleted = true;
-          break; // Hapus satu persatu agar aman
+          break; 
         }
       }
       
@@ -1932,7 +1776,6 @@ function deleteKas(e) {
       else return responError('Data Pemasukan tidak ditemukan.');
     }
     
-    // --- SKENARIO 2: MENGHAPUS PENGELUARAN ---
     else if (jenisTarget === 'Keluar') {
       var sheetKeluar = ss.getSheetByName('PENGELUARAN');
       if (!sheetKeluar) return responError('Database Pengeluaran tidak ditemukan.');
@@ -1941,7 +1784,6 @@ function deleteKas(e) {
       var isDeleted = false;
       
       for (var j = dataKeluar.length - 1; j > 0; j--) {
-        // Rangkai rincian yang sama dengan yang ditampilkan di laporan kas
         var tgl = dataKeluar[j][0];
         if (tgl instanceof Date) tgl = Utilities.formatDate(tgl, Session.getScriptTimeZone(), "dd/MM/yyyy");
         else tgl = tgl.toString().replace(/'/g, "");
@@ -1949,7 +1791,6 @@ function deleteKas(e) {
         var ket = dataKeluar[j][1].toString();
         var rincianData = tgl + " - " + ket;
         
-        // Cek kecocokan persis
         if (rincianData === rincianTarget) {
           sheetKeluar.deleteRow(j + 1);
           isDeleted = true;
@@ -1968,14 +1809,10 @@ function deleteKas(e) {
   } catch (err) {
     return responError('Terjadi kesalahan sistem: ' + err.message);
   } finally {
-    // 2. Lepaskan kunci sistem
     lock.releaseLock();
   }
 }
 
-// =================================================================
-// FUNGSI SIMPAN & HAPUS LOKASI ABSENSI (GPS)
-// =================================================================
 function simpanLokasiAbsen(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('STATUS_ABSEN');
@@ -1985,12 +1822,10 @@ function simpanLokasiAbsen(e) {
     sheet.appendRow(['Status', 'Keterangan', 'Waktu Update', 'Jam Buka', 'Jam Tutup', 'Latitude', 'Longitude', 'Radius']);
     sheet.appendRow(["Buka", "-", new Date(), 12, 18, e.parameter.lat, e.parameter.lng, e.parameter.radius]);
   } else {
-    // Siapkan judul kolom jika belum ada
     sheet.getRange("F1").setValue("Latitude");
     sheet.getRange("G1").setValue("Longitude");
     sheet.getRange("H1").setValue("Radius");
     
-    // Tulis data GPS
     sheet.getRange("F2").setValue(e.parameter.lat);
     sheet.getRange("G2").setValue(e.parameter.lng);
     sheet.getRange("H2").setValue(e.parameter.radius);
@@ -2006,4 +1841,35 @@ function hapusLokasiAbsen(e) {
      sheet.getRange("G2").setValue("");
   }
   return responSukses({ message: 'Batasan lokasi berhasil dihapus! Sekarang santri bisa absen dari mana saja.' });
+}
+
+function resetDataTahunAjaran(e) {
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(15000)) return responError('Sistem sedang sibuk. Silakan coba lagi.');
+  
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheets = ss.getSheets();
+    var lembarDibersihkan = 0;
+
+    for (var i = 0; i < sheets.length; i++) {
+      var sheet = sheets[i];
+      var namaSheet = sheet.getName();
+      
+      if (namaSheet.indexOf('NILAI ') === 0 || namaSheet === 'DETAIL_RAPOR') {
+        var lastRow = sheet.getLastRow();
+        
+        if (lastRow > 1) {
+          sheet.deleteRows(2, lastRow - 1);
+          lembarDibersihkan++;
+        }
+      }
+    }
+    
+    return responSukses({message: 'Berhasil membersihkan ' + lembarDibersihkan + ' lembar data Nilai dan Detail Rapor. Sistem siap digunakan untuk tahun ajaran baru!'});
+  } catch (err) {
+    return responError('Gagal mereset data: ' + err.message);
+  } finally {
+    lock.releaseLock();
+  }
 }

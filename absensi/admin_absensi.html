@@ -24,7 +24,7 @@
         body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
         .id-card-container { width: 55mm; height: 85mm; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 6px; position: relative; background-color: white; display: flex; flex-direction: column; align-items: center; overflow: hidden; margin: 0 auto; }
        
-/* DESAIN CUSTOM DROPDOWN KELAS */
+        /* DESAIN CUSTOM DROPDOWN KELAS */
         .custom-option-group {
             font-weight: 700;
             color: #047857;
@@ -124,7 +124,7 @@
         </div>
     </div>
 
-<!-- AREA 1: PENGATURAN -->
+    <!-- AREA 1: PENGATURAN -->
     <div id="areaPengaturan" class="max-w-5xl mx-auto no-print">
         <div class="bg-white p-6 sm:p-8 rounded-3xl shadow-sm border border-gray-100">
             
@@ -210,8 +210,6 @@
             
         </div>
     </div>
-	
-	
 
     <!-- AREA 2: ID CARD -->
     <div id="areaCetak" class="max-w-5xl mx-auto hidden">
@@ -253,20 +251,19 @@
                             <option value="" disabled selected>Memuat bulan...</option>
                         </select>
                     </div>
-                  <div id="customSelectWrapper" class="relative">
+                  
+                  <!-- NAMA ID UNIK UNTUK REKAP KELAS (DIPERBAIKI) -->
+                  <div id="customSelectWrapperRekap" class="relative">
                         <label class="block text-sm font-bold text-emerald-800 mb-2">Pilih Kelas:</label>
                         
-                        <div id="customSelectDisplay" class="w-full p-3 border border-emerald-300 rounded-xl bg-white text-gray-700 text-sm font-medium flex justify-between items-center cursor-pointer hover:border-emerald-400 transition-all">
-                            <span id="customSelectText">-- Silakan Pilih Kelas --</span>
-                            <i class="fas fa-chevron-down text-emerald-600 transition-transform duration-300" id="customSelectIcon"></i>
+                        <div id="customSelectDisplayRekap" class="w-full p-3 border border-emerald-300 rounded-xl bg-white text-gray-700 text-sm font-medium flex justify-between items-center cursor-pointer hover:border-emerald-400 transition-all">
+                            <span id="customSelectTextRekap">-- Silakan Pilih Kelas --</span>
+                            <i class="fas fa-chevron-down text-emerald-600 transition-transform duration-300" id="customSelectIconRekap"></i>
                         </div>
                         
-                        <!-- Input Asli yang disembunyikan untuk keperluan data (ID TETAP SAMA) -->
                         <input type="hidden" id="filterKelasRekap" value="">
 
-                        <!-- Daftar Kotak Custom -->
-                        <ul id="customSelectList" class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto hidden custom-scrollbar">
-                            <!-- Opsi Kelas akan muncul di sini -->
+                        <ul id="customSelectListRekap" class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto hidden custom-scrollbar">
                         </ul>
                     </div>
                 </div>
@@ -340,10 +337,7 @@
                     if(res.status === 'success') {
                         DATA_SANTRI = res.data;
                         renderIdCards();
-                        
-                        // --- PANGGIL FUNGSI PEMBUAT DROPDOWN KELAS OTOMATIS BERURUTAN ---
                         buatOpsiKelasDinamisAbsensi();
-                        
                     } else {
                         Swal.fire('Peringatan', res.message || 'Data santri kosong.', 'warning');
                     }
@@ -357,11 +351,11 @@
             });
         }
 
-// ==========================================================
-        // FUNGSI MEMBUAT OPSI KELAS OTOMATIS & BERURUTAN (CUSTOM SELECT)
+        // ==========================================================
+        // FUNGSI MEMBUAT OPSI KELAS REKAP (CUSTOM SELECT DIPERBAIKI)
         // ==========================================================
         function buatOpsiKelasDinamisAbsensi() {
-            const listEl = document.getElementById('customSelectList');
+            const listEl = document.getElementById('customSelectListRekap');
             if (!listEl) return;
 
             const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))].filter(Boolean).sort();
@@ -398,10 +392,10 @@
         }
 
         // ==========================================================
-        // LOGIKA INTERAKSI MENU CUSTOM KELAS (BUKA/TUTUP)
+        // LOGIKA INTERAKSI MENU REKAP KELAS (BUKA/TUTUP DIPERBAIKI)
         // ==========================================================
         document.addEventListener("DOMContentLoaded", () => {
-            const displayBox = document.getElementById('customSelectDisplay');
+            const displayBox = document.getElementById('customSelectDisplayRekap');
             if (displayBox) {
                 displayBox.addEventListener('click', (e) => {
                     e.stopPropagation(); 
@@ -410,32 +404,31 @@
             }
 
             document.addEventListener('click', (e) => {
-                const list = document.getElementById('customSelectList');
-                const wrapper = document.getElementById('customSelectWrapper');
+                const list = document.getElementById('customSelectListRekap');
+                const wrapper = document.getElementById('customSelectWrapperRekap');
                 if (list && wrapper && !wrapper.contains(e.target)) {
                     list.classList.add('hidden');
-                    document.getElementById('customSelectIcon')?.classList.remove('rotate-180');
+                    document.getElementById('customSelectIconRekap')?.classList.remove('rotate-180');
                 }
             });
         });
 
         function toggleCustomSelect() {
-            const list = document.getElementById('customSelectList');
-            const icon = document.getElementById('customSelectIcon');
-            list.classList.toggle('hidden');
-            icon.classList.toggle('rotate-180');
+            const list = document.getElementById('customSelectListRekap');
+            const icon = document.getElementById('customSelectIconRekap');
+            if(list) list.classList.toggle('hidden');
+            if(icon) icon.classList.toggle('rotate-180');
         }
 
         function pilihKelasCustom(nilai, teks) {
             document.getElementById('filterKelasRekap').value = nilai; 
-            document.getElementById('customSelectText').innerText = teks; 
+            document.getElementById('customSelectTextRekap').innerText = teks; 
             toggleCustomSelect(); 
         }
 
-        // Sedikit perbaikan pada fungsi cetakRekap untuk menangani custom select
         function cetakRekap() {
             const elBulan = document.getElementById('filterBulanRekap');
-            const teksKelas = document.getElementById('customSelectText').innerText;
+            const teksKelas = document.getElementById('customSelectTextRekap').innerText;
             
             document.getElementById('teksSubtitleCetak').innerHTML = `Bulan: ${elBulan.options[elBulan.selectedIndex].text} &nbsp;&nbsp;|&nbsp;&nbsp; Kelas: ${teksKelas}`;
 
@@ -574,12 +567,11 @@
             });
         }
 
-function cekStatusSistemAwal() {
+        function cekStatusSistemAwal() {
             const fd = new URLSearchParams();
             fd.append('action', 'getStatusAbsen');
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            // INI ADALAH BAGIAN YANG KAMU TANYAKAN
             fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
                 if (res.status === 'success') {
                     renderBadgeStatus(res.status_absen);
@@ -594,7 +586,6 @@ function cekStatusSistemAwal() {
                         JAM_TUTUP = parseInt(res.jam_tutup);
                         document.getElementById('inputJamTutup').value = JAM_TUTUP;
                     }
-                    // TAMBAHAN PENARIKAN DATA LOKASI GPS
                     if(res.lat) document.getElementById('inputLat').value = res.lat;
                     if(res.lng) document.getElementById('inputLng').value = res.lng;
                     if(res.radius) document.getElementById('inputRadius').value = res.radius;
@@ -711,27 +702,6 @@ function cekStatusSistemAwal() {
             });
         }
 
-        function cetakRekap() {
-            const elBulan = document.getElementById('filterBulanRekap');
-            const elKelas = document.getElementById('filterKelasRekap');
-            document.getElementById('teksSubtitleCetak').innerHTML = `Bulan: ${elBulan.options[elBulan.selectedIndex].text} &nbsp;&nbsp;|&nbsp;&nbsp; Kelas: ${elKelas.options[elKelas.selectedIndex].text}`;
-
-            const tgl = new Date();
-            const namaBulanIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-            document.getElementById('teksTanggalCetak').innerText = `${tgl.getDate()} ${namaBulanIndo[tgl.getMonth()]} ${tgl.getFullYear()}`;
-
-            document.body.classList.add('cetak-mode-rekap');
-            
-            setTimeout(() => {
-                window.print();
-                setTimeout(() => { document.body.classList.remove('cetak-mode-rekap'); }, 3000); 
-            }, 500); 
-        }
-		
-		
-		
-		// TAMBAHKAN KODE INI DI BAGIAN BAWAH SCRIPT KAMU
-        
         // --- LOGIKA LOKASI GPS ---
         function dapatkanLokasiSaatIni() {
             if (navigator.geolocation) {
@@ -798,13 +768,6 @@ function cekStatusSistemAwal() {
                 }
             });
         }
-		
-		
     </script>
-	
-	
-	
-	
-	
 </body>
 </html>

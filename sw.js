@@ -1,24 +1,26 @@
 // TAMBAHKAN BARIS INI DI PALING ATAS
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = 'madasa-pwa-v7'; // Versi dinaikkan untuk memicu pembaruan
+const CACHE_NAME = 'madasa-pwa-v8'; // Naikkan versi agar update yang baru masuk
 const urlsToCache = [
   './',
   './index.html',
-  './style.css',      // Ditambahkan agar CSS tersimpan
-  './script.js',      // Ditambahkan agar logika JS tersimpan
-  './config.js',      // Ditambahkan agar URL database tersimpan
-  // Halaman Rapor
-  './rapor_tpq.html',
-  './rapor_ibtidaiyah.html',
-  './rapor_sanawiyah.html',
-  // Portal Ortu & SPP (Wajib ditambahkan)
-'./informasi/ortu.html',
-'./informasi/ortu.css',
-'./informasi/ortu.js',
-
-'./administrasi/spp.html',
-'./administrasi/spp.js',
+  './style.css',      
+  './script.js',      
+  './config.js',      
+  
+  // Halaman Rapor (SUDAH DIEDIT DITAMBAHKAN rapor/)
+  './rapor/rapor_tpq.html',
+  './rapor/rapor_ibtidaiyah.html',
+  './rapor/rapor_sanawiyah.html',
+  
+  // Portal Ortu & SPP
+  './informasi/ortu.html',
+  './informasi/ortu.css',
+  './informasi/ortu.js',
+  './administrasi/spp.html',
+  './administrasi/spp.js',
+  
   // Aset Gambar
   './asset/logo.png',
   './asset/logo-192.png',

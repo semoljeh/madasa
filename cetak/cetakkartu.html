@@ -47,7 +47,7 @@
             body { padding: 0 !important; background-color: white !important; }
             .no-print { display: none !important; }
             
-            body.print-kartu #areaDaftarHadir { display: none !important; }
+            body.print-kartu #areaDaftarHadir, body.print-kartu #areaDenah { display: none !important; }
             body.print-kartu #gridKartu {
                 display: block !important;
                 text-align: center !important;
@@ -56,8 +56,11 @@
                 width: 100% !important;
             }
             
-            body.print-absen #gridKartu { display: none !important; }
+            body.print-absen #gridKartu, body.print-absen #areaDenah { display: none !important; }
             body.print-absen #areaDaftarHadir { display: block !important; width: 100% !important; }
+
+            body.print-denah #gridKartu, body.print-denah #areaDaftarHadir { display: none !important; }
+            body.print-denah #areaDenah { display: block !important; width: 100% !important; }
 
             .kartu-page { 
                 display: inline-block !important;
@@ -69,7 +72,7 @@
                 border: 1.5px solid #064e3b !important; 
             }
 
-            .halaman-absen {
+            .halaman-absen, .halaman-denah {
                 page-break-after: always !important;
                 padding: 0 5mm !important; 
                 margin: 0 !important;
@@ -104,9 +107,10 @@
             .bg-emerald-50\/60, .bg-emerald-50\/50 { background-color: #ecfdf5 !important; }
             .bg-emerald-700\/50 { background-color: #047857 !important; }
             .border-emerald-700\/70 { border-color: #047857 !important; }
+            .bg-teal-50\/30 { background-color: #f0fdfa !important; }
 			
-			#areaDaftarHadir { height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; }
-            #kertasAbsenWrapper { transform: none !important; margin: 0 auto !important; width: 215.9mm !important; min-width: auto !important; }
+			#areaDaftarHadir, #areaDenah { height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; }
+            #kertasAbsenWrapper, #kertasDenahWrapper { transform: none !important; margin: 0 auto !important; width: 215.9mm !important; min-width: auto !important; }
         }
 		
         .tabel-absen { border-collapse: collapse !important; width: 100% !important; }
@@ -125,6 +129,17 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
+		
+		
+		@font-face {
+    font-family: 'Diwani Jali';
+    src: url('../asset/DiwaniJali.ttf') format('truetype'); /* Sesuaikan path dan nama file font Anda */
+    font-weight: normal;
+    font-style: normal;
+}
+		
+		
+		
     </style>
 </head>
 <body class="bg-[#FDFBF3] md:bg-slate-50 font-sans antialiased text-slate-800">
@@ -240,7 +255,7 @@
                         </div>
                     </div>
 
-                    <div class="lg:col-span-12 md:col-span-2 grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-3 mt-4 pt-5 border-t border-emerald-100/60 w-full">
+                    <div class="lg:col-span-12 md:col-span-2 grid grid-cols-2 sm:grid-cols-5 gap-2 md:gap-3 mt-4 pt-5 border-t border-emerald-100/60 w-full">
                         <button onclick="tarikDataSantri()" id="btnTarik" class="bg-white border-2 border-emerald-700 text-emerald-800 hover:bg-emerald-50 py-3.5 px-2 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2">
                             <svg class="w-4 h-4 flex-none text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             <span id="txtTarik" class="whitespace-nowrap text-xs md:text-sm">Tarik Data</span>
@@ -261,6 +276,12 @@
                         <button onclick="cetakAbsen()" id="btnCetakAbsen" class="bg-indigo-600 text-white border border-indigo-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-indigo-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
                             <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                             <span class="whitespace-nowrap text-xs md:text-sm">Absen</span>
+                        </button>
+
+                        <!-- TOMBOL CETAK DENAH -->
+                        <button onclick="cetakDenah()" id="btnCetakDenah" class="bg-teal-600 text-white border border-teal-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-teal-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                            <span class="whitespace-nowrap text-xs md:text-sm">Denah</span>
                         </button>
                     </div>
                 </div>
@@ -283,7 +304,13 @@
 
     <div id="areaDaftarHadir" class="hidden relative z-10 pb-10 mt-6 md:mt-0 w-full overflow-visible">
         <div id="kertasAbsenWrapper" class="flex flex-col transition-transform duration-300 shrink-0" style="width: 215.9mm; min-width: 215.9mm;">
-            </div>
+        </div>
+    </div>
+
+    <!-- AREA DENAH RUANG -->
+    <div id="areaDenah" class="hidden relative z-10 pb-10 mt-6 md:mt-0 w-full overflow-visible">
+        <div id="kertasDenahWrapper" class="flex flex-col transition-transform duration-300 shrink-0" style="width: 215.9mm; min-width: 215.9mm;">
+        </div>
     </div>
 
     <script>
@@ -489,7 +516,7 @@
             document.getElementById('checkAllKelas').checked = false;
         }
 
-      function generateData() {
+        function generateData() {
             const checkedBoxes = document.querySelectorAll('.kelas-checkbox:checked');
             const arrayKelasDipilih = Array.from(checkedBoxes).map(cb => cb.value);
             const modeSusun = document.getElementById('modeSusun').value;
@@ -550,9 +577,6 @@
                     let grupKelas = {};
                     dataProses.forEach(s => { if (!grupKelas[s.kelas]) grupKelas[s.kelas] = []; grupKelas[s.kelas].push(s); });
                     
-                    // ==========================================
-                    // MEMORI PELACAK RUANGAN (PERBAIKAN NOMOR MEJA)
-                    // ==========================================
                     let pelacakMeja = {}; 
 
                     for(let kelas in grupKelas) {
@@ -612,9 +636,11 @@
 
                 document.getElementById('btnCetakKartu').disabled = false;
                 document.getElementById('btnCetakAbsen').disabled = false;
+                document.getElementById('btnCetakDenah').disabled = false;
 
                 renderKartuHTML();
                 renderAbsenHTML();
+                renderDenahHTML();
 
                 txtGenerate.textContent = "Proses";
                 iconGenerate.classList.remove('hidden');
@@ -636,24 +662,39 @@
         function switchToKartu() {
             document.getElementById('gridKartu').classList.remove('hidden');
             document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
         }
         function switchToAbsen() {
             document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
             document.getElementById('areaDaftarHadir').classList.remove('hidden');
-			setTimeout(sesuaikanSkalaAbsen, 100);
+			setTimeout(sesuaikanSkalaCetak, 100);
+        }
+        function switchToDenah() {
+            document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDenah').classList.remove('hidden');
+			setTimeout(sesuaikanSkalaCetak, 100);
         }
 
         function cetakKartu() {
             switchToKartu();
-            document.body.classList.remove('print-absen');
+            document.body.classList.remove('print-absen', 'print-denah');
             document.body.classList.add('print-kartu');
             setTimeout(() => window.print(), 150);
         }
         
         function cetakAbsen() {
             switchToAbsen();
-            document.body.classList.remove('print-kartu');
+            document.body.classList.remove('print-kartu', 'print-denah');
             document.body.classList.add('print-absen');
+            setTimeout(() => window.print(), 150);
+        }
+
+        function cetakDenah() {
+            switchToDenah();
+            document.body.classList.remove('print-kartu', 'print-absen');
+            document.body.classList.add('print-denah');
             setTimeout(() => window.print(), 150);
         }
 
@@ -684,12 +725,12 @@
                         <div class="absolute inset-0 bg-[#022c22] opacity-[0.85] z-0" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
                         <div class="absolute inset-0 opacity-10 z-0" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
                         <img src="../asset/logo.png" alt="Logo" class="relative z-10 h-7 w-auto object-contain mb-1 drop-shadow-md">
-                        <h2 class="relative z-10 text-[10px] font-black uppercase tracking-[0.15em] leading-none drop-shadow-sm">Kartu Ujian</h2>
-                        <h3 class="relative z-10 text-[6px] font-medium tracking-[0.2em] uppercase mt-1 opacity-90">Madrasah Darussalam</h3>
+                        <h2 class="relative z-10 text-[16px] font-normal leading-none drop-shadow-sm mt-1" style="font-family: 'Diwani Jali', serif;" dir="rtl">المدرسة دارالسلام</h2>
+                     <h3 class="relative z-10 text-[10px] font-bold tracking-[0.2em] uppercase mt-1 opacity-90">KARTU UJIAN</h3>
                         <p class="relative z-10 text-[5px] font-bold tracking-[0.1em] uppercase mt-0.5 text-[#F2C94C] drop-shadow-sm">Semester ${strSemester} - ${strTahun}</p>
                     </div>
 
-                    <div class="p-2 pb-5 flex-1 flex flex-col justify-center relative z-10">
+              <div class="p-2 pb-6 flex-1 flex flex-col justify-center relative z-10">
                         <div class="relative z-10 w-full">
                             <div class="text-center bg-emerald-50/60 border border-emerald-100 py-1.5 px-1 mb-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
                                 <p class="text-[5px] font-bold text-emerald-700 uppercase tracking-widest mb-0.5">Nama Peserta</p>
@@ -705,7 +746,7 @@
                                     <span class="text-[8px] font-bold text-gray-900">${santri.kelas}</span>
                                 </div>
                             </div>
-                            <div class="flex gap-2 pt-1.5">
+                         <div class="flex gap-2 pt-1">
                                 <div class="flex-1 bg-gradient-to-b from-white to-emerald-50/50 border border-emerald-200 text-center py-1 shadow-sm relative overflow-hidden flex flex-col justify-center">
                                     <div class="absolute top-0 left-0 w-full h-[2px] bg-emerald-600"></div>
                                     <p class="text-[5px] text-emerald-700 uppercase font-bold tracking-wider">Ruang</p>
@@ -717,30 +758,28 @@
                                     <p class="text-[15px] font-black text-yellow-800 leading-none mt-1">${strMeja}</p>
                                 </div>
                             </div>
-                            <div class="mt-2 text-center flex flex-col items-center">
+                           <div class="mt-1 text-center flex flex-col items-center">
                                 <div class="bg-white p-1 border border-gray-100 shadow-sm inline-block mx-auto mb-1 w-[95%]">
-                                    <svg class="barcode-ujian w-full h-8" jsbarcode-value="${santri.nis}" jsbarcode-format="CODE128" jsbarcode-displayvalue="false"></svg>
+                                   <svg class="barcode-ujian w-full h-6" jsbarcode-value="${santri.nis}" jsbarcode-format="CODE128" jsbarcode-displayvalue="false"></svg>
                                 </div>
                                 <div class="flex justify-center items-center gap-1 mb-0.5">
                                     <div class="w-2 h-[0.5px] bg-emerald-700/50"></div>
                                     <div class="w-1 h-1 rotate-45 border-[0.5px] border-emerald-700/70"></div>
                                     <div class="w-2 h-[0.5px] bg-emerald-700/50"></div>
                                 </div>
-                                <p class="text-[4.5px] leading-[1.3] font-medium text-gray-700 italic px-1.5 mt-0.5 line-clamp-3">"${quoteSantri}"</p>
+                                <p class="text-[6px] leading-[1.3] font-medium text-gray-700 italic px-1.5 mt-0.5 line-clamp-3">"${quoteSantri}"</p>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="absolute bottom-0 left-0 w-full bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-900 text-center py-1.5 z-20">
-                        <p class="relative z-10 text-[4px] leading-[1.3] text-emerald-50 font-medium">Wajib dibawa saat ujian. Bila menemukan kartu ini,<br>kembalikan ke Panitia Ujian.</p>
-                    </div>
+<div class="absolute bottom-0 left-0 w-full bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-900 text-center py-0.5 z-20">
+  <p class="relative z-10 text-[5px] font-semibold tracking-wider text-emerald-50 uppercase">WAJIB DIBAWA SAAT UJIAN, BILA MENEMUKAN KEMBALIKAN PADA PANITIA</p>
+</div>
                 </div>`;
             });
             JsBarcode(".barcode-ujian").init();
         }
 
        function renderAbsenHTML() {
-            // ✨ UBAH ID KE kertasAbsenWrapper ✨
             const area = document.getElementById('kertasAbsenWrapper');
             area.innerHTML = '';
 
@@ -841,52 +880,146 @@
                 `;
             });
         }
-		
-		
-// ==========================================
-        // FUNGSI ZOOM OTOMATIS DAFTAR HADIR (PRESISI TENGAH)
-        // ==========================================
-        function sesuaikanSkalaAbsen() {
-            const wadahUtama = document.getElementById('areaDaftarHadir');
-            const kertas = document.getElementById('kertasAbsenWrapper');
-            
-            if (wadahUtama.classList.contains('hidden')) return;
 
-            // Lebar kertas ukuran Legal dalam pixel (~816px)
-            const lebarKertasAsli = 816; 
-            const lebarLayar = window.innerWidth;
-            
-            if (lebarLayar < lebarKertasAsli) {
-                // 1. Targetkan ukuran visual mengecil agar ada jarak (margin) 20px di kiri-kanan layar HP
-                const targetLebarVisual = lebarLayar - 20;
-                const rasioScale = targetLebarVisual / lebarKertasAsli;
+        function renderDenahHTML() {
+            const area = document.getElementById('kertasDenahWrapper');
+            area.innerHTML = '';
+
+            const strSemester = document.getElementById('inputSemester').value;
+            const strTahun = document.getElementById('inputTahunAjaran').value;
+
+            const mapRuang = {};
+            dataGlobalCetak.forEach(s => {
+                if(!mapRuang[s.namaRuangan]) mapRuang[s.namaRuangan] = [];
+                mapRuang[s.namaRuangan].push(s);
+            });
+
+            let sortedRuang = Object.keys(mapRuang).sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+
+            sortedRuang.forEach(ruangNama => {
+                let santriRuang = mapRuang[ruangNama].sort((a,b) => a.nomorMeja - b.nomorMeja);
                 
-                // 2. Kunci titik zoom dari pojok kiri atas
-                kertas.style.transformOrigin = 'top left';
-                kertas.style.transform = `scale(${rasioScale})`;
+                // Set maksimal 40 meja per halaman (4 kolom x 10 baris) agar pas di Legal Paper.
+                const MAX_MEJA = 40; 
+                const totalPages = Math.ceil(santriRuang.length / MAX_MEJA);
+
+                for (let page = 0; page < totalPages; page++) {
+                    let startIdx = page * MAX_MEJA;
+                    let chunk = santriRuang.slice(startIdx, startIdx + MAX_MEJA);
+                    
+                    let mejaHTML = '';
+                    chunk.forEach((s) => {
+                        mejaHTML += `
+                            <div class="border-2 border-emerald-800 p-2 rounded-lg flex flex-col items-center justify-center text-center relative bg-teal-50/30 min-h-[75px] shadow-sm page-break-inside-avoid" style="page-break-inside: avoid;">
+                                <div class="absolute top-0 left-0 bg-emerald-800 text-white text-[10px] font-bold px-2 py-0.5 rounded-br-lg rounded-tl-md">
+                                    ${s.nomorMeja.toString().padStart(2, '0')}
+                                </div>
+                                <div class="mt-4 text-[11px] font-black uppercase text-gray-900 leading-tight line-clamp-2 w-full">${s.nama}</div>
+                                <div class="text-[9px] font-bold text-gray-600 mt-1">${s.nis} &bull; ${s.kelas}</div>
+                            </div>
+                        `;
+                    });
+
+                    // Pad with empty desks to keep layout solid on last page
+                    let padTo = Math.ceil(chunk.length / 4) * 4;
+                    for(let i=chunk.length; i<padTo; i++) {
+                         mejaHTML += `
+                            <div class="border-2 border-dashed border-gray-300 p-2 rounded-lg flex flex-col items-center justify-center text-center relative bg-gray-50 min-h-[75px] page-break-inside-avoid" style="page-break-inside: avoid;">
+                                <span class="text-gray-400 text-xs font-medium">Kosong</span>
+                            </div>`;
+                    }
+
+                    let pageHeader = totalPages > 1 ? `<span class="text-sm font-semibold text-emerald-700 ml-2 block mt-1">(Halaman ${page+1} dari ${totalPages})</span>` : '';
+
+                    area.innerHTML += `
+                        <div class="halaman-denah bg-white sm:shadow-[0_0_15px_rgba(0,0,0,0.05)] mb-10 mx-auto w-full max-w-[215.9mm] py-6 px-8 border border-gray-300 flex flex-col relative overflow-hidden" style="min-height: 330mm;">
+                            
+                            <!-- Header -->
+                            <div class="border-b-[3px] border-double border-black pb-3 mb-4 flex justify-between items-center shrink-0">
+                                <img src="../asset/logo.png" alt="Logo" class="w-14 h-14 object-contain flex-none">
+                                <div class="text-center flex-1 px-4">
+                                    <h1 class="text-xl font-black uppercase tracking-widest text-gray-900 leading-tight">Denah Tempat Duduk Peserta Ujian</h1>
+                                    <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-gray-800 mt-1">Madrasah Darussalam</h2>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-700 mt-1.5 border-t-2 border-emerald-100/50 inline-block pt-1">Semester ${strSemester} • Tahun Ajaran ${strTahun}</p>
+                                </div>
+                                <div class="w-14 flex-none"></div>
+                            </div>
+
+                            <!-- Ruang Info -->
+                            <div class="flex justify-between items-end mb-6 shrink-0">
+                                <div>
+                                    <p class="text-sm font-bold text-gray-600 uppercase tracking-widest">Ruang Ujian</p>
+                                    <p class="text-3xl font-black text-black leading-none mt-1">${ruangNama}</p>
+                                    ${pageHeader}
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs font-semibold text-gray-500 uppercase">Total Peserta Ruang</p>
+                                    <p class="text-lg font-bold text-gray-900">${santriRuang.length} Orang</p>
+                                </div>
+                            </div>
+
+                            <!-- Meja Pengawas -->
+                            <div class="flex justify-center mb-6 shrink-0">
+                                <div class="border-2 border-gray-800 bg-gray-100 rounded-lg px-12 py-3 text-center shadow-sm w-2/3">
+                                    <p class="text-sm font-black uppercase tracking-widest text-gray-800">Meja Pengawas / Papan Tulis</p>
+                                </div>
+                            </div>
+
+                            <!-- Grid Denah (Main Content 4 Kolom) -->
+                            <div class="grid grid-cols-4 gap-3 flex-1 content-start">
+                                ${mejaHTML}
+                            </div>
+                            
+                            <!-- Footer Identitas -->
+                            <div class="absolute bottom-4 left-0 w-full text-center text-[10px] text-gray-400 font-medium tracking-widest uppercase">
+                                Dicetak dari Sistem Ujian &bull; Denah Ruang ${ruangNama}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+		
+        // ==========================================
+        // FUNGSI ZOOM OTOMATIS (PRESISI TENGAH)
+        // ==========================================
+        function sesuaikanSkalaCetak() {
+            function applyZoom(wadah, kertas) {
+                const lebarKertasAsli = 816; // Approx Legal width in pixels
+                const lebarLayar = window.innerWidth;
                 
-                // 3. Hitung sisa jarak, lalu geser kertasnya tepat ke tengah-tengah layar
-                const geserKiri = (lebarLayar - targetLebarVisual) / 2;
-                kertas.style.marginLeft = `${geserKiri}px`;
-                
-                // 4. Potong ruang kosong di bawah layar akibat efek pengecilan kertas
-                const tinggiAsli = kertas.scrollHeight;
-                wadahUtama.style.height = `${(tinggiAsli * rasioScale) + 40}px`;
-            } else {
-                // Untuk layar besar (PC/Laptop), biarkan ukuran 100% dan kunci di tengah
-                kertas.style.transformOrigin = 'top center';
-                kertas.style.transform = 'scale(1)';
-                kertas.style.marginLeft = 'auto';
-                kertas.style.marginRight = 'auto';
-                wadahUtama.style.height = 'auto';
+                if (lebarLayar < lebarKertasAsli) {
+                    const targetLebarVisual = lebarLayar - 20;
+                    const rasioScale = targetLebarVisual / lebarKertasAsli;
+                    
+                    kertas.style.transformOrigin = 'top left';
+                    kertas.style.transform = `scale(${rasioScale})`;
+                    
+                    const geserKiri = (lebarLayar - targetLebarVisual) / 2;
+                    kertas.style.marginLeft = `${geserKiri}px`;
+                    
+                    const tinggiAsli = kertas.scrollHeight;
+                    wadah.style.height = `${(tinggiAsli * rasioScale) + 40}px`;
+                } else {
+                    kertas.style.transformOrigin = 'top center';
+                    kertas.style.transform = 'scale(1)';
+                    kertas.style.marginLeft = 'auto';
+                    kertas.style.marginRight = 'auto';
+                    wadah.style.height = 'auto';
+                }
             }
+
+            const wadahAbsen = document.getElementById('areaDaftarHadir');
+            const kertasAbsen = document.getElementById('kertasAbsenWrapper');
+            if (!wadahAbsen.classList.contains('hidden')) applyZoom(wadahAbsen, kertasAbsen);
+
+            const wadahDenah = document.getElementById('areaDenah');
+            const kertasDenah = document.getElementById('kertasDenahWrapper');
+            if (!wadahDenah.classList.contains('hidden')) applyZoom(wadahDenah, kertasDenah);
         }
 
-        // Jalankan zoom ulang secara presisi saat ukuran jendela/layar HP diputar
         window.addEventListener('resize', () => {
-            if (!document.getElementById('areaDaftarHadir').classList.contains('hidden')) {
-                sesuaikanSkalaAbsen();
-            }
+            sesuaikanSkalaCetak();
         });
     </script>
 </body>
