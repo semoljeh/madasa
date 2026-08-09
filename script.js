@@ -1333,7 +1333,20 @@ function loadBintangPelajar() {
             let dataIBT = res.data.filter(s => s.kelas.includes('IBT'));
             let dataSANA = res.data.filter(s => s.kelas.includes('SANA'));
             
-            const urutkan = (arr) => arr.sort((a,b) => parseFloat(b.total || 0) - parseFloat(a.total || 0));
+            // ====================================================
+            // PERBAIKAN 1: Pengurutan berdasarkan Total lalu Rata-rata
+            // ====================================================
+            const urutkan = (arr) => {
+                arr.sort((a, b) => {
+                    let totalB = parseFloat(b.total || 0);
+                    let totalA = parseFloat(a.total || 0);
+                    if (totalB !== totalA) return totalB - totalA;
+                    
+                    let rataB = parseFloat(b.rata || 0);
+                    let rataA = parseFloat(a.rata || 0);
+                    return rataB - rataA;
+                });
+            };
             
             urutkan(dataTK);
             urutkan(dataIBT);
@@ -1346,8 +1359,30 @@ function loadBintangPelajar() {
                 
                 wadah.innerHTML += `<div class="col-span-full text-white font-bold text-lg mt-4 mb-2 border-b border-white/30 pb-2 shadow-sm"><i class="${icon} mr-2"></i>${judul}</div>`;
                 
+                // Variabel untuk menyimpan peringkat aktual (cerdas mendeteksi kembar)
+                let rankAktual = 1;
+                
                 dataKategori.forEach((santri, idx) => {
-                    let isTop1 = idx === 0;
+                    
+                    // ====================================================
+                    // PERBAIKAN 2: Logika Peringkat Kembar
+                    // ====================================================
+                    if (idx > 0) {
+                        let prevSantri = dataKategori[idx - 1];
+                        let totalSkrg = parseFloat(santri.total || 0);
+                        let totalSblm = parseFloat(prevSantri.total || 0);
+                        let rataSkrg = parseFloat(santri.rata || 0);
+                        let rataSblm = parseFloat(prevSantri.rata || 0);
+                        
+                        // Jika Total ATAU Rata-rata beda dengan orang di atasnya, peringkatnya turun
+                        if (totalSkrg !== totalSblm || rataSkrg !== rataSblm) {
+                            rankAktual = idx + 1;
+                        }
+                    }
+
+                    // Tentukan Juara Umum berdasarkan rankAktual, BUKAN dari index ke-0
+                    let isTop1 = (rankAktual === 1);
+                    
                     let namaWali = mapWali[santri.kelas];
 
                     let rataBenar = parseFloat(santri.rata || 0).toFixed(1);
@@ -1361,7 +1396,8 @@ function loadBintangPelajar() {
                     let colorAvatar = isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400';
                     let colorNumber = isTop1 ? warnaBadge.split(' ')[0] : 'bg-gray-500'; 
 
-                    let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${badgeJuara} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${colorAvatar} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 ${colorNumber} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${idx + 1}</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> 
+                    // Angka avatar diubah menggunakan variabel ${rankAktual}
+                    let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${badgeJuara} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${colorAvatar} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 ${colorNumber} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${rankAktual}</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> 
 					
 					<h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${escapeHTML(santri.nama)}</h4>
                         
