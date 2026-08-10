@@ -320,9 +320,17 @@ function loadDataSpp() {
                 historiSpp.forEach(item => { totalTerbayar += parseFloat(item.nominal) || 0; });
                 let sisaTunggakan = Math.max(0, TOTAL_TAGIHAN_SETAHUN - totalTerbayar);
                 
-                let warnaSisa = sisaTunggakan === 0 ? 'text-emerald-600' : 'text-red-500';
+let warnaSisa = sisaTunggakan === 0 ? 'text-emerald-600' : 'text-red-500';
                 let teksSisa = sisaTunggakan === 0 ? '<i class="fas fa-check-circle"></i> LUNAS' : formatRp(sisaTunggakan);
 
+                // Amankan nama dari tanda kutip
+                let safeNama = santri.nama ? santri.nama.toString().replace(/'/g, "\\'") : '';
+                
+                // Cek ketersediaan nomor HP
+                let safeHp = santri.hp || '';
+                let warnaTombolWa = safeHp ? 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed';
+
+                // Render Baris Tabel
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition-all border-b border-gray-50">
                         <td class="p-4 text-center text-gray-500 font-medium">${nomor++}</td>
@@ -333,7 +341,13 @@ function loadDataSpp() {
                         <td class="p-4 text-center font-bold ${warnaSisa}">${teksSisa}</td>
                         <td class="p-4 text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="bukaRiwayatSpp('${santri.nis}', '${santri.nama}')" title="Lihat Riwayat" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-list"></i></button>
+                                
+                                <!-- TOMBOL WHATSAPP YANG SUDAH DITAMBAH NIS -->
+                                <button onclick="kirimWaTagihan('${safeHp}', '${safeNama}', '${santri.nis}', '${formatRp(TOTAL_TAGIHAN_SETAHUN)}', '${formatRp(totalTerbayar)}', '${formatRp(sisaTunggakan)}')" title="Kirim Info Tagihan ke WA" class="w-8 h-8 rounded-lg ${warnaTombolWa} transition-all shadow-sm">
+                                    <i class="fab fa-whatsapp"></i>
+                                </button>
+                                
+                                <button onclick="bukaRiwayatSpp('${santri.nis}', '${safeNama}')" title="Lihat Riwayat" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-list"></i></button>
                                 <button onclick="openModalSpp('${santri.nis}')" title="Bayar SPP" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i class="fas fa-plus"></i></button>
                             </div>
                         </td>
@@ -894,3 +908,38 @@ function hapusKas(rincian, jenis) {
     });
 }
 
+// =========================================================
+// FUNGSI KIRIM INFO ADMINISTRASI SPP KE WHATSAPP (BAHASA HALUS & RAPI)
+// =========================================================
+function kirimWaTagihan(hp, nama, nis, tagihan, terbayar, sisa) {
+    // 1. Bersihkan nomor HP dan ubah 0 menjadi 62
+    let noHpAsli = hp ? hp.toString().replace(/[^0-9]/g, '') : '';
+    
+    if (!noHpAsli) {
+        return Swal.fire('Ups', 'Nomor HP Wali Santri tidak tersedia di database.', 'info');
+    }
+    if (noHpAsli.startsWith('0')) {
+        noHpAsli = '62' + noHpAsli.substring(1);
+    }
+    
+    // 2. Tarik rincian riwayat pembayaran dari HISTORI_GLOBAL
+    let historiAnak = HISTORI_GLOBAL.filter(d => d.nis == nis);
+    let teksRincian = "";
+    
+    if (historiAnak.length > 0) {
+        teksRincian = "\n\n*Catatan Pembayaran Masuk:*";
+        historiAnak.forEach((item, idx) => {
+            // Menambahkan icon contreng (✅) di setiap awal rincian
+            teksRincian += `\n✅ ${item.keterangan} : ${formatRp(item.nominal)}`;
+        });
+    } else {
+        teksRincian = "\n\n*Catatan Pembayaran Masuk:*\n_Belum ada data pembayaran yang tercatat._";
+    }
+    
+    // 3. Rangkai pesan utuh dengan bahasa yang lebih santun dan rapi
+    let teksPesan = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu Wali Santri yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi SPP ananda *${nama}*.\n\n*Ringkasan Administrasi:*\n🔸 Ketetapan 1 Tahun: *${tagihan}*\n🔸 Telah Ditunaikan: *${terbayar}*\n🔸 Sisa Administrasi: *${sisa}*${teksRincian}\n\nMohon abaikan pesan ini apabila Bapak/Ibu telah menyelesaikan administrasi tersebut. \n\nAtas perhatian dan kerja samanya, kami sampaikan _Jazakumullah khairan_.\n\nWassalamu'alaikum Wr. Wb.`;
+    
+    // 4. Eksekusi pengalihan ke tab WhatsApp
+    let linkWa = `https://wa.me/${noHpAsli}?text=${encodeURIComponent(teksPesan)}`;
+    window.open(linkWa, '_blank');
+}
