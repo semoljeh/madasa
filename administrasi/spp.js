@@ -929,15 +929,15 @@ function kirimWaTagihan(hp, nama, nis, tagihan, terbayar, sisa) {
     if (historiAnak.length > 0) {
         teksRincian = "\n\n*Catatan Pembayaran Masuk:*";
         historiAnak.forEach((item, idx) => {
-            // Menambahkan icon contreng (✅) di setiap awal rincian
-            teksRincian += `\n✅ ${item.keterangan} : ${formatRp(item.nominal)}`;
+            // Format: 1. 26 Dzulhijjah : Rp 15.000 ( ✅ )
+            teksRincian += `\n${idx + 1}. ${item.keterangan} : ${formatRp(item.nominal)} ( ✅ )`;
         });
     } else {
         teksRincian = "\n\n*Catatan Pembayaran Masuk:*\n_Belum ada data pembayaran yang tercatat._";
     }
     
     // 3. Rangkai pesan utuh dengan bahasa yang lebih santun dan rapi
-    let teksPesan = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu Wali Santri yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi SPP ananda *${nama}*.\n\n*Ringkasan Administrasi:*\n🔸 Ketetapan 1 Tahun: *${tagihan}*\n🔸 Telah Ditunaikan: *${terbayar}*\n🔸 Sisa Administrasi: *${sisa}*${teksRincian}\n\nMohon abaikan pesan ini apabila Bapak/Ibu telah menyelesaikan administrasi tersebut. \n\nAtas perhatian dan kerja samanya, kami sampaikan _Jazakumullah khairan_.\n\nWassalamu'alaikum Wr. Wb.`;
+    let teksPesan = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu Wali Santri yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi SPP ananda *${nama}*.\n\n*Ringkasan Administrasi:*\n🔸 Ketetapan 1 Tahun: *${tagihan}*\n🔸 Telah Ditunaikan: *${terbayar}*\n🔸 Sisa Administrasi: *${sisa}*${teksRincian}\n\nMohon abaikan pesan ini apabila Bapak/Ibu telah menyelesaikan seluruh administrasi tersebut. \n\nAtas perhatian dan kerja samanya, kami sampaikan _Jazakumullah khairan_.\n\nWassalamu'alaikum Wr. Wb.`;
     
     // 4. Eksekusi pengalihan ke tab WhatsApp
     let linkWa = `https://wa.me/${noHpAsli}?text=${encodeURIComponent(teksPesan)}`;
