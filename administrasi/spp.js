@@ -905,16 +905,16 @@ function hapusKas(rincian, jenis) {
 }
 
 // =========================================================
-// FUNGSI KIRIM INFO ADMINISTRASI SPP KE WHATSAPP (LEBIH AMAN)
+// FUNGSI KIRIM INFO ADMINISTRASI SPP KE WHATSAPP (PECAH BULAN OTOMATIS)
 // =========================================================
 function kirimWaTagihan(nis) {
-    // 1. Cari data santri berdasarkan NIS dari database lokal
+    // 1. Cari data santri berdasarkan NIS
     let santri = LOKAL_DATA_SANTRI.find(s => s.nis == nis);
     if (!santri) {
         return Swal.fire('Error', 'Data santri tidak ditemukan.', 'error');
     }
 
-    // 2. Bersihkan nomor HP dan ubah 0 menjadi 62
+    // 2. Bersihkan nomor HP
     let noHpAsli = santri.hp ? santri.hp.toString().replace(/[^0-9]/g, '') : '';
     if (!noHpAsli) {
         return Swal.fire('Ups', 'Nomor HP Wali Santri tidak tersedia di database.', 'info');
@@ -923,16 +923,44 @@ function kirimWaTagihan(nis) {
         noHpAsli = '62' + noHpAsli.substring(1);
     }
     
-    // 3. Tarik riwayat pembayaran dan hitung total
+    // 3. Tarik riwayat dan hitung rincian
     let historiAnak = HISTORI_GLOBAL.filter(d => d.nis == nis);
     let totalTerbayar = 0;
     let teksRincian = "";
     
     if (historiAnak.length > 0) {
         teksRincian = "\n\n*Catatan Pembayaran Masuk:*";
-        historiAnak.forEach((item, idx) => {
-            totalTerbayar += parseFloat(item.nominal) || 0;
-            teksRincian += `\n${idx + 1}. ${item.keterangan} : ${formatRp(item.nominal)} ( ✅ )`;
+        let counter = 1; // Untuk nomor urut
+        
+        historiAnak.forEach(item => {
+            let nominal = parseFloat(item.nominal) || 0;
+            totalTerbayar += nominal;
+            
+            let ket = item.keterangan.toString().trim();
+            let parts = ket.split(' ');
+            let tgl = parts[0]; 
+            let thn = parts[parts.length - 1];
+            
+            // Logika cerdas: Cek apakah formatnya mengandung gabungan banyak bulan
+            // Syarat: kata pertama angka (tanggal), kata terakhir angka (tahun), dan ada koma (,)
+            if (!isNaN(tgl) && !isNaN(thn) && parts.length >= 3 && ket.includes(',')) {
+                // Ambil deretan nama bulan di tengah-tengah
+                let bulanString = ket.substring(tgl.length, ket.length - thn.length).trim();
+                let listBulan = bulanString.split(',').map(b => b.trim());
+                
+                // Bagi nominal sesuai jumlah bulan yang dibayar sekaligus
+                let nominalPerBulan = nominal / listBulan.length;
+                
+                // Cetak per baris
+                listBulan.forEach(bulan => {
+                    teksRincian += `\n${counter}. ${tgl} ${bulan} ${thn} : ${formatRp(nominalPerBulan)} ( ✅ )`;
+                    counter++;
+                });
+            } else {
+                // Jika hanya 1 bulan saja, atau beasiswa (Bintang Pelajar)
+                teksRincian += `\n${counter}. ${ket} : ${formatRp(nominal)} ( ✅ )`;
+                counter++;
+            }
         });
     } else {
         teksRincian = "\n\n*Catatan Pembayaran Masuk:*\n_Belum ada data pembayaran yang tercatat._";
