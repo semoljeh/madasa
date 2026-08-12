@@ -1,7 +1,7 @@
 // TAMBAHKAN BARIS INI DI PALING ATAS
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = 'madasa-pwa-v11'; // v6: instalasi cache dibuat lebih tahan terhadap file opsional yang hilang
+const CACHE_NAME = 'madasa-pwa-v12'; // v6: instalasi cache dibuat lebih tahan terhadap file opsional yang hilang
 const urlsToCache = [
   './',
   './index.html',

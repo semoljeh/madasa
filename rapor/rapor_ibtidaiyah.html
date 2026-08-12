@@ -112,36 +112,40 @@
             }
         };
 
-function buatOsciKelasOtomatis() {
-    const selectKelas = document.getElementById('raporKelas');
-    if (!selectKelas) return;
-    
-    // Filter HANYA untuk kelas Ibtidaiyah (IBT, MI, SD)
-    const kelasUnik = [...new Set(GLOBAL_DATA_SANTRI.map(s => s.kelas))]
-                          .filter(kelas => {
-                              if (!kelas) return false;
-                              let kUpper = kelas.toUpperCase();
-                              return kUpper.includes('IBT') || kUpper.includes('MI') || kUpper.includes('SD');
-                          })
-                          .sort();
+        function buatOsciKelasOtomatis() {
+            const selectKelas = document.getElementById('raporKelas');
+            if (!selectKelas) return;
+            
+            const kelasUnik = [...new Set(GLOBAL_DATA_SANTRI.map(s => s.kelas))]
+                                  .filter(kelas => {
+                                      if (!kelas) return false;
+                                      let kUpper = kelas.toUpperCase();
+                                      return kUpper.includes('IBT') || kUpper.includes('MI') || kUpper.includes('SD') || kUpper.includes('TK') || kUpper.includes('RA');
+                                  })
+                                  .sort();
 
-    selectKelas.innerHTML = '<option value="" disabled selected>-- Pilih Kelas Ibtidaiyah --</option>';
+            selectKelas.innerHTML = '<option value="" disabled selected>-- Pilih Kelas Ibtidaiyah --</option>';
 
-    // Buat satu grup saja khusus Ibtidaiyah
-    if (kelasUnik.length > 0) {
-        let optgroup = document.createElement('optgroup');
-        optgroup.label = 'IBTIDAIYAH';
-        
-        kelasUnik.forEach(kelas => {
-            let option = document.createElement('option');
-            option.value = kelas;
-            option.textContent = kelas;
-            optgroup.appendChild(option);
-        });
-        
-        selectKelas.appendChild(optgroup);
-    }
-}
+            let kelompok = {};
+            kelasUnik.forEach(k => {
+                let kU = k.toUpperCase();
+                let grup = kU.includes('TK') || kU.includes('RA') ? 'TK / RA' : 'IBTIDAIYAH';
+                if (!kelompok[grup]) kelompok[grup] = [];
+                kelompok[grup].push(k);
+            });
+
+            for (let [grupNama, daftarKelas] of Object.entries(kelompok)) {
+                let optgroup = document.createElement('optgroup');
+                optgroup.label = grupNama;
+                daftarKelas.forEach(kelas => {
+                    let option = document.createElement('option');
+                    option.value = kelas;
+                    option.textContent = kelas;
+                    optgroup.appendChild(option);
+                });
+                selectKelas.appendChild(optgroup);
+            }
+        }
 
         function populateSantriRapor() {
             const kelasPilih = document.getElementById('raporKelas').value;
@@ -349,8 +353,8 @@ function buatOsciKelasOtomatis() {
                     <div class="flex-1 text-center">
                         <h1 class="text-[32px] font-bold leading-none mb-0" style="font-family: 'Traditional Arabic', serif; color: #000;">مدرسة دار السلام</h1>
                         <h2 class="text-[14px] font-black uppercase tracking-widest text-black mt-1 mb-0">MADRASAH DARUSSALAM</h2>
-                        <p class="text-[10px] font-bold text-black uppercase tracking-widest leading-tight mb-0.5">Betoran Batukessel Bandang Laok Kokop Bangkalan</p>
-                        <p class="text-[9px] text-gray-800 font-medium leading-tight">E-mail: madasaponpes@gmail.com | Website: www.madasa.ponpes.id</p>
+                        <p class="text-[10px] font-bold text-black uppercase tracking-widest leading-tight mb-0.5">Batukessel Bandang Laok Kokop Bangkalan</p>
+                        <p class="text-[9px] text-gray-800 font-medium leading-tight">E-mail: batukessel@gmail.com | Website: www.madasa.ponpes.id</p>
                     </div>
                     <div class="w-20"></div>
                 </div>
@@ -566,10 +570,6 @@ function buatOsciKelasOtomatis() {
             }, 500);
         }
         
-        // =========================================================
-        // FUNGSI CETAK SAMPUL & BIODATA IBTIDAIYAH 
-        // (Diperbaiki: Simpan template + Rapatkan ke atas)
-        // =========================================================
         function cetakSampulBiodata() {
             const nis = document.getElementById('raporSantri').value;
             const kelasLengkap = document.getElementById('raporKelas').value;
@@ -617,14 +617,6 @@ function buatOsciKelasOtomatis() {
                     const urlStempel = setUmum.url_stempel || '';
 
                     const kertas = document.getElementById('kertasRapor');
-                    
-                    // =======================================================
-                    // [PERBAIKAN 1]: SIMPAN TEMPLATE RAPOR ASLI AGAR TIDAK HILANG
-                    // =======================================================
-                    if (!window.templateRaporAsliIbtidaiyah) {
-                        window.templateRaporAsliIbtidaiyah = kertas.innerHTML;
-                    }
-                    
                     kertas.classList.remove('hidden');
                     
                     kertas.innerHTML = `
@@ -636,7 +628,7 @@ function buatOsciKelasOtomatis() {
                             <div class="w-3/4 border-b-2 border-emerald-800 mb-12"></div>
                             <h1 class="text-[40px] font-bold leading-none mb-2 text-emerald-800" style="font-family: 'Traditional Arabic', serif;">مدرسة دار السلام</h1>
                             <h2 class="text-xl font-black uppercase tracking-widest text-black mb-1">MADRASAH DARUSSALAM</h2>
-                            <p class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-12">Betoran Batukessel Bandang Laok Kokop Bangkalan</p>
+                            <p class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-12">Batukessel Bandang Laok Kokop Bangkalan</p>
                             
                             <div class="w-3/4 border-2 border-emerald-800 p-6 rounded-lg bg-white relative mt-4">
                                 <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-4 text-xs font-bold uppercase tracking-wider text-emerald-800">Nama Santri</div>
@@ -651,20 +643,17 @@ function buatOsciKelasOtomatis() {
                         <!-- BIODATA IBTIDAIYAH -->
                         <div class="flex flex-col" style="font-family: 'Times New Roman', Times, serif; padding: 5mm 10mm; color: #000; min-height: 270mm; position: relative; box-sizing: border-box;">
                             
-                            <!-- PERBAIKAN PADDING TABEL: diubah dari 6px menjadi 4px -->
                             <style>
-                                #tabelBiodata td { padding: 4px 0; }
+                                #tabelBiodata td { padding: 6px 0; }
                             </style>
 
-                            <!-- PERBAIKAN MARGIN LOGO: mb-8 diubah menjadi mb-4 -->
-                            <div class="text-center mb-4 shrink-0">
+                            <div class="text-center mb-8 shrink-0">
                                 <img src="../asset/logo.png" class="w-20 h-20 object-contain mx-auto mb-4" alt="Logo">
                                 <h2 class="text-[16px] font-bold uppercase tracking-wider m-0 text-emerald-800">LAPORAN HASIL BELAJAR SANTRI</h2>
                                 <h1 class="text-[18px] font-bold uppercase tracking-widest m-0">MADRASAH DARUSSALAM</h1>
                             </div>
 
-                            <!-- PERBAIKAN MARGIN JUDUL: mb-4 diubah menjadi mb-3 -->
-                            <div class="text-[14px] font-bold underline mb-3 tracking-wide text-emerald-800 shrink-0">IDENTITAS SANTRI</div>
+                            <div class="text-[14px] font-bold underline mb-4 tracking-wide text-emerald-800 shrink-0">IDENTITAS SANTRI</div>
 
                             <table id="tabelBiodata" class="w-full text-[13px] leading-relaxed no-border shrink-0" style="border: none !important;">
                                 <tr style="border:none;"><td class="w-[4%] align-top" style="border:none;">1.</td><td class="w-[38%] align-top" style="border:none;">Nama Lengkap</td><td class="w-[2%] align-top" style="border:none;">:</td><td class="align-top uppercase font-bold" style="border:none;">${namaB}</td></tr>
@@ -675,7 +664,7 @@ function buatOsciKelasOtomatis() {
                                 <tr style="border:none;"><td class="align-top" style="border:none;">6.</td><td class="align-top" style="border:none;">Alamat Santri</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${almtB}</td></tr>
                                 <tr style="border:none;"><td class="align-top" style="border:none;">7.</td><td class="align-top" style="border:none;">Madrasah</td><td class="align-top" style="border:none;"></td><td class="align-top" style="border:none;"></td></tr>
                                 <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">a. Nama Madrasah</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Madrasah Darussalam</td></tr>
-                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">b. Alamat Madrasah</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Betoran Batukessel Bandang Laok</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">b. Alamat Madrasah</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Batukessel Bandang Laok</td></tr>
                                 <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">c. Kecamatan</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Kokop</td></tr>
                                 <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">d. Kabupaten</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Bangkalan</td></tr>
                                 <tr style="border:none;"><td class="align-top" style="border:none;">8.</td><td class="align-top" style="border:none;">Nama Orang Tua</td><td class="align-top" style="border:none;"></td><td class="align-top" style="border:none;"></td></tr>
@@ -691,8 +680,7 @@ function buatOsciKelasOtomatis() {
                                 <tr style="border:none;"><td class="align-top" style="border:none;">16.</td><td class="align-top" style="border:none;">Pekerjaan Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
                             </table>
 
-                            <!-- PERBAIKAN MARGIN BAWAH: mt-11 diubah menjadi mt-8 agar naik -->
-                            <div class="flex justify-between items-end px-4 mt-8 pb-4">
+                            <div class="flex justify-between items-end px-4 mt-11 pb-4">
                                 <div class="w-[3cm] h-[4cm] border-2 border-emerald-800 flex flex-col items-center justify-center text-center relative z-10 bg-white">
                                     <span class="text-[11px] text-emerald-800">Pas Photo</span><br>
                                     <span class="text-[11px] font-bold text-emerald-800">3 x 4</span>
@@ -723,13 +711,6 @@ function buatOsciKelasOtomatis() {
                     setTimeout(() => {
                         window.print();
                         document.title = judulAsli;
-                        
-                        // =======================================================
-                        // [PERBAIKAN 2]: KEMBALIKAN KE TEMPLATE RAPOR SETELAH PRINT
-                        // =======================================================
-                        kertas.innerHTML = window.templateRaporAsliIbtidaiyah;
-                        kertas.classList.add('hidden'); 
-                        
                     }, 500);
                     
                 }).catch(err => {
@@ -737,7 +718,6 @@ function buatOsciKelasOtomatis() {
                     Swal.fire('Error', 'Gagal memuat pengaturan dari server.', 'error');
                 });
         }
-		
     </script>
 </body>
 </html>
