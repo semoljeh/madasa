@@ -1,7 +1,7 @@
 // TAMBAHKAN BARIS INI DI PALING ATAS
 importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
 
-const CACHE_NAME = 'madasa-pwa-v8'; // Naikkan versi agar update yang baru masuk
+const CACHE_NAME = 'madasa-pwa-v8'; // v6: instalasi cache dibuat lebih tahan terhadap file opsional yang hilang
 const urlsToCache = [
   './',
   './index.html',
@@ -33,7 +33,15 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        return cache.addAll(urlsToCache);
+        // Jangan gunakan cache.addAll(). Satu file 404 akan menggagalkan seluruh instalasi SW.
+        // Cache tiap aset secara independen agar PWA tetap aktif meski aset opsional belum tersedia.
+        return Promise.allSettled(
+          urlsToCache.map(url =>
+            cache.add(url).catch(err => {
+              console.warn('[SW] Gagal cache aset:', url, err);
+            })
+          )
+        );
       })
   );
 });

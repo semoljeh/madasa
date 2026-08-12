@@ -398,8 +398,9 @@ function simpanDataNilai(e) {
 
         } else {
           var totalMapel = sheetHeaders.length - 5;
-          var rataAwal = totalMapel > 0 ? (parseFloat(student.nilai) / totalMapel).toFixed(1) : student.nilai;
-          var newRow = ["'" + student.nis, student.nama, kelasPilih, student.nilai, rataAwal];
+         var rataAwal = totalMapel > 0 ? (parseFloat(student.nilai) / totalMapel).toFixed(1) : student.nilai;
+         var nilaiAngka = parseFloat(student.nilai) || 0; // Pastikan data diubah menjadi tipe angka (Float)
+         var newRow = ["'" + student.nis, student.nama, kelasPilih, nilaiAngka, rataAwal];
           
           for (var h = 5; h < sheetHeaders.length; h++) {
             if (sheetHeaders[h] === mapel) newRow.push(student.nilai);
@@ -877,7 +878,7 @@ if (!sheetSet) {
    sheetSet.appendRow(['Kelas', 'Semester', 'Tahun', 'Tanggal', 'Wali', 'Kepala', 'URL Wali', 'URL Kepala', 'URL Stempel', 'Status Rilis']);
 }
 
-var dSet = sheetSet.getDataRange().getValues();
+
 
 var dSet = sheetSet.getDataRange().getValues();
 

@@ -1,11 +1,3 @@
-// KEAMANAN
-document.addEventListener("DOMContentLoaded", () => {
-    const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
-    if (!tokenTersimpan) {
-        document.getElementById('dashboardPage').classList.add('hidden');
-        document.getElementById('loginPage').classList.remove('hidden');
-    }
-});
 
 // ---------------------------------------------------------
 // 1. PENGATURAN GLOBAL, KEAMANAN & ONBOARDING
@@ -504,14 +496,6 @@ function closeModalEditSantri() {
     if (window.location.hash === "#modalEdit") window.history.back(); 
 }
 
-function closeModalEditNilai() { 
-    if (window.location.hash === "#modalEditNilai") {
-        window.history.back(); 
-    } else {
-        document.getElementById('modalEditNilai').classList.add('hidden'); 
-        document.getElementById('wadahInputEditNilai').innerHTML = '';
-    }
-}
 
 function openModalImportSantri() {
     window.history.pushState({ modal: 'import' }, "", "#modalImport"); 
@@ -645,7 +629,7 @@ function reverseTanggalIndo(teksTanggal) {
     let parts = teksTanggal.split(',');
     if (parts.length < 2) return "";
     
-    let tglArr = parts[1].trim().split(' '); 
+    let tglArr = parts[1].trim().split(/\s+/);
     if (tglArr.length !== 3) return "";
 
     let bulanMap = {
@@ -804,8 +788,11 @@ function loadDataSantri(silent = false) {
                 filterSantri(); 
             } 
         } 
-    }).catch(err => { 
+
+
+      }).catch(err => { 
         if (!silent) showLoading(false); 
+        console.error("Detail Error JS:", err); // Ini akan memunculkan lokasi error di Console Anda
         if (!silent) Swal.fire('Error', 'Gagal menarik data dari server.', 'error'); 
     }); 
 }
@@ -1427,9 +1414,16 @@ function openModalEditNilai(index) {
     document.getElementById('modalEditNilai').classList.remove('hidden'); 
 }
 
-function closeModalEditNilai() { 
-    document.getElementById('modalEditNilai').classList.add('hidden'); 
-    if (window.location.hash === "#modalEditNilai") window.history.back(); 
+function closeModalEditNilai() {
+    const modal = document.getElementById('modalEditNilai');
+    const wadah = document.getElementById('wadahInputEditNilai');
+
+    if (modal) modal.classList.add('hidden');
+    if (wadah) wadah.innerHTML = '';
+
+    if (window.location.hash === "#modalEditNilai") {
+        window.history.back();
+    }
 }
 
 document.getElementById('formEditNilai').addEventListener('submit', function(e) { 
@@ -1914,81 +1908,7 @@ function exportBintangPelajarPDF() {
     html2pdf().set(opt).from(pdfContainer).save().then(() => { showLoading(false); Swal.fire({ icon: 'success', title: 'Alhamdulillah', text: 'Laporan Bintang Pelajar berhasil diunduh!', timer: 2000, showConfirmButton: false }); }).catch(err => { showLoading(false); Swal.fire({ icon: 'error', title: 'Gagal', text: 'Terjadi kesalahan.' }); }); 
 }
 
-function cetakDataNilai() {
-    const kelas = document.getElementById('filterKelasDataNilai').value;
-    if (!kelas) return Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan tampilkan laporan data nilai terlebih dahulu.' });
-    
-    const elemenTabel = document.getElementById('tabelDataNilai');
-    const teksTabel = document.getElementById('bodyDataNilai').innerText;
-    if (teksTabel.includes('Silakan pilih kelas') || teksTabel.includes('Belum ada data')) {
-        return Swal.fire({ icon: 'error', title: 'Tabel Kosong', text: 'Tidak ada data nilai yang bisa dicetak.' });
-    }
-    
-    const tabelClone = elemenTabel.cloneNode(true);
-    
-    tabelClone.removeAttribute('class');
-    tabelClone.querySelectorAll('th, td, tr, thead, tbody').forEach(el => el.removeAttribute('class'));
-    
-    const headerRow = tabelClone.querySelector('thead tr');
-    if (headerRow && headerRow.lastElementChild) headerRow.removeChild(headerRow.lastElementChild);
-    
-    const bodyRows = tabelClone.querySelectorAll('tbody tr');
-    bodyRows.forEach(tr => { if (tr.lastElementChild) tr.removeChild(tr.lastElementChild); });
-    
-    const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    
-    const printWindow = window.open('', '_blank');
-    
-    if (!printWindow) {
-        return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser Anda memblokir tab baru. Silakan izinkan pop-up (Always allow pop-ups) pada address bar.' });
-    }
-    
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html lang="id">
-        <head>
-            <title>Cetak_Nilai_${kelas.replace(/\s+/g, '_')}</title>
-            <style>
-                @page { size: landscape; margin: 10mm; }
-                body { font-family: 'Arial', sans-serif; font-size: 11px; color: #000; background: #fff; margin: 0; padding: 0; }
-                
-                .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-                .header h2 { margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold; }
-                .header p { margin: 5px 0 0 0; font-size: 13px; }
-                
-                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                th, td { border: 1px solid #000; padding: 6px 4px; font-size: 10px; text-align: center; white-space: nowrap; }
-                th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-weight: bold; text-transform: uppercase; }
-                td:nth-child(3) { text-align: left; }
-                
-                .footer { text-align: center; font-size: 10px; font-style: italic; color: #555; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2>Madrasah Darussalam</h2>
-                <p>Laporan Rekapitulasi Nilai Santri - Kelas: <b>${kelas}</b></p>
-            </div>
-            
-            ${tabelClone.outerHTML}
-            
-            <div class="footer">
-                Dokumen ini dicetak secara otomatis dari Sistem Informasi Penilaian Santri<br>
-                Tanggal Cetak: ${tanggalCetak}
-            </div>
-            
-            <script>
-                window.onload = function() {
-                    setTimeout(function() {
-                        window.print();
-                    }, 1000);
-                };
-            <\/script>
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
-}
+
 
 function cetakDataSantri() {
     const filterKelas = document.getElementById('filterKelasSantri').value;
@@ -2570,17 +2490,19 @@ function buatOpsiSemuaKelasOtomatis() {
     let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
     
     kelasUnik.forEach(k => {
-        let kUpper = k.toUpperCase();
+        // PERBAIKAN: Ubah paksa data menjadi teks (String) agar tidak crash jika diisi angka
+        let strK = String(k).trim(); 
+        let kUpper = strK.toUpperCase();
         let kategori = "LAINNYA";
 
         if (kUpper.includes('TK') || kUpper.includes('RA')) kategori = "TK / RA";
         else if (kUpper.includes('IBT') || kUpper.includes('IBTIDAIYAH')) kategori = "IBTIDAIYAH";
         else if (kUpper.includes('SANA') || kUpper.includes('SANAWIYAH') || kUpper.includes('MTS')) kategori = "SANAWIYAH";
         else if (kUpper.includes('ALIYAH') || kUpper.includes('MA')) kategori = "ALIYAH";
-        else kategori = k.split(/[\s-]+/)[0].toUpperCase();
+        else kategori = strK.split(/[\s-]+/)[0].toUpperCase();
 
         if (!kelompokKelas[kategori]) kelompokKelas[kategori] = [];
-        kelompokKelas[kategori].push(k);
+        kelompokKelas[kategori].push(strK);
     });
 
     let kategoriUrut = Object.keys(kelompokKelas).sort((a, b) => (bobotJenjang[a] || 99) - (bobotJenjang[b] || 99));
