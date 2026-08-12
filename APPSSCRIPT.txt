@@ -382,12 +382,16 @@ function simpanDataNilai(e) {
           data[existingIndex][colIndex] = student.nilai;
 
           var total = 0; 
-          var totalMapel = sheetHeaders.length - 5;
           for (var h = 5; h < sheetHeaders.length; h++) {
             var val = data[existingIndex][h];
-            if (val !== "" && !isNaN(val)) { total += parseFloat(val); }
+            // Validasi diperketat agar tidak menghitung nilai kosong/tersembunyi
+            if (val !== "" && val !== null && !isNaN(val)) { 
+                total += parseFloat(val); 
+            }
           }
-          var rata = totalMapel > 0 ? (total / totalMapel).toFixed(1) : 0;
+          // Rata-rata dibagi dengan jumlah mata pelajaran sebenarnya dari master
+          var totalMapelKelas = semuaMapel.length;
+          var rata = totalMapelKelas > 0 ? (total / totalMapelKelas).toFixed(1) : 0;
 
           data[existingIndex][3] = total;
           data[existingIndex][4] = rata;
@@ -475,9 +479,13 @@ function updateDataNilai(e) {
       });
       var rata = count > 0 ? (total/count).toFixed(1) : 0;
   } else {
+     // Perbaikan perhitungan di Edit Nilai
       for (var h = 5; h < headers.length; h++) {
          var val = currentRowData[h];
-         if (val !== "" && !isNaN(val)) { total += parseFloat(val); }
+         // Validasi diperketat agar tidak menghitung spasi kosong atau null
+         if (val !== "" && val !== null && !isNaN(val)) { 
+             total += parseFloat(val); 
+         }
       }
       var rata = totalMapel > 0 ? (total/totalMapel).toFixed(1) : 0;
   }
@@ -500,6 +508,9 @@ function getRankingKelas(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var kelasPilih = e.parameter.kelas;
   
+  // 1. Deteksi apakah ini kelas TK
+  var isTK = kelasPilih.includes('TK'); 
+  
   var sheetSantri = ss.getSheetByName('SANTRI');
   var dataSantri = sheetSantri ? sheetSantri.getDataRange().getValues() : [];
   var santriMap = {};
@@ -512,6 +523,7 @@ function getRankingKelas(e) {
   if (!sheetNilai) return responSukses({ data: [] });
   var dataNilai = sheetNilai.getDataRange().getValues();
   if (dataNilai.length <= 1) return responSukses({ data: [] });
+  
   var headers = dataNilai[0];
   var totalCol = headers.indexOf('Total Nilai');
   var rataCol = headers.indexOf('Rata-rata');
@@ -520,49 +532,62 @@ function getRankingKelas(e) {
   
   var agregasiRanking = {};
   
+  // 2. Loop penarikan data
   for (var i = 1; i < dataNilai.length; i++) {
     var nisStr = dataNilai[i][nisCol].toString().replace(/'/g, "").trim();
     var totalRow = parseFloat(dataNilai[i][totalCol]) || 0;
     var rataRow = parseFloat(dataNilai[i][rataCol]) || 0;
-    
+    var biodata = santriMap[nisStr] || {jk: '-', ttl: '-', ayah: '-', ibu: '-', alamat: '-'};
+
     if (!agregasiRanking[nisStr]) {
-        var biodata = santriMap[nisStr] || {jk: '-', ttl: '-', ayah: '-', ibu: '-', alamat: '-'};
         agregasiRanking[nisStr] = {
             nis: nisStr, nama: dataNilai[i][namaCol], total: 0, rata: 0, hitungBaris: 0,
             jk: biodata.jk, ttl: biodata.ttl, ayah: biodata.ayah, ibu: biodata.ibu, alamat: biodata.alamat
         };
     }
-    agregasiRanking[nisStr].total += totalRow;
-    agregasiRanking[nisStr].rata += rataRow;
-    agregasiRanking[nisStr].hitungBaris++;
+
+    if (isTK) {
+        // KHUSUS TK: 1 anak punya banyak baris (per hari), maka wajib ditambahkan (akumulasi)
+        agregasiRanking[nisStr].total += totalRow;
+        agregasiRanking[nisStr].rata += rataRow;
+        agregasiRanking[nisStr].hitungBaris++;
+    } else {
+        // UNTUK IBT/SANA/ALIYAH: 1 anak hanya 1 baris, ambil nilai tunggal
+        agregasiRanking[nisStr].total = totalRow;
+        agregasiRanking[nisStr].rata = rataRow;
+        agregasiRanking[nisStr].hitungBaris = 1;
+    }
   }
   
- var rankingList = [];
-for (var key in agregasiRanking) {
+  var rankingList = [];
+  for (var key in agregasiRanking) {
      var r = agregasiRanking[key];
-     if (kelasPilih.includes('TK')) {
-         r.rata = (r.rata / r.hitungBaris).toFixed(1); // PERBAIKAN: Gunakan r.rata
+     if (isTK) {
+         // Untuk TK, rata-rata dibagi berdasarkan jumlah hari dia dinilai
+         r.rata = r.hitungBaris > 0 ? (r.rata / r.hitungBaris).toFixed(1) : 0; 
      } else {
          r.rata = r.rata.toFixed(1); 
      }
      rankingList.push(r);
-}
+  }
   
+  // 3. Urutkan berdasarkan Total tertinggi, lalu Rata-rata
   rankingList.sort(function(a, b) { 
-      if (b.total !== a.total) {
-          return b.total - a.total; 
-      }
-      return parseFloat(b.rata) - parseFloat(a.rata);
+    if (b.total !== a.total) {
+      return b.total - a.total; 
+    }
+    return parseFloat(b.rata) - parseFloat(a.rata);
   });
   
+  // 4. Berikan nomor peringkat 
   var rankAktual = 1;
   for (var k = 0; k < rankingList.length; k++) { 
-      if (k > 0 && rankingList[k].total === rankingList[k-1].total && rankingList[k].rata === rankingList[k-1].rata) {
-          rankingList[k].rank = rankAktual; 
-      } else {
-          rankAktual = k + 1; 
-          rankingList[k].rank = rankAktual;
-      }
+    if (k > 0 && rankingList[k].total === rankingList[k-1].total && rankingList[k].rata === rankingList[k-1].rata) {
+      rankingList[k].rank = rankAktual; 
+    } else {
+      rankAktual = k + 1; 
+      rankingList[k].rank = rankAktual;
+    }
   }
 
   return responSukses({ data: rankingList });

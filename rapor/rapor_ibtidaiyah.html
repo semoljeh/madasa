@@ -192,48 +192,54 @@ function buatOsciKelasOtomatis() {
 
         function toArabicNumeral(str) { return str.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]); }
 
-        function lihatRaporLangsung() {
-            const kelas = document.getElementById('raporKelas').value;
-            const nis = document.getElementById('raporSantri').value;
-            if(!kelas || !nis) return Swal.fire('Perhatian', 'Pilih kelas dan nama santri terlebih dahulu.', 'warning');
+      // Tambahkan kata "async" di depan nama fungsi
+async function lihatRaporLangsung() {
+    const kelas = document.getElementById('raporKelas').value;
+    const nis = document.getElementById('raporSantri').value;
+    if(!kelas || !nis) return Swal.fire('Perhatian', 'Pilih kelas dan nama santri terlebih dahulu.', 'warning');
 
-            document.getElementById('kertasRapor').classList.add('hidden');
-            
-            showLoading(true, "Menarik Data Rapor...");
-            const fdNilai = new URLSearchParams(); fdNilai.append('action', 'getDataNilai'); fdNilai.append('kelas', kelas);
-            const fdRank = new URLSearchParams(); fdRank.append('action', 'getRankingKelas'); fdRank.append('kelas', kelas);
-            const fdSet = new URLSearchParams(); fdSet.append('action', 'getPengaturan'); fdSet.append('kelas', kelas);
+    document.getElementById('kertasRapor').classList.add('hidden');
+    
+    showLoading(true, "Menarik Data Rapor...");
+    const fdNilai = new URLSearchParams(); fdNilai.append('action', 'getDataNilai'); fdNilai.append('kelas', kelas);
+    const fdRank = new URLSearchParams(); fdRank.append('action', 'getRankingKelas'); fdRank.append('kelas', kelas);
+    const fdSet = new URLSearchParams(); fdSet.append('action', 'getPengaturan'); fdSet.append('kelas', kelas);
 
-            Promise.all([
-                fetch(GAS_URL, {method:'POST', body:fdNilai}).then(r=>r.json()),
-                fetch(GAS_URL, {method:'POST', body:fdRank}).then(r=>r.json()),
-                fetch(GAS_URL, {method:'POST', body:fdSet}).then(r=>r.json())
-            ]).then(([resNilai, resRank, resSet]) => {
-                showLoading(false);
-                const santriInfo = GLOBAL_DATA_SANTRI.find(x => x.nis == nis);
-                let rowNilai = null;
-                if(resNilai.status === 'success' && resNilai.data) {
-                    rowNilai = resNilai.data.slice().reverse().find(r => r[0].toString().replace(/'/g,'').trim() == nis.trim());
-                }
-                
-                if(!rowNilai) {
-                    rowNilai = Array(resNilai.headers ? resNilai.headers.length : 50).fill('');
-                }
+    try {
+        // PERBAIKAN: Minta data satu per satu (berurutan) agar tidak diblokir Google
+        const resNilai = await fetch(GAS_URL, {method:'POST', body:fdNilai}).then(r=>r.json());
+        const resRank = await fetch(GAS_URL, {method:'POST', body:fdRank}).then(r=>r.json());
+        const resSet = await fetch(GAS_URL, {method:'POST', body:fdSet}).then(r=>r.json());
 
-                let rank = '-';
-                let totalSantri = 0;
-                if(resRank.status === 'success' && resRank.data) {
-                    let rData = resRank.data.find(x => x.nis.toString().trim() == nis.trim());
-                    if(rData) rank = rData.rank;
-                    totalSantri = resRank.data.length;
-                }
-                
-                let pengaturan = { umum: {}, detail: {} };
-                if(resSet.status === 'success') pengaturan = resSet;
-
-                renderKertasRapor(kelas, santriInfo, resNilai.headers, rowNilai, rank, totalSantri, pengaturan);
-            }).catch(err => { showLoading(false); Swal.fire('Error', 'Gagal memuat data rapor dari server.', 'error'); });
+        showLoading(false);
+        const santriInfo = GLOBAL_DATA_SANTRI.find(x => x.nis == nis);
+        let rowNilai = null;
+        if(resNilai.status === 'success' && resNilai.data) {
+            rowNilai = resNilai.data.slice().reverse().find(r => r[0].toString().replace(/'/g,'').trim() == nis.trim());
         }
+        
+        if(!rowNilai) {
+            rowNilai = Array(resNilai.headers ? resNilai.headers.length : 50).fill('');
+        }
+
+        let rank = '-';
+        let totalSantri = 0;
+        if(resRank.status === 'success' && resRank.data) {
+            let rData = resRank.data.find(x => x.nis.toString().trim() == nis.trim());
+            if(rData) rank = rData.rank;
+            totalSantri = resRank.data.length;
+        }
+        
+        let pengaturan = { umum: {}, detail: {} };
+        if(resSet.status === 'success') pengaturan = resSet;
+
+        renderKertasRapor(kelas, santriInfo, resNilai.headers, rowNilai, rank, totalSantri, pengaturan);
+        
+    } catch (err) {
+        showLoading(false); 
+        Swal.fire('Error', 'Gagal memuat data rapor dari server. Silakan coba lagi.', 'error'); 
+    }
+}
 
         function renderKertasRapor(kelas, info, headers, nilaiRow, rank, totalSantri, pengaturan) {
             const kertas = document.getElementById('kertasRapor');
