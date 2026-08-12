@@ -27,8 +27,8 @@ function tarikDataDariDatabase() {
     const fdMapel = new URLSearchParams(); fdMapel.append('action', 'getAllMapel');
 
     Promise.all([
-        fetch(GAS_URL, { method: 'POST', body: fdSantri }).then(r => r.json()),
-        fetch(GAS_URL, { method: 'POST', body: fdMapel }).then(r => r.json())
+        gasFetch( { method: 'POST', body: fdSantri }).then(r => r.json()),
+        gasFetch( { method: 'POST', body: fdMapel }).then(r => r.json())
     ])
     .then(([responseSantri, responseMapel]) => {
         // Simpan data master mapel ke memori
@@ -69,8 +69,8 @@ function tarikDataDariDatabase() {
      fdPengaturan.append('kelas', santriTerpilih.kelas);
 
      return Promise.all([
-         fetch(GAS_URL, { method: 'POST', body: fdNilai }).then(r => r.json()),
-         fetch(GAS_URL, { method: 'POST', body: fdPengaturan }).then(r => r.json())
+         gasFetch( { method: 'POST', body: fdNilai }).then(r => r.json()),
+         gasFetch( { method: 'POST', body: fdPengaturan }).then(r => r.json())
      ])
      .then(([responseNilai, responsePengaturan]) => {
          showLoading(false);
@@ -433,8 +433,8 @@ function muatRiwayatSpp(nisSantri) {
 
     // Tarik data Riwayat Anak dan Pengaturan Harga Madrasah secara bersamaan
     Promise.all([
-        fetch(GAS_URL, { method: 'POST', body: fdSpp }).then(r => r.json()),
-        fetch(GAS_URL, { method: 'POST', body: fdSetting }).then(r => r.json())
+        gasFetch( { method: 'POST', body: fdSpp }).then(r => r.json()),
+        gasFetch( { method: 'POST', body: fdSetting }).then(r => r.json())
     ])
     .then(([resSpp, resSetting]) => {
         wadah.innerHTML = ''; 

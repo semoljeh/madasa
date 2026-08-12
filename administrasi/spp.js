@@ -74,7 +74,7 @@ function ambilMasterSantri() {
     fd.append('action', 'getSantri');
     fd.append('token', sessionStorage.getItem('tokenMadasa')); 
     
-    fetch(GAS_URL, { method: 'POST', body: fd })
+    gasFetch( { method: 'POST', body: fd })
     .then(r => r.json())
     .then(res => {
         if(res.status === 'success') {
@@ -212,7 +212,7 @@ function ambilSettingSpp() {
     fd.append('action', 'getSettingSpp');
     fd.append('token', sessionStorage.getItem('tokenMadasa'));
     
-    fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+    gasFetch( { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
         if(res.status === 'success') {
             TARIF_SPP_BULAN = parseFloat(res.nominal) || 0;
             JUMLAH_BULAN_SPP = parseFloat(res.bulan) || 0;
@@ -244,7 +244,7 @@ function simpanSettingSpp() {
     fd.append('nominal', nominal);
     fd.append('bulan', bulan);
     
-    fetch(GAS_URL, { method: 'POST', body: fd })
+    gasFetch( { method: 'POST', body: fd })
     .then(r => r.json())
     .then(res => {
         showLoading(false);
@@ -289,7 +289,7 @@ function loadDataSpp() {
     fd.append('kelas', kelas);
     fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-    fetch(GAS_URL, { method: 'POST', body: fd })
+    gasFetch( { method: 'POST', body: fd })
     .then(r => r.json())
     .then(res => {
         showLoading(false);
@@ -486,7 +486,7 @@ document.getElementById('formInputSpp').addEventListener('submit', function(e) {
     fd.append('nominal', nominal);
     fd.append('status', status);
 
-    fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+    gasFetch( { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
         showLoading(false);
         btnSubmit.disabled = false; btnSubmit.innerHTML = teksAsli;
         if (res.status === 'success') {
@@ -552,7 +552,7 @@ function hapusSpp(nis, keterangan) {
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
             fd.append('nis', nis); fd.append('keterangan', keterangan);
 
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+            gasFetch( { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
                 showLoading(false);
                 if(res.status === 'success') {
                     Swal.fire({toast:true, position:'top-end', icon:'success', title:'Dihapus!', showConfirmButton:false, timer:1500});
@@ -572,7 +572,7 @@ function loadBukuKas() {
     fd.append('action', 'getBukuKas');
     fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-    fetch(GAS_URL, { method: 'POST', body: fd })
+    gasFetch( { method: 'POST', body: fd })
     .then(r => r.json())
     .then(res => {
         if(res.status === 'success') {
@@ -661,7 +661,7 @@ document.getElementById('formPengeluaran').addEventListener('submit', function(e
     fd.append('nominal', nominalKeluar);
     fd.append('user', sessionStorage.getItem('namaMadasa') || 'Admin');
 
-    fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+    gasFetch( { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
         showLoading(false);
         btnSubmit.disabled = false; btnSubmit.innerHTML = teksAsli;
         
@@ -695,7 +695,7 @@ function tarikLaporanKas() {
     fd.append('keyword', keyword);
     fd.append('jenis', jenis);
 
-    fetch(GAS_URL, { method: 'POST', body: fd })
+    gasFetch( { method: 'POST', body: fd })
     .then(r => r.json())
     .then(res => {
         showLoading(false);
@@ -884,7 +884,7 @@ function hapusKas(rincian, jenis) {
             fd.append('rincian', rincian);
             fd.append('jenis', jenis);
 
-            fetch(GAS_URL, { method: 'POST', body: fd })
+            gasFetch( { method: 'POST', body: fd })
             .then(r => r.json())
             .then(res => {
                 showLoading(false);

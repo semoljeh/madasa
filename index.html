@@ -40,30 +40,34 @@
 <!-- TAMBAHKAN SCRIPT INI UNTUK EXCELJS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
     
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=16">
 	
 <!-- KODE ONESIGNAL PUSH NOTIFICATION (MODERN SLIDE PROMPT) -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "8f0faf3e-0fea-464e-b12c-ae077ad2cbcb",
-      // Konfigurasi Slide Prompt (Pop-up kustom yang modern)
-      promptOptions: {
-        slidedown: {
-          enabled: true,
-          actionMessage: "Ingin mendapatkan informasi terbaru dan update dari Madrasah Darussalam?",
-          acceptButtonText: "Ya, Izinkan",
-          cancelButtonText: "Nanti Saja"
-        }
-      },
-      // Tombol notifikasi di pojok (opsional, bisa dimatikan jika ingin lebih bersih)
-      notifyButton: {
-        enable: false 
-      },
+  // OneSignal hanya dijalankan pada domain produksi.
+  // Ini mencegah error origin saat pengembangan di localhost.
+  if (window.location.hostname === 'guru.madasa.ponpes.id') {
+    const sdk = document.createElement('script');
+    sdk.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+    sdk.defer = true;
+    document.head.appendChild(sdk);
+
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: '8f0faf3e-0fea-464e-b12c-ae077ad2cbcb',
+        promptOptions: {
+          slidedown: {
+            enabled: true,
+            actionMessage: 'Ingin mendapatkan informasi terbaru dan update dari Madrasah Darussalam?',
+            acceptButtonText: 'Ya, Izinkan',
+            cancelButtonText: 'Nanti Saja'
+          }
+        },
+        notifyButton: { enable: false }
+      });
     });
-  });
+  }
 </script>
 	
 </head>
@@ -584,7 +588,7 @@
 <div id="peringatanNilaiIbt" class="mt-5 p-4 sm:p-5 bg-blue-50 border border-blue-200 rounded-xl hidden">
     <h4 class="text-sm font-bold text-blue-800 mb-2"><i class="fas fa-exclamation-circle mr-2"></i>Mohon Perhatian:</h4>
     <p class="text-xs sm:text-sm text-gray-700 leading-relaxed text-justify">
-        Afwan Ustadz/Ustadzah, mohon berkenan untuk <b>memeriksa kembali ketepatan angka (skala 0 - 100)</b> sebelum menekan tombol simpan. Kesalahan dalam pengisian nilai dapat memengaruhi akumulasi rata-rata dan pemeringkatan (ranking) santri di akhir semester. <i>Jazakumullah khairan</i> atas ketelitiannya.
+        Afwan Ustadz/Ustadzah, mohon berkenan untuk <b>memeriksa kembali ketepatan angka (skala 0 - 100)</b> sebelum menekan tombol simpan. Nilai <b>0 tetap dianggap nilai sah</b>. Jika santri tidak mengikuti ujian, gunakan status <b>Tidak Hadir</b> atau <b>Menunggu Susulan</b>, jangan mengisi 0 kecuali nilai finalnya memang 0. Ranking hanya ditetapkan setelah seluruh mapel wajib pada kelas tersebut memiliki nilai. <i>Jazakumullah khairan</i> atas ketelitiannya.
     </p>
 </div>
 							
@@ -1192,8 +1196,8 @@
     </div>
 </div>
 
-<script src="script.js?v=11"></script>
-<script src="config.js?v=11"></script>
+<script src="config.js?v=16"></script>
+<script src="script.js?v=16"></script>
 
 <script src="widget-wa.js"></script>
 

@@ -81,7 +81,7 @@
     <!-- KERTAS RAPOR -->
     <div id="kertasRapor" class="bg-white shadow-2xl text-black font-sans relative box-border mx-auto hidden mt-4 mb-10" style="width: 210mm; min-height: 330mm; padding: 8mm;"></div>
 
-    <script src="../config.js"></script>
+    <script src="../config.js?v=16"></script>
 
     <script>
         let GLOBAL_DATA_SANTRI = [];
@@ -98,7 +98,7 @@
                 formData.append('action', 'getSantri');
                 formData.append('token', sessionStorage.getItem('tokenMadasa'));
                 
-                const response = await fetch(GAS_URL, { method: 'POST', body: formData });
+                const response = await gasFetch( { method: 'POST', body: formData });
                 const res = await response.json();
                 if(res.status === 'success') {
                     GLOBAL_DATA_SANTRI = res.data;
@@ -210,9 +210,9 @@
             const fdSet = new URLSearchParams(); fdSet.append('action', 'getPengaturan'); fdSet.append('kelas', kelas);
 
             Promise.all([
-                fetch(GAS_URL, {method:'POST', body:fdNilai}).then(r=>r.json()),
-                fetch(GAS_URL, {method:'POST', body:fdRank}).then(r=>r.json()),
-                fetch(GAS_URL, {method:'POST', body:fdSet}).then(r=>r.json())
+                gasFetch( {method:'POST', body:fdNilai}).then(r=>r.json()),
+                gasFetch( {method:'POST', body:fdRank}).then(r=>r.json()),
+                gasFetch( {method:'POST', body:fdSet}).then(r=>r.json())
             ]).then(([resNilai, resRank, resSet]) => {
                 showLoading(false);
                 const santriInfo = GLOBAL_DATA_SANTRI.find(x => x.nis == nis);
@@ -229,7 +229,7 @@
                 let totalSantri = 0;
                 if(resRank.status === 'success' && resRank.data) {
                     let rData = resRank.data.find(x => x.nis.toString().trim() == nis.trim());
-                    if(rData) rank = rData.rank;
+                    if(rData) rank = (rData.lengkap && rData.rank) ? rData.rank : '-';
                     totalSantri = resRank.data.length;
                 }
                 
@@ -593,7 +593,7 @@
             const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
             if (tokenTersimpan) fdSet.append('token', tokenTersimpan);
 
-            fetch(GAS_URL, { method: 'POST', body: fdSet })
+            gasFetch( { method: 'POST', body: fdSet })
                 .then(r => r.json())
                 .then(resSet => {
                     showLoading(false);

@@ -101,7 +101,7 @@ function muatSemuaMapel() {
     const tarikMapel = async (retry = 3) => {
         for (let i = 0; i < retry; i++) {
             try {
-                let req = await fetch(GAS_URL, { method: 'POST', body: fdMapel });
+                let req = await gasFetch( { method: 'POST', body: fdMapel });
                 if (!req.ok) throw new Error("Server Sibuk");
                 let res = await req.json();
                 if (res.status === 'success') JADWAL_MAPEL = res.data;
@@ -129,7 +129,7 @@ function loadDataSantri(silent = false) {
     const tarikSantri = async (retry = 3) => {
         for (let i = 0; i < retry; i++) {
             try {
-                let req = await fetch(GAS_URL, { method: 'POST', body: formData });
+                let req = await gasFetch( { method: 'POST', body: formData });
                 if (!req.ok) throw new Error("Server Sibuk");
                 let res = await req.json();
                 return res; // Kembalikan data jika sukses
@@ -329,7 +329,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     const prosesLoginMadasa = async (retry = 3) => {
         for (let i = 0; i < retry; i++) {
             try {
-                let req = await fetch(GAS_URL, { method: 'POST', body: formData });
+                let req = await gasFetch( { method: 'POST', body: formData });
                 if (!req.ok) throw new Error("CORS / Server Sibuk");
                 return await req.json();
             } catch (err) {
@@ -394,7 +394,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
                 notifData.append('lokasi', dataLokasi);
                 notifData.append('token', d.token);
                 
-                fetch(GAS_URL, { method: 'POST', body: notifData }).catch(err => console.log(err));
+                gasFetch( { method: 'POST', body: notifData }).catch(err => console.log(err));
             };
 
             if (navigator.geolocation) {
@@ -508,7 +508,7 @@ const installPrompt = document.getElementById('pwaInstallPrompt');
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
+        navigator.serviceWorker.register('sw.js?v=16', { updateViaCache: 'none' })
         .then(reg => console.log('PWA aktif!'))
         .catch(err => console.log('PWA gagal: ', err));
     });
@@ -681,7 +681,7 @@ if (formImport) {
                 formData.append('data_import', JSON.stringify(jsonData));
                 formData.append('token', sessionStorage.getItem('tokenMadasa'));
 
-                fetch(GAS_URL, { method: 'POST', body: formData })
+                gasFetch( { method: 'POST', body: formData })
                 .then(res => res.json())
                 .then(data => {
                     // Matikan loading
@@ -859,7 +859,7 @@ function loadDataSantri(silent = false) {
     formData.append('action', 'getSantri'); 
     formData.append('token', sessionStorage.getItem('tokenMadasa'));
     
-    fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
+    gasFetch( { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
         if (!silent) showLoading(false); 
         if(res.status === 'success') { 
             GLOBAL_DATA_SANTRI = res.data; 
@@ -948,7 +948,7 @@ document.getElementById('formTambahSantri').addEventListener('submit', function(
     const tglTambah = formatTanggalIndo(document.getElementById('add_tanggal_lahir').value);
     formData.append('ttl', `${tempatTambah}, ${tglTambah}`);
     
-    fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
+    gasFetch( { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); btnSubmit.disabled = false; btnSubmit.innerHTML = originalText; 
         if(data.status === 'success') { 
             closeModalSantri(); 
@@ -1008,7 +1008,7 @@ document.getElementById('formEditSantri').addEventListener('submit', function(e)
     const tglEdit = formatTanggalIndo(document.getElementById('edit_tanggal_lahir').value);
     formData.append('ttl', `${tempatEdit}, ${tglEdit}`);
     
-    fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
+    gasFetch( { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); 
         
         btnSubmit.disabled = false; 
@@ -1049,6 +1049,24 @@ function validasiInputNilai(el) {
     } else { 
         el.classList.remove('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500'); 
     } 
+}
+
+
+// V16: sinkronkan input angka dengan status ketidakhadiran.
+// Jika status dipilih, angka dikosongkan dan dinonaktifkan. Jika status dibatalkan, input aktif kembali.
+function sinkronStatusNilaiSelect(selectEl) {
+    const wadah = selectEl.closest('td');
+    if (!wadah) return;
+    const input = wadah.querySelector('.input-ibt');
+    if (!input) return;
+    if (selectEl.value) {
+        input.value = '';
+        input.disabled = true;
+        input.classList.remove('border-red-500', 'bg-red-50', 'ring-2', 'ring-red-500');
+    } else {
+        input.disabled = false;
+        setTimeout(() => input.focus(), 0);
+    }
 }
 
 function aktifkanFilterKedua() { 
@@ -1125,58 +1143,116 @@ async function generateTabelAbsen() {
     showLoading(true, "Memeriksa Data Tersimpan...");
 
     let mapNilaiLama = {};
-    // Pindahkan fungsi bersihTeks ke luar agar bisa diakses oleh loop data santri
-    const bersihTeks = (str) => String(str).toLowerCase().replace(/'/g, "").trim();
+    let mapStatusNilai = {};
+    const bersihTeks = (str) => String(str === null || str === undefined ? '' : str)
+        .toLowerCase()
+        .replace(/[\u2018\u2019'`]/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+    const bersihNis = (str) => String(str === null || str === undefined ? '' : str)
+        .replace(/^'+/, '')
+        .trim();
 
+    // V16: untuk menentukan tanda centang, kita hanya membutuhkan STATUS
+    // apakah nilai sudah tersimpan. Pembacaan status memakai JSONP read-only,
+    // sehingga tidak terganggu CORS redirect ContentService Apps Script.
     try {
-        const formData = new URLSearchParams();
-        formData.append('action', 'getDataNilai');
-        formData.append('token', sessionStorage.getItem('tokenMadasa'));
-        formData.append('kelas', kelas);
+        const token = sessionStorage.getItem('tokenMadasa') || '';
+        const paramsStatus = {
+            token: token,
+            kelas: kelas
+        };
 
-        // Tambahkan pengamanan untuk menangani error HTML/404 dari Server Google
-        const response = await fetch(GAS_URL, { method: 'POST', body: formData });
-        if (!response.ok) throw new Error("Respons server tidak valid (Bukan 200 OK)");
-        
-        const res = await response.json();
+        if (kelas.includes('TK')) {
+            paramsStatus.hari = subFilterValue;
+        } else {
+            paramsStatus.mapel = subFilterValue;
+        }
 
-        if (res.status === 'success' && res.data && res.data.length > 0) {
-            const headers = res.headers || [];
-            const dataRows = res.data;
+        const resStatus = await gasJsonp('getStatusNilai', paramsStatus, 15000);
 
-            if (kelas.includes('TK')) {
-                const idxNis = headers.findIndex(h => bersihTeks(h) === 'nis');
-                const idxHari = headers.findIndex(h => bersihTeks(h) === 'hari');
-                const idxN1 = headers.findIndex(h => bersihTeks(h).includes('nilai 1') || bersihTeks(h) === 'n1');
-                const idxN2 = headers.findIndex(h => bersihTeks(h).includes('nilai 2') || bersihTeks(h) === 'n2');
-                
-                dataRows.forEach(row => {
-                    if (idxHari > -1 && bersihTeks(row[idxHari]) === bersihTeks(subFilterValue)) {
-                        let nis = bersihTeks(row[idxNis]);
-                        mapNilaiLama[nis] = { 
-                            n1: (idxN1 > -1 && row[idxN1] !== "") ? row[idxN1] : "", 
-                            n2: (idxN2 > -1 && row[idxN2] !== "") ? row[idxN2] : "" 
-                        };
-                    }
-                });
-            } else {
-                const idxNis = headers.findIndex(h => bersihTeks(h) === 'nis');
-                const idxMapel = headers.findIndex(h => bersihTeks(h) === bersihTeks(subFilterValue));
+        if (!resStatus || resStatus.status !== 'success') {
+            throw new Error((resStatus && resStatus.message) || 'Status nilai tidak dapat dibaca.');
+        }
 
-                if (idxNis > -1 && idxMapel > -1) {
+        if (kelas.includes('TK')) {
+            const setN1 = new Set((resStatus.savedN1 || []).map(bersihNis));
+            const setN2 = new Set((resStatus.savedN2 || []).map(bersihNis));
+            santriKelasIni.forEach(s => {
+                const nis = bersihNis(s.nis);
+                if (setN1.has(nis) || setN2.has(nis)) {
+                    mapNilaiLama[bersihTeks(nis)] = {
+                        n1: setN1.has(nis) ? true : '',
+                        n2: setN2.has(nis) ? true : ''
+                    };
+                }
+            });
+        } else {
+            const setSelesai = new Set((resStatus.savedNis || []).map(bersihNis));
+            const statusServer = resStatus.statusNis || {};
+            santriKelasIni.forEach(s => {
+                const nis = bersihNis(s.nis);
+                const key = bersihTeks(nis);
+                if (setSelesai.has(nis)) {
+                    mapNilaiLama[key] = true;
+                } else if (statusServer[nis]) {
+                    mapStatusNilai[key] = String(statusServer[nis]).toUpperCase();
+                }
+            });
+        }
+
+        console.log(`[STATUS NILAI] ${kelas} / ${subFilterValue}: ${resStatus.count || 0} data selesai.`);
+        if (resStatus.warning) console.warn('[STATUS NILAI]', resStatus.warning);
+    } catch (statusError) {
+        console.warn('[STATUS NILAI] JSONP gagal, mencoba pembacaan lama sebagai fallback.', statusError);
+
+        // Fallback untuk deployment Apps Script lama yang belum memiliki getStatusNilai.
+        try {
+            const formData = new URLSearchParams();
+            formData.append('action', 'getDataNilai');
+            formData.append('token', sessionStorage.getItem('tokenMadasa'));
+            formData.append('kelas', kelas);
+
+            const response = await gasFetch({ method: 'POST', body: formData });
+            if (!response.ok) throw new Error('Respons server tidak valid.');
+            const res = await response.json();
+
+            if (res.status === 'success' && res.data && res.data.length > 0) {
+                const headers = res.headers || [];
+                const dataRows = res.data;
+
+                if (kelas.includes('TK')) {
+                    const idxNis = headers.findIndex(h => bersihTeks(h) === 'nis');
+                    const idxHari = headers.findIndex(h => bersihTeks(h) === 'hari');
+                    const idxN1 = headers.findIndex(h => bersihTeks(h).includes('nilai 1') || bersihTeks(h) === 'n1');
+                    const idxN2 = headers.findIndex(h => bersihTeks(h).includes('nilai 2') || bersihTeks(h) === 'n2');
+
                     dataRows.forEach(row => {
-                        let nis = bersihTeks(row[idxNis]);
-                        let nilaiMapel = row[idxMapel];
-                        if (nilaiMapel !== undefined && nilaiMapel !== null && nilaiMapel !== "") {
-                            mapNilaiLama[nis] = nilaiMapel; 
+                        if (idxNis > -1 && idxHari > -1 && bersihTeks(row[idxHari]) === bersihTeks(subFilterValue)) {
+                            const nis = bersihTeks(bersihNis(row[idxNis]));
+                            mapNilaiLama[nis] = {
+                                n1: (idxN1 > -1 && row[idxN1] !== '' && row[idxN1] !== null) ? true : '',
+                                n2: (idxN2 > -1 && row[idxN2] !== '' && row[idxN2] !== null) ? true : ''
+                            };
                         }
                     });
+                } else {
+                    const idxNis = headers.findIndex(h => bersihTeks(h) === 'nis');
+                    const idxMapel = headers.findIndex(h => bersihTeks(h) === bersihTeks(subFilterValue));
+
+                    if (idxNis > -1 && idxMapel > -1) {
+                        dataRows.forEach(row => {
+                            const nilaiMapel = row[idxMapel];
+                            if (nilaiMapel !== undefined && nilaiMapel !== null && nilaiMapel !== '') {
+                                mapNilaiLama[bersihTeks(bersihNis(row[idxNis]))] = true;
+                            }
+                        });
+                    }
                 }
             }
+        } catch (fallbackError) {
+            console.error('[STATUS NILAI] Tidak dapat membaca status nilai tersimpan.', fallbackError);
         }
-    } catch (e) {
-        console.error("Peringatan: Gagal menarik nilai lama (Jaringan/Server Error).", e);
-        // Error tidak lagi menghentikan proses, tabel tetap dirender sebagai antisipasi
     }
 
     showLoading(false); 
@@ -1188,7 +1264,7 @@ async function generateTabelAbsen() {
         
         santriKelasIni.forEach((s, idx) => { 
             // PERBAIKAN BUG: Pastikan NIS dibersihkan dari tanda kutip sebelum dicocokkan
-            let nisBersih = bersihTeks(s.nis);
+            let nisBersih = bersihTeks(bersihNis(s.nis));
             let html = `<tr class="group hover:bg-emerald-50 transition-colors duration-200 santri-absen-row"> <td class="p-3 text-center text-gray-500 font-medium border-r border-gray-200">${idx + 1}</td>`; 
             
             if (kelas.includes('TK')) { 
@@ -1197,22 +1273,36 @@ async function generateTabelAbsen() {
                 
                 // Render logika UI untuk mengecek valN1 dan valN2
                 let colN1 = valN1 !== "" 
-                    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i></div>` 
+                    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-[10px] font-bold text-gray-400">Selesai</span></div>` 
                     : `<input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
                 
                 let colN2 = valN2 !== "" 
-                    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i></div>` 
+                    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-[10px] font-bold text-gray-400">Selesai</span></div>` 
                     : `<input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" placeholder="N2" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
                 
                 html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white group-hover:bg-emerald-50 z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px] transition-colors duration-200"> <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${s.nama}</p> </td> <td class="p-2 border-r border-gray-200 bg-gray-50/50">${colN1}</td> <td class="p-2 bg-gray-50/50">${colN2}</td>`; 
             } else { 
                 document.getElementById('judulKolomNilai').innerText = `NILAI ${subFilterValue}`;
                 let valMapel = mapNilaiLama[nisBersih] !== undefined ? mapNilaiLama[nisBersih] : "";
+                let statusMapel = mapStatusNilai[nisBersih] || "";
                 
-                // Render logika UI untuk IBT/SANA/ALIYAH
-                let colMapel = valMapel !== "" 
-                    ? `<div class="w-full min-w-[90px] max-w-[120px] mx-auto bg-gray-100 border-2 border-gray-200 rounded-lg p-2 flex items-center justify-center gap-2 cursor-not-allowed shadow-inner" title="Privasi: Nilai sudah diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-xs font-bold text-gray-400">Selesai</span></div>` 
-                    : `<input type="number" class="input-ibt w-full min-w-[90px] max-w-[120px] mx-auto block p-2 border-2 border-emerald-400 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500 shadow-inner outline-none bg-white" data-nis="${escapeHTML(s.nis)}" data-nama="${escapeHTML(s.nama)}" placeholder="0-100" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
+                // V16: angka 0 adalah nilai sah. Nilai kosong dapat diberi status Tidak Hadir / Menunggu Susulan.
+                let colMapel;
+                if (valMapel !== "") {
+                    colMapel = `<div class="w-full min-w-[110px] max-w-[150px] mx-auto bg-gray-100 border-2 border-gray-200 rounded-lg p-2 flex items-center justify-center gap-2 cursor-not-allowed shadow-inner" title="Privasi: Nilai sudah diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-xs font-bold text-gray-500">Selesai</span></div>`;
+                } else {
+                    const labelStatus = statusMapel === 'TIDAK_HADIR' ? 'Tidak Hadir' : (statusMapel === 'MENUNGGU_SUSULAN' ? 'Menunggu Susulan' : 'Status...');
+                    colMapel = `
+                        <div class="min-w-[150px] max-w-[180px] mx-auto space-y-1.5">
+                            <input type="number" class="input-ibt w-full block p-2 border-2 border-emerald-400 rounded-lg font-bold text-center text-emerald-700 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500 shadow-inner outline-none bg-white disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-200" data-nis="${escapeHTML(s.nis)}" data-nama="${escapeHTML(s.nama)}" placeholder="0-100" ${statusMapel ? 'disabled' : ''} oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">
+                            <select class="status-ibt w-full text-[10px] sm:text-xs p-1.5 border rounded-lg bg-white font-semibold ${statusMapel ? 'border-amber-300 text-amber-700' : 'border-gray-200 text-gray-500'}" data-nis="${escapeHTML(s.nis)}" data-nama="${escapeHTML(s.nama)}" data-original="${statusMapel}" onchange="sinkronStatusNilaiSelect(this)">
+                                <option value="" ${!statusMapel ? 'selected' : ''}>${statusMapel ? 'Batalkan status / input susulan' : 'Status...'}</option>
+                                <option value="TIDAK_HADIR" ${statusMapel === 'TIDAK_HADIR' ? 'selected' : ''}>Tidak Hadir</option>
+                                <option value="MENUNGGU_SUSULAN" ${statusMapel === 'MENUNGGU_SUSULAN' ? 'selected' : ''}>Menunggu Susulan</option>
+                            </select>
+                            ${statusMapel ? `<div class="text-[10px] font-bold text-amber-700"><i class="fas fa-clock mr-1"></i>${labelStatus}</div>` : ''}
+                        </div>`;
+                }
                 
                 html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white group-hover:bg-emerald-50 z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px] transition-colors duration-200"> 
                 <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${escapeHTML(s.nama)}</p> </td> <td class="p-3 text-center bg-gray-50/50">${colMapel}</td>`; 
@@ -1266,7 +1356,7 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
                 const n1 = n1Input.value; const n2 = tr.querySelector('.input-tk-n2').value; 
                 if(n1 !== "" || n2 !== "") { 
                     adaIsianNilai = true; let total = (parseFloat(n1)||0) + (parseFloat(n2)||0); 
-                    let count = 0; if(n1!=="")count++; if(n2!=="")count++; let rata = count > 0 ? (total/count).toFixed(1) : 0; 
+                    let count = 0; if(n1!=="")count++; if(n2!=="")count++; let rata = count > 0 ? (total/count).toFixed(2) : 0; 
                     paketBulk.push({ nis: nis, nama: nama, m1: globalM1, n1: n1, m2: globalM2, n2: n2, total: total, rata: rata }); 
                 } 
             } 
@@ -1275,11 +1365,29 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
         if (adaIsianNilai && globalM1 === "") { Swal.fire({ icon: 'warning', title: 'Mapel 1 Kosong', text: 'Tolong isi Nama Mapel 1.'}); return; } 
     } else { 
         document.querySelectorAll('.input-ibt').forEach(input => {
-            if (input.value !== "") { paketBulk.push({ nis: input.getAttribute('data-nis'), nama: input.getAttribute('data-nama'), nilai: input.value }); } 
+            if (!input.disabled && input.value !== "") {
+                paketBulk.push({ nis: input.getAttribute('data-nis'), nama: input.getAttribute('data-nama'), nilai: input.value });
+            }
         }); 
     } 
+
+    // Status disimpan terpisah agar kosong/tidak hadir tidak pernah berubah menjadi nilai 0.
+    let paketStatus = [];
+    if (!kelasPilih.includes('TK')) {
+        document.querySelectorAll('.status-ibt').forEach(select => {
+            const original = select.getAttribute('data-original') || '';
+            const sekarang = select.value || '';
+            if (original !== sekarang) {
+                paketStatus.push({
+                    nis: select.getAttribute('data-nis'),
+                    nama: select.getAttribute('data-nama'),
+                    status: sekarang
+                });
+            }
+        });
+    }
     
-    if (paketBulk.length === 0) { Swal.fire({ icon: 'warning', title: 'Tabel Kosong', text: 'Belum memasukkan nilai satupun.'}); return; } 
+    if (paketBulk.length === 0 && paketStatus.length === 0) { Swal.fire({ icon: 'warning', title: 'Belum Ada Perubahan', text: 'Masukkan nilai atau pilih status santri terlebih dahulu.'}); return; } 
     
     const btnSubmit = this.querySelector('button[type="submit"]'); 
     const originalText = btnSubmit.innerHTML; 
@@ -1302,34 +1410,53 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
         formData.append('semua_mapel', JSON.stringify(JADWAL_MAPEL[kelasPilih].semua)); 
     }
     
-    fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
-        showLoading(false); 
-        
-        btnSubmit.disabled = false; 
-        btnSubmit.classList.remove('pointer-events-none', 'opacity-70');
-        btnSubmit.innerHTML = originalText; 
-        
-        if(data.status === 'success') { 
-            Swal.fire({ icon: 'success', title: 'Sukses!', text: data.message, confirmButtonColor: '#059669' }); 
-            document.getElementById('formInputNilaiBulk').classList.add('hidden'); 
-            document.getElementById('pilihKelasNilai').value = ""; 
+    const requests = [];
+    if (paketBulk.length > 0) {
+        requests.push(
+            gasFetch({ method: 'POST', body: formData })
+                .then(res => res.json())
+                .then(data => { if (data.status !== 'success') throw new Error(data.message || 'Gagal menyimpan nilai.'); return data; })
+        );
+    }
 
-            document.getElementById('text_pilihKelasNilai').innerText = '-- Silakan Pilih Kelas Dulu --'; 
-            document.getElementById('wadahFilterKedua').classList.add('hidden');
-            if(kelasPilih.includes('TK')) { 
-                document.getElementById('global_tk_m1').value = ""; 
-                document.getElementById('global_tk_m2').value = ""; 
-            }
-        } else { 
-            Swal.fire('Ditolak!', data.message, 'error'); 
-        } 
-    }).catch(e => { 
-        showLoading(false); 
-        btnSubmit.disabled = false; 
+    if (!kelasPilih.includes('TK') && paketStatus.length > 0) {
+        paketStatus.forEach(item => {
+            const fdStatus = new URLSearchParams();
+            fdStatus.append('action', 'simpanStatusNilai');
+            fdStatus.append('token', sessionStorage.getItem('tokenMadasa'));
+            fdStatus.append('kelas', kelasPilih);
+            fdStatus.append('mapel', filterKedua);
+            fdStatus.append('nis', item.nis);
+            fdStatus.append('nama', item.nama || '');
+            fdStatus.append('status', item.status);
+            requests.push(
+                gasFetch({ method: 'POST', body: fdStatus })
+                    .then(res => res.json())
+                    .then(data => { if (data.status !== 'success') throw new Error(data.message || 'Gagal menyimpan status.'); return data; })
+            );
+        });
+    }
+
+    Promise.all(requests).then(async results => {
+        showLoading(false);
+        btnSubmit.disabled = false;
         btnSubmit.classList.remove('pointer-events-none', 'opacity-70');
-        btnSubmit.innerHTML = originalText; 
-        
-        Swal.fire('Error', 'Gagal kirim. Periksa jaringan Anda.', 'error'); 
+        btnSubmit.innerHTML = originalText;
+
+        await generateTabelAbsen();
+        Swal.fire({
+            icon: 'success',
+            title: 'Sukses!',
+            text: `Perubahan berhasil disimpan. Nilai 0 tetap dihitung sebagai nilai sah.`,
+            confirmButtonColor: '#059669'
+        });
+    }).catch(err => {
+        console.error('[INPUT NILAI V16]', err);
+        showLoading(false);
+        btnSubmit.disabled = false;
+        btnSubmit.classList.remove('pointer-events-none', 'opacity-70');
+        btnSubmit.innerHTML = originalText;
+        Swal.fire('Error', err.message || 'Gagal kirim. Periksa jaringan Anda.', 'error');
     }); 
 });
 
@@ -1351,7 +1478,7 @@ function loadDataNilaiKelas(silent = false) {
     const tarikDataNilai = async (retry = 3) => {
         for (let i = 0; i < retry; i++) {
             try {
-                let req = await fetch(GAS_URL, { method: 'POST', body: formData });
+                let req = await gasFetch( { method: 'POST', body: formData });
                 if (!req.ok) throw new Error("Server Sibuk");
                 let res = await req.json();
                 return res; // Kembalikan data jika sukses
@@ -1420,33 +1547,47 @@ function renderTabelDataNilai(headers, data) {
         let trBody = `<tr class="hover:bg-blue-50 transition-all">`; 
         trBody += `<td class="p-3 text-center text-gray-500 border-r border-gray-200">${rowIndex + 1}</td>`; 
         
-        let totalNilai = idxTotal > -1 ? parseFloat(row[idxTotal] || 0) : 0;
-        
-        // ============================================================
-        // PERBAIKAN: Hitung rata-rata secara dinamis agar 100% akurat 
-        // dan menghindari error nilai aneh (seperti 2026.0) dari Database
-        // ============================================================
-        let rataBenar = "0.0";
+        let totalNilai = 0;
+        let countTerisi = 0;
+        let jumlahWajib = 0;
+        let rataBenar = "-";
+
+        // V16: hitung ulang dari sel nilai, bukan dari angka rekap lama.
+        // Nilai 0 valid karena pengecekan memakai cell !== ''.
         if (kls.includes('TK')) {
-            // Untuk TK, hitung rata-rata berdasarkan kolom yang sudah terisi nilai (n1, n2)
-            let countTerisi = 0;
-            let idxN1 = headers.findIndex(h => h.toLowerCase() === 'nilai 1' || h.toLowerCase() === 'n1');
-            let idxN2 = headers.findIndex(h => h.toLowerCase() === 'nilai 2' || h.toLowerCase() === 'n2');
-            
-            if(idxN1 > -1 && row[idxN1] !== "" && !isNaN(row[idxN1])) countTerisi++;
-            if(idxN2 > -1 && row[idxN2] !== "" && !isNaN(row[idxN2])) countTerisi++;
-            
-            rataBenar = countTerisi > 0 ? (totalNilai / countTerisi).toFixed(1) : "0.0";
+            const idxNilaiTk = headers
+                .map((h, i) => ({ h: String(h || '').toLowerCase(), i }))
+                .filter(x => ['nilai 1','nilai 2','nilai 3','n1','n2','n3'].includes(x.h))
+                .map(x => x.i);
+            idxNilaiTk.forEach(i => {
+                const cell = row[i];
+                if (cell !== '' && cell !== null && cell !== undefined && !isNaN(Number(cell))) {
+                    totalNilai += Number(cell);
+                    countTerisi++;
+                }
+            });
+            jumlahWajib = countTerisi;
         } else {
-            // Untuk Ibtidaiyah/Sanawiyah dll, bagi Total dengan total seluruh Mata Pelajaran 
-            // Hal ini agar hasilnya sama persis dengan yang ada di Halaman Ranking
-            if (jmlMapelTotal > 0) {
-                rataBenar = (totalNilai / jmlMapelTotal).toFixed(1);
-            } else {
-                // Fallback (Penyelamat) jika Master Mapel belum disetel
-                let mapelCols = headers.length - 5; 
-                rataBenar = mapelCols > 0 ? (totalNilai / mapelCols).toFixed(1) : "0.0";
-            }
+            const daftarMapel = (JADWAL_MAPEL[kls] && Array.isArray(JADWAL_MAPEL[kls].semua) && JADWAL_MAPEL[kls].semua.length)
+                ? JADWAL_MAPEL[kls].semua
+                : headers.slice(5);
+            jumlahWajib = daftarMapel.length;
+            daftarMapel.forEach(mapel => {
+                const idx = headers.findIndex(h => String(h || '').trim().toLowerCase() === String(mapel || '').trim().toLowerCase());
+                if (idx < 0) return;
+                const cell = row[idx];
+                if (cell !== '' && cell !== null && cell !== undefined && !isNaN(Number(cell))) {
+                    totalNilai += Number(cell);
+                    countTerisi++;
+                }
+            });
+        }
+
+        if (countTerisi > 0) rataBenar = (totalNilai / countTerisi).toFixed(2);
+        const nilaiLengkap = kls.includes('TK') ? countTerisi > 0 : (jumlahWajib > 0 && countTerisi === jumlahWajib);
+        if (idxTotal > -1) {
+            row[idxTotal] = totalNilai;
+            GLOBAL_DATA_NILAI[rowIndex][idxTotal] = totalNilai;
         }
 
         row.forEach((cell, cellIndex) => { 
@@ -1458,8 +1599,8 @@ function renderTabelDataNilai(headers, data) {
                 trBody += `<td class="p-3 border-r border-gray-200 text-gray-600 whitespace-nowrap">${escapeHTML(textNIS)}</td>`; 
             } else if (headerName.includes('rata')) {
                 // GUNAKAN RATA-RATA DINAMIS YANG SUDAH KITA HITUNG DI ATAS
-                trBody += `<td class="p-3 border-r border-gray-200 text-center font-bold text-blue-600 whitespace-nowrap">${rataBenar}</td>`;
-                GLOBAL_DATA_NILAI[rowIndex][cellIndex] = rataBenar; // Update nilai mentah untuk Modal Edit agar tidak memunculkan nilai cacat
+                trBody += `<td class="p-3 border-r border-gray-200 text-center font-bold text-blue-600 whitespace-nowrap">${rataBenar}${!nilaiLengkap && !kls.includes('TK') ? `<div class="text-[9px] text-amber-600 font-semibold mt-1">sementara ${countTerisi}/${jumlahWajib}</div>` : ''}</td>`;
+                GLOBAL_DATA_NILAI[rowIndex][cellIndex] = rataBenar === '-' ? '' : rataBenar;
             } else { 
                 const isNumber = !isNaN(cell) && cell !== ""; 
                 trBody += `<td class="p-3 border-r border-gray-200 text-center ${isNumber ? 'font-bold text-emerald-700' : 'text-gray-400'} whitespace-nowrap">${cell}</td>`; 
@@ -1525,7 +1666,7 @@ function hapusSemuaNilaiSantri(index) {
             formData.append('data_nilai', JSON.stringify(payloadKosong)); 
             formData.append('token', sessionStorage.getItem('tokenMadasa'));
             
-            fetch(GAS_URL, { method: 'POST', body: formData })
+            gasFetch( { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => { 
                 showLoading(false); 
@@ -1611,7 +1752,7 @@ document.getElementById('formEditNilai').addEventListener('submit', function(e) 
     formData.append('data_nilai', JSON.stringify(payload)); 
     formData.append('token', sessionStorage.getItem('tokenMadasa'));
     
-    fetch(GAS_URL, { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
+    gasFetch( { method: 'POST', body: formData }).then(res => res.json()).then(data => { 
         showLoading(false); 
         
         btnSubmit.disabled = false; 
@@ -1644,227 +1785,175 @@ document.getElementById('formEditNilai').addEventListener('submit', function(e) 
     }); 
 });
 
-function loadBintangPelajar() { 
-    const wadah = document.getElementById('wadahBintangPelajar'); 
-    wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Memuat kandidat juara...</div>'; 
-    
-    const formData = new URLSearchParams(); 
-    formData.append('action', 'getBintangPelajar'); 
-    formData.append('token', sessionStorage.getItem('tokenMadasa'));
-    
-    fetch(GAS_URL, { method: 'POST', body: formData })
-    .then(res => res.json())
-    .then(async res => {
-        if (res.status === 'success' && res.data.length > 0) { 
-            wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Sinkronisasi Wali Kelas...</div>';
-            
-            let kelasUnik = [...new Set(res.data.map(s => s.kelas))];
-            let mapWali = {};
-            
-            let ambilWali = kelasUnik.map(kls => {
-                let fd = new URLSearchParams(); 
-                fd.append('action', 'getPengaturan'); 
-                fd.append('kelas', kls);
-                fd.append('token', sessionStorage.getItem('tokenMadasa'));
+function loadBintangPelajar() {
+    const wadah = document.getElementById('wadahBintangPelajar');
+    wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Memuat kandidat juara...</div>';
 
-                return fetch(GAS_URL, {method:'POST', body:fd})
-                    .then(r => r.json())
-                    .then(d => {
-                        mapWali[kls] = (d.status === 'success' && d.umum && d.umum.wali) ? d.umum.wali : 'Belum Diatur';
-                    })
-                    .catch(() => { mapWali[kls] = 'Gagal Memuat'; });
-            });
-            
-            await Promise.all(ambilWali);
-            
-            let dataTK = res.data.filter(s => s.kelas.includes('TK'));
-            let dataIBT = res.data.filter(s => s.kelas.includes('IBT'));
-            let dataSANA = res.data.filter(s => s.kelas.includes('SANA'));
-            
-            // ====================================================
-            // PERBAIKAN 1: Pengurutan berdasarkan Total lalu Rata-rata
-            // ====================================================
-            const urutkan = (arr) => {
+    const token = sessionStorage.getItem('tokenMadasa') || '';
+    const jsonp = window.gasJsonp;
+
+    if (typeof jsonp !== 'function') {
+        wadah.innerHTML = '<div class="text-white text-center col-span-full mt-4">Komponen koneksi belum termuat. Silakan refresh halaman.</div>';
+        console.error('[RANKING] gasJsonp tidak tersedia. Pastikan config.js?v=16 termuat.');
+        return;
+    }
+
+    jsonp('getBintangPelajar', { token }, 20000)
+    .then(res => {
+        if (res.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
+            const upper = v => String(v || '').toUpperCase();
+            let dataTK = res.data.filter(s => /(^|\s|-)TK|TPQ|RA/.test(upper(s.kelas)));
+            let dataIBT = res.data.filter(s => /IBT|IBTIDAIYAH|\bMI\b|\bSD\b/.test(upper(s.kelas)));
+            let dataSANA = res.data.filter(s => /SANA|TSANAW|MTS|ALIYAH|\bMA\b/.test(upper(s.kelas)));
+
+            // Juara umum antar kelas dibandingkan dengan RATA-RATA terlebih dahulu,
+            // karena jumlah mapel tiap kelas dapat berbeda. Total menjadi tie-breaker.
+            const urutkanJuaraUmum = arr => {
                 arr.sort((a, b) => {
-                    let totalB = parseFloat(b.total || 0);
-                    let totalA = parseFloat(a.total || 0);
-                    if (totalB !== totalA) return totalB - totalA;
-                    
-                    let rataB = parseFloat(b.rata || 0);
-                    let rataA = parseFloat(a.rata || 0);
-                    return rataB - rataA;
+                    const rataB = parseFloat(b.rata_asli ?? b.rata ?? 0);
+                    const rataA = parseFloat(a.rata_asli ?? a.rata ?? 0);
+                    if (rataB !== rataA) return rataB - rataA;
+                    return parseFloat(b.total || 0) - parseFloat(a.total || 0);
                 });
             };
-            
-            urutkan(dataTK);
-            urutkan(dataIBT);
-            urutkan(dataSANA);
 
-            wadah.innerHTML = ''; 
-            
+            urutkanJuaraUmum(dataTK);
+            urutkanJuaraUmum(dataIBT);
+            urutkanJuaraUmum(dataSANA);
+            wadah.innerHTML = '';
+
             const renderKategori = (judul, icon, dataKategori, warnaBadge) => {
-                if(dataKategori.length === 0) return;
-                
+                if (dataKategori.length === 0) return;
+
                 wadah.innerHTML += `<div class="col-span-full text-white font-bold text-lg mt-4 mb-2 border-b border-white/30 pb-2 shadow-sm"><i class="${icon} mr-2"></i>${judul}</div>`;
-                
-                // Variabel untuk menyimpan peringkat aktual (cerdas mendeteksi kembar)
-                let rankAktual = 1;
-                
-                dataKategori.forEach((santri, idx) => {
-                    
-                    // ====================================================
-                    // PERBAIKAN 2: Logika Peringkat Kembar
-                    // ====================================================
-                    if (idx > 0) {
-                        let prevSantri = dataKategori[idx - 1];
-                        let totalSkrg = parseFloat(santri.total || 0);
-                        let totalSblm = parseFloat(prevSantri.total || 0);
-                        let rataSkrg = parseFloat(santri.rata || 0);
-                        let rataSblm = parseFloat(prevSantri.rata || 0);
-                        
-                        // Jika Total ATAU Rata-rata beda dengan orang di atasnya, peringkatnya turun
-                        if (totalSkrg !== totalSblm || rataSkrg !== rataSblm) {
-                            rankAktual = idx + 1;
-                        }
-                    }
 
-                    // Tentukan Juara Umum berdasarkan rankAktual, BUKAN dari index ke-0
-                    let isTop1 = (rankAktual === 1);
-                    
-                    let namaWali = mapWali[santri.kelas];
+                const topRata = parseFloat(dataKategori[0].rata_asli ?? dataKategori[0].rata ?? 0);
+                const topTotal = parseFloat(dataKategori[0].total || 0);
 
-                    let rataBenar = parseFloat(santri.rata || 0).toFixed(1);
-                    if (!santri.kelas.includes('TK')) {
-                        let jmlMapel = (JADWAL_MAPEL[santri.kelas] && JADWAL_MAPEL[santri.kelas].semua) ? JADWAL_MAPEL[santri.kelas].semua.length : 0;
-                        if (jmlMapel > 0) rataBenar = (parseFloat(santri.total || 0) / jmlMapel).toFixed(1);
-                        else rataBenar = "0.0"; 
-                    }
+                dataKategori.forEach((santri) => {
+                    const rata = parseFloat(santri.rata_asli ?? santri.rata ?? 0);
+                    const total = parseFloat(santri.total || 0);
+                    const isJuaraUmum = rata === topRata && total === topTotal;
+                    const namaWali = santri.wali || 'Belum Diatur';
+                    const rataBenar = rata.toFixed(2);
 
-                    let badgeJuara = isTop1 ? `<div class="absolute top-0 right-0 ${warnaBadge} text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>` : '';
-                    let colorAvatar = isTop1 ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400';
-                    let colorNumber = isTop1 ? warnaBadge.split(' ')[0] : 'bg-gray-500'; 
+                    // Semua kartu di Bintang Pelajar adalah peringkat 1 DI KELAS MASING-MASING.
+                    // Badge JUARA UMUM hanya diberikan kepada yang terbaik antar kelas satu tingkatan.
+                    const badgeJuara = isJuaraUmum
+                        ? `<div class="absolute top-0 right-0 ${warnaBadge} text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>`
+                        : '';
+                    const colorAvatar = isJuaraUmum ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400';
+                    const colorNumber = isJuaraUmum ? warnaBadge.split(' ')[0] : 'bg-emerald-600';
 
-                    // Angka avatar diubah menggunakan variabel ${rankAktual}
-                    let html = ` <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group"> ${badgeJuara} <div class="flex items-center gap-4 mb-3"> <div class="w-14 h-14 rounded-full ${colorAvatar} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative"> <i class="fas fa-user-graduate"></i> <div class="absolute -bottom-1 -right-1 w-6 h-6 ${colorNumber} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${rankAktual}</div> </div> <div class="flex-1 min-w-0"> <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${santri.kelas}</p> 
-					
-					<h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${escapeHTML(santri.nama)}</h4>
-                        
-                        <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata-rata: <span class="font-bold text-gray-800">${rataBenar}</span></p>
-                        
-                    </div> 
-                </div> 
-                
-                <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1"> 
-                    <p class="truncate" title="${escapeHTML(santri.jk)}">
-                        <i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${escapeHTML(santri.jk)}</b>
-                    </p>
-                    <p class="truncate" title="${escapeHTML(santri.ttl)}">
-                        <i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${escapeHTML(santri.ttl)}
-                    </p> 
-                    <p class="truncate" title="${escapeHTML(santri.ayah)} & ${escapeHTML(santri.ibu)}">
-                        <i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${escapeHTML(santri.ayah)} & ${escapeHTML(santri.ibu)}
-                    </p> 
-                    <p class="truncate" title="${escapeHTML(santri.alamat)}">
-                        <i class="fas fa-home w-4 text-orange-500 text-center"></i> ${escapeHTML(santri.alamat)}
-                    </p> 
-                    <p class="truncate mt-1 pt-1" title="Wali Kelas">
-                        <i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${escapeHTML(namaWali)}</b>
-                    </p> 
-                </div> 
-            </div>`; 
-                        
-            wadah.innerHTML += html; 
-        });
-    };
+                    wadah.innerHTML += `
+                    <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group">
+                        ${badgeJuara}
+                        <div class="flex items-center gap-4 mb-3">
+                            <div class="w-14 h-14 rounded-full ${colorAvatar} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative">
+                                <i class="fas fa-user-graduate"></i>
+                                <div class="absolute -bottom-1 -right-1 w-6 h-6 ${colorNumber} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">1</div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${escapeHTML(santri.kelas)}</p>
+                                <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${escapeHTML(santri.nama)}</h4>
+                                <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata-rata: <span class="font-bold text-gray-800">${rataBenar}</span></p>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1">
+                            <p class="truncate" title="${escapeHTML(santri.jk)}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${escapeHTML(santri.jk)}</b></p>
+                            <p class="truncate" title="${escapeHTML(santri.ttl)}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${escapeHTML(santri.ttl)}</p>
+                            <p class="truncate" title="${escapeHTML(santri.ayah)} & ${escapeHTML(santri.ibu)}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${escapeHTML(santri.ayah)} & ${escapeHTML(santri.ibu)}</p>
+                            <p class="truncate" title="${escapeHTML(santri.alamat)}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${escapeHTML(santri.alamat)}</p>
+                            <p class="truncate mt-1 pt-1" title="Wali Kelas"><i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${escapeHTML(namaWali)}</b></p>
+                        </div>
+                    </div>`;
+                });
+            };
 
-    renderKategori('Tingkat TK / RA', 'fas fa-star text-amber-400', dataTK, 'bg-emerald-600');
-    renderKategori('Tingkat Madrasah Ibtidaiyah', 'fas fa-star text-amber-400', dataIBT, 'bg-blue-600');
-    renderKategori('Tingkat Madrasah Sanawiyah', 'fas fa-star text-amber-400', dataSANA, 'bg-purple-600');
-            
-        } else { 
-            wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-info-circle text-2xl mb-2 block"></i>Belum ada data nilai yang diinput di kelas mana pun.</div>'; 
-        } 
-    }).catch(e => { wadah.innerHTML = '<div class="text-white text-center col-span-full mt-4">Gagal memuat data. Periksa jaringan Anda.</div>'; }); 
+            renderKategori('Tingkat TK / RA', 'fas fa-star text-amber-400', dataTK, 'bg-emerald-600');
+            renderKategori('Tingkat Madrasah Ibtidaiyah', 'fas fa-star text-amber-400', dataIBT, 'bg-blue-600');
+            renderKategori('Tingkat Madrasah Sanawiyah', 'fas fa-star text-amber-400', dataSANA, 'bg-purple-600');
+        } else if (res.status === 'success') {
+            wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-info-circle text-2xl mb-2 block"></i>Belum ada data nilai yang diinput di kelas mana pun.</div>';
+        } else {
+            throw new Error(res.message || 'Gagal memuat Bintang Pelajar.');
+        }
+    })
+    .catch(e => {
+        console.error('[RANKING] Gagal memuat Bintang Pelajar:', e);
+        wadah.innerHTML = '<div class="text-white text-center col-span-full mt-4">Gagal memuat data ranking. Silakan refresh lalu coba lagi.</div>';
+    });
 }
 
-function loadRankingKelas() { 
-    const kelasPilih = document.getElementById('filterKelasRanking').value; 
-    if (!kelasPilih) { Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' }); return; } 
-    
-    showLoading(true); 
-    
-    const formDataRanking = new URLSearchParams();
-    formDataRanking.append('action', 'getRankingKelas');
-    formDataRanking.append('token', sessionStorage.getItem('tokenMadasa'));
-    formDataRanking.append('kelas', kelasPilih); 
+function loadRankingKelas() {
+    const kelasPilih = document.getElementById('filterKelasRanking').value;
+    if (!kelasPilih) {
+        Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' });
+        return;
+    }
 
-    const formDataPengaturan = new URLSearchParams();
-    formDataPengaturan.append('action', 'getPengaturan');
-    formDataPengaturan.append('token', sessionStorage.getItem('tokenMadasa'));
-    formDataPengaturan.append('kelas', kelasPilih); 
+    showLoading(true);
+    const token = sessionStorage.getItem('tokenMadasa') || '';
+    const jsonp = window.gasJsonp;
 
-    Promise.all([
-        fetch(GAS_URL, { method: 'POST', body: formDataRanking }).then(r => r.json()),
-        fetch(GAS_URL, { method: 'POST', body: formDataPengaturan }).then(r => r.json())
-    ]).then(([resRanking, resPengaturan]) => { 
-        showLoading(false); 
-        const tbody = document.getElementById('bodyTabelRanking'); 
-        tbody.innerHTML = ''; 
+    if (typeof jsonp !== 'function') {
+        showLoading(false);
+        Swal.fire('Error', 'Komponen koneksi belum termuat. Silakan refresh halaman.', 'error');
+        return;
+    }
 
-        let namaWali = 'Belum Diatur';
-        if (resPengaturan.status === 'success' && resPengaturan.umum && resPengaturan.umum.wali) {
-            namaWali = resPengaturan.umum.wali;
-        }
+    jsonp('getRankingKelas', { token, kelas: kelasPilih }, 20000)
+    .then(resRanking => {
+        showLoading(false);
+        const tbody = document.getElementById('bodyTabelRanking');
+        tbody.innerHTML = '';
 
-        if (resRanking.status === 'success' && resRanking.data.length > 0) { 
-            resRanking.data.forEach(s => {
-                if (!kelasPilih.includes('TK')) {
-                    let jmlMapel = (JADWAL_MAPEL[kelasPilih] && JADWAL_MAPEL[kelasPilih].semua) ? JADWAL_MAPEL[kelasPilih].semua.length : 0;
-                    if (jmlMapel > 0) {
-                        s.rata = (parseFloat(s.total || 0) / jmlMapel).toFixed(1);
-                    } else {
-                        s.rata = parseFloat(s.rata || 0).toFixed(1); 
-                    }
-                } else {
-                    s.rata = parseFloat(s.rata || 0).toFixed(1);
-                }
-            });
+        const namaWali = (resRanking && resRanking.wali) ? resRanking.wali : 'Belum Diatur';
 
-            resRanking.data.sort((a, b) => { 
-                if (a.rank && b.rank) return a.rank - b.rank; 
-                return parseFloat(b.rata || 0) - parseFloat(a.rata || 0) || parseFloat(b.total || 0) - parseFloat(a.total || 0); 
-            }); 
-            
+        if (resRanking.status === 'success' && Array.isArray(resRanking.data) && resRanking.data.length > 0) {
+            // Urutan dari server sudah final: santri lengkap berdasarkan rata-rata presisi asli,
+            // lalu santri yang nilainya belum lengkap di bagian bawah tanpa ranking.
             resRanking.data.forEach((s, index) => {
-                let rankNomor = s.rank ? parseInt(s.rank) : (index + 1); 
-                let rankStyle = "text-gray-500 font-bold text-lg"; let bgStyle = "hover:bg-gray-50"; let icon = rankNomor; 
-                
-                if(rankNomor === 1) { rankStyle = "text-amber-500 text-2xl font-black"; bgStyle = "bg-amber-50 border-l-4 border-amber-400"; } 
-                else if(rankNomor === 2) { rankStyle = "text-gray-400 text-xl font-black"; bgStyle = "bg-gray-50"; } 
-                else if(rankNomor === 3) { rankStyle = "text-orange-400 text-xl font-black"; bgStyle = "bg-orange-50/50"; } 
-                
-                tbody.innerHTML += ` 
-                <tr class="transition-all ${bgStyle} border-b border-gray-50 last:border-0"> 
-                    <td class="p-3 text-center border-r border-gray-100 ${rankStyle} whitespace-nowrap">${icon}</td> 
-                    <td class="p-3 text-gray-500 border-r border-gray-100 text-xs whitespace-nowrap">${s.nis}</td> 
-                    <td class="p-3 border-r border-gray-100 min-w-[280px]"> 
-                       <p class="font-bold text-gray-800 ${rankNomor <= 3 ? 'text-base' : 'text-sm'} whitespace-nowrap">${escapeHTML(s.nama)}</p> 
-<div class="text-[11px] text-gray-500 mt-1.5 space-y-0.5 whitespace-nowrap"> 
-    <p><span class="font-semibold text-gray-600">L/P:</span> ${escapeHTML(s.jk)}</p> 
-    <p><span class="font-semibold text-gray-600">TTL:</span> ${escapeHTML(s.ttl)}</p> 
-    <p><span class="font-semibold text-gray-600">Ortu:</span> ${escapeHTML(s.ayah)} & ${escapeHTML(s.ibu)}</p> 
-    <p><span class="font-semibold text-gray-600">Alamat:</span> ${escapeHTML(s.alamat)}</p>
-                            <p class="mt-1 pt-1 border-t border-gray-200/60"><span class="font-semibold text-gray-600">Wali Kelas:</span> <span class="font-bold text-gray-800">${namaWali}</span></p> 
-                        </div> 
-                    </td> 
-                    <td class="p-3 text-center border-r border-gray-100 font-bold text-emerald-700 align-middle whitespace-nowrap">${s.total}</td> 
-                    <td class="p-3 text-center font-bold text-blue-600 align-middle whitespace-nowrap">${s.rata}</td> 
-                </tr>`; 
-            }); 
-        } else { 
-            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-left sm:text-center border-none"><div class="sticky left-6 inline-block text-center text-red-400 font-medium"><i class="fas fa-folder-open text-4xl mb-3 block text-red-300"></i> Belum ada data nilai di kelas ini.</div></td></tr>`; 
+                const lengkap = s.lengkap === true || s.status_ranking === 'LENGKAP';
+                const rankNomor = lengkap && s.rank ? parseInt(s.rank) : null;
+                let rankStyle = 'text-gray-400 font-bold text-lg';
+                let bgStyle = lengkap ? 'hover:bg-gray-50' : 'bg-slate-50/80';
+                let icon = rankNomor || '<span class="text-xs">BELUM</span>';
+
+                if (rankNomor === 1) { rankStyle = 'text-amber-500 text-2xl font-black'; bgStyle = 'bg-amber-50 border-l-4 border-amber-400'; }
+                else if (rankNomor === 2) { rankStyle = 'text-gray-400 text-xl font-black'; bgStyle = 'bg-gray-50'; }
+                else if (rankNomor === 3) { rankStyle = 'text-orange-400 text-xl font-black'; bgStyle = 'bg-orange-50/50'; }
+
+                tbody.innerHTML += `
+                <tr class="transition-all ${bgStyle} border-b border-gray-50 last:border-0">
+                    <td class="p-3 text-center border-r border-gray-100 ${rankStyle} whitespace-nowrap">${icon}</td>
+                    <td class="p-3 text-gray-500 border-r border-gray-100 text-xs whitespace-nowrap">${escapeHTML(s.nis)}</td>
+                    <td class="p-3 border-r border-gray-100 min-w-[280px]">
+                        <p class="font-bold text-gray-800 ${rankNomor && rankNomor <= 3 ? 'text-base' : 'text-sm'} whitespace-nowrap">${escapeHTML(s.nama)}</p>
+                        <div class="text-[11px] text-gray-500 mt-1.5 space-y-0.5 whitespace-nowrap">
+                            <p><span class="font-semibold text-gray-600">L/P:</span> ${escapeHTML(s.jk)}</p>
+                            <p><span class="font-semibold text-gray-600">TTL:</span> ${escapeHTML(s.ttl)}</p>
+                            <p><span class="font-semibold text-gray-600">Ortu:</span> ${escapeHTML(s.ayah)} & ${escapeHTML(s.ibu)}</p>
+                            <p><span class="font-semibold text-gray-600">Alamat:</span> ${escapeHTML(s.alamat)}</p>
+                            ${!lengkap ? `<p class="mt-1 text-amber-700 font-bold"><i class="fas fa-exclamation-circle mr-1"></i>Nilai belum lengkap: ${s.mapel_terisi || 0}/${s.mapel_wajib || 0} mapel. Rata-rata sementara.</p>` : ''}
+                            <p class="mt-1 pt-1 border-t border-gray-200/60"><span class="font-semibold text-gray-600">Wali Kelas:</span> <span class="font-bold text-gray-800">${escapeHTML(namaWali)}</span></p>
+                        </div>
+                    </td>
+                    <td class="p-3 text-center border-r border-gray-100 font-bold text-emerald-700 align-middle whitespace-nowrap">${s.total}</td>
+                    <td class="p-3 text-center font-bold text-blue-600 align-middle whitespace-nowrap">${s.mapel_terisi > 0 || lengkap ? parseFloat(s.rata_asli ?? s.rata ?? 0).toFixed(2) : '-'}</td>
+                </tr>`;
+            });
+        } else if (resRanking.status === 'success') {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-left sm:text-center border-none"><div class="sticky left-6 inline-block text-center text-red-400 font-medium"><i class="fas fa-folder-open text-4xl mb-3 block text-red-300"></i> Belum ada data nilai di kelas ini.</div></td></tr>`;
+        } else {
+            throw new Error(resRanking.message || 'Gagal memuat ranking.');
         }
-    }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal memuat ranking.', 'error'); }); 
+    })
+    .catch(e => {
+        showLoading(false);
+        console.error('[RANKING] Gagal memuat ranking kelas:', e);
+        Swal.fire('Error', 'Gagal memuat ranking. Silakan refresh lalu coba lagi.', 'error');
+    });
 }
 
 function loadSettingRapor() {
@@ -1887,7 +1976,7 @@ function loadSettingRapor() {
     formData.append('action', 'getPengaturan'); 
     formData.append('kelas', kelas); 
 
-    fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => { 
+    gasFetch( {method:'POST', body:formData}).then(r=>r.json()).then(res => { 
         showLoading(false); 
         document.getElementById('formSettingRapor').classList.remove('hidden'); 
 
@@ -1976,7 +2065,7 @@ document.getElementById('formSettingRapor').addEventListener('submit', function(
     formData.append('mapel_baca', document.getElementById('set_mapel_baca').value.toUpperCase());
     formData.append('kamus', document.getElementById('set_kamus').value);
     
-    fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => {
+    gasFetch( {method:'POST', body:formData}).then(r=>r.json()).then(res => {
         showLoading(false); 
         
         btnSubmit.disabled = false; 
@@ -2019,7 +2108,7 @@ function prosesUploadDrive(inputId, previewId, teksId, jenisKode) {
             formData.append('data', base64String); 
             formData.append('token', sessionStorage.getItem('tokenMadasa')); 
 			
-            fetch(GAS_URL, {method:'POST', body:formData}).then(r=>r.json()).then(res => { showLoading(false); if(res.status === 'success') { Swal.fire({toast:true, position:'top-end', icon:'success', title: 'Tersimpan di Drive!', showConfirmButton:false, timer:2000}); } else { Swal.fire('Gagal Upload', res.message, 'error'); } }).catch(err => { showLoading(false); Swal.fire('Error', 'Jaringan terputus.', 'error'); }); 
+            gasFetch( {method:'POST', body:formData}).then(r=>r.json()).then(res => { showLoading(false); if(res.status === 'success') { Swal.fire({toast:true, position:'top-end', icon:'success', title: 'Tersimpan di Drive!', showConfirmButton:false, timer:2000}); } else { Swal.fire('Gagal Upload', res.message, 'error'); } }).catch(err => { showLoading(false); Swal.fire('Error', 'Jaringan terputus.', 'error'); }); 
         }; reader.readAsDataURL(file); 
     }); 
 }
@@ -2469,7 +2558,7 @@ function prosesMutasi() {
                 formData.append('nis_list', JSON.stringify(nisList));
 
                 // Menggunakan asyc/await untuk fetch yang lebih stabil
-                const response = await fetch(GAS_URL, { method: 'POST', body: formData });
+                const response = await gasFetch( { method: 'POST', body: formData });
                 
                 // PENGAMANAN UTAMA: Blokir jika server Google me-redirect ke halaman error HTML
                 if (!response.ok) throw new Error("Respons server tidak valid (Bukan 200 OK)");
@@ -2851,7 +2940,7 @@ function hapusDataSantri(nis, nama) {
             formData.append('token', sessionStorage.getItem('tokenMadasa'));
             formData.append('nis', nis);
 
-            fetch(GAS_URL, { method: 'POST', body: formData })
+            gasFetch( { method: 'POST', body: formData })
             .then(res => res.json())
             .then(data => {
                 showLoading(false);
@@ -2911,7 +3000,7 @@ function resetTahunAjaran() {
             fd.append('action', 'resetDataTahunAjaran');
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd })
+            gasFetch( { method: 'POST', body: fd })
             .then(r => r.json())
             .then(res => {
                 showLoading(false);

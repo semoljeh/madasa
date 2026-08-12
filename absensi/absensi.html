@@ -155,7 +155,7 @@
     </div>
 
     <!-- KONFIGURASI BACKEND -->
-    <script src="../config.js?v=5"></script>
+    <script src="../config.js?v=16"></script>
     <script>
         const beepSound = new Audio('../asset/notif.mp3');
         
@@ -182,7 +182,7 @@
             fdStatus.append('action', 'getStatusAbsen');
             fdStatus.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fdStatus })
+            gasFetch( { method: 'POST', body: fdStatus })
             .then(r=>r.json())
             .then(res => {
                 if (res.status === 'success') {
@@ -204,7 +204,7 @@
             formData.append('action', 'getSantri');
             formData.append('token', sessionStorage.getItem('tokenMadasa'));
             
-            fetch(GAS_URL, { method: 'POST', body: formData })
+            gasFetch( { method: 'POST', body: formData })
             .then(r => r.json()) 
             .then(res => {
                 showLoading(false);
@@ -443,7 +443,7 @@
             fd.append('status', status); 
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd })
+            gasFetch( { method: 'POST', body: fd })
             .then(r => r.json())
             .then(res => {
                 if(!isScan) showLoading(false);

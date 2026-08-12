@@ -123,7 +123,7 @@ if (loginFormElement) {
         formData.append('password', pass); 
 
         // Proses fetch ke Google Apps Script
-        fetch(GAS_URL, { method: 'POST', body: formData })
+        gasFetch( { method: 'POST', body: formData })
         .then(response => response.json())
         .then(res => {
             showLoading(false);

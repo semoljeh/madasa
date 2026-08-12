@@ -237,7 +237,7 @@
     </div>
 
 
-      <script src="../config.js?v=4"></script>
+      <script src="../config.js?v=16"></script>
 		
 <script>
 
@@ -266,7 +266,7 @@ window.onload = async () => {
         formData.append('action', 'getSantri');
         formData.append('token', sessionStorage.getItem('tokenMadasa'));
         
-        const res = await fetch(GAS_URL, { method: 'POST', body: formData });
+        const res = await gasFetch( { method: 'POST', body: formData });
         const data = await res.json();
         
         if(data.status === 'success') {
@@ -437,7 +437,7 @@ function terbilang(angka) {
                 formData.append('action', 'getRaporTK');
                 formData.append('nis', nisSantri);
 
-                const response = await fetch(GAS_URL, { method: 'POST', body: formData });
+                const response = await gasFetch( { method: 'POST', body: formData });
                 const dataRes = await response.json();
 
                 if(dataRes.status === 'success') {
@@ -447,12 +447,12 @@ function terbilang(angka) {
                         const fdRank = new URLSearchParams();
                         fdRank.append('action', 'getRankingKelas');
                         fdRank.append('kelas', dataRes.biodata.kelas);
-                        const resRank = await fetch(GAS_URL, { method: 'POST', body: fdRank });
+                        const resRank = await gasFetch( { method: 'POST', body: fdRank });
                         const dataRank = await resRank.json();
                         
                         if(dataRank.status === 'success') {
                             const cariRank = dataRank.data.find(s => s.nis.toString() === nisSantri.toString());
-                            if(cariRank) peringkatKelas = cariRank.rank;
+                            if(cariRank) peringkatKelas = (cariRank.lengkap && cariRank.rank) ? cariRank.rank : '-';
                             totalSantri = dataRank.data.length; // Tambahan: Menghitung total siswa unik dari data server
                         }
                     } catch(e) { console.log("Gagal menarik data ranking"); }
@@ -584,7 +584,7 @@ for (let i = 0; i < 12; i++) {
     }
 }
 
-           let rataRata = barisDiisi > 0 ? (totalNilai / barisDiisi).toFixed(1) : 0;
+           let rataRata = barisDiisi > 0 ? (totalNilai / barisDiisi).toFixed(2) : 0;
             let fixTotal = totalNilai % 1 === 0 ? totalNilai : totalNilai.toFixed(1);
             let fixRata = rataRata % 1 === 0 ? parseInt(rataRata) : parseFloat(rataRata);
 
@@ -631,7 +631,7 @@ function cetakSampulBiodataTK() {
     const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
     if (tokenTersimpan) fdSet.append('token', tokenTersimpan);
 
-    fetch(GAS_URL, { method: 'POST', body: fdSet })
+    gasFetch( { method: 'POST', body: fdSet })
         .then(r => r.json())
         .then(resSet => {
             showLoading(false);
@@ -789,7 +789,10 @@ function cetakSampulBiodataTK() {
     // 1. Ambil semua data kelas dari GLOBAL_DATA_SANTRI, 
     //    filter yang mengandung kata "TK", lalu hapus duplikat (unik), dan urutkan.
     const kelasTKUnik = [...new Set(GLOBAL_DATA_SANTRI.map(s => s.kelas))]
-                          .filter(kelas => kelas && kelas.toUpperCase().includes('TK'))
+                          .filter(kelas => {
+                              const k = String(kelas || '').toUpperCase();
+                              return k.includes('TPQ') || k.includes('TK') || k.includes('RA');
+                          })
                           .sort();
 
     // 2. Kosongkan pilihan yang ada dan setel ulang defaultnya

@@ -307,7 +307,7 @@
     </div>
 
     <!-- PANGGIL KONFIGURASI BACKEND -->
-    <script src="../config.js?v=5"></script>
+    <script src="../config.js?v=16"></script>
     
     <script>
         let JAM_BUKA = 12;
@@ -328,7 +328,7 @@
             formData.append('action', 'getSantri');
             formData.append('token', sessionStorage.getItem('tokenMadasa'));
             
-            fetch(GAS_URL, { method: 'POST', body: formData })
+            gasFetch( { method: 'POST', body: formData })
             .then(r => r.text()) 
             .then(text => {
                 showLoading(false);
@@ -555,7 +555,7 @@
                     fd.append('keterangan', ket);
                     fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-                    fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+                    gasFetch( { method: 'POST', body: fd }).then(r => r.json()).then(res => {
                         showLoading(false);
                         if (res.status === 'success') {
                             Swal.fire('Berhasil', res.message, 'success');
@@ -572,7 +572,7 @@
             fd.append('action', 'getStatusAbsen');
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+            gasFetch( { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
                 if (res.status === 'success') {
                     renderBadgeStatus(res.status_absen);
                     if(res.status_absen === 'Libur' && res.keterangan !== "-") {
@@ -620,7 +620,7 @@
             fd.append('jam_tutup', valTutup);
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+            gasFetch( { method: 'POST', body: fd }).then(r => r.json()).then(res => {
                 showLoading(false);
                 if (res.status === 'success') {
                     Swal.fire('Berhasil', res.message, 'success');
@@ -640,7 +640,7 @@
             fd.append('action', 'getBulanTersedia');
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+            gasFetch( { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
                 const selectBulan = document.getElementById('filterBulanRekap');
                 if (res.status === 'success' && res.data.length > 0) {
                     selectBulan.innerHTML = ''; 
@@ -670,7 +670,7 @@
             fd.append('kelas', kelas);
             fd.append('token', sessionStorage.getItem('tokenMadasa')); 
 
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+            gasFetch( { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
                 showLoading(false);
                 tbody.innerHTML = '';
                 
@@ -739,7 +739,7 @@
             fd.append('radius', radius || 50);
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+            gasFetch( { method: 'POST', body: fd }).then(r => r.json()).then(res => {
                 showLoading(false);
                 if (res.status === 'success') {
                     Swal.fire('Berhasil', res.message, 'success');
@@ -757,7 +757,7 @@
                     fd.append('action', 'hapusLokasiAbsen');
                     fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-                    fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+                    gasFetch( { method: 'POST', body: fd }).then(r => r.json()).then(res => {
                         showLoading(false);
                         if (res.status === 'success') {
                             document.getElementById('inputLat').value = '';
