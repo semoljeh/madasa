@@ -54,8 +54,20 @@ document.addEventListener("DOMContentLoaded", () => {
                     adminElements.forEach(el => el.style.display = '');
                 }
                 
-                showView('home', false); 
-                muatSemuaMapel(); 
+               showView('home', false); 
+muatSemuaMapel();
+
+if (typeof tampilkanWidgetWA === 'function') {
+    setTimeout(() => {
+        tampilkanWidgetWA();
+    }, 500);
+}
+
+if (typeof tampilkanPromptPWA === 'function') {
+    setTimeout(() => {
+        tampilkanPromptPWA();
+    }, 1500);
+}
             }
         }
     }
@@ -508,7 +520,7 @@ const installPrompt = document.getElementById('pwaInstallPrompt');
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=16', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('sw.js?v=18', { updateViaCache: 'none' })
         .then(reg => console.log('PWA aktif!'))
         .catch(err => console.log('PWA gagal: ', err));
     });
@@ -853,68 +865,7 @@ function filterSantri() {
     } 
 }
 
-function loadDataSantri(silent = false) { 
-    if (!silent) showLoading(true); 
-    const formData = new URLSearchParams(); 
-    formData.append('action', 'getSantri'); 
-    formData.append('token', sessionStorage.getItem('tokenMadasa'));
-    
-    gasFetch( { method: 'POST', body: formData }).then(res => res.json()).then(res => { 
-        if (!silent) showLoading(false); 
-        if(res.status === 'success') { 
-            GLOBAL_DATA_SANTRI = res.data; 
-            buatOpsiSemuaKelasOtomatis();
-            
-            const tbody = document.getElementById('bodyTabelSantri'); 
-            if(tbody) { 
-                if(res.data.length === 0) { 
-                    tbody.innerHTML = '<tr><td colspan=\"6\" class=\"p-4 sm:p-6 text-center text-gray-500\">Belum ada data santri di database.</td></tr>'; 
-                    return; 
-                } 
 
-                let barisHTML = [];
-                const roleSaatIni = sessionStorage.getItem('roleMadasa') || '';
-
-                res.data.forEach(s => { 
-                    let amanTampilNama = escapeHTML(s.nama);
-                    let amanTampilKelas = escapeHTML(s.kelas);
-                    let amanNama = s.nama ? s.nama.toString().replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;') : '';
-                    let amanAlamat = s.alamat ? s.alamat.toString().replace(/\\/g, '\\\\').replace(/`/g, "\\`").replace(/'/g, "\\'") : '';
-                    let amanAyah = s.ayah ? s.ayah.toString().replace(/\\/g, '\\\\').replace(/`/g, "\\`").replace(/'/g, "\\'") : '';
-                    let amanIbu = s.ibu ? s.ibu.toString().replace(/\\/g, '\\\\').replace(/`/g, "\\`").replace(/'/g, "\\'") : '';
-                    let amanTtl = s.ttl ? s.ttl.toString().replace(/\\/g, '\\\\').replace(/`/g, "\\`").replace(/'/g, "\\'") : '';
-
-                    const tombolHapus = (!roleSaatIni.includes('Guru')) 
-                        ? `<button onclick="hapusDataSantri('${s.nis}', '${amanNama}')" class="text-red-500 hover:bg-red-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Hapus Data"><i class="fas fa-trash-alt"></i></button>` : '';
-
-                    barisHTML.push(`
-                    <tr class="hover:bg-teal-50 transition-all santri-row" data-kelas="${amanTampilKelas}">
-                        <td class="p-3 sm:p-4 text-center font-bold text-gray-500 urut-nomor"></td>
-                        <td class="p-3 sm:p-4 font-medium">${escapeHTML(s.nis)}</td>
-                        <td class="p-3 sm:p-4 font-bold text-gray-800 whitespace-nowrap">${amanTampilNama}</td>
-                        <td class="p-3 sm:p-4 text-center whitespace-nowrap">${escapeHTML(s.jk)}</td>
-                        <td class="p-3 sm:p-4 whitespace-nowrap"><span class="bg-teal-100 text-teal-700 px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap">${amanTampilKelas}</span></td>
-                        <td class="p-3 sm:p-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="openModalEditSantri('${s.nis}', '${amanNama}', '${s.jk}', '${s.kelas}', \`${amanAlamat}\`, \`${amanAyah}\`, \`${amanIbu}\`, '${s.hp}', \`${amanTtl}\`)" class="text-blue-500 hover:bg-blue-100 p-2 sm:p-2.5 rounded-lg transition-all" title="Edit Data"><i class="fas fa-edit"></i></button>
-                                ${tombolHapus}
-                            </div>
-                        </td>
-                    </tr>`);
-                });
-                
-                tbody.innerHTML = barisHTML.join('');
-                filterSantri(); 
-            } 
-        } 
-
-
-      }).catch(err => { 
-        if (!silent) showLoading(false); 
-        console.error("Detail Error JS:", err); // Ini akan memunculkan lokasi error di Console Anda
-        if (!silent) Swal.fire('Error', 'Gagal menarik data dari server.', 'error'); 
-    }); 
-}
 
 // === FITUR TAMBAH SANTRI DENGAN PEMERIKSAAN KELAS DIPERBAIKI ===
 document.getElementById('formTambahSantri').addEventListener('submit', function(e) { 
@@ -1787,103 +1738,520 @@ document.getElementById('formEditNilai').addEventListener('submit', function(e) 
 
 function loadBintangPelajar() {
     const wadah = document.getElementById('wadahBintangPelajar');
-    wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>Memuat kandidat juara...</div>';
 
-    const token = sessionStorage.getItem('tokenMadasa') || '';
-    const jsonp = window.gasJsonp;
+    wadah.innerHTML =
+        '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full">' +
+        '<i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>' +
+        'Memuat kandidat juara...' +
+        '</div>';
+
+    const token =
+        sessionStorage.getItem('tokenMadasa') || '';
+
+    const jsonp =
+        window.gasJsonp;
 
     if (typeof jsonp !== 'function') {
-        wadah.innerHTML = '<div class="text-white text-center col-span-full mt-4">Komponen koneksi belum termuat. Silakan refresh halaman.</div>';
-        console.error('[RANKING] gasJsonp tidak tersedia. Pastikan config.js?v=16 termuat.');
+
+        wadah.innerHTML =
+            '<div class="text-white text-center col-span-full mt-4">' +
+            'Komponen koneksi belum termuat. Silakan refresh halaman.' +
+            '</div>';
+
+        console.error(
+            '[RANKING] gasJsonp tidak tersedia. Pastikan config.js?v=18 termuat.'
+        );
+
         return;
     }
 
-    jsonp('getBintangPelajar', { token }, 20000)
+    jsonp(
+        'getBintangPelajar',
+        { token },
+        60000,
+        1
+    )
     .then(res => {
-        if (res.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
-            const upper = v => String(v || '').toUpperCase();
-            let dataTK = res.data.filter(s => /(^|\s|-)TK|TPQ|RA/.test(upper(s.kelas)));
-            let dataIBT = res.data.filter(s => /IBT|IBTIDAIYAH|\bMI\b|\bSD\b/.test(upper(s.kelas)));
-            let dataSANA = res.data.filter(s => /SANA|TSANAW|MTS|ALIYAH|\bMA\b/.test(upper(s.kelas)));
 
-            // Juara umum antar kelas dibandingkan dengan RATA-RATA terlebih dahulu,
-            // karena jumlah mapel tiap kelas dapat berbeda. Total menjadi tie-breaker.
+        if (
+            res.status === 'success' &&
+            Array.isArray(res.data) &&
+            res.data.length > 0
+        ) {
+
+            const upper = v =>
+                String(v || '').toUpperCase();
+
+            let dataTK = res.data.filter(
+                s =>
+                    /(^|\s|-)TK|TPQ|RA/.test(
+                        upper(s.kelas)
+                    )
+            );
+
+            let dataIBT = res.data.filter(
+                s =>
+                    /IBT|IBTIDAIYAH|\bMI\b|\bSD\b/.test(
+                        upper(s.kelas)
+                    )
+            );
+
+            let dataSANA = res.data.filter(
+                s =>
+                    /SANA|TSANAW|MTS|ALIYAH|\bMA\b/.test(
+                        upper(s.kelas)
+                    )
+            );
+
+            /*
+             * Juara umum antar kelas dibandingkan
+             * berdasarkan rata-rata terlebih dahulu.
+             *
+             * Total nilai digunakan sebagai tie-breaker.
+             */
             const urutkanJuaraUmum = arr => {
+
                 arr.sort((a, b) => {
-                    const rataB = parseFloat(b.rata_asli ?? b.rata ?? 0);
-                    const rataA = parseFloat(a.rata_asli ?? a.rata ?? 0);
-                    if (rataB !== rataA) return rataB - rataA;
-                    return parseFloat(b.total || 0) - parseFloat(a.total || 0);
+
+                    const rataB =
+                        parseFloat(
+                            b.rata_asli ??
+                            b.rata ??
+                            0
+                        );
+
+                    const rataA =
+                        parseFloat(
+                            a.rata_asli ??
+                            a.rata ??
+                            0
+                        );
+
+                    if (rataB !== rataA) {
+                        return rataB - rataA;
+                    }
+
+                    return (
+                        parseFloat(b.total || 0) -
+                        parseFloat(a.total || 0)
+                    );
                 });
             };
 
             urutkanJuaraUmum(dataTK);
             urutkanJuaraUmum(dataIBT);
             urutkanJuaraUmum(dataSANA);
+
             wadah.innerHTML = '';
 
-            const renderKategori = (judul, icon, dataKategori, warnaBadge) => {
-                if (dataKategori.length === 0) return;
+            const renderKategori = (
+                judul,
+                icon,
+                dataKategori,
+                warnaBadge
+            ) => {
 
-                wadah.innerHTML += `<div class="col-span-full text-white font-bold text-lg mt-4 mb-2 border-b border-white/30 pb-2 shadow-sm"><i class="${icon} mr-2"></i>${judul}</div>`;
+                if (dataKategori.length === 0) {
+                    return;
+                }
 
-                const topRata = parseFloat(dataKategori[0].rata_asli ?? dataKategori[0].rata ?? 0);
-                const topTotal = parseFloat(dataKategori[0].total || 0);
+                wadah.innerHTML += `
+                    <div class="
+                        col-span-full
+                        text-white
+                        font-bold
+                        text-lg
+                        mt-4
+                        mb-2
+                        border-b
+                        border-white/30
+                        pb-2
+                        shadow-sm
+                    ">
+                        <i class="${icon} mr-2"></i>
+                        ${judul}
+                    </div>
+                `;
 
-                dataKategori.forEach((santri) => {
-                    const rata = parseFloat(santri.rata_asli ?? santri.rata ?? 0);
-                    const total = parseFloat(santri.total || 0);
-                    const isJuaraUmum = rata === topRata && total === topTotal;
-                    const namaWali = santri.wali || 'Belum Diatur';
-                    const rataBenar = rata.toFixed(2);
+                const topRata =
+                    parseFloat(
+                        dataKategori[0].rata_asli ??
+                        dataKategori[0].rata ??
+                        0
+                    );
 
-                    // Semua kartu di Bintang Pelajar adalah peringkat 1 DI KELAS MASING-MASING.
-                    // Badge JUARA UMUM hanya diberikan kepada yang terbaik antar kelas satu tingkatan.
-                    const badgeJuara = isJuaraUmum
-                        ? `<div class="absolute top-0 right-0 ${warnaBadge} text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm"><i class="fas fa-crown mr-1"></i>JUARA UMUM</div>`
-                        : '';
-                    const colorAvatar = isJuaraUmum ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400';
-                    const colorNumber = isJuaraUmum ? warnaBadge.split(' ')[0] : 'bg-emerald-600';
+                const topTotal =
+                    parseFloat(
+                        dataKategori[0].total || 0
+                    );
 
-                    wadah.innerHTML += `
-                    <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group">
-                        ${badgeJuara}
-                        <div class="flex items-center gap-4 mb-3">
-                            <div class="w-14 h-14 rounded-full ${colorAvatar} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative">
-                                <i class="fas fa-user-graduate"></i>
-                                <div class="absolute -bottom-1 -right-1 w-6 h-6 ${colorNumber} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">1</div>
+                dataKategori.forEach(
+                    santri => {
+
+                        const rata =
+                            parseFloat(
+                                santri.rata_asli ??
+                                santri.rata ??
+                                0
+                            );
+
+                        const total =
+                            parseFloat(
+                                santri.total || 0
+                            );
+
+                        const isJuaraUmum =
+                            rata === topRata &&
+                            total === topTotal;
+
+                        const namaWali =
+                            santri.wali ||
+                            'Belum Diatur';
+
+                        const rataBenar =
+                            rata.toFixed(2);
+
+                        const badgeJuara =
+                            isJuaraUmum
+                            ? `
+                                <div class="
+                                    absolute
+                                    top-0
+                                    right-0
+                                    ${warnaBadge}
+                                    text-white
+                                    text-[10px]
+                                    font-bold
+                                    px-3
+                                    py-1
+                                    rounded-bl-lg
+                                    z-10
+                                    shadow-sm
+                                ">
+                                    <i class="fas fa-crown mr-1"></i>
+                                    JUARA UMUM
+                                </div>
+                              `
+                            : '';
+
+                        const colorAvatar =
+                            isJuaraUmum
+                            ? 'bg-amber-100 text-amber-500'
+                            : 'bg-gray-100 text-gray-400';
+
+                        const colorNumber =
+                            isJuaraUmum
+                            ? warnaBadge.split(' ')[0]
+                            : 'bg-emerald-600';
+
+                        wadah.innerHTML += `
+                        <div class="
+                            bg-white
+                            rounded-xl
+                            p-5
+                            shadow-lg
+                            transform
+                            transition
+                            hover:-translate-y-1
+                            relative
+                            overflow-hidden
+                            group
+                        ">
+
+                            ${badgeJuara}
+
+                            <div class="flex items-center gap-4 mb-3">
+
+                                <div class="
+                                    w-14
+                                    h-14
+                                    rounded-full
+                                    ${colorAvatar}
+                                    flex
+                                    items-center
+                                    justify-center
+                                    text-2xl
+                                    font-bold
+                                    shadow-inner
+                                    shrink-0
+                                    relative
+                                ">
+
+                                    <i class="fas fa-user-graduate"></i>
+
+                                    <div class="
+                                        absolute
+                                        -bottom-1
+                                        -right-1
+                                        w-6
+                                        h-6
+                                        ${colorNumber}
+                                        text-white
+                                        text-xs
+                                        flex
+                                        items-center
+                                        justify-center
+                                        rounded-full
+                                        border-2
+                                        border-white
+                                        font-bold
+                                    ">
+                                        1
+                                    </div>
+
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+
+                                    <p class="
+                                        text-[10px]
+                                        font-bold
+                                        text-amber-600
+                                        tracking-wider
+                                        uppercase
+                                        mb-0.5
+                                    ">
+                                        ${escapeHTML(
+                                            santri.kelas
+                                        )}
+                                    </p>
+
+                                    <h4 class="
+                                        font-bold
+                                        text-gray-800
+                                        text-sm
+                                        sm:text-base
+                                        truncate
+                                        leading-tight
+                                    ">
+                                        ${escapeHTML(
+                                            santri.nama
+                                        )}
+                                    </h4>
+
+                                    <p class="
+                                        text-xs
+                                        text-gray-500
+                                        mt-1
+                                    ">
+
+                                        Total:
+
+                                        <span class="
+                                            font-bold
+                                            text-gray-800
+                                        ">
+                                            ${santri.total}
+                                        </span>
+
+                                        |
+
+                                        Rata-rata:
+
+                                        <span class="
+                                            font-bold
+                                            text-gray-800
+                                        ">
+                                            ${rataBenar}
+                                        </span>
+
+                                    </p>
+
+                                </div>
+
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${escapeHTML(santri.kelas)}</p>
-                                <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${escapeHTML(santri.nama)}</h4>
-                                <p class="text-xs text-gray-500 mt-1">Total: <span class="font-bold text-gray-800">${santri.total}</span> | Rata-rata: <span class="font-bold text-gray-800">${rataBenar}</span></p>
+
+                            <div class="
+                                border-t
+                                border-gray-100
+                                pt-3
+                                text-xs
+                                text-gray-500
+                                space-y-1
+                            ">
+
+                                <p
+                                    class="truncate"
+                                    title="${escapeHTML(
+                                        santri.jk
+                                    )}"
+                                >
+                                    <i class="
+                                        fas
+                                        fa-venus-mars
+                                        w-4
+                                        text-purple-500
+                                        text-center
+                                    "></i>
+
+                                    Jns Kelamin:
+
+                                    <b>
+                                        ${escapeHTML(
+                                            santri.jk
+                                        )}
+                                    </b>
+                                </p>
+
+                                <p
+                                    class="truncate"
+                                    title="${escapeHTML(
+                                        santri.ttl
+                                    )}"
+                                >
+                                    <i class="
+                                        fas
+                                        fa-map-marker-alt
+                                        w-4
+                                        text-emerald-500
+                                        text-center
+                                    "></i>
+
+                                    ${escapeHTML(
+                                        santri.ttl
+                                    )}
+                                </p>
+
+                                <p
+                                    class="truncate"
+                                    title="${escapeHTML(
+                                        santri.ayah
+                                    )} & ${escapeHTML(
+                                        santri.ibu
+                                    )}"
+                                >
+                                    <i class="
+                                        fas
+                                        fa-user-friends
+                                        w-4
+                                        text-blue-500
+                                        text-center
+                                    "></i>
+
+                                    ${escapeHTML(
+                                        santri.ayah
+                                    )}
+                                    &
+                                    ${escapeHTML(
+                                        santri.ibu
+                                    )}
+                                </p>
+
+                                <p
+                                    class="truncate"
+                                    title="${escapeHTML(
+                                        santri.alamat
+                                    )}"
+                                >
+                                    <i class="
+                                        fas
+                                        fa-home
+                                        w-4
+                                        text-orange-500
+                                        text-center
+                                    "></i>
+
+                                    ${escapeHTML(
+                                        santri.alamat
+                                    )}
+                                </p>
+
+                                <p
+                                    class="
+                                        truncate
+                                        mt-1
+                                        pt-1
+                                    "
+                                    title="Wali Kelas"
+                                >
+
+                                    <i class="
+                                        fas
+                                        fa-user-tie
+                                        w-4
+                                        text-gray-400
+                                        text-center
+                                    "></i>
+
+                                    Wali Kelas:
+
+                                    <b class="text-gray-700">
+                                        ${escapeHTML(
+                                            namaWali
+                                        )}
+                                    </b>
+
+                                </p>
+
                             </div>
+
                         </div>
-                        <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1">
-                            <p class="truncate" title="${escapeHTML(santri.jk)}"><i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${escapeHTML(santri.jk)}</b></p>
-                            <p class="truncate" title="${escapeHTML(santri.ttl)}"><i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${escapeHTML(santri.ttl)}</p>
-                            <p class="truncate" title="${escapeHTML(santri.ayah)} & ${escapeHTML(santri.ibu)}"><i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${escapeHTML(santri.ayah)} & ${escapeHTML(santri.ibu)}</p>
-                            <p class="truncate" title="${escapeHTML(santri.alamat)}"><i class="fas fa-home w-4 text-orange-500 text-center"></i> ${escapeHTML(santri.alamat)}</p>
-                            <p class="truncate mt-1 pt-1" title="Wali Kelas"><i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${escapeHTML(namaWali)}</b></p>
-                        </div>
-                    </div>`;
-                });
+                        `;
+                    }
+                );
             };
 
-            renderKategori('Tingkat TK / RA', 'fas fa-star text-amber-400', dataTK, 'bg-emerald-600');
-            renderKategori('Tingkat Madrasah Ibtidaiyah', 'fas fa-star text-amber-400', dataIBT, 'bg-blue-600');
-            renderKategori('Tingkat Madrasah Sanawiyah', 'fas fa-star text-amber-400', dataSANA, 'bg-purple-600');
-        } else if (res.status === 'success') {
-            wadah.innerHTML = '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full"><i class="fas fa-info-circle text-2xl mb-2 block"></i>Belum ada data nilai yang diinput di kelas mana pun.</div>';
-        } else {
-            throw new Error(res.message || 'Gagal memuat Bintang Pelajar.');
+            renderKategori(
+                'Tingkat TK / RA',
+                'fas fa-star text-amber-400',
+                dataTK,
+                'bg-emerald-600'
+            );
+
+            renderKategori(
+                'Tingkat Madrasah Ibtidaiyah',
+                'fas fa-star text-amber-400',
+                dataIBT,
+                'bg-blue-600'
+            );
+
+            renderKategori(
+                'Tingkat Madrasah Sanawiyah',
+                'fas fa-star text-amber-400',
+                dataSANA,
+                'bg-purple-600'
+            );
+
         }
+
+        else if (
+            res.status === 'success'
+        ) {
+
+            wadah.innerHTML =
+                '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full">' +
+                '<i class="fas fa-info-circle text-2xl mb-2 block"></i>' +
+                'Belum ada data nilai yang diinput di kelas mana pun.' +
+                '</div>';
+
+        }
+
+        else {
+
+            throw new Error(
+                res.message ||
+                'Gagal memuat Bintang Pelajar.'
+            );
+
+        }
+
     })
+
     .catch(e => {
-        console.error('[RANKING] Gagal memuat Bintang Pelajar:', e);
-        wadah.innerHTML = '<div class="text-white text-center col-span-full mt-4">Gagal memuat data ranking. Silakan refresh lalu coba lagi.</div>';
+
+        console.error(
+            '[RANKING] Gagal memuat Bintang Pelajar:',
+            e
+        );
+
+        wadah.innerHTML =
+            '<div class="text-white text-center col-span-full mt-4">' +
+            'Gagal memuat data ranking. Silakan refresh lalu coba lagi.' +
+            '</div>';
+
     });
 }
+
 
 function loadRankingKelas() {
     const kelasPilih = document.getElementById('filterKelasRanking').value;
@@ -1902,7 +2270,7 @@ function loadRankingKelas() {
         return;
     }
 
-    jsonp('getRankingKelas', { token, kelas: kelasPilih }, 20000)
+  jsonp('getRankingKelas', { token, kelas: kelasPilih }, 30000, 1)
     .then(resRanking => {
         showLoading(false);
         const tbody = document.getElementById('bodyTabelRanking');
@@ -2732,12 +3100,7 @@ function jalankanBannerOtomatis() {
     timerBannerMotivasi = setInterval(rotasiMotivasiBanner, 10000);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    if (sessionStorage.getItem('tokenMadasa')) {
-        setTimeout(tampilkanWidgetWA, 500);
-        setTimeout(tampilkanPromptPWA, 1500);
-    }
-});
+
 
 function buatOpsiSemuaKelasOtomatis() {
     const kelasUnik = [...new Set(GLOBAL_DATA_SANTRI.map(s => s.kelas))].filter(Boolean).sort();

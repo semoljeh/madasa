@@ -465,38 +465,76 @@
             });
         }
 
-        async function tarikDataSantri() {
-            const urlGAS = typeof GAS_URL !== 'undefined' ? GAS_URL : null;
-            if (!urlGAS) return showToast("URL Web App tidak ditemukan!", "error");
+async function tarikDataSantri(maksimalPercobaan = 3) {
+    const urlGAS = typeof GAS_URL !== 'undefined' ? GAS_URL : null;
+    if (!urlGAS) return showToast("URL Web App tidak ditemukan!", "error");
 
-            const btnTarik = document.getElementById('btnTarik');
-            const txtTarik = document.getElementById('txtTarik');
-            const loading = document.getElementById('loading');
+    const btnTarik = document.getElementById('btnTarik');
+    const txtTarik = document.getElementById('txtTarik');
+    const loading = document.getElementById('loading');
+    
+    // Tampilan loading diaktifkan sebelum loop dimulai
+    btnTarik.disabled = true;
+    txtTarik.textContent = "Menarik...";
+    loading.style.display = "block";
+
+    let percobaan = 0;
+    let berhasil = false;
+
+    // Loop akan berjalan selama belum berhasil dan belum mencapai batas maksimal
+    while (percobaan < maksimalPercobaan && !berhasil) {
+        try {
+            percobaan++;
             
-            try {
-                btnTarik.disabled = true;
-                txtTarik.textContent = "Menarik...";
-                loading.style.display = "block";
+            // Ubah teks tombol jika ini adalah percobaan ulang
+            if (percobaan > 1) {
+                txtTarik.textContent = `Menarik... (Coba ke-${percobaan})`;
+            }
 
-                const response = await fetch(urlGAS, { method: 'POST', body: new FormData().set('action', 'getSantri') || (()=>{let f=new FormData(); f.append('action', 'getSantri'); return f;})() });
-                const result = await response.json();
+            // Membangun form data
+            let f = new FormData(); 
+            f.append('action', 'getSantri');
+            
+            // Mengirim request
+            const response = await fetch(urlGAS, { method: 'POST', body: f });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const result = await response.json();
 
-                if (result.status === 'success') {
-                    semuaSantri = result.data.filter(santri => santri.nama && santri.kelas); 
-                    siapkanFilterKelas(semuaSantri);
-                    document.getElementById('btnGenerate').disabled = false;
-                    showToast(`Sukses! ${semuaSantri.length} data ditarik.`, "success");
-                } else {
-                    showToast(result.message, "error");
-                }
-            } catch (error) {
-                showToast("Koneksi server gagal!", "error");
-            } finally {
-                btnTarik.disabled = false;
-                txtTarik.textContent = "Tarik Ulang";
-                loading.style.display = "none";
+            // Jika respons dari GAS menyatakan sukses
+            if (result.status === 'success') {
+                semuaSantri = result.data.filter(santri => santri.nama && santri.kelas); 
+                siapkanFilterKelas(semuaSantri);
+                document.getElementById('btnGenerate').disabled = false;
+                showToast(`Sukses! ${semuaSantri.length} data ditarik.`, "success");
+                berhasil = true; // Menandai sukses agar keluar dari loop
+            } else {
+                // Jika GAS merespons tapi memberikan pesan error logis
+                showToast(result.message || "Gagal mengambil data", "error");
+                berhasil = true; // Keluar dari loop agar tidak me-retry error dari database
+            }
+
+        } catch (error) {
+            console.warn(`Percobaan ${percobaan} gagal:`, error);
+            
+            if (percobaan >= maksimalPercobaan) {
+                // Jika sudah melewati batas maksimal, tampilkan error ke pengguna
+                showToast("Koneksi server gagal setelah beberapa percobaan! Pastikan jaringan stabil.", "error");
+            } else {
+                // Memberikan jeda 1 detik (1000 milidetik) sebelum mencoba ulang
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
         }
+    }
+
+    // Mengembalikan tampilan tombol ke keadaan semula, baik setelah sukses maupun gagal total
+    btnTarik.disabled = false;
+    txtTarik.textContent = "Tarik Ulang";
+    loading.style.display = "none";
+}
 
         function siapkanFilterKelas(data) {
             const listContainer = document.getElementById('listKelasCheckboxes');
@@ -725,7 +763,7 @@
                         <div class="absolute inset-0 bg-[#022c22] opacity-[0.85] z-0" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
                         <div class="absolute inset-0 opacity-10 z-0" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
                         <img src="../asset/logo.png" alt="Logo" class="relative z-10 h-7 w-auto object-contain mb-1 drop-shadow-md">
-                        <h2 class="relative z-10 text-[16px] font-normal leading-none drop-shadow-sm mt-1" style="font-family: 'Diwani Jali', serif;" dir="rtl">المدرسة دارالسلام</h2>
+                        <h2 class="relative z-10 text-[16px] font-normal leading-none drop-shadow-sm mt-1" style="font-family: 'Diwani Jali', serif;" dir="rtl">مدرسة دينية دار السلام</h2>
                      <h3 class="relative z-10 text-[10px] font-bold tracking-[0.2em] uppercase mt-1 opacity-90">KARTU UJIAN</h3>
                         <p class="relative z-10 text-[5px] font-bold tracking-[0.1em] uppercase mt-0.5 text-[#F2C94C] drop-shadow-sm">Semester ${strSemester} - ${strTahun}</p>
                     </div>
@@ -823,7 +861,7 @@
                             <img src="../asset/logo.png" alt="Logo" class="w-16 h-16 object-contain flex-none">
                             <div class="text-center flex-1 px-4">
                                 <h1 class="text-xl md:text-2xl font-black uppercase tracking-widest text-gray-900 leading-tight">Daftar Hadir Peserta Ujian</h1>
-                                <h2 class="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-gray-800 mt-1">Madrasah Darussalam</h2>
+                                <h2 class="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-gray-800 mt-1">Madrasah Diniyah Darussalam</h2>
                                 <p class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-emerald-700 mt-1.5 border-t-2 border-emerald-100/50 inline-block pt-1">Semester ${strSemester} • Tahun Ajaran ${strTahun}</p>
                             </div>
                             <div class="w-16 flex-none"></div>
@@ -939,7 +977,7 @@
                                 <img src="../asset/logo.png" alt="Logo" class="w-14 h-14 object-contain flex-none">
                                 <div class="text-center flex-1 px-4">
                                     <h1 class="text-xl font-black uppercase tracking-widest text-gray-900 leading-tight">Denah Tempat Duduk Peserta Ujian</h1>
-                                    <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-gray-800 mt-1">Madrasah Darussalam</h2>
+                                    <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-gray-800 mt-1">Madrasah Diniyah Darussalam</h2>
                                     <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-700 mt-1.5 border-t-2 border-emerald-100/50 inline-block pt-1">Semester ${strSemester} • Tahun Ajaran ${strTahun}</p>
                                 </div>
                                 <div class="w-14 flex-none"></div>

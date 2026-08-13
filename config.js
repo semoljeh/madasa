@@ -1,4 +1,4 @@
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxJacyMf0I1BbyLm7PIkByMuRzS9VUj3vQ-XYS7GAiPJSVOnPCwF5MPBgWSViMOtQsn/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbz2RhQCLOGg85zcdoU3B-pvFU-I39ABwkFJB5Oln8hCthc4UwafcMsVx2dBCsH31sBk/exec';
 
 // Gunakan URL unik pada setiap request agar browser/proxy tidak memakai ulang
 // redirect sementara ContentService Google Apps Script.
@@ -17,59 +17,182 @@ function gasFetch(options = {}) {
 }
 
 
-// =========================================================
-// JSONP KHUSUS READ-ONLY
-// Dipakai untuk pembacaan status nilai agar tidak terhambat
-// CORS redirect ContentService Google Apps Script.
-// =========================================================
-function gasJsonp(action, params = {}, timeoutMs = 15000) {
+function gasJsonp(action, params = {}, timeoutMs = 30000, maxRetry = 1) {
     return new Promise((resolve, reject) => {
-        const callbackName = `__madasa_jsonp_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-        const url = new URL(GAS_URL);
-        url.searchParams.set('action', action);
-        url.searchParams.set('callback', callbackName);
-        url.searchParams.set('__madasa_jsonp_cb', `${Date.now()}_${Math.random().toString(36).slice(2)}`);
 
-        Object.entries(params || {}).forEach(([key, value]) => {
-            if (value !== undefined && value !== null) {
-                url.searchParams.set(key, String(value));
+        let permintaanSelesai = false;
+
+        function kirimRequest(percobaanKe) {
+
+            const callbackName =
+                `__madasa_jsonp_${Date.now()}_${Math.random()
+                    .toString(36)
+                    .slice(2)}`;
+
+            const url = new URL(GAS_URL);
+
+            url.searchParams.set('action', action);
+            url.searchParams.set('callback', callbackName);
+
+            // Membuat URL selalu berbeda agar browser
+            // tidak menggunakan redirect/cache lama.
+            url.searchParams.set(
+                '__madasa_jsonp_cb',
+                `${Date.now()}_${Math.random().toString(36).slice(2)}`
+            );
+
+            Object.entries(params || {}).forEach(([key, value]) => {
+                if (value !== undefined && value !== null) {
+                    url.searchParams.set(key, String(value));
+                }
+            });
+
+            const script = document.createElement('script');
+
+            let timer = null;
+            let requestIniSelesai = false;
+
+            function hapusScript() {
+                if (script.parentNode) {
+                    script.parentNode.removeChild(script);
+                }
             }
-        });
 
-        const script = document.createElement('script');
-        let timer = null;
-        let selesai = false;
+            function hapusCallback() {
+                try {
+                    delete window[callbackName];
+                } catch (_) {
+                    window[callbackName] = undefined;
+                }
+            }
 
-        const cleanup = () => {
-            if (timer) clearTimeout(timer);
-            if (script.parentNode) script.parentNode.removeChild(script);
-            try { delete window[callbackName]; } catch (_) { window[callbackName] = undefined; }
-        };
+            /*
+             * Jangan langsung menghapus callback jika request gagal
+             * atau timeout.
+             *
+             * Google Apps Script kadang memberikan respons terlambat.
+             * Callback sementara ini akan menyerap respons tersebut
+             * agar tidak muncul ReferenceError di Console.
+             */
+            function parkirCallback() {
 
-        window[callbackName] = (payload) => {
-            if (selesai) return;
-            selesai = true;
-            cleanup();
-            resolve(payload);
-        };
+                window[callbackName] = function () {
+                    console.warn(
+                        `[JSONP] Respons terlambat diabaikan: ${action}`
+                    );
+                };
 
-        script.async = true;
-        script.src = url.toString();
-        script.onerror = () => {
-            if (selesai) return;
-            selesai = true;
-            cleanup();
-            reject(new Error('Gagal membaca data dari Apps Script melalui JSONP.'));
-        };
+                setTimeout(() => {
+                    hapusCallback();
+                }, 60000);
+            }
 
-        timer = setTimeout(() => {
-            if (selesai) return;
-            selesai = true;
-            cleanup();
-            reject(new Error('Permintaan JSONP ke Apps Script melebihi batas waktu.'));
-        }, timeoutMs);
+            function prosesGagal(pesanError) {
 
-        document.head.appendChild(script);
+                if (requestIniSelesai || permintaanSelesai) {
+                    return;
+                }
+
+                requestIniSelesai = true;
+
+                if (timer) {
+                    clearTimeout(timer);
+                }
+
+                hapusScript();
+
+                /*
+                 * Pertahankan callback sementara jika respons lama
+                 * dari Apps Script datang terlambat.
+                 */
+                parkirCallback();
+
+                /*
+                 * maxRetry = 1:
+                 *
+                 * Percobaan pertama gagal
+                 * kemudian otomatis mencoba sekali lagi.
+                 */
+                if (percobaanKe < maxRetry) {
+
+                    console.warn(
+                        `[JSONP] ${action} gagal pada percobaan ` +
+                        `${percobaanKe + 1}. Mencoba kembali...`
+                    );
+
+                    setTimeout(() => {
+                        kirimRequest(percobaanKe + 1);
+                    }, 800);
+
+                    return;
+                }
+
+                permintaanSelesai = true;
+
+                reject(
+                    new Error(pesanError)
+                );
+            }
+
+            /*
+             * Fungsi ini akan dipanggil oleh Apps Script
+             * apabila respons JSONP berhasil diterima.
+             */
+            window[callbackName] = function (payload) {
+
+                if (requestIniSelesai || permintaanSelesai) {
+                    return;
+                }
+
+                requestIniSelesai = true;
+                permintaanSelesai = true;
+
+                if (timer) {
+                    clearTimeout(timer);
+                }
+
+                hapusScript();
+                hapusCallback();
+
+                resolve(payload);
+            };
+
+            script.async = true;
+
+            script.src = url.toString();
+
+            /*
+             * Jika request script benar benar gagal,
+             * misalnya script.googleusercontent.com
+             * sementara menghasilkan 404.
+             */
+            script.onerror = function () {
+
+                prosesGagal(
+                    `Gagal membaca ${action} dari Apps Script melalui JSONP.`
+                );
+
+            };
+
+            /*
+             * Jika Apps Script tidak memberikan hasil
+             * sampai batas waktu yang ditentukan.
+             */
+            timer = setTimeout(() => {
+
+                prosesGagal(
+                    `Permintaan ${action} ke Apps Script melebihi batas waktu.`
+                );
+
+            }, timeoutMs);
+
+            document.head.appendChild(script);
+        }
+
+        /*
+         * Percobaan pertama dimulai dari angka 0.
+         */
+        kirimRequest(0);
     });
 }
 
