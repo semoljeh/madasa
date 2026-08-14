@@ -969,7 +969,7 @@ function kirimWaTagihan(nis) {
     let sisaTunggakan = Math.max(0, TOTAL_TAGIHAN_SETAHUN - totalTerbayar);
     
     // 4. Rangkai pesan utuh
-    let teksPesan = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu Wali Santri yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi SPP ananda *${santri.nama}*.\n\n*Ringkasan Administrasi:*\n🔸 Ketetapan 1 Tahun: *${formatRp(TOTAL_TAGIHAN_SETAHUN)}*\n🔸 Telah Ditunaikan: *${formatRp(totalTerbayar)}*\n🔸 Sisa Administrasi: *${formatRp(sisaTunggakan)}*${teksRincian}\n\nMohon abaikan pesan ini apabila Bapak/Ibu telah menyelesaikan seluruh administrasi tersebut. \n\nAtas perhatian dan kerja samanya, kami sampaikan _Jazakumullah khairan_.\n\nWassalamu'alaikum Wr. Wb.`;
+    let teksPesan = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi SPP ananda *${santri.nama}*.\n\n*Ringkasan Administrasi:*\n🔸 Ketetapan 1 Tahun: *${formatRp(TOTAL_TAGIHAN_SETAHUN)}*\n🔸 Telah Ditunaikan: *${formatRp(totalTerbayar)}*\n🔸 Sisa Administrasi: *${formatRp(sisaTunggakan)}*${teksRincian}\n\nMohon abaikan pesan ini apabila Bapak/Ibu telah menyelesaikan seluruh administrasi tersebut.\n\nAtas perhatian dan kerja samanya, kami sampaikan _Jazakumullah khairan_.\n\nWassalamu'alaikum Wr. Wb.\n\n_~ Ini adalah pesan otomatis dari sistem administrasi Madasa (Madrasah Darussalam) ~_`;
     
     // 5. Eksekusi ke WhatsApp
     let linkWa = `https://wa.me/${noHpAsli}?text=${encodeURIComponent(teksPesan)}`;
