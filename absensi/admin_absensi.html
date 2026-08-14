@@ -84,6 +84,15 @@
             body.cetak-mode-rekap .no-print, body.cetak-mode-rekap #areaRekap .bg-emerald-50 { display: none !important; }
             body.cetak-mode-rekap #areaRekap tbody tr:empty, body.cetak-mode-rekap #areaRekap tbody tr:has(td[colspan="6"]) { display: none !important; }
         }
+		
+		@font-face {
+    font-family: 'Diwani Jali';
+    src: url('../asset/DiwaniJali.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+		
+		
     </style>
 </head>
 <body class="text-gray-800 p-4 sm:p-8">
@@ -236,7 +245,7 @@
                     </div>
                     <div class="flex-1 text-center px-4">
                         <h2 class="text-2xl font-bold uppercase tracking-wide leading-tight">Laporan Kehadiran Santri</h2>
-                        <h3 class="text-xl font-bold uppercase mt-1 leading-tight">Madrasah Darussalam</h3>
+                        <h3 class="text-xl font-bold uppercase mt-1 leading-tight">Madrasah Diniyah Darussalam</h3>
                         <p class="text-sm mt-2 font-medium" id="teksSubtitleCetak">Bulan: - | Kelas: -</p>
                     </div>
                     <div class="w-24 h-24 shrink-0"></div>
@@ -497,10 +506,12 @@
                         <path d="M0,0 L200,0 L200,80 Q150,80 100,110 Q50,80 0,80 Z" fill="#D4AF37"/>
                         <path d="M0,0 L200,0 L200,76 Q150,76 100,105 Q50,76 0,76 Z" fill="#033323"/>
                     </svg>
-                    <div class="absolute top-[7.5mm] left-0 w-full flex flex-col items-center z-10 pointer-events-none">
-                        <h4 class="text-[#D4AF37] text-[6.5px] font-semibold tracking-[0.25em] uppercase mb-[1px]">Madrasah</h4>
-                        <h2 class="text-white text-[14.5px] font-black tracking-widest uppercase leading-none">Darussalam</h2>
-                    </div>
+					
+                  <div class="absolute top-[7.5mm] left-0 w-full flex flex-col items-center z-10 pointer-events-none">
+    <h4 class="text-[#D4AF37] text-[6.5px] font-semibold tracking-[0.25em] uppercase mb-[1px]">Madrasah</h4>
+    <h2 class="text-white text-[25px] font-normal leading-none mt-1" style="font-family: 'Diwani Jali', serif;" dir="rtl">دينية دار السلام</h2>
+</div>
+					
                     <div class="absolute top-[21.5mm] left-1/2 -translate-x-1/2 w-[18mm] h-[18mm] bg-[#FDFBF7] rounded-full p-[1.5px] z-20 shadow-md border-[1.5px] border-[#D4AF37] flex items-center justify-center">
                         <img src="../asset/logo.png" alt="Logo" class="w-full h-full object-contain rounded-full" onerror="this.style.display='none'">
                     </div>
