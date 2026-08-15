@@ -980,6 +980,9 @@ function kirimWaTagihan(nis) {
 // =========================================================
 // FUNGSI CETAK KARTU SPP (KERTAS F4 - 4 KARTU PER HALAMAN)
 // =========================================================
+// =========================================================
+// FUNGSI CETAK KARTU SPP (KERTAS F4 - 4 KARTU PER HALAMAN)
+// =========================================================
 function cetakKartuSppKelas() {
     const kelas = document.getElementById('filterKelasSpp').value;
     if (!kelas) return Swal.fire('Perhatian', 'Silakan pilih kelas terlebih dahulu pada filter di atas tabel untuk mencetak kartu.', 'warning');
@@ -996,9 +999,12 @@ function cetakKartuSppKelas() {
         return Swal.fire('Kosong', 'Tidak ada data santri di kelas ini.', 'error');
     }
 
-    const logoUrl = window.location.origin + window.location.pathname.replace(/administrasi\/spp\.html$/i, '') + 'asset/logo.png';
+    // Path Logo dan Font Arab
+    const baseUrl = window.location.origin + window.location.pathname.replace(/administrasi\/spp\.html$/i, '');
+    const logoUrl = baseUrl + 'asset/logo.png';
+    const fontArabUrl = baseUrl + 'asset/ReemKufi-VariableFont_wght.ttf'; // Ganti .ttf ke .woff jika file font Anda formatnya woff
     
-    // Susunan 11 bulan (sesuai target pembayaran di sistem, libur Ramadhan dilewati)
+    // Susunan 11 bulan Masehi/Hijriyah (sesuai target pembayaran di sistem)
     const namaBulan = [
         "Syawal", "Dzulqa'dah", "Dzulhijjah", "Muharram", "Safar", 
         "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", 
@@ -1027,13 +1033,16 @@ function cetakKartuSppKelas() {
 
             htmlKartu += `
                 <div class="kartu">
+                    <!-- KOP KARTU -->
                     <div class="header-kartu">
                         <img src="${logoUrl}" onerror="this.style.display='none'">
-                        <div>
-                            <h3>KARTU PEMBAYARAN SPP</h3>
-                            <p>Madrasah Diniyah Darussalam</p>
+                        <div class="header-teks">
+                            <h2 class="judul-arab" dir="rtl">مدرسة دينية دار السلام</h2>
+                            <h3>KARTU SYAHRIYAH SANTRI</h3>
+                            <p>Website : www.madasa.ponpes.id | E-mail : madasaponpes@gmail.com</p>
                         </div>
                     </div>
+                    <!-- INFO SANTRI -->
                     <table class="info-santri">
                         <tr><td width="50px">Nama</td><td width="10px">:</td><td><strong>${santri.nama}</strong></td></tr>
                         <tr><td>NIS</td><td>:</td><td>${santri.nis}</td></tr>
@@ -1052,7 +1061,7 @@ function cetakKartuSppKelas() {
                             ${barisTabel}
                         </tbody>
                     </table>
-                    <p class="footer-kartu">*Harap dibawa setiap kali melakukan pembayaran SPP</p>
+                    <p class="footer-kartu">*Harap dibawa setiap kali melakukan pembayaran Syahriyah</p>
                 </div>
             `;
         });
@@ -1067,8 +1076,16 @@ function cetakKartuSppKelas() {
         <!DOCTYPE html>
         <html lang="id">
         <head>
-            <title>Cetak Kartu SPP - Kelas ${kelas}</title>
+            <title>Cetak Kartu Syahriyah - Kelas ${kelas}</title>
             <style>
+                /* Load Font Arab */
+                @font-face {
+                    font-family: 'ReemKufi';
+                    src: url('${fontArabUrl}') format('truetype');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+
                 @page { 
                     size: 215mm 330mm portrait; /* Ukuran Kertas F4 / Folio Standar */
                     margin: 10mm; 
@@ -1081,45 +1098,66 @@ function cetakKartuSppKelas() {
                     color: #000;
                 }
                 
-                /* Container halaman untuk memutus halaman tiap 4 kartu */
                 .page {
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
                     align-content: flex-start;
-                    height: 310mm; /* Tinggi F4 (330mm) dikurangi margin */
+                    height: 310mm; 
                     page-break-after: always;
                     box-sizing: border-box;
                 }
                 
-                /* Desain per kartu (Grid 2 kolom) */
                 .kartu {
                     width: 49%; 
-                    height: 152mm; /* Tinggi ideal agar pas 2 baris (kurang sedikit dari 310/2) */
-                    border: 2px dashed #000; /* Garis putus-putus sebagai panduan menggunting */
+                    height: 152mm; 
+                    border: 2px dashed #000; 
                     box-sizing: border-box;
-                    padding: 12px;
+                    padding: 10px 12px;
                     margin-bottom: 5mm;
                     display: flex;
                     flex-direction: column;
                     page-break-inside: avoid;
                 }
 
+                /* Styling Kop Kartu Baru */
                 .header-kartu { 
                     display: flex; 
                     align-items: center; 
                     justify-content: center; 
                     border-bottom: 2px solid #000; 
-                    padding-bottom: 8px; 
-                    margin-bottom: 10px; 
+                    padding-bottom: 6px; 
+                    margin-bottom: 8px; 
+                }
+                .header-kartu img { 
+                    width: 45px; 
+                    height: 45px; 
+                    margin-right: 12px; 
+                }
+                .header-teks { 
+                    flex: 1; 
                     text-align: center; 
                 }
-                .header-kartu img { width: 45px; height: 45px; margin-right: 12px; }
-                .header-kartu h3 { margin: 0; font-size: 14px; text-transform: uppercase; font-weight: bold; }
-                .header-kartu p { margin: 2px 0 0 0; font-size: 11px; font-weight: bold; }
+                .judul-arab { 
+                    font-family: 'ReemKufi', sans-serif; 
+                    font-size: 20px; 
+                    margin: 0 0 2px 0; 
+                    font-weight: normal; 
+                }
+                .header-teks h3 { 
+                    margin: 0 0 3px 0; 
+                    font-size: 13px; 
+                    text-transform: uppercase; 
+                    font-weight: bold; 
+                }
+                .header-teks p { 
+                    margin: 0; 
+                    font-size: 8px; 
+                    font-weight: bold;
+                }
                 
                 .info-santri { width: 100%; font-size: 12px; margin-bottom: 8px; }
-                .info-santri td { padding: 3px 0; vertical-align: top; }
+                .info-santri td { padding: 2px 0; vertical-align: top; }
                 
                 .tabel-spp { 
                     width: 100%; 
@@ -1145,7 +1183,7 @@ function cetakKartuSppKelas() {
                     font-size: 10px; 
                     text-align: center; 
                     margin-top: auto; 
-                    padding-top: 10px;
+                    padding-top: 8px;
                     font-style: italic; 
                     color: #555;
                 }
