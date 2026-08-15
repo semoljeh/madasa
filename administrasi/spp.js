@@ -975,3 +975,189 @@ function kirimWaTagihan(nis) {
     let linkWa = `https://wa.me/${noHpAsli}?text=${encodeURIComponent(teksPesan)}`;
     window.open(linkWa, '_blank');
 }
+
+
+// =========================================================
+// FUNGSI CETAK KARTU SPP (KERTAS F4 - 4 KARTU PER HALAMAN)
+// =========================================================
+function cetakKartuSppKelas() {
+    const kelas = document.getElementById('filterKelasSpp').value;
+    if (!kelas) return Swal.fire('Perhatian', 'Silakan pilih kelas terlebih dahulu pada filter di atas tabel untuk mencetak kartu.', 'warning');
+
+    let kelasBersih = kelas.toString().trim().toLowerCase();
+    let kelasAlternatif = kelasBersih.includes('-') ? kelasBersih.split('-')[1].trim() : kelasBersih;
+
+    let santriDitemukan = LOKAL_DATA_SANTRI.filter(s => {
+        let kelasDB = s.kelas ? s.kelas.toString().trim().toLowerCase() : '';
+        return kelasDB === kelasBersih || kelasDB === kelasAlternatif;
+    });
+
+    if (santriDitemukan.length === 0) {
+        return Swal.fire('Kosong', 'Tidak ada data santri di kelas ini.', 'error');
+    }
+
+    const logoUrl = window.location.origin + window.location.pathname.replace(/administrasi\/spp\.html$/i, '') + 'asset/logo.png';
+    
+    // Susunan 11 bulan (sesuai target pembayaran di sistem, libur Ramadhan dilewati)
+    const namaBulan = [
+        "Syawal", "Dzulqa'dah", "Dzulhijjah", "Muharram", "Safar", 
+        "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", 
+        "Rajab", "Sya'ban"
+    ];
+
+    let htmlKartu = '';
+    
+    // Pecah data santri per 4 orang agar rapi 1 halaman F4 (Folio) isi 4 kartu (Grid 2x2)
+    for (let i = 0; i < santriDitemukan.length; i += 4) {
+        let chunk = santriDitemukan.slice(i, i + 4);
+        htmlKartu += `<div class="page">`;
+        
+        chunk.forEach(santri => {
+            let barisTabel = '';
+            namaBulan.forEach((bln, idx) => {
+                barisTabel += `
+                    <tr>
+                        <td style="text-align: center;">${idx + 1}</td>
+                        <td>${bln}</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                `;
+            });
+
+            htmlKartu += `
+                <div class="kartu">
+                    <div class="header-kartu">
+                        <img src="${logoUrl}" onerror="this.style.display='none'">
+                        <div>
+                            <h3>KARTU PEMBAYARAN SPP</h3>
+                            <p>Madrasah Diniyah Darussalam</p>
+                        </div>
+                    </div>
+                    <table class="info-santri">
+                        <tr><td width="50px">Nama</td><td width="10px">:</td><td><strong>${santri.nama}</strong></td></tr>
+                        <tr><td>NIS</td><td>:</td><td>${santri.nis}</td></tr>
+                        <tr><td>Kelas</td><td>:</td><td>${santri.kelas}</td></tr>
+                    </table>
+                    <table class="tabel-spp">
+                        <thead>
+                            <tr>
+                                <th width="10%">No</th>
+                                <th width="35%">Bulan</th>
+                                <th width="25%">Tanggal</th>
+                                <th width="30%">Paraf/Stempel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${barisTabel}
+                        </tbody>
+                    </table>
+                    <p class="footer-kartu">*Harap dibawa setiap kali melakukan pembayaran SPP</p>
+                </div>
+            `;
+        });
+        
+        htmlKartu += `</div>`;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return Swal.fire('Pop-up Diblokir', 'Izinkan pop-up browser untuk mencetak kartu.', 'error');
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <title>Cetak Kartu SPP - Kelas ${kelas}</title>
+            <style>
+                @page { 
+                    size: 215mm 330mm portrait; /* Ukuran Kertas F4 / Folio Standar */
+                    margin: 10mm; 
+                } 
+                body { 
+                    font-family: 'Arial', sans-serif; 
+                    margin: 0; 
+                    padding: 0; 
+                    background: #fff; 
+                    color: #000;
+                }
+                
+                /* Container halaman untuk memutus halaman tiap 4 kartu */
+                .page {
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-content: flex-start;
+                    height: 310mm; /* Tinggi F4 (330mm) dikurangi margin */
+                    page-break-after: always;
+                    box-sizing: border-box;
+                }
+                
+                /* Desain per kartu (Grid 2 kolom) */
+                .kartu {
+                    width: 49%; 
+                    height: 152mm; /* Tinggi ideal agar pas 2 baris (kurang sedikit dari 310/2) */
+                    border: 2px dashed #000; /* Garis putus-putus sebagai panduan menggunting */
+                    box-sizing: border-box;
+                    padding: 12px;
+                    margin-bottom: 5mm;
+                    display: flex;
+                    flex-direction: column;
+                    page-break-inside: avoid;
+                }
+
+                .header-kartu { 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: center; 
+                    border-bottom: 2px solid #000; 
+                    padding-bottom: 8px; 
+                    margin-bottom: 10px; 
+                    text-align: center; 
+                }
+                .header-kartu img { width: 45px; height: 45px; margin-right: 12px; }
+                .header-kartu h3 { margin: 0; font-size: 14px; text-transform: uppercase; font-weight: bold; }
+                .header-kartu p { margin: 2px 0 0 0; font-size: 11px; font-weight: bold; }
+                
+                .info-santri { width: 100%; font-size: 12px; margin-bottom: 8px; }
+                .info-santri td { padding: 3px 0; vertical-align: top; }
+                
+                .tabel-spp { 
+                    width: 100%; 
+                    border-collapse: collapse; 
+                    font-size: 11px; 
+                    flex-grow: 1; 
+                }
+                .tabel-spp th, .tabel-spp td { 
+                    border: 1px solid #000; 
+                    padding: 4px; 
+                    vertical-align: middle;
+                }
+                .tabel-spp th { 
+                    background-color: #f3f4f6 !important; 
+                    font-weight: bold; 
+                    text-align: center;
+                    -webkit-print-color-adjust: exact; 
+                    print-color-adjust: exact;
+                }
+                .tabel-spp td:nth-child(2) { font-weight: bold; }
+                
+                .footer-kartu {
+                    font-size: 10px; 
+                    text-align: center; 
+                    margin-top: auto; 
+                    padding-top: 10px;
+                    font-style: italic; 
+                    color: #555;
+                }
+            </style>
+        </head>
+        <body>
+            ${htmlKartu}
+            <script> 
+                window.onload = function() { setTimeout(function() { window.print(); }, 1500); }; 
+            </script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
