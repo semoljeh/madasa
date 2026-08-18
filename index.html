@@ -43,31 +43,32 @@
     <link rel="stylesheet" href="style.css?v=16">
 	
 <!-- KODE ONESIGNAL PUSH NOTIFICATION (MODERN SLIDE PROMPT) -->
-<script>
-  // OneSignal hanya dijalankan pada domain produksi.
-  // Ini mencegah error origin saat pengembangan di localhost.
-  if (window.location.hostname === 'guru.madasa.ponpes.id') {
-    const sdk = document.createElement('script');
-    sdk.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
-    sdk.defer = true;
-    document.head.appendChild(sdk);
 
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-        appId: '8f0faf3e-0fea-464e-b12c-ae077ad2cbcb',
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+
+OneSignalDeferred.push(async function(OneSignal) {
+
+    await OneSignal.init({
+        appId: "8f0faf3e-0fea-464e-b12c-ae077ad2cbcb",
+
         promptOptions: {
-          slidedown: {
-            enabled: true,
-            actionMessage: 'Ingin mendapatkan informasi terbaru dan update dari Madrasah Darussalam?',
-            acceptButtonText: 'Ya, Izinkan',
-            cancelButtonText: 'Nanti Saja'
-          }
+            slidedown: {
+                enabled: true,
+                actionMessage: "Ingin mendapatkan informasi terbaru dan update dari Madrasah Darussalam?",
+                acceptButtonText: "Ya, Izinkan",
+                cancelButtonText: "Nanti Saja"
+            }
         },
-        notifyButton: { enable: false }
-      });
+
+        notifyButton: {
+            enable: false
+        }
     });
-  }
+
+});
 </script>
 	
 </head>
