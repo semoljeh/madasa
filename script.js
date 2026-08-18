@@ -522,7 +522,7 @@ const installPrompt = document.getElementById('pwaInstallPrompt');
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=18', { updateViaCache: 'none' })
+        navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }) // <--- Harus sama dengan yang di atas
         .then(reg => console.log('PWA aktif!'))
         .catch(err => console.log('PWA gagal: ', err));
     });
