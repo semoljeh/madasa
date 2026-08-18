@@ -50,25 +50,32 @@
 window.OneSignalDeferred = window.OneSignalDeferred || [];
 
 OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
 
-    await OneSignal.init({
-        appId: "8f0faf3e-0fea-464e-b12c-ae077ad2cbcb",
+        appId: '8f0faf3e-0fea-464e-b12c-ae077ad2cbcb',
 
-        promptOptions: {
-            slidedown: {
-                enabled: true,
-                actionMessage: "Ingin mendapatkan informasi terbaru dan update dari Madrasah Darussalam?",
-                acceptButtonText: "Ya, Izinkan",
-                cancelButtonText: "Nanti Saja"
-            }
+        serviceWorkerPath: "sw.js",
+
+        serviceWorkerParam: {
+          scope: "/"
         },
 
-        notifyButton: {
-            enable: false
-        }
-    });
+        promptOptions: {
+          slidedown: {
+            enabled: true,
+            actionMessage: 'Ingin mendapatkan informasi terbaru dan update dari Madrasah Darussalam?',
+            acceptButtonText: 'Ya, Izinkan',
+            cancelButtonText: 'Nanti Saja'
+          }
+        },
 
+        notifyButton: { 
+          enable: false 
+        }
+
+      });
 });
+
 </script>
 	
 </head>

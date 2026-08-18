@@ -81,7 +81,9 @@ function selesaikanOnboarding() {
 
     if (window.OneSignalDeferred) {
         window.OneSignalDeferred.push(function(OneSignal) {
-            OneSignal.Slidedown.promptPush();
+    if (OneSignal && OneSignal.Slidedown) {
+        OneSignal.Slidedown.promptPush();
+    }
         });
     }
 
