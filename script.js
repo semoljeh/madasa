@@ -3457,3 +3457,29 @@ function downloadExcelNilai() {
         Swal.fire('Error', 'Terjadi kesalahan saat memproses file Excel.', 'error');
     }
 }
+
+// =========================================================
+// RESET SIDEBAR SAAT UKURAN LAYAR BERUBAH (RESPONSIVE FIX)
+// =========================================================
+window.addEventListener('resize', function() {
+    // 768px adalah batas ukuran layar desktop (breakpoint 'md' pada Tailwind)
+    if (window.innerWidth >= 768) {
+        const sidebar = document.querySelector('aside');
+        const overlay = document.getElementById('overlay-sidebar');
+        
+        // Jika overlay ada, berarti menu HP sedang terbuka saat layar dibesarkan
+        if (sidebar && overlay) {
+            // Hapus class mode HP dan kembalikan ke class bawaan Desktop
+            sidebar.classList.add('hidden');
+            sidebar.classList.remove('flex', 'fixed', 'inset-y-0', 'left-0', 'w-64', 'z-[60]', 'shadow-2xl');
+            
+            // Hapus latar belakang gelap
+            overlay.remove();
+            
+            // Rapikan kembali URL jika ada hash #menu
+            if (window.location.hash === '#menu') {
+                window.history.back();
+            }
+        }
+    }
+});
