@@ -102,7 +102,10 @@ function buatDropdownKelasOtomatis() {
 
     const pilihanSaatIni = hiddenInput.value;
 
-    const kelasUnik = [...new Set(LOKAL_DATA_SANTRI.map(s => s.kelas).filter(k => k && k.trim() !== ''))].sort();
+    // MODIFIKASI: Filter agar kelas Lulus/Alumni atau DO tidak muncul di pilihan SPP
+    const kelasUnik = [...new Set(LOKAL_DATA_SANTRI.map(s => s.kelas))]
+        .filter(k => k && k.trim() !== '' && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
+        .sort();
 
     let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
     let kelompokKelas = {};

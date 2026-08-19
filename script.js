@@ -845,11 +845,24 @@ function filterSantri() {
         const nama = row.cells[2].innerText.toLowerCase(); 
         const kelas = row.getAttribute('data-kelas'); 
         const matchSearch = nama.includes(searchText) || nis.includes(searchText); 
-        const matchKelas = selectedKelas === 'Semua' || kelas === selectedKelas; 
+        
+        // MODIFIKASI: Filter khusus untuk menyembunyikan Alumni/DO dari tampilan "Semua"
+        let matchKelas = false;
+        if (selectedKelas === 'Semua') {
+            const kelasLower = kelas.toLowerCase();
+            // Jika filter "Semua", jangan tampilkan yang sudah Lulus/Alumni atau DO
+            if (!kelasLower.includes('lulus') && !kelasLower.includes('alumni') && !kelasLower.includes('diberhentikan')) {
+                matchKelas = true;
+            }
+        } else {
+            // Jika filter kelas spesifik dipilih (termasuk jika sengaja memilih Lulus/Alumni)
+            matchKelas = (kelas === selectedKelas);
+        }
         
         if (matchSearch && matchKelas) { 
             row.style.display = ''; 
             visibleCount++; 
+            // Update penomoran otomatis
             row.cells[0].innerText = visibleCount;
         } 
         else { 
@@ -866,7 +879,6 @@ function filterSantri() {
         tabelContainer.classList.remove('hidden'); noDataPesan.classList.add('hidden'); 
     } 
 }
-
 
 
 // === FITUR TAMBAH SANTRI DENGAN PEMERIKSAAN KELAS DIPERBAIKI ===
@@ -3127,25 +3139,47 @@ function buatOpsiSemuaKelasOtomatis() {
 
     let kategoriUrut = Object.keys(kelompokKelas).sort((a, b) => (bobotJenjang[a] || 99) - (bobotJenjang[b] || 99));
 
-    let htmlListDasar = '';
+    // MODIFIKASI: Memisahkan template HTML untuk Semua vs Kelas Aktif
+    let htmlListDasar = ''; // Berisi semua kelas (termasuk Alumni)
+    let htmlListAktif = ''; // Hanya kelas aktif (tanpa Alumni/DO)
+
     kategoriUrut.forEach(kategori => {
-        htmlListDasar += `<li class="custom-option-group"><i class="fas fa-layer-group mr-2 opacity-50"></i>${kategori}</li>`;
+        let itemDasar = '';
+        let itemAktif = '';
+
         kelompokKelas[kategori].forEach(kelas => {
             let safeKelas = kelas.replace(/'/g, "\\'");
-            htmlListDasar += `<li class="custom-option-item" onclick="pilihKelasCustomGlobal('TARGET_ID', '${safeKelas}', '${safeKelas}', 'TARGET_CALLBACK')">${kelas}</li>`;
+            let isAlumni = kelas.toLowerCase().includes('lulus') || 
+                           kelas.toLowerCase().includes('alumni') || 
+                           kelas.toLowerCase().includes('diberhentikan');
+            
+            let liHTML = `<li class="custom-option-item" onclick="pilihKelasCustomGlobal('TARGET_ID', '${safeKelas}', '${safeKelas}', 'TARGET_CALLBACK')">${kelas}</li>`;
+            
+            itemDasar += liHTML;
+            if (!isAlumni) {
+                itemAktif += liHTML; // Hanya masukkan jika bukan alumni
+            }
         });
+
+        if (itemDasar !== '') {
+            htmlListDasar += `<li class="custom-option-group"><i class="fas fa-layer-group mr-2 opacity-50"></i>${kategori}</li>` + itemDasar;
+        }
+        if (itemAktif !== '') {
+            htmlListAktif += `<li class="custom-option-group"><i class="fas fa-layer-group mr-2 opacity-50"></i>${kategori}</li>` + itemAktif;
+        }
     });
 
+    // Menambahkan properti "useAktifOnly" pada setiap konfigurasi dropdown
     const listDropdown = [
-        { id: 'filterKelasSantri', defaultText: 'Semua Kelas', defaultValue: 'Semua', callback: 'filterSantri' },
-        { id: 'pilihKelasNilai', defaultText: '-- Silakan Pilih Kelas Dulu --', defaultValue: '', callback: 'aktifkanFilterKedua' },
-        { id: 'filterKelasDataNilai', defaultText: '-- Pilih Kelas Terlebih Dahulu --', defaultValue: '', callback: '' },
-        { id: 'filterKelasRanking', defaultText: '-- Pilih Kelas Untuk Melihat Ranking --', defaultValue: '', callback: '' },
-        { id: 'settingKelas', defaultText: '-- Pilih Kelas --', defaultValue: '', callback: 'loadSettingRapor' },
-        { id: 'mutasiKelasAsal', defaultText: '-- Pilih Kelas Asal --', defaultValue: '', callback: 'loadTabelMutasi' },
-        { id: 'mutasiKelasTujuan', defaultText: '-- Pilih Tujuan --', defaultValue: '', callback: '' },
-        { id: 'add_kelas', defaultText: 'Pilih...', defaultValue: '', callback: '' },
-        { id: 'edit_kelas', defaultText: 'Pilih...', defaultValue: '', callback: '' }
+        { id: 'filterKelasSantri', defaultText: 'Semua Kelas', defaultValue: 'Semua', callback: 'filterSantri', useAktifOnly: false },
+        { id: 'pilihKelasNilai', defaultText: '-- Silakan Pilih Kelas Dulu --', defaultValue: '', callback: 'aktifkanFilterKedua', useAktifOnly: true },
+        { id: 'filterKelasDataNilai', defaultText: '-- Pilih Kelas Terlebih Dahulu --', defaultValue: '', callback: '', useAktifOnly: true },
+        { id: 'filterKelasRanking', defaultText: '-- Pilih Kelas Untuk Melihat Ranking --', defaultValue: '', callback: '', useAktifOnly: true },
+        { id: 'settingKelas', defaultText: '-- Pilih Kelas --', defaultValue: '', callback: 'loadSettingRapor', useAktifOnly: true },
+        { id: 'mutasiKelasAsal', defaultText: '-- Pilih Kelas Asal --', defaultValue: '', callback: 'loadTabelMutasi', useAktifOnly: true },
+        { id: 'mutasiKelasTujuan', defaultText: '-- Pilih Tujuan --', defaultValue: '', callback: '', useAktifOnly: true },
+        { id: 'add_kelas', defaultText: 'Pilih...', defaultValue: '', callback: '', useAktifOnly: true },
+        { id: 'edit_kelas', defaultText: 'Pilih...', defaultValue: '', callback: '', useAktifOnly: false } // Edit bisa jadi perlu mengakses Alumni
     ];
 
     listDropdown.forEach(dropdown => {
@@ -3160,7 +3194,10 @@ function buatOpsiSemuaKelasOtomatis() {
                 <li class="custom-option-group text-center text-gray-300">───────────────</li>`;
             }
 
-            let finalHtml = htmlListDasar.replace(/TARGET_ID/g, dropdown.id).replace(/TARGET_CALLBACK/g, dropdown.callback);
+            // Terapkan list html yang sesuai (semua atau hanya aktif)
+            let sourceHtml = dropdown.useAktifOnly ? htmlListAktif : htmlListDasar;
+            let finalHtml = sourceHtml.replace(/TARGET_ID/g, dropdown.id).replace(/TARGET_CALLBACK/g, dropdown.callback);
+            
             listEl.innerHTML = specificHtml + finalHtml;
         }
     });

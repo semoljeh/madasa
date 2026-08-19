@@ -385,15 +385,19 @@
             });
         }
 
-        // ==========================================================
-        // FUNGSI MEMBUAT OPSI KELAS REKAP (CUSTOM SELECT DIPERBAIKI)
-        // ==========================================================
-        function buatOpsiKelasDinamisAbsensi() {
-            const listEl = document.getElementById('customSelectListRekap');
-            if (!listEl) return;
+// ==========================================================
+// FUNGSI MEMBUAT OPSI KELAS REKAP (CUSTOM SELECT DIPERBAIKI)
+// ==========================================================
+function buatOpsiKelasDinamisAbsensi() {
+    const listEl = document.getElementById('customSelectListRekap');
+    if (!listEl) return;
 
-            const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))].filter(Boolean).sort();
-            let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
+    // MODIFIKASI: Filter Alumni agar tidak masuk di Rekap
+    const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
+        .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
+        .sort();
+        
+    let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
 
             let kelompokKelas = {};
             kelasUnik.forEach(k => {
@@ -504,16 +508,20 @@
             }
         }
 
-        // ==========================================================
-        // FUNGSI SURAT IZIN SANTRI
-        // ==========================================================
-        function populateKelasIzin() {
-            const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))].filter(Boolean).sort();
-            const selKelas = document.getElementById('izin_kelas');
-            kelasUnik.forEach(k => {
-                selKelas.innerHTML += `<option value="${k}">${k}</option>`;
-            });
-        }
+// ==========================================================
+// FUNGSI SURAT IZIN SANTRI
+// ==========================================================
+function populateKelasIzin() {
+    // MODIFIKASI: Filter Alumni agar tidak masuk di Surat Izin
+    const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
+        .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
+        .sort();
+        
+    const selKelas = document.getElementById('izin_kelas');
+    kelasUnik.forEach(k => {
+        selKelas.innerHTML += `<option value="${k}">${k}</option>`;
+    });
+}
 
         function loadSantriIzin() {
             const kelas = document.getElementById('izin_kelas').value;

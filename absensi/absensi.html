@@ -225,17 +225,20 @@
         }
 
 // ==========================================================
-        // FUNGSI MEMBUAT OPSI KELAS OTOMATIS (CUSTOM SELECT)
-        // ==========================================================
-        function buatOpsiKelasDinamisAbsensi() {
-            const listEl = document.getElementById('customSelectList');
-            if (!listEl) return;
+// FUNGSI MEMBUAT OPSI KELAS OTOMATIS (CUSTOM SELECT)
+// ==========================================================
+function buatOpsiKelasDinamisAbsensi() {
+    const listEl = document.getElementById('customSelectList');
+    if (!listEl) return;
 
-            // 1. Ambil seluruh nama kelas unik dari data santri dan urutkan
-            const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))].filter(Boolean).sort();
+    // 1. Ambil seluruh nama kelas unik dari data santri dan urutkan
+    // MODIFIKASI: Sembunyikan yang mengandung lulus, alumni, atau diberhentikan
+    const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
+        .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
+        .sort();
 
-            // 2. Tentukan bobot urutan jenjang pendidikan
-            let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
+    // 2. Tentukan bobot urutan jenjang pendidikan
+    let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
 
             // 3. Kelompokkan secara otomatis berdasarkan kata kunci nama kelas
             let kelompokKelas = {};
