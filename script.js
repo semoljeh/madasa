@@ -2405,101 +2405,47 @@ function loadSettingRapor() {
 if (santriKelas.length === 0) {
             tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-red-500 font-bold"><i class="fas fa-exclamation-triangle mr-2 block text-3xl mb-2 text-red-300"></i> Belum ada santri di kelas ini.<br><span class="text-sm font-normal text-gray-500">Silakan tambahkan santri terlebih dahulu di menu Data Santri.</span></td></tr>';
         } else {
-            // --- LOGIKA MENEBAK KELAS BERIKUTNYA SECARA OTOMATIS (VERSI LENGKAP & TINGKATAN) ---
+            // --- LOGIKA MENEBAK KELAS BERIKUTNYA SECARA OTOMATIS ---
             let teksNaikRomawi = "Naik ke Kelas ...";
             let teksTinggal = `Tinggal di ${kelas}`;
-            
-            // 1. Tentukan Tingkatan Madrasah untuk ditambahkan di akhir kalimat
             let suffixTingkat = "";
             let kelasUpper = kelas.toUpperCase();
             
-            if (kelasUpper.includes('IBT') || kelasUpper.includes('IBTIDAIYAH') || kelasUpper.includes('MI')) {
-                suffixTingkat = " IBTIDAIYAH";
-            } else if (kelasUpper.includes('SANA') || kelasUpper.includes('SANAWIYAH') || kelasUpper.includes('MTS')) {
-                suffixTingkat = " SANAWIYAH";
-            } else if (kelasUpper.includes('ALIYAH') || kelasUpper.includes('MA')) {
-                suffixTingkat = " ALIYAH";
-            } else if (kelasUpper.includes('TK') || kelasUpper.includes('RA')) {
-                suffixTingkat = " TK - RA";
-            }
+            if (kelasUpper.includes('IBT') || kelasUpper.includes('IBTIDAIYAH') || kelasUpper.includes('MI')) { suffixTingkat = " IBTIDAIYAH"; } 
+            else if (kelasUpper.includes('SANA') || kelasUpper.includes('SANAWIYAH') || kelasUpper.includes('MTS')) { suffixTingkat = " SANAWIYAH"; } 
+            else if (kelasUpper.includes('ALIYAH') || kelasUpper.includes('MA')) { suffixTingkat = " ALIYAH"; } 
+            else if (kelasUpper.includes('TK') || kelasUpper.includes('RA')) { suffixTingkat = " TK - RA"; }
 
-            // Fungsi pembantu untuk ubah Romawi ke Angka
             function romawiKeAngka(str) {
                 const nilai = { 'I':1, 'V':5, 'X':10 };
                 let hasil = 0;
                 for (let i = 0; i < str.length; i++) {
-                    if (i < str.length - 1 && nilai[str[i]] < nilai[str[i+1]]) {
-                        hasil -= nilai[str[i]];
-                    } else {
-                        hasil += nilai[str[i]];
-                    }
+                    if (i < str.length - 1 && nilai[str[i]] < nilai[str[i+1]]) { hasil -= nilai[str[i]]; } 
+                    else { hasil += nilai[str[i]]; }
                 }
                 return hasil;
             }
 
-            // Cari Angka Biasa (1,2,3) ATAU Angka Romawi (I, II, III, dst)
             let matchAngka = kelas.match(/\d+/);
             let matchRomawi = kelas.match(/\b(I{1,3}|IV|V|VI{0,3}|IX|X{1,2}|XI{0,2})\b$/i);
-            
             let angkaSekarang = null;
-            if (matchAngka) {
-                angkaSekarang = parseInt(matchAngka[0]);
-            } else if (matchRomawi) {
-                angkaSekarang = romawiKeAngka(matchRomawi[0].toUpperCase());
-            }
+            if (matchAngka) { angkaSekarang = parseInt(matchAngka[0]); } 
+            else if (matchRomawi) { angkaSekarang = romawiKeAngka(matchRomawi[0].toUpperCase()); }
 
-            // 2. Format hasil akhir (Gabungkan Kelas + Tingkatan)
             if (angkaSekarang !== null) {
-                let angkaNaik = angkaSekarang + 1; // Naik kelas (+1)
-                
-                // Konversi kembali ke Romawi untuk opsi final
+                let angkaNaik = angkaSekarang + 1; 
                 const daftarRomawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
-                if (angkaNaik <= 12) {
-                    teksNaikRomawi = `Naik ke Kelas ${daftarRomawi[angkaNaik]}${suffixTingkat}`;
-                }
+                if (angkaNaik <= 12) { teksNaikRomawi = `Naik ke Kelas ${daftarRomawi[angkaNaik]}${suffixTingkat}`; }
             } else if (kelasUpper.includes(' A')) {
-                // Khusus TK A ke TK B
                 teksNaikRomawi = `Naik ke Kelas B${suffixTingkat}`;
             }
 
-            // --- 3. MENYIAPKAN OPSI CATATAN SESUAI TINGKATAN (TK VS UMUM) ---
-            let opsiCatatanHTML = "";
-            
-          if (kelasUpper.includes('TK') || kelasUpper.includes('RA')) {
-                // CATATAN CERIA KHUSUS TK / RA (TANPA KATA "BERMAIN" & "BANGUN PAGI")
-                opsiCatatanHTML = `
-                    <option value="Alhamdulillah, perkembangan Ananda sangat hebat dan selalu ceria di semester ini! Terus semangat belajar dan jadilah anak sholeh/sholehah kebanggaan Ayah dan Bunda ya!">
-                    <option value="Masya Allah, Ananda makin pintar dan penuh semangat! Kebiasaan berbagi dan rukun bersama teman-teman juga sangat luar biasa. Yuk, terus rajin belajar di rumah!">
-                    <option value="Ananda adalah anak yang cerdas dan penuh keceriaan! Ustaz/Ustazah selalu bangga melihat senyum manis dan semangat Ananda setiap hari di sekolah. Terus pertahankan semangatnya ya sayang!">
-                    <option value="Perkembangan belajar Ananda sungguh luar biasa! Terus biasakan berbuat baik dan rajin mengulang kegiatan positif di rumah. Semoga Ananda selalu menjadi anak kesayangan Allah SWT.">
-                    <option value="Wah, Ananda semakin mandiri, rajin, dan berani di kelas! Tetap semangat menuntut ilmu setiap hari ya. Jangan lupa untuk selalu patuh dan mendengarkan nasihat Ayah dan Bunda.">
-                `;
-            } else {
-
-                // CATATAN RESMI UNTUK IBT, SANA, ALIYAH
-                opsiCatatanHTML = `
-                    <option value="Alhamdulillah, pencapaian akademik dan akhlak Ananda pada semester ini sangat memuaskan. Jadikan keberhasilan ini sebagai wujud syukur kepada Allah SWT dan motivasi untuk terus menjadi teladan yang baik.">
-                    <option value="Ananda menunjukkan perkembangan yang positif dalam kegiatan belajar mengajar. Tingkatkan terus kedisiplinan dan perbanyak murojaah (mengulang pelajaran) di rumah agar potensi kecerdasan Ananda berkembang maksimal.">
-                    <option value="Semangat belajar Ananda perlu ditingkatkan lagi. Kurangi kegiatan yang kurang bermanfaat, tingkatkan ibadah, dan jadikan Al-Qur'an sebagai pedoman agar dimudahkan oleh Allah SWT dalam menuntut ilmu.">
-                    <option value="Ananda pada dasarnya adalah santri yang cerdas. Kami berharap pada masa mendatang Ananda dapat lebih disiplin, rajin hadir ke madrasah, dan senantiasa mematuhi tata tertib demi meraih masa depan yang gemilang.">
-                    <option value="Ketekunan adalah kunci keberhasilan. Teruslah berbakti kepada kedua orang tua, jaga sholat fardhu berjamaah, dan hiasi diri dengan akhlakul karimah agar ilmu yang didapatkan berkah di dunia dan akhirat.">
-                `;
-            }
-
-            // 4. TAMBAHKAN DATALIST DENGAN PILIHAN DINAMIS
-            tbody.innerHTML = `
-                <datalist id="opsi-keputusan">
-                    <option value="${teksNaikRomawi}">
-                    <option value="${teksTinggal}">
-                    <option value="Lulus dari Madrasah">
-                </datalist>
-                <datalist id="opsi-catatan">
-                    ${opsiCatatanHTML}
-                </datalist>
-            `;
+            // Hapus pembuatan <datalist>, langsung bersihkan isi tabel untuk disiapkan
+            tbody.innerHTML = '';
 
            santriKelas.forEach(s => { 
                 let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''}; 
+                let isTK = kelasUpper.includes('TK') || kelasUpper.includes('RA');
                 
                 tbody.innerHTML += ` 
                 <tr class="set-santri-row hover:bg-gray-50 transition-all border-b border-gray-100" data-nis="${s.nis}">
@@ -2514,8 +2460,21 @@ if (santriKelas.length === 0) {
                     <td class="p-1 border-r bg-orange-50/30"><input type="number" class="inp-izin w-10 sm:w-12 mx-auto block text-center border-2 border-orange-200 rounded p-1 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.izin}"></td> 
                     <td class="p-1 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-10 sm:w-12 mx-auto block text-center border-2 border-orange-200 rounded p-1 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.alpa}"></td> 
                     
-                    <td class="p-1 border-r bg-emerald-50/30"><input type="text" list="opsi-keputusan" class="inp-keputusan w-48 border-2 border-emerald-200 rounded p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${escapeHTML(d.keputusan)}" placeholder="Pilih / Ketik Keputusan..."></td>
-                    <td class="p-1 bg-purple-50/30"><input type="text" list="opsi-catatan" class="inp-catatan w-72 border-2 border-purple-200 rounded p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${escapeHTML(d.catatan)}" placeholder="Pilih / Ketik Catatan..."></td>
+                    <!-- PERUBAHAN UI KEPUTUSAN (INPUT + TOMBOL PANAH) -->
+                    <td class="p-1 border-r bg-emerald-50/30">
+                        <div class="flex items-stretch w-48 mx-auto">
+                            <input type="text" class="inp-keputusan w-full border-2 border-emerald-200 border-r-0 rounded-l p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${escapeHTML(d.keputusan)}" placeholder="Ketik/Pilih...">
+                            <button type="button" onclick="bukaOpsiKeputusan(this, '${teksNaikRomawi}', '${teksTinggal}')" class="bg-emerald-100 border-2 border-emerald-200 text-emerald-700 px-2.5 rounded-r hover:bg-emerald-200 transition-all shadow-sm"><i class="fas fa-caret-down"></i></button>
+                        </div>
+                    </td>
+
+                    <!-- PERUBAHAN UI CATATAN (INPUT + TOMBOL PANAH) -->
+                    <td class="p-1 bg-purple-50/30">
+                        <div class="flex items-stretch w-72 mx-auto">
+                            <input type="text" class="inp-catatan w-full border-2 border-purple-200 border-r-0 rounded-l p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${escapeHTML(d.catatan)}" placeholder="Ketik/Pilih...">
+                            <button type="button" onclick="bukaOpsiCatatan(this, ${isTK})" class="bg-purple-100 border-2 border-purple-200 text-purple-700 px-2.5 rounded-r hover:bg-purple-200 transition-all shadow-sm"><i class="fas fa-caret-down"></i></button>
+                        </div>
+                    </td>
                 </tr>`; 
             });
         }
@@ -3591,3 +3550,78 @@ window.addEventListener('resize', function() {
         }
     }
 });
+
+// =========================================================
+// FUNGSI POPUP TEMPLATE CATATAN & KEPUTUSAN GURU
+// =========================================================
+
+window.bukaOpsiKeputusan = function(btn, opsiNaik, opsiTinggal) {
+    window.targetInputAktif = btn.previousElementSibling; // Menyimpan target kotak input
+    const html = `
+        <div class="flex flex-col gap-3 text-left mt-2">
+            <button onclick="pilihOpsiTeks('${opsiNaik}')" class="p-4 border-2 border-emerald-200 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-sm sm:text-base transition-all text-left shadow-sm flex items-center gap-3"><i class="fas fa-arrow-up text-emerald-500 text-xl"></i> <span>${opsiNaik}</span></button>
+            <button onclick="pilihOpsiTeks('${opsiTinggal}')" class="p-4 border-2 border-orange-200 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-800 font-bold text-sm sm:text-base transition-all text-left shadow-sm flex items-center gap-3"><i class="fas fa-redo text-orange-500 text-xl"></i> <span>${opsiTinggal}</span></button>
+            <button onclick="pilihOpsiTeks('Lulus dari Madrasah')" class="p-4 border-2 border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-sm sm:text-base transition-all text-left shadow-sm flex items-center gap-3"><i class="fas fa-graduation-cap text-blue-500 text-xl"></i> <span>Lulus dari Madrasah</span></button>
+        </div>
+    `;
+    Swal.fire({
+        title: '<span class="text-emerald-700 font-bold font-heading">Pilih Keputusan</span>',
+        html: html,
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: { popup: 'rounded-2xl p-4 sm:p-6' }
+    });
+};
+
+window.bukaOpsiCatatan = function(btn, isTK) {
+    window.targetInputAktif = btn.previousElementSibling; // Menyimpan target kotak input
+    let opsi = [];
+    
+    if (isTK) {
+        opsi = [
+            "Alhamdulillah, perkembangan Ananda sangat hebat dan selalu ceria di semester ini! Terus semangat belajar dan jadilah anak sholeh/sholehah kebanggaan Ayah dan Bunda ya!",
+            "Masya Allah, Ananda makin pintar dan penuh semangat! Kebiasaan berbagi dan rukun bersama teman-teman juga sangat luar biasa. Yuk, terus rajin belajar di rumah!",
+            "Ananda adalah anak yang cerdas dan penuh keceriaan! Ustaz/Ustazah selalu bangga melihat senyum manis dan semangat Ananda setiap hari di sekolah. Terus pertahankan semangatnya ya sayang!",
+            "Perkembangan belajar Ananda sungguh luar biasa! Terus biasakan berbuat baik dan rajin mengulang kegiatan positif di rumah. Semoga Ananda selalu menjadi anak kesayangan Allah SWT.",
+            "Wah, Ananda semakin mandiri, rajin, dan berani di kelas! Tetap semangat menuntut ilmu setiap hari ya. Jangan lupa untuk selalu patuh dan mendengarkan nasihat Ayah dan Bunda."
+        ];
+    } else {
+        opsi = [
+            "Alhamdulillah, pencapaian akademik dan akhlak Ananda pada semester ini sangat memuaskan. Jadikan keberhasilan ini sebagai wujud syukur kepada Allah SWT dan motivasi untuk terus menjadi teladan yang baik.",
+            "Ananda menunjukkan perkembangan yang positif dalam kegiatan belajar mengajar. Tingkatkan terus kedisiplinan dan perbanyak murojaah (mengulang pelajaran) di rumah agar potensi kecerdasan Ananda berkembang maksimal.",
+            "Semangat belajar Ananda perlu ditingkatkan lagi. Kurangi kegiatan yang kurang bermanfaat, tingkatkan ibadah, dan jadikan Al-Qur'an sebagai pedoman agar dimudahkan oleh Allah SWT dalam menuntut ilmu.",
+            "Ananda pada dasarnya adalah santri yang cerdas. Kami berharap pada masa mendatang Ananda dapat lebih disiplin, rajin hadir ke madrasah, dan senantiasa mematuhi tata tertib demi meraih masa depan yang gemilang.",
+            "Ketekunan adalah kunci keberhasilan. Teruslah berbakti kepada kedua orang tua, jaga sholat fardhu berjamaah, dan hiasi diri dengan akhlakul karimah agar ilmu yang didapatkan berkah di dunia dan akhirat."
+        ];
+    }
+
+    let buttonsHtml = opsi.map(teks => `
+        <button onclick="pilihOpsiTeks('${teks.replace(/'/g, "\\'")}')" class="p-4 border-2 border-purple-200 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium text-sm transition-all text-left shadow-sm leading-relaxed w-full flex items-start gap-3">
+            <i class="fas fa-quote-left text-purple-400 mt-1"></i> <span>${teks}</span>
+        </button>
+    `).join('');
+
+    const html = `<div class="flex flex-col gap-3 text-left mt-2 max-h-[60vh] overflow-y-auto p-1 custom-scrollbar">${buttonsHtml}</div>`;
+    
+    Swal.fire({
+        title: '<span class="text-purple-700 font-bold font-heading">Pilih Catatan Guru</span>',
+        html: html,
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: '700px', // Agak dilebarkan sedikit di Desktop
+        customClass: { popup: 'rounded-2xl p-4 sm:p-6' }
+    });
+};
+
+window.pilihOpsiTeks = function(teks) {
+    if (window.targetInputAktif) {
+        window.targetInputAktif.value = teks;
+        
+        // Animasi hijau sebentar pada kotak teks agar tahu data berhasil masuk
+        window.targetInputAktif.classList.add('bg-green-100', 'transition-colors', 'duration-500');
+        setTimeout(() => {
+            window.targetInputAktif.classList.remove('bg-green-100');
+        }, 800);
+    }
+    Swal.close(); // Tutup popup
+};
