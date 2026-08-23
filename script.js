@@ -1241,9 +1241,9 @@ async function generateTabelAbsen() {
                     ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-[10px] font-bold text-gray-400">Selesai</span></div>` 
                     : `<input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
                 
-                let colN2 = valN2 !== "" 
-                    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-[10px] font-bold text-gray-400">Selesai</span></div>` 
-                    : `<input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" placeholder="N2" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
+               let colN2 = valN2 !== "" 
+    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-[10px] font-bold text-gray-400">Selesai</span></div>` 
+    : `<input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" data-nis="${s.nis}" placeholder="N2" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
                 
                 html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white group-hover:bg-emerald-50 z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px] transition-colors duration-200"> <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${s.nama}</p> </td> <td class="p-2 border-r border-gray-200 bg-gray-50/50">${colN1}</td> <td class="p-2 bg-gray-50/50">${colN2}</td>`; 
             } else { 
@@ -1308,22 +1308,35 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
     const filterKedua = document.getElementById('pilihFilterKedua').value; 
     let paketBulk = []; 
     
-    if (kelasPilih.includes('TK')) { 
+if (kelasPilih.includes('TK')) { 
         const globalM1 = document.getElementById('global_tk_m1').value; 
         const globalM2 = document.getElementById('global_tk_m2').value; 
         let adaIsianNilai = false; 
         
         document.querySelectorAll('#bodyTabelAbsen tr.santri-absen-row').forEach(tr => { 
             const n1Input = tr.querySelector('.input-tk-n1'); 
-            if (n1Input) { 
-                const nis = n1Input.getAttribute('data-nis'); 
-                const nama = tr.querySelector('.font-bold.text-gray-800').innerText; 
-                const n1 = n1Input.value; const n2 = tr.querySelector('.input-tk-n2').value; 
-                if(n1 !== "" || n2 !== "") { 
-                    adaIsianNilai = true; let total = (parseFloat(n1)||0) + (parseFloat(n2)||0); 
-                    let count = 0; if(n1!=="")count++; if(n2!=="")count++; let rata = count > 0 ? (total/count).toFixed(2) : 0; 
-                    paketBulk.push({ nis: nis, nama: nama, m1: globalM1, n1: n1, m2: globalM2, n2: n2, total: total, rata: rata }); 
-                } 
+            const n2Input = tr.querySelector('.input-tk-n2'); 
+            
+            // Bypass aman: Jika N1 dan N2 sudah "Selesai" (bukan input lagi), lewati baris ini
+            if (!n1Input && !n2Input) return;
+
+            // Ambil NIS dan Nama dengan aman langsung dari teks kolom tabel
+            const nis = tr.cells[1].innerText.trim();
+            const nama = tr.cells[2].innerText.trim();
+            
+            // Cek isi nilai dengan aman
+            const n1 = n1Input ? n1Input.value : ""; 
+            const n2 = n2Input ? n2Input.value : ""; 
+
+            if(n1 !== "" || n2 !== "") { 
+                adaIsianNilai = true; 
+                let total = (parseFloat(n1)||0) + (parseFloat(n2)||0); 
+                let count = 0; 
+                if(n1!=="") count++; 
+                if(n2!=="") count++; 
+                let rata = count > 0 ? (total/count).toFixed(2) : 0; 
+                
+                paketBulk.push({ nis: nis, nama: nama, m1: globalM1, n1: n1, m2: globalM2, n2: n2, total: total, rata: rata }); 
             } 
         }); 
         
@@ -1334,7 +1347,7 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
                 paketBulk.push({ nis: input.getAttribute('data-nis'), nama: input.getAttribute('data-nama'), nilai: input.value });
             }
         }); 
-    } 
+    }
 
     // Status disimpan terpisah agar kosong/tidak hadir tidak pernah berubah menjadi nilai 0.
     let paketStatus = [];
