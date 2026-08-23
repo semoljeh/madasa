@@ -728,16 +728,9 @@
                     document.title = "Biodata_Sanawiyah_" + santriInfo.nis + "_" + namaB;
 
                     setTimeout(() => {
-                        window.print();
-                        document.title = judulAsli;
-                        
-                        // =======================================================
-                        // [PERBAIKAN 2]: KEMBALIKAN KE TEMPLATE RAPOR SETELAH PRINT
-                        // =======================================================
-                        kertas.innerHTML = window.templateRaporAsliSanawiyah;
-                        kertas.classList.add('hidden'); 
-                        
-                    }, 500);
+                window.print();
+                document.title = judulAsli;
+            }, 500);
                     
                 }).catch(err => {
                     showLoading(false);

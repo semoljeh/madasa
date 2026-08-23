@@ -768,12 +768,8 @@ function cetakSampulBiodataTK() {
             setTimeout(() => {
                 window.print();
                 document.title = judulAsli;
-                
-                // Kembalikan ke template rapor setelah print
-                kertas.innerHTML = window.templateRaporAsli;
-                kertas.classList.add('hidden'); 
-                
             }, 500);
+			
         }).catch(err => {
             showLoading(false);
             Swal.fire('Error', 'Gagal memuat pengaturan dari server.', 'error');
