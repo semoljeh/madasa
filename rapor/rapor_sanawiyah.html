@@ -618,8 +618,10 @@
                     
                     const tanggalTampil = setUmum.tanggal || ('Bangkalan, ' + tanggalCetakDefault);
                     const namaKepala = setUmum.kepala || '..............................';
-                    const urlKepala = setUmum.url_kepala || '';
-                    const urlStempel = setUmum.url_stempel || '';
+                    
+                    // Mengarahkan otomatis ke file di folder asset
+                    const urlKepala = setUmum.url_kepala || '../asset/ttdsana.png';
+                    const urlStempel = setUmum.url_stempel || '../asset/stempelsana.png';
 
                     const kertas = document.getElementById('kertasRapor');
                     
