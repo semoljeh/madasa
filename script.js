@@ -3578,22 +3578,30 @@ window.bukaOpsiCatatan = function(btn, isTK) {
     let opsi = [];
     
     if (isTK) {
-        opsi = [
-            "Alhamdulillah, perkembangan Ananda sangat hebat dan selalu ceria di semester ini! Terus semangat belajar dan jadilah anak sholeh/sholehah kebanggaan Ayah dan Bunda ya!",
-            "Masya Allah, Ananda makin pintar dan penuh semangat! Kebiasaan berbagi dan rukun bersama teman-teman juga sangat luar biasa. Yuk, terus rajin belajar di rumah!",
-            "Ananda adalah anak yang cerdas dan penuh keceriaan! Ustaz/Ustazah selalu bangga melihat senyum manis dan semangat Ananda setiap hari di sekolah. Terus pertahankan semangatnya ya sayang!",
-            "Perkembangan belajar Ananda sungguh luar biasa! Terus biasakan berbuat baik dan rajin mengulang kegiatan positif di rumah. Semoga Ananda selalu menjadi anak kesayangan Allah SWT.",
-            "Wah, Ananda semakin mandiri, rajin, dan berani di kelas! Tetap semangat menuntut ilmu setiap hari ya. Jangan lupa untuk selalu patuh dan mendengarkan nasihat Ayah dan Bunda."
-        ];
-    } else {
-        opsi = [
-            "Alhamdulillah, pencapaian akademik dan akhlak Ananda pada semester ini sangat memuaskan. Jadikan keberhasilan ini sebagai wujud syukur kepada Allah SWT dan motivasi untuk terus menjadi teladan yang baik.",
-            "Ananda menunjukkan perkembangan yang positif dalam kegiatan belajar mengajar. Tingkatkan terus kedisiplinan dan perbanyak murojaah (mengulang pelajaran) di rumah agar potensi kecerdasan Ananda berkembang maksimal.",
-            "Semangat belajar Ananda perlu ditingkatkan lagi. Kurangi kegiatan yang kurang bermanfaat, tingkatkan ibadah, dan jadikan Al-Qur'an sebagai pedoman agar dimudahkan oleh Allah SWT dalam menuntut ilmu.",
-            "Ananda pada dasarnya adalah santri yang cerdas. Kami berharap pada masa mendatang Ananda dapat lebih disiplin, rajin hadir ke madrasah, dan senantiasa mematuhi tata tertib demi meraih masa depan yang gemilang.",
-            "Ketekunan adalah kunci keberhasilan. Teruslah berbakti kepada kedua orang tua, jaga sholat fardhu berjamaah, dan hiasi diri dengan akhlakul karimah agar ilmu yang didapatkan berkah di dunia dan akhirat."
-        ];
-    }
+    opsi = [
+        "Alhamdulillah, Ananda menunjukkan perkembangan yang baik. Tetap semangat belajar, teruslah menjadi anak yang ceria, mandiri, dan rajin agar semakin berkembang.",
+        
+        "Masya Allah, Ananda semakin aktif dan percaya diri dalam mengikuti kegiatan pembelajaran. Terus tumbuhkan semangat belajar, rasa ingin tahu, dan kebiasaan baik setiap hari.",
+        
+        "Ananda adalah anak yang ceria dan penuh semangat. Teruslah belajar dengan senang hati, berani mencoba hal baru, dan menjadi anak sholeh/sholehah yang membanggakan.",
+        
+        "Alhamdulillah, Ananda berkembang dengan baik dan menunjukkan semangat dalam belajar. Tetap rajin, percaya diri, dan terus berusaha menjadi pribadi yang lebih baik.",
+        
+        "Masya Allah, Ananda menunjukkan perkembangan yang positif. Teruslah semangat belajar, menjaga sikap baik, serta meningkatkan kemandirian dalam kegiatan sehari-hari."
+    ];
+} else {
+    opsi = [
+        "Alhamdulillah, Ananda menunjukkan perkembangan yang baik dalam pembelajaran. Terus tingkatkan semangat belajar, kedisiplinan, dan usaha untuk meraih prestasi yang lebih baik.",
+        
+        "Ananda memiliki potensi yang baik. Tetap semangat dalam menuntut ilmu, tingkatkan keaktifan belajar, dan terus berusaha memberikan hasil terbaik.",
+        
+        "Perkembangan Ananda cukup baik. Terus tingkatkan motivasi belajar, tanggung jawab, dan kedisiplinan agar mampu mencapai cita-cita yang diharapkan.",
+        
+        "Ananda menunjukkan kemampuan yang baik dalam mengikuti pembelajaran. Tetap semangat belajar, rajin berlatih, dan terus berusaha meraih keberhasilan.",
+        
+        "Teruslah bersemangat dalam menuntut ilmu, memperbaiki diri, dan menjaga akhlakul karimah. Semoga Allah SWT memberikan kemudahan dan keberkahan dalam setiap langkah Ananda."
+    ];
+}
 
     let buttonsHtml = opsi.map(teks => `
         <button onclick="pilihOpsiTeks('${teks.replace(/'/g, "\\'")}')" class="p-4 border-2 border-purple-200 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-800 font-medium text-sm transition-all text-left shadow-sm leading-relaxed w-full flex items-start gap-3">
