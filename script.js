@@ -2451,10 +2451,10 @@ if (santriKelas.length === 0) {
                 <tr class="set-santri-row hover:bg-gray-50 transition-all border-b border-gray-100" data-nis="${s.nis}">
                     <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 min-w-[130px] max-w-[150px] md:max-w-none md:min-w-[250px] whitespace-normal leading-snug">${s.nama}</td>
                     
-                    <td class="p-1 border-r bg-blue-50/30"><input type="text" class="inp-akhlaq w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.akhlaq}" maxlength="1"></td> 
-                    <td class="p-1 border-r bg-blue-50/30"><input type="text" class="inp-rajin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.kerajinan}" maxlength="1"></td> 
-                    <td class="p-1 border-r bg-blue-50/30"><input type="text" class="inp-disiplin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.disiplin}" maxlength="1"></td> 
-                    <td class="p-1 border-r bg-blue-50/30"><input type="text" class="inp-rapi w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 uppercase font-bold text-blue-700 outline-none focus:border-blue-500" value="${d.rapi}" maxlength="1"></td> 
+                    <td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Akhlaq')" class="inp-akhlaq w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.akhlaq}" readonly placeholder="-"></td> 
+<td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Kerajinan')" class="inp-rajin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.kerajinan}" readonly placeholder="-"></td> 
+<td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Kedisiplinan')" class="inp-disiplin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.disiplin}" readonly placeholder="-"></td> 
+<td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Kerapian')" class="inp-rapi w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.rapi}" readonly placeholder="-"></td>
                     
                     <td class="p-1 border-r bg-orange-50/30"><input type="number" class="inp-sakit w-10 sm:w-12 mx-auto block text-center border-2 border-orange-200 rounded p-1 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.sakit}"></td> 
                     <td class="p-1 border-r bg-orange-50/30"><input type="number" class="inp-izin w-10 sm:w-12 mx-auto block text-center border-2 border-orange-200 rounded p-1 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.izin}"></td> 
@@ -3624,4 +3624,30 @@ window.pilihOpsiTeks = function(teks) {
         }, 800);
     }
     Swal.close(); // Tutup popup
+};
+
+window.bukaOpsiKepribadian = function(inputEl, namaKolom) {
+    // Menyimpan target kotak input yang diklik
+    window.targetInputAktif = inputEl; 
+    
+    const html = `
+        <div class="grid grid-cols-2 gap-3 text-center mt-2">
+            <button onclick="pilihOpsiTeks('A')" class="p-4 border-2 border-emerald-200 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-2xl transition-all shadow-sm">A <span class="block text-xs font-medium text-emerald-600 mt-1">Sangat Baik</span></button>
+            <button onclick="pilihOpsiTeks('B')" class="p-4 border-2 border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-2xl transition-all shadow-sm">B <span class="block text-xs font-medium text-blue-600 mt-1">Baik</span></button>
+            <button onclick="pilihOpsiTeks('C')" class="p-4 border-2 border-orange-200 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-800 font-bold text-2xl transition-all shadow-sm">C <span class="block text-xs font-medium text-orange-600 mt-1">Cukup</span></button>
+            <button onclick="pilihOpsiTeks('D')" class="p-4 border-2 border-red-200 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 font-bold text-2xl transition-all shadow-sm">D <span class="block text-xs font-medium text-red-600 mt-1">Kurang</span></button>
+        </div>
+        <div class="mt-4">
+            <button onclick="pilihOpsiTeks('')" class="w-full p-3 border border-gray-200 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm transition-all shadow-sm"><i class="fas fa-eraser mr-2"></i>Kosongkan Nilai</button>
+        </div>
+    `;
+    
+    Swal.fire({
+        title: `<span class="text-blue-700 font-bold font-heading">Nilai ${namaKolom}</span>`,
+        html: html,
+        showConfirmButton: false,
+        showCloseButton: true,
+        width: '360px',
+        customClass: { popup: 'rounded-2xl p-4 sm:p-6' }
+    });
 };
