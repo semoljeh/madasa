@@ -1772,96 +1772,34 @@ function loadBintangPelajar() {
         'Memuat kandidat juara...' +
         '</div>';
 
-    const token =
-        sessionStorage.getItem('tokenMadasa') || '';
-
-    const jsonp =
-        window.gasJsonp;
+    const token = sessionStorage.getItem('tokenMadasa') || '';
+    const jsonp = window.gasJsonp;
 
     if (typeof jsonp !== 'function') {
-
         wadah.innerHTML =
             '<div class="text-white text-center col-span-full mt-4">' +
             'Komponen koneksi belum termuat. Silakan refresh halaman.' +
             '</div>';
-
-        console.error(
-            '[RANKING] gasJsonp tidak tersedia. Pastikan config.js?v=18 termuat.'
-        );
-
+        console.error('[RANKING] gasJsonp tidak tersedia. Pastikan config.js?v=18 termuat.');
         return;
     }
 
-    jsonp(
-        'getBintangPelajar',
-        { token },
-        60000,
-        1
-    )
+    jsonp('getBintangPelajar', { token }, 60000, 1)
     .then(res => {
+        if (res.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
 
-        if (
-            res.status === 'success' &&
-            Array.isArray(res.data) &&
-            res.data.length > 0
-        ) {
+            const upper = v => String(v || '').toUpperCase();
 
-            const upper = v =>
-                String(v || '').toUpperCase();
+            let dataTK = res.data.filter(s => /(^|\s|-)TK|TPQ|RA/.test(upper(s.kelas)));
+            let dataIBT = res.data.filter(s => /IBT|IBTIDAIYAH|\bMI\b|\bSD\b/.test(upper(s.kelas)));
+            let dataSANA = res.data.filter(s => /SANA|TSANAW|MTS|ALIYAH|\bMA\b/.test(upper(s.kelas)));
 
-            let dataTK = res.data.filter(
-                s =>
-                    /(^|\s|-)TK|TPQ|RA/.test(
-                        upper(s.kelas)
-                    )
-            );
-
-            let dataIBT = res.data.filter(
-                s =>
-                    /IBT|IBTIDAIYAH|\bMI\b|\bSD\b/.test(
-                        upper(s.kelas)
-                    )
-            );
-
-            let dataSANA = res.data.filter(
-                s =>
-                    /SANA|TSANAW|MTS|ALIYAH|\bMA\b/.test(
-                        upper(s.kelas)
-                    )
-            );
-
-            /*
-             * Juara umum antar kelas dibandingkan
-             * berdasarkan rata-rata terlebih dahulu.
-             *
-             * Total nilai digunakan sebagai tie-breaker.
-             */
             const urutkanJuaraUmum = arr => {
-
                 arr.sort((a, b) => {
-
-                    const rataB =
-                        parseFloat(
-                            b.rata_asli ??
-                            b.rata ??
-                            0
-                        );
-
-                    const rataA =
-                        parseFloat(
-                            a.rata_asli ??
-                            a.rata ??
-                            0
-                        );
-
-                    if (rataB !== rataA) {
-                        return rataB - rataA;
-                    }
-
-                    return (
-                        parseFloat(b.total || 0) -
-                        parseFloat(a.total || 0)
-                    );
+                    const rataB = parseFloat(b.rata_asli ?? b.rata ?? 0);
+                    const rataA = parseFloat(a.rata_asli ?? a.rata ?? 0);
+                    if (rataB !== rataA) return rataB - rataA;
+                    return parseFloat(b.total || 0) - parseFloat(a.total || 0);
                 });
             };
 
@@ -1871,411 +1809,110 @@ function loadBintangPelajar() {
 
             wadah.innerHTML = '';
 
-            const renderKategori = (
-                judul,
-                icon,
-                dataKategori,
-                warnaBadge
-            ) => {
-
-                if (dataKategori.length === 0) {
-                    return;
-                }
+            const renderKategori = (judul, icon, dataKategori, warnaBadge) => {
+                if (dataKategori.length === 0) return;
 
                 wadah.innerHTML += `
-                    <div class="
-                        col-span-full
-                        text-white
-                        font-bold
-                        text-lg
-                        mt-4
-                        mb-2
-                        border-b
-                        border-white/30
-                        pb-2
-                        shadow-sm
-                    ">
-                        <i class="${icon} mr-2"></i>
-                        ${judul}
+                    <div class="col-span-full text-white font-bold text-lg mt-4 mb-2 border-b border-white/30 pb-2 shadow-sm">
+                        <i class="${icon} mr-2"></i> ${judul}
                     </div>
                 `;
 
-                const topRata =
-                    parseFloat(
-                        dataKategori[0].rata_asli ??
-                        dataKategori[0].rata ??
-                        0
-                    );
+                const topRata = parseFloat(dataKategori[0].rata_asli ?? dataKategori[0].rata ?? 0);
+                const topTotal = parseFloat(dataKategori[0].total || 0);
 
-                const topTotal =
-                    parseFloat(
-                        dataKategori[0].total || 0
-                    );
-
-                dataKategori.forEach(
-                    santri => {
-
-                        const rata =
-                            parseFloat(
-                                santri.rata_asli ??
-                                santri.rata ??
-                                0
-                            );
-
-                        const total =
-                            parseFloat(
-                                santri.total || 0
-                            );
-
-                        const isJuaraUmum =
-                            rata === topRata &&
-                            total === topTotal;
-
-                        const namaWali =
-                            santri.wali ||
-                            'Belum Diatur';
-
-                        const rataBenar =
-                            rata.toFixed(2);
-
-                        const badgeJuara =
-                            isJuaraUmum
-                            ? `
-                                <div class="
-                                    absolute
-                                    top-0
-                                    right-0
-                                    ${warnaBadge}
-                                    text-white
-                                    text-[10px]
-                                    font-bold
-                                    px-3
-                                    py-1
-                                    rounded-bl-lg
-                                    z-10
-                                    shadow-sm
-                                ">
-                                    <i class="fas fa-crown mr-1"></i>
-                                    JUARA UMUM
-                                </div>
-                              `
-                            : '';
-
-                        const colorAvatar =
-                            isJuaraUmum
-                            ? 'bg-amber-100 text-amber-500'
-                            : 'bg-gray-100 text-gray-400';
-
-                        const colorNumber =
-                            isJuaraUmum
-                            ? warnaBadge.split(' ')[0]
-                            : 'bg-emerald-600';
-
-                        wadah.innerHTML += `
-                        <div class="
-                            bg-white
-                            rounded-xl
-                            p-5
-                            shadow-lg
-                            transform
-                            transition
-                            hover:-translate-y-1
-                            relative
-                            overflow-hidden
-                            group
-                        ">
-
-                            ${badgeJuara}
-
-                            <div class="flex items-center gap-4 mb-3">
-
-                                <div class="
-                                    w-14
-                                    h-14
-                                    rounded-full
-                                    ${colorAvatar}
-                                    flex
-                                    items-center
-                                    justify-center
-                                    text-2xl
-                                    font-bold
-                                    shadow-inner
-                                    shrink-0
-                                    relative
-                                ">
-
-                                    <i class="fas fa-user-graduate"></i>
-
-                                    <div class="
-                                        absolute
-                                        -bottom-1
-                                        -right-1
-                                        w-6
-                                        h-6
-                                        ${colorNumber}
-                                        text-white
-                                        text-xs
-                                        flex
-                                        items-center
-                                        justify-center
-                                        rounded-full
-                                        border-2
-                                        border-white
-                                        font-bold
-                                    ">
-                                        1
-                                    </div>
-
-                                </div>
-
-                                <div class="flex-1 min-w-0">
-
-                                    <p class="
-                                        text-[10px]
-                                        font-bold
-                                        text-amber-600
-                                        tracking-wider
-                                        uppercase
-                                        mb-0.5
-                                    ">
-                                        ${escapeHTML(
-                                            santri.kelas
-                                        )}
-                                    </p>
-
-                                    <h4 class="
-                                        font-bold
-                                        text-gray-800
-                                        text-sm
-                                        sm:text-base
-                                        truncate
-                                        leading-tight
-                                    ">
-                                        ${escapeHTML(
-                                            santri.nama
-                                        )}
-                                    </h4>
-
-                                    <p class="
-                                        text-xs
-                                        text-gray-500
-                                        mt-1
-                                    ">
-
-                                        Total:
-
-                                        <span class="
-                                            font-bold
-                                            text-gray-800
-                                        ">
-                                            ${santri.total}
-                                        </span>
-
-                                        |
-
-                                        Rata-rata:
-
-                                        <span class="
-                                            font-bold
-                                            text-gray-800
-                                        ">
-                                            ${rataBenar}
-                                        </span>
-
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                            <div class="
-                                border-t
-                                border-gray-100
-                                pt-3
-                                text-xs
-                                text-gray-500
-                                space-y-1
-                            ">
-
-                                <p
-                                    class="truncate"
-                                    title="${escapeHTML(
-                                        santri.jk
-                                    )}"
-                                >
-                                    <i class="
-                                        fas
-                                        fa-venus-mars
-                                        w-4
-                                        text-purple-500
-                                        text-center
-                                    "></i>
-
-                                    Jns Kelamin:
-
-                                    <b>
-                                        ${escapeHTML(
-                                            santri.jk
-                                        )}
-                                    </b>
-                                </p>
-
-                                <p
-                                    class="truncate"
-                                    title="${escapeHTML(
-                                        santri.ttl
-                                    )}"
-                                >
-                                    <i class="
-                                        fas
-                                        fa-map-marker-alt
-                                        w-4
-                                        text-emerald-500
-                                        text-center
-                                    "></i>
-
-                                    ${escapeHTML(
-                                        santri.ttl
-                                    )}
-                                </p>
-
-                                <p
-                                    class="truncate"
-                                    title="${escapeHTML(
-                                        santri.ayah
-                                    )} & ${escapeHTML(
-                                        santri.ibu
-                                    )}"
-                                >
-                                    <i class="
-                                        fas
-                                        fa-user-friends
-                                        w-4
-                                        text-blue-500
-                                        text-center
-                                    "></i>
-
-                                    ${escapeHTML(
-                                        santri.ayah
-                                    )}
-                                    &
-                                    ${escapeHTML(
-                                        santri.ibu
-                                    )}
-                                </p>
-
-                                <p
-                                    class="truncate"
-                                    title="${escapeHTML(
-                                        santri.alamat
-                                    )}"
-                                >
-                                    <i class="
-                                        fas
-                                        fa-home
-                                        w-4
-                                        text-orange-500
-                                        text-center
-                                    "></i>
-
-                                    ${escapeHTML(
-                                        santri.alamat
-                                    )}
-                                </p>
-
-                                <p
-                                    class="
-                                        truncate
-                                        mt-1
-                                        pt-1
-                                    "
-                                    title="Wali Kelas"
-                                >
-
-                                    <i class="
-                                        fas
-                                        fa-user-tie
-                                        w-4
-                                        text-gray-400
-                                        text-center
-                                    "></i>
-
-                                    Wali Kelas:
-
-                                    <b class="text-gray-700">
-                                        ${escapeHTML(
-                                            namaWali
-                                        )}
-                                    </b>
-
-                                </p>
-
-                            </div>
-
-                        </div>
-                        `;
+                // TAMBAHAN: Masukkan parameter (santri, index)
+                dataKategori.forEach((santri, index) => {
+                    const nomorUrut = index + 1; // Membuat urutan otomatis mulai dari 1
+                    
+                    const rata = parseFloat(santri.rata_asli ?? santri.rata ?? 0);
+                    const total = parseFloat(santri.total || 0);
+                    const isJuaraUmum = rata === topRata && total === topTotal;
+                    const namaWali = santri.wali || 'Belum Diatur';
+                    const rataBenar = rata.toFixed(2);
+                    
+                    // Label Peringatan Belum Lengkap
+                    let badgeBelumLengkap = '';
+                    if (!santri.lengkap) {
+                        let teksMapel = /(TK|TPQ|RA)/i.test(santri.kelas) 
+                            ? `Baru diinput: ${santri.mapel_terisi} Mapel` 
+                            : `Baru diinput: ${santri.mapel_terisi}/${santri.mapel_wajib} Mapel`;
+                        
+                        badgeBelumLengkap = `<br><span class="text-amber-600 font-bold text-[10px] mt-1.5 inline-block bg-amber-50 px-2 py-0.5 rounded border border-amber-200"><i class="fas fa-exclamation-triangle"></i> Sementara (${teksMapel})</span>`;
                     }
-                );
+
+                    const badgeJuara = isJuaraUmum ? `
+                        <div class="absolute top-0 right-0 ${warnaBadge} text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg z-10 shadow-sm">
+                            <i class="fas fa-crown mr-1"></i> JUARA UMUM
+                        </div>
+                    ` : '';
+
+                    const colorAvatar = isJuaraUmum ? 'bg-amber-100 text-amber-500' : 'bg-gray-100 text-gray-400';
+                    const colorNumber = isJuaraUmum ? warnaBadge.split(' ')[0] : 'bg-emerald-600';
+
+                    wadah.innerHTML += `
+                    <div class="bg-white rounded-xl p-5 shadow-lg transform transition hover:-translate-y-1 relative overflow-hidden group">
+                        ${badgeJuara}
+                        <div class="flex items-center gap-4 mb-3">
+                            <div class="w-14 h-14 rounded-full ${colorAvatar} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative">
+                                <i class="fas fa-user-graduate"></i>
+                                <!-- MENGGUNAKAN VARIABEL nomorUrut DI SINI -->
+                                <div class="absolute -bottom-1 -right-1 w-6 h-6 ${colorNumber} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${nomorUrut}</div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[10px] font-bold text-amber-600 tracking-wider uppercase mb-0.5">${escapeHTML(santri.kelas)}</p>
+                                <h4 class="font-bold text-gray-800 text-sm sm:text-base truncate leading-tight">${escapeHTML(santri.nama)}</h4>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Total: <span class="font-bold text-gray-800">${santri.total}</span> | 
+                                    Rata-rata: <span class="font-bold text-gray-800">${rataBenar}</span>
+                                    ${badgeBelumLengkap}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-100 pt-3 text-xs text-gray-500 space-y-1">
+                            <p class="truncate" title="${escapeHTML(santri.jk)}">
+                                <i class="fas fa-venus-mars w-4 text-purple-500 text-center"></i> Jns Kelamin: <b>${escapeHTML(santri.jk)}</b>
+                            </p>
+                            <p class="truncate" title="${escapeHTML(santri.ttl)}">
+                                <i class="fas fa-map-marker-alt w-4 text-emerald-500 text-center"></i> ${escapeHTML(santri.ttl)}
+                            </p>
+                            <p class="truncate" title="${escapeHTML(santri.ayah)} & ${escapeHTML(santri.ibu)}">
+                                <i class="fas fa-user-friends w-4 text-blue-500 text-center"></i> ${escapeHTML(santri.ayah)} & ${escapeHTML(santri.ibu)}
+                            </p>
+                            <p class="truncate" title="${escapeHTML(santri.alamat)}">
+                                <i class="fas fa-home w-4 text-orange-500 text-center"></i> ${escapeHTML(santri.alamat)}
+                            </p>
+                            <p class="truncate mt-1 pt-1" title="Wali Kelas">
+                                <i class="fas fa-user-tie w-4 text-gray-400 text-center"></i> Wali Kelas: <b class="text-gray-700">${escapeHTML(namaWali)}</b>
+                            </p>
+                        </div>
+                    </div>
+                    `;
+                });
             };
 
-            renderKategori(
-                'Tingkat TK / RA',
-                'fas fa-star text-amber-400',
-                dataTK,
-                'bg-emerald-600'
-            );
-
-            renderKategori(
-                'Tingkat Madrasah Ibtidaiyah',
-                'fas fa-star text-amber-400',
-                dataIBT,
-                'bg-blue-600'
-            );
-
-            renderKategori(
-                'Tingkat Madrasah Sanawiyah',
-                'fas fa-star text-amber-400',
-                dataSANA,
-                'bg-purple-600'
-            );
-
+            renderKategori('Tingkat TK / RA', 'fas fa-star text-amber-400', dataTK, 'bg-emerald-600');
+            renderKategori('Tingkat Madrasah Ibtidaiyah', 'fas fa-star text-amber-400', dataIBT, 'bg-blue-600');
+            renderKategori('Tingkat Madrasah Sanawiyah', 'fas fa-star text-amber-400', dataSANA, 'bg-purple-600');
         }
-
-        else if (
-            res.status === 'success'
-        ) {
-
+        else if (res.status === 'success') {
             wadah.innerHTML =
                 '<div class="bg-white/20 backdrop-blur-md border border-white/30 rounded-xl p-6 text-center text-white col-span-full">' +
                 '<i class="fas fa-info-circle text-2xl mb-2 block"></i>' +
                 'Belum ada data nilai yang diinput di kelas mana pun.' +
                 '</div>';
-
         }
-
         else {
-
-            throw new Error(
-                res.message ||
-                'Gagal memuat Bintang Pelajar.'
-            );
-
+            throw new Error(res.message || 'Gagal memuat Bintang Pelajar.');
         }
-
     })
-
     .catch(e => {
-
-        console.error(
-            '[RANKING] Gagal memuat Bintang Pelajar:',
-            e
-        );
-
+        console.error('[RANKING] Gagal memuat Bintang Pelajar:', e);
         wadah.innerHTML =
             '<div class="text-white text-center col-span-full mt-4">' +
             'Gagal memuat data ranking. Silakan refresh lalu coba lagi.' +
             '</div>';
-
     });
 }
 
