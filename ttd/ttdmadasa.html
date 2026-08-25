@@ -198,38 +198,67 @@
         canvas.addEventListener("touchmove", move, {passive: false});
         canvas.addEventListener("touchend", stop);
 
-        function redraw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-            ctx.strokeStyle = document.getElementById("color").value;
-            ctx.lineWidth = document.getElementById("size").value;
-
-            paths.forEach(drawPath);
-
-            if (current.length) {
-                drawPath(current);
-            }
-        }
-
-       function drawPath(path) {
-    ctx.beginPath();
+function redraw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Ambil ukuran canvas yang sedang aktif saat ini
+    // Gaya dasar ujung pulpen
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = document.getElementById("color").value;
+    ctx.lineWidth = document.getElementById("size").value;
+    
+    // Efek tinta nyata (sedikit blur/bayangan)
+    ctx.shadowBlur = 1.5;
+    ctx.shadowColor = document.getElementById("color").value;
+
+    paths.forEach(drawPath);
+
+    if (current.length) {
+        drawPath(current);
+    }
+}
+
+function drawPath(path) {
+    if (path.length < 2) {
+        // Jika hanya ada 1 titik (klik saja), buat titik (dot)
+        if (path.length === 1) {
+            ctx.beginPath();
+            let currentWidth = canvas.offsetWidth;
+            let currentHeight = canvas.offsetHeight;
+            ctx.arc(path[0].x * currentWidth, path[0].y * currentHeight, ctx.lineWidth / 2, 0, Math.PI * 2);
+            ctx.fillStyle = ctx.strokeStyle;
+            ctx.fill();
+        }
+        return;
+    }
+
+    ctx.beginPath();
     let currentWidth = canvas.offsetWidth;
     let currentHeight = canvas.offsetHeight;
 
-    path.forEach((p, i) => {
-        // Kembalikan nilai rasio menjadi nilai piksel yang sesuai dengan ukuran baru
-        let actualX = p.x * currentWidth;
-        let actualY = p.y * currentHeight;
+    // Mulai dari titik pertama
+    ctx.moveTo(path[0].x * currentWidth, path[0].y * currentHeight);
 
-        if (i === 0) {
-            ctx.moveTo(actualX, actualY);
-        } else {
-            ctx.lineTo(actualX, actualY);
-        }
-    });
+    // Hubungkan titik-titik dengan kurva melengkung (bukan garis lurus)
+    for (let i = 1; i < path.length - 1; i++) {
+        let p1X = path[i].x * currentWidth;
+        let p1Y = path[i].y * currentHeight;
+        
+        let p2X = path[i + 1].x * currentWidth;
+        let p2Y = path[i + 1].y * currentHeight;
+
+        // Hitung titik tengah di antara 2 kordinat pergerakan
+        let midX = (p1X + p2X) / 2;
+        let midY = (p1Y + p2Y) / 2;
+
+        // Tarik garis melengkung dari titik awal melewati p1 menuju titik tengah
+        ctx.quadraticCurveTo(p1X, p1Y, midX, midY);
+    }
+
+    // Tarik garis akhir ke titik terakhir
+    let lastPoint = path[path.length - 1];
+    ctx.lineTo(lastPoint.x * currentWidth, lastPoint.y * currentHeight);
+    
     ctx.stroke();
 }
 
