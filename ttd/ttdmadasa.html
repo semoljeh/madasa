@@ -6,7 +6,7 @@
     <title>Signature Maker - Madrasah Darussalam</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="asset/log.png">
+    <link rel="icon" type="image/png" href="https://guru.madasa.ponpes.id/asset/log.png">
 
     <!-- Open Graph Meta Tags untuk Preview WhatsApp -->
     <meta property="og:title" content="Signature Maker - Madrasah Darussalam">
@@ -165,11 +165,12 @@
     };
 }
 
-        function start(e) {
+function start(e) {
             drawing = true;
             current = [];
             let p = getPos(e);
             current.push(p);
+            redraw(); // <-- TAMBAHAN: Memaksa kanvas menggambar titik saat pertama kali diklik
         }
 
         function move(e) {
@@ -184,6 +185,7 @@
         function stop() {
             if (drawing) {
                 paths.push(current);
+                redraw(); // <-- TAMBAHAN: Memastikan titik/garis terakhir dirender dan disimpan ke dalam array paths
             }
             drawing = false;
             current = [];
