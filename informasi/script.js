@@ -1,100 +1,278 @@
 // Pastikan URL ini persis sama dengan GAS_URL yang ada di file script.js Anda!
 
-let JADWAL_MAPEL = {};
+
 
 function showLoading(show) {
     document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none';
 }
 
+// Deklarasi variabel global untuk menyimpan data di memori
+let GLOBAL_DATA_SANTRI = [];
+let JADWAL_MAPEL = {};
+
+// 1. Panggil data saat halaman pertama kali dibuka
+document.addEventListener("DOMContentLoaded", () => {
+    rotasiKutipan();
+    setInterval(rotasiKutipan, 12000);
+    muatDataAwalAdmin(); // <-- Fungsi baru ditambahkan di sini
+});
+
+// 2. Fungsi untuk memuat data santri dan mapel di latar belakang
+function muatDataAwalAdmin() {
+    showLoading(true);
+    const fdSantri = new URLSearchParams(); fdSantri.append('action', 'getSantri');
+    const fdMapel = new URLSearchParams(); fdMapel.append('action', 'getAllMapel');
+
+    Promise.all([
+        gasFetch({ method: 'POST', body: fdSantri }).then(r => r.json()),
+        gasFetch({ method: 'POST', body: fdMapel }).then(r => r.json())
+    ])
+    .then(([responseSantri, responseMapel]) => {
+        showLoading(false);
+        if (responseMapel.status === 'success') JADWAL_MAPEL = responseMapel.data;
+        if (responseSantri.status === 'success') {
+            GLOBAL_DATA_SANTRI = responseSantri.data;
+            buatDropdownKelas(); // Buat daftar kelas
+        } else {
+            Swal.fire('Error', 'Gagal memuat data santri.', 'error');
+        }
+    })
+    .catch(err => {
+        showLoading(false);
+        Swal.fire('Koneksi Gagal', 'Gagal terhubung ke database cloud.', 'error');
+    });
+}
+
+// 3. Fungsi membuat daftar kelas unik
+// 3. Fungsi membuat daftar kelas unik dengan pembatas dan filter alumni
+function buatDropdownKelas() {
+    const selKelas = document.getElementById('pilihKelasAdmin');
+    selKelas.innerHTML = '<option value="">-- Pilih Kelas --</option>';
+
+    // 1. Ekstrak kelas unik dan BUANG kelas Alumni / Lulus / DO
+    const kelasUnik = [...new Set(GLOBAL_DATA_SANTRI.map(s => s.kelas))]
+        .filter(k => {
+            if (!k) return false;
+            const kLower = String(k).toLowerCase();
+            return !kLower.includes('lulus') && !kLower.includes('alumni') && !kLower.includes('diberhentikan');
+        })
+        .sort();
+
+    // 2. Siapkan wadah untuk mengelompokkan berdasarkan tingkatan
+    let kelompokKelas = {};
+    let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
+
+    // 3. Masukkan kelas ke kelompoknya masing-masing
+    kelasUnik.forEach(k => {
+        let strK = String(k).trim();
+        let kUpper = strK.toUpperCase();
+        let kategori = "LAINNYA";
+
+        if (kUpper.includes('TK') || kUpper.includes('RA')) kategori = "TK / RA";
+        else if (kUpper.includes('IBT') || kUpper.includes('IBTIDAIYAH')) kategori = "IBTIDAIYAH";
+        else if (kUpper.includes('SANA') || kUpper.includes('SANAWIYAH') || kUpper.includes('MTS')) kategori = "SANAWIYAH";
+        else if (kUpper.includes('ALIYAH') || kUpper.includes('MA')) kategori = "ALIYAH";
+        else kategori = strK.split(/[\s-]+/)[0].toUpperCase();
+
+        if (!kelompokKelas[kategori]) kelompokKelas[kategori] = [];
+        kelompokKelas[kategori].push(strK);
+    });
+
+    // 4. Urutkan kategori dan masukkan ke dropdown menggunakan <optgroup> (Pembatas)
+    let kategoriUrut = Object.keys(kelompokKelas).sort((a, b) => (bobotJenjang[a] || 99) - (bobotJenjang[b] || 99));
+
+    kategoriUrut.forEach(kategori => {
+        // Membuat pembatas yang tidak bisa diklik
+        let optgroup = document.createElement('optgroup');
+        optgroup.label = `━━━ TINGKAT ${kategori} ━━━`; 
+
+        kelompokKelas[kategori].forEach(kelas => {
+            let option = document.createElement('option');
+            option.value = kelas;
+            option.text = kelas;
+            optgroup.appendChild(option);
+        });
+
+        selKelas.appendChild(optgroup);
+    });
+}
+
+// 4. Fungsi memunculkan nama santri saat kelas dipilih
+function isiDropdownSantri() {
+    const kelasTerpilih = document.getElementById('pilihKelasAdmin').value;
+    const selSantri = document.getElementById('pilihSantriAdmin');
+    
+    if (!kelasTerpilih) {
+        selSantri.innerHTML = '<option value="">-- Pilih Kelas Dahulu --</option>';
+        selSantri.disabled = true;
+        return;
+    }
+
+    // Filter santri berdasarkan kelas, lalu urutkan sesuai abjad
+    const santriKelas = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelasTerpilih).sort((a,b) => a.nama.localeCompare(b.nama));
+    
+    selSantri.innerHTML = '<option value="">-- Pilih Nama Santri --</option>';
+    santriKelas.forEach(s => {
+        selSantri.innerHTML += `<option value="${s.nis}">${s.nama} (${s.nis})</option>`;
+    });
+    selSantri.disabled = false; // Aktifkan dropdown santri
+}
+
+// 5. Fungsi Utama saat tombol diclik (Sangat Cepat karena data sudah di RAM)
 function tarikDataDariDatabase() {
-    const inputNis = document.getElementById('ortuNis').value.trim();
-    const inputTgl = document.getElementById('ortuTglLahir').value;
+    const inputNis = document.getElementById('pilihSantriAdmin').value;
     const containerHasil = document.getElementById('hasilDataOrtu');
 
-    if (!inputNis || !inputTgl) {
-        return Swal.fire('Perhatian', 'Mohon isi Nomor NIS dan pilih Tanggal Lahir terlebih dahulu.', 'warning');
+    if (!inputNis) {
+        return Swal.fire('Perhatian', 'Silakan pilih Nama Santri terlebih dahulu.', 'warning');
     }
 
     showLoading(true);
 
-    // Konversi tanggal
-    const objekTanggal = new Date(inputTgl);
-    const opsiFormat = { day: 'numeric', month: 'long', year: 'numeric' };
-    const ejaanTglLahir = objekTanggal.toLocaleDateString('id-ID', opsiFormat).toLowerCase();
+    // Langsung cari santri dari memori, tidak perlu fetch lagi
+    const santriTerpilih = GLOBAL_DATA_SANTRI.find(s => s.nis.toString() === inputNis.toString());
+
+    // Pasang Identitas
+    document.getElementById('ortuNamaSantri').innerText = santriTerpilih.nama;
+    document.getElementById('ortuNisSantri').innerText = santriTerpilih.nis;
+    document.getElementById('ortuKelasSantri').innerText = santriTerpilih.kelas;
+    
+    document.getElementById('ortuJkSantri').innerText = santriTerpilih.jk ? santriTerpilih.jk : '-';
+    let namaAyah = santriTerpilih.ayah ? santriTerpilih.ayah : '-';
+    let namaIbu = santriTerpilih.ibu ? santriTerpilih.ibu : '-';
+    document.getElementById('ortuNamaOrtu').innerText = namaAyah + " & " + namaIbu;
+    document.getElementById('ortuAlamatSantri').innerText = santriTerpilih.alamat ? santriTerpilih.alamat : '-';
+
+    // Panggil fungsi riwayat SPP
+    muatRiwayatSpp(santriTerpilih.nis);
+
+    // Hanya perlu menarik Data Nilai & Pengaturan (karena sering berubah)
+    const fdNilai = new URLSearchParams();
+    fdNilai.append('action', 'getDataNilai');
+    fdNilai.append('kelas', santriTerpilih.kelas);
+
+    const fdPengaturan = new URLSearchParams();
+    fdPengaturan.append('action', 'getPengaturan');
+    fdPengaturan.append('kelas', santriTerpilih.kelas);
+
+    Promise.all([
+        gasFetch({ method: 'POST', body: fdNilai }).then(r => r.json()),
+        gasFetch({ method: 'POST', body: fdPengaturan }).then(r => r.json())
+    ])
+    .then(([responseNilai, responsePengaturan]) => {
+        showLoading(false);
+        if (responseNilai.status !== 'success') {
+            return Swal.fire('Informasi', 'Nilai akademik kelas ini belum di-input guru.', 'info');
+        }
+
+        let statusRilis = 'Sembunyi';
+        let detailRapor = {}; 
+
+        if (responsePengaturan.status === 'success') {
+            if (responsePengaturan.umum && responsePengaturan.umum.status_rilis) {
+                statusRilis = responsePengaturan.umum.status_rilis;
+            }
+            if (responsePengaturan.detail) {
+                detailRapor = responsePengaturan.detail;
+            }
+        }
+
+        // Lanjut ke proses render tabel
+        prosesDanTampilkanData(inputNis, santriTerpilih.kelas, responseNilai.headers, responseNilai.data, statusRilis, detailRapor);
+    })
+    .catch(err => {
+        showLoading(false);
+        Swal.fire('Koneksi Gagal', 'Gagal memuat nilai dari server.', 'error');
+    });
+}
+
+function eksekusiTarikData(inputNis, inputTgl, isAdminBypass) {
+    showLoading(true);
+    const containerHasil = document.getElementById('hasilDataOrtu');
+
+    let ejaanTglLahir = "";
+    if (!isAdminBypass) {
+        // Hanya konversi tanggal jika bukan mode admin
+        const objekTanggal = new Date(inputTgl);
+        const opsiFormat = { day: 'numeric', month: 'long', year: 'numeric' };
+        ejaanTglLahir = objekTanggal.toLocaleDateString('id-ID', opsiFormat).toLowerCase();
+    }
 
     // Siapkan 2 penarik data secara bersamaan (Data Santri & Data Master Mapel)
     const fdSantri = new URLSearchParams(); fdSantri.append('action', 'getSantri');
     const fdMapel = new URLSearchParams(); fdMapel.append('action', 'getAllMapel');
 
     Promise.all([
-        gasFetch( { method: 'POST', body: fdSantri }).then(r => r.json()),
-        gasFetch( { method: 'POST', body: fdMapel }).then(r => r.json())
+        gasFetch({ method: 'POST', body: fdSantri }).then(r => r.json()),
+        gasFetch({ method: 'POST', body: fdMapel }).then(r => r.json())
     ])
     .then(([responseSantri, responseMapel]) => {
-        // Simpan data master mapel ke memori
         if (responseMapel.status === 'success') JADWAL_MAPEL = responseMapel.data;
         if (responseSantri.status !== 'success') throw new Error("Gagal mengambil master data.");
 
-        // Cari santri yang cocok
-        const santriTerpilih = responseSantri.data.find(s => s.nis.toString() === inputNis && s.ttl.toLowerCase().includes(ejaanTglLahir));
+        // PENCARIAN SANTRI DENGAN LOGIKA BYPASS
+        const santriTerpilih = responseSantri.data.find(s => {
+            const matchNis = s.nis.toString() === inputNis.toString();
+            if (isAdminBypass) {
+                return matchNis; // Mode Admin: Cukup NIS yang cocok
+            } else {
+                return matchNis && s.ttl.toLowerCase().includes(ejaanTglLahir); // Mode Ortu: NIS + TTL
+            }
+        });
 
         if (!santriTerpilih) {
             showLoading(false);
             containerHasil.classList.add('hidden');
-            return Swal.fire('Data Tidak Cocok', 'Nomor NIS atau Tanggal Lahir santri yang Anda masukkan salah.', 'error');
+            return Swal.fire('Data Tidak Ditemukan', isAdminBypass ? 'NIS tidak terdaftar di sistem.' : 'Nomor NIS atau Tanggal Lahir santri salah.', 'error');
         }
 
-      // Pasang Identitas
+        // Pasang Identitas
         document.getElementById('ortuNamaSantri').innerText = santriTerpilih.nama;
         document.getElementById('ortuNisSantri').innerText = santriTerpilih.nis;
         document.getElementById('ortuKelasSantri').innerText = santriTerpilih.kelas;
         
-        // Pasang Tambahan Jenis Kelamin, Orang Tua & Alamat
         document.getElementById('ortuJkSantri').innerText = santriTerpilih.jk ? santriTerpilih.jk : '-';
         let namaAyah = santriTerpilih.ayah ? santriTerpilih.ayah : '-';
         let namaIbu = santriTerpilih.ibu ? santriTerpilih.ibu : '-';
         document.getElementById('ortuNamaOrtu').innerText = namaAyah + " & " + namaIbu;
         document.getElementById('ortuAlamatSantri').innerText = santriTerpilih.alamat ? santriTerpilih.alamat : '-';
 
-		// Panggil fungsi riwayat SPP
+        // Panggil fungsi riwayat SPP
         muatRiwayatSpp(santriTerpilih.nis);
 
-        // Tarik Data Nilai & Pengaturan khusus untuk kelas santri terpilih
-     const fdNilai = new URLSearchParams();
-     fdNilai.append('action', 'getDataNilai');
-     fdNilai.append('kelas', santriTerpilih.kelas);
+        // Tarik Data Nilai & Pengaturan
+        const fdNilai = new URLSearchParams();
+        fdNilai.append('action', 'getDataNilai');
+        fdNilai.append('kelas', santriTerpilih.kelas);
 
-     const fdPengaturan = new URLSearchParams();
-     fdPengaturan.append('action', 'getPengaturan');
-     fdPengaturan.append('kelas', santriTerpilih.kelas);
+        const fdPengaturan = new URLSearchParams();
+        fdPengaturan.append('action', 'getPengaturan');
+        fdPengaturan.append('kelas', santriTerpilih.kelas);
 
-     return Promise.all([
-         gasFetch( { method: 'POST', body: fdNilai }).then(r => r.json()),
-         gasFetch( { method: 'POST', body: fdPengaturan }).then(r => r.json())
-     ])
-     .then(([responseNilai, responsePengaturan]) => {
-         showLoading(false);
-         if (responseNilai.status !== 'success') {
-             return Swal.fire('Informasi', 'Data identitas benar, namun nilai kelas belum di-input guru.', 'info');
-         }
+        return Promise.all([
+            gasFetch({ method: 'POST', body: fdNilai }).then(r => r.json()),
+            gasFetch({ method: 'POST', body: fdPengaturan }).then(r => r.json())
+        ])
+        .then(([responseNilai, responsePengaturan]) => {
+            showLoading(false);
+            if (responseNilai.status !== 'success') {
+                return Swal.fire('Informasi', 'Data identitas benar, namun nilai kelas belum di-input guru.', 'info');
+            }
 
-         // Cek Status Rilis & Tarik Data Pengaturan
-         let statusRilis = 'Sembunyi';
-         let detailRapor = {}; // <-- Wadah baru untuk menampung Kepribadian & Absensi
+            let statusRilis = 'Sembunyi';
+            let detailRapor = {}; 
 
-         if (responsePengaturan.status === 'success') {
-             if (responsePengaturan.umum && responsePengaturan.umum.status_rilis) {
-                 statusRilis = responsePengaturan.umum.status_rilis;
-             }
-             if (responsePengaturan.detail) {
-                 detailRapor = responsePengaturan.detail; // <-- Tangkap datanya disini
-             }
-         }
+            if (responsePengaturan.status === 'success') {
+                if (responsePengaturan.umum && responsePengaturan.umum.status_rilis) {
+                    statusRilis = responsePengaturan.umum.status_rilis;
+                }
+                if (responsePengaturan.detail) {
+                    detailRapor = responsePengaturan.detail;
+                }
+            }
 
-         // Lanjut ke proses render (Tambahkan detailRapor di akhir)
-         prosesDanTampilkanData(inputNis, santriTerpilih.kelas, responseNilai.headers, responseNilai.data, statusRilis, detailRapor);
-     });
-		
+            prosesDanTampilkanData(inputNis, santriTerpilih.kelas, responseNilai.headers, responseNilai.data, statusRilis, detailRapor);
+        });
     })
     .catch(err => {
         showLoading(false);

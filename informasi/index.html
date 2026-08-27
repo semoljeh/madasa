@@ -87,16 +87,22 @@
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">NIS (Nomor Induk Santri)</label>
-                    <input type="text" id="ortuNis" placeholder="Contoh: 84260000" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none text-sm transition-all font-bold">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-700 mb-1">Tanggal Lahir Santri</label>
-                    <input type="date" id="ortuTglLahir" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none text-sm transition-all font-medium text-gray-700">
-                </div>
-            </div>
+         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1">1. Pilih Kelas</label>
+        <select id="pilihKelasAdmin" onchange="isiDropdownSantri()" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none text-sm transition-all font-bold cursor-pointer bg-white">
+            <option value="">-- Memuat Kelas... --</option>
+        </select>
+    </div>
+    <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1">2. Pilih Nama Santri</label>
+        <select id="pilihSantriAdmin" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-500 outline-none text-sm transition-all font-bold cursor-pointer bg-white" disabled>
+            <option value="">-- Pilih Kelas Dahulu --</option>
+        </select>
+    </div>
+</div>
+			
+			
             <div class="mt-4 flex justify-end">
                 <button onclick="tarikDataDariDatabase()" class="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm transition-all shadow-sm flex items-center justify-center gap-2">
                     <i class="fas fa-search"></i> Cek Perkembangan Santri
@@ -219,7 +225,7 @@
 
                 <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100 text-sm">
                     <p class="text-emerald-800 font-bold mb-1"><i class="fas fa-clipboard-check mr-1"></i> Keputusan Akhir:</p>
-                    <p id="ortuKeputusan" class="text-emerald-700 mb-4 font-semibold bg-white p-2 rounded border border-emerald-200 inline-block">-</p>
+                  <p id="ortuKeputusan" class="text-emerald-700 mb-4 font-semibold leading-relaxed bg-white p-3 rounded border border-emerald-200 shadow-sm block w-full">-</p>
                     
                     <p class="text-purple-800 font-bold mb-1"><i class="fas fa-comment-dots mr-1"></i> Catatan Wali Kelas:</p>
                     <p id="ortuCatatan" class="text-purple-700 italic font-medium leading-relaxed bg-white p-3 rounded border border-purple-200 shadow-sm">"-"</p>
