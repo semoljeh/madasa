@@ -1794,12 +1794,17 @@ function loadBintangPelajar() {
             let dataIBT = res.data.filter(s => /IBT|IBTIDAIYAH|\bMI\b|\bSD\b/.test(upper(s.kelas)));
             let dataSANA = res.data.filter(s => /SANA|TSANAW|MTS|ALIYAH|\bMA\b/.test(upper(s.kelas)));
 
-            const urutkanJuaraUmum = arr => {
+           const urutkanJuaraUmum = arr => {
                 arr.sort((a, b) => {
+                    // 1. Prioritaskan TOTAL NILAI agar posisi bergeser realtime saat diinput
+                    const totalB = parseFloat(b.total || 0);
+                    const totalA = parseFloat(a.total || 0);
+                    if (totalB !== totalA) return totalB - totalA;
+                    
+                    // 2. Jika totalnya seri (sama persis), baru adu Rata-rata
                     const rataB = parseFloat(b.rata_asli ?? b.rata ?? 0);
                     const rataA = parseFloat(a.rata_asli ?? a.rata ?? 0);
-                    if (rataB !== rataA) return rataB - rataA;
-                    return parseFloat(b.total || 0) - parseFloat(a.total || 0);
+                    return rataB - rataA;
                 });
             };
 
@@ -1818,16 +1823,30 @@ function loadBintangPelajar() {
                     </div>
                 `;
 
-                const topRata = parseFloat(dataKategori[0].rata_asli ?? dataKategori[0].rata ?? 0);
+    // Ambil nilai tertinggi dari pemegang peringkat 1
                 const topTotal = parseFloat(dataKategori[0].total || 0);
+                const topRata = parseFloat(dataKategori[0].rata_asli ?? dataKategori[0].rata ?? 0);
 
-                // TAMBAHAN: Masukkan parameter (santri, index)
+                let rankAktual = 1;
+
                 dataKategori.forEach((santri, index) => {
-                    const nomorUrut = index + 1; // Membuat urutan otomatis mulai dari 1
-                    
-                    const rata = parseFloat(santri.rata_asli ?? santri.rata ?? 0);
                     const total = parseFloat(santri.total || 0);
-                    const isJuaraUmum = rata === topRata && total === topTotal;
+                    const rata = parseFloat(santri.rata_asli ?? santri.rata ?? 0);
+                    
+                    // Logika ranking seri: jika nilainya beda dengan atasnya, ubah angka urutannya
+                    if (index > 0) {
+                        const prevTotal = parseFloat(dataKategori[index-1].total || 0);
+                        const prevRata = parseFloat(dataKategori[index-1].rata_asli ?? dataKategori[index-1].rata ?? 0);
+                        if (total !== prevTotal || rata !== prevRata) {
+                            rankAktual = index + 1;
+                        }
+                    }
+                    
+                    const nomorUrut = rankAktual;
+                    
+                    // Badge Juara Umum otomatis turun ke pemegang Total tertinggi
+                    const isJuaraUmum = (total === topTotal && rata === topRata);
+                    
                     const namaWali = santri.wali || 'Belum Diatur';
                     const rataBenar = rata.toFixed(2);
                     
