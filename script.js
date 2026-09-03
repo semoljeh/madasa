@@ -1827,14 +1827,13 @@ function loadBintangPelajar() {
                 const topTotal = parseFloat(dataKategori[0].total || 0);
                 const topRata = parseFloat(dataKategori[0].rata_asli ?? dataKategori[0].rata ?? 0);
 
-let rankAktual = 1;
+                let rankAktual = 1;
 
-                // TAMBAHAN: Masukkan parameter (santri, index)
                 dataKategori.forEach((santri, index) => {
                     const total = parseFloat(santri.total || 0);
                     const rata = parseFloat(santri.rata_asli ?? santri.rata ?? 0);
                     
-                    // 1. Logika ranking kembar/seri
+                    // Logika ranking seri: jika nilainya beda dengan atasnya, ubah angka urutannya
                     if (index > 0) {
                         const prevTotal = parseFloat(dataKategori[index-1].total || 0);
                         const prevRata = parseFloat(dataKategori[index-1].rata_asli ?? dataKategori[index-1].rata ?? 0);
@@ -1842,20 +1841,18 @@ let rankAktual = 1;
                             rankAktual = index + 1;
                         }
                     }
+                    
                     const nomorUrut = rankAktual;
                     
-                    // 2. Cek kelengkapan nilai agar Juara Umum tidak diberikan ke data "Sementara"
-                    const isLengkap = santri.lengkap === true || santri.status_ranking === 'LENGKAP';
-                    
-                    // 3. Badge Juara Umum otomatis turun ke pemegang Total tertinggi (dan nilainya tidak boleh 0)
-                    const isJuaraUmum = (total === topTotal && rata === topRata && isLengkap && total > 0);
+                    // Badge Juara Umum otomatis turun ke pemegang Total tertinggi
+                    const isJuaraUmum = (total === topTotal && rata === topRata);
                     
                     const namaWali = santri.wali || 'Belum Diatur';
                     const rataBenar = rata.toFixed(2);
                     
                     // Label Peringatan Belum Lengkap
                     let badgeBelumLengkap = '';
-                    if (!isLengkap) {
+                    if (!santri.lengkap) {
                         let teksMapel = /(TK|TPQ|RA)/i.test(santri.kelas) 
                             ? `Baru diinput: ${santri.mapel_terisi} Mapel` 
                             : `Baru diinput: ${santri.mapel_terisi}/${santri.mapel_wajib} Mapel`;
@@ -1878,8 +1875,6 @@ let rankAktual = 1;
                         <div class="flex items-center gap-4 mb-3">
                             <div class="w-14 h-14 rounded-full ${colorAvatar} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative">
                                 <i class="fas fa-user-graduate"></i>
-								
-								
                                 <!-- MENGGUNAKAN VARIABEL nomorUrut DI SINI -->
                                 <div class="absolute -bottom-1 -right-1 w-6 h-6 ${colorNumber} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${nomorUrut}</div>
                             </div>
