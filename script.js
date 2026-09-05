@@ -1773,18 +1773,14 @@ function loadBintangPelajar() {
         '</div>';
 
     const token = sessionStorage.getItem('tokenMadasa') || '';
-    const jsonp = window.gasJsonp;
 
-    if (typeof jsonp !== 'function') {
-        wadah.innerHTML =
-            '<div class="text-white text-center col-span-full mt-4">' +
-            'Komponen koneksi belum termuat. Silakan refresh halaman.' +
-            '</div>';
-        console.error('[RANKING] gasJsonp tidak tersedia. Pastikan config.js?v=18 termuat.');
-        return;
-    }
+    // --- MENGGUNAKAN POST (gasFetch) AGAR TIDAK DI-CACHE OLEH PWA ---
+    const formData = new URLSearchParams();
+    formData.append('action', 'getBintangPelajar');
+    formData.append('token', token);
 
-    jsonp('getBintangPelajar', { token }, 60000, 1)
+    gasFetch({ method: 'POST', body: formData })
+    .then(res => res.json())
     .then(res => {
         if (res.status === 'success' && Array.isArray(res.data) && res.data.length > 0) {
 
@@ -1796,12 +1792,10 @@ function loadBintangPelajar() {
 
            const urutkanJuaraUmum = arr => {
                 arr.sort((a, b) => {
-                    // 1. Prioritaskan TOTAL NILAI agar posisi bergeser realtime saat diinput
                     const totalB = parseFloat(b.total || 0);
                     const totalA = parseFloat(a.total || 0);
                     if (totalB !== totalA) return totalB - totalA;
                     
-                    // 2. Jika totalnya seri (sama persis), baru adu Rata-rata
                     const rataB = parseFloat(b.rata_asli ?? b.rata ?? 0);
                     const rataA = parseFloat(a.rata_asli ?? a.rata ?? 0);
                     return rataB - rataA;
@@ -1823,7 +1817,6 @@ function loadBintangPelajar() {
                     </div>
                 `;
 
-    // Ambil nilai tertinggi dari pemegang peringkat 1
                 const topTotal = parseFloat(dataKategori[0].total || 0);
                 const topRata = parseFloat(dataKategori[0].rata_asli ?? dataKategori[0].rata ?? 0);
 
@@ -1833,7 +1826,6 @@ function loadBintangPelajar() {
                     const total = parseFloat(santri.total || 0);
                     const rata = parseFloat(santri.rata_asli ?? santri.rata ?? 0);
                     
-                    // Logika ranking seri: jika nilainya beda dengan atasnya, ubah angka urutannya
                     if (index > 0) {
                         const prevTotal = parseFloat(dataKategori[index-1].total || 0);
                         const prevRata = parseFloat(dataKategori[index-1].rata_asli ?? dataKategori[index-1].rata ?? 0);
@@ -1843,14 +1835,10 @@ function loadBintangPelajar() {
                     }
                     
                     const nomorUrut = rankAktual;
-                    
-                    // Badge Juara Umum otomatis turun ke pemegang Total tertinggi
                     const isJuaraUmum = (total === topTotal && rata === topRata);
-                    
                     const namaWali = santri.wali || 'Belum Diatur';
                     const rataBenar = rata.toFixed(2);
                     
-                    // Label Peringatan Belum Lengkap
                     let badgeBelumLengkap = '';
                     if (!santri.lengkap) {
                         let teksMapel = /(TK|TPQ|RA)/i.test(santri.kelas) 
@@ -1875,7 +1863,6 @@ function loadBintangPelajar() {
                         <div class="flex items-center gap-4 mb-3">
                             <div class="w-14 h-14 rounded-full ${colorAvatar} flex items-center justify-center text-2xl font-bold shadow-inner shrink-0 relative">
                                 <i class="fas fa-user-graduate"></i>
-                                <!-- MENGGUNAKAN VARIABEL nomorUrut DI SINI -->
                                 <div class="absolute -bottom-1 -right-1 w-6 h-6 ${colorNumber} text-white text-xs flex items-center justify-center rounded-full border-2 border-white font-bold">${nomorUrut}</div>
                             </div>
                             <div class="flex-1 min-w-0">
@@ -1945,15 +1932,15 @@ function loadRankingKelas() {
 
     showLoading(true);
     const token = sessionStorage.getItem('tokenMadasa') || '';
-    const jsonp = window.gasJsonp;
 
-    if (typeof jsonp !== 'function') {
-        showLoading(false);
-        Swal.fire('Error', 'Komponen koneksi belum termuat. Silakan refresh halaman.', 'error');
-        return;
-    }
+    // --- MENGGUNAKAN POST (gasFetch) AGAR TIDAK DI-CACHE OLEH PWA ---
+    const formData = new URLSearchParams();
+    formData.append('action', 'getRankingKelas');
+    formData.append('token', token);
+    formData.append('kelas', kelasPilih);
 
-  jsonp('getRankingKelas', { token, kelas: kelasPilih }, 30000, 1)
+    gasFetch({ method: 'POST', body: formData })
+    .then(r => r.json())
     .then(resRanking => {
         showLoading(false);
         const tbody = document.getElementById('bodyTabelRanking');
@@ -1962,8 +1949,6 @@ function loadRankingKelas() {
         const namaWali = (resRanking && resRanking.wali) ? resRanking.wali : 'Belum Diatur';
 
         if (resRanking.status === 'success' && Array.isArray(resRanking.data) && resRanking.data.length > 0) {
-            // Urutan dari server sudah final: santri lengkap berdasarkan rata-rata presisi asli,
-            // lalu santri yang nilainya belum lengkap di bagian bawah tanpa ranking.
             resRanking.data.forEach((s, index) => {
                 const lengkap = s.lengkap === true || s.status_ranking === 'LENGKAP';
                 const rankNomor = lengkap && s.rank ? parseInt(s.rank) : null;
