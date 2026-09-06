@@ -3331,18 +3331,15 @@ function loadDataRekapTop3() {
             // LOGIKA PENGURUTAN JENJANG & ANGKA KELAS
             // ==========================================
             res.data.sort((a, b) => {
-                // Fungsi membaca tingkat/bobot kelas
                 function getSkor(namaKelas) {
                     let k = String(namaKelas).toUpperCase();
-                    let bobot = 99; // Default terbawah
+                    let bobot = 99; 
                     
-                    // 1. Tentukan bobot Jenjang
                     if (k.includes('TK') || k.includes('RA')) bobot = 1;
                     else if (k.includes('IBT') || k.includes('MI')) bobot = 2;
                     else if (k.includes('SANA') || k.includes('MTS')) bobot = 3;
                     else if (k.includes('ALIYAH') || k.includes('MA')) bobot = 4;
 
-                    // 2. Ekstrak Angka Biasa atau Angka Romawi
                     let angka = 0;
                     let matchAngka = k.match(/\d+/);
                     let matchRomawi = k.match(/\b(I{1,3}|IV|V|VI{0,3}|IX|X{1,2}|XI{0,2})\b/);
@@ -3354,20 +3351,14 @@ function loadDataRekapTop3() {
                         angka = mapRomawi[matchRomawi[0]] || 0;
                     }
                     
-                    // Contoh hasil skor: TK 1 = 1001, IBT 3 = 2003, SANA 1 = 3001
                     return (bobot * 1000) + angka;
                 }
 
                 let skorA = getSkor(a.kelas);
                 let skorB = getSkor(b.kelas);
 
-                // Urutkan berdasarkan Jenjang & Angka Kelas
                 if (skorA !== skorB) return skorA - skorB;
-                
-                // Jika skor sama (misal "TK A" dan "TK B"), urutkan sesuai abjad nama kelasnya
                 if (a.kelas !== b.kelas) return String(a.kelas).localeCompare(String(b.kelas));
-                
-                // Terakhir, pastikan Juara 1 tampil sebelum Juara 2, dst
                 return a.rank - b.rank;
             });
             // ==========================================
@@ -3375,12 +3366,11 @@ function loadDataRekapTop3() {
             let html = '';
             let kelasAktif = '';
             
+            // BAGIAN INI YANG SEBELUMNYA TIDAK SENGAJA TERHAPUS
             res.data.forEach(s => {
-                // Beri garis tebal pembatas jika kelasnya berubah
                 let borderKelas = (kelasAktif !== s.kelas && kelasAktif !== '') ? 'border-t-4 border-gray-300' : '';
                 kelasAktif = s.kelas;
                 
-                // Styling visual juara
                 let rankStyle = '';
                 let rankIcon = s.rank;
                 if (s.rank === 1) { rankStyle = 'bg-amber-50 text-amber-600 font-black text-lg'; rankIcon = '<i class="fas fa-medal mr-1"></i>1'; }
@@ -3389,13 +3379,21 @@ function loadDataRekapTop3() {
 
                 html += `
                 <tr class="hover:bg-emerald-50 transition-colors ${borderKelas}">
-                    <td class="p-3 text-center border-r border-gray-100 font-bold text-xs bg-gray-50/50 text-gray-600 whitespace-nowrap">${escapeHTML(s.kelas)}</td>
-                    <td class="p-3 text-center border-r border-gray-100 ${rankStyle}">${rankIcon}</td>
-                    <td class="p-3 border-r border-gray-100 font-bold text-gray-800">${escapeHTML(s.nama)}</td>
-                    <td class="p-3 text-center border-r border-gray-100 font-bold text-emerald-700">${s.total}</td>
-                    <td class="p-3 text-center font-bold text-blue-600">${parseFloat(s.rata).toFixed(2)}</td>
+                    <td class="p-3 text-center border-r border-gray-100 font-bold text-xs bg-gray-50/50 text-gray-600 whitespace-nowrap align-top pt-4">${escapeHTML(s.kelas)}</td>
+                    <td class="p-3 text-center border-r border-gray-100 ${rankStyle} align-top pt-4">${rankIcon}</td>
+                    <td class="p-3 border-r border-gray-100 align-top">
+                        <div class="font-bold text-gray-800 text-sm mb-1 uppercase">${escapeHTML(s.nama)}</div>
+                        <div style="font-size: 11px; color: #555; line-height: 1.5;">
+                            <div><b>Ortu:</b> ${escapeHTML(s.ayah)} & ${escapeHTML(s.ibu)}</div>
+                            <div><b>Alamat:</b> ${escapeHTML(s.alamat)}</div>
+                            <div style="margin-top: 3px; color: #047857;"><b>Wali Kelas:</b> ${escapeHTML(s.wali)}</div>
+                        </div>
+                    </td>
+                    <td class="p-3 text-center border-r border-gray-100 font-bold text-emerald-700 align-top pt-4">${s.total}</td>
+                    <td class="p-3 text-center font-bold text-blue-600 align-top pt-4">${parseFloat(s.rata).toFixed(2)}</td>
                 </tr>`;
             });
+
             tbody.innerHTML = html;
         } else {
             tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-red-500 font-medium"><i class="fas fa-exclamation-triangle text-3xl mb-3 block text-red-300"></i>Belum ada data nilai yang memenuhi kriteria Top 3.</td></tr>';
@@ -3420,7 +3418,7 @@ function cetakRekapTop3() {
             @page { margin: 15mm; }
             body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; }
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+          th, td { border: 1px solid #000; padding: 8px; text-align: left; vertical-align: top; }
             th { background-color: #065f46 !important; color: white !important; -webkit-print-color-adjust: exact; text-align: center; font-weight: bold; }
             td.center { text-align: center; }
             td.bold { font-weight: bold; }
