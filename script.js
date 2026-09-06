@@ -256,6 +256,10 @@ function showView(viewName, pushToHistory = true) {
             if (overlay) overlay.remove(); 
         }
     }
+	
+	if (viewName === 'monitoringNilai') {
+        loadMonitoringNilai();
+    }
 }
 
 window.addEventListener('popstate', function(event) {
@@ -3467,3 +3471,134 @@ function cetakRekapTop3() {
     `);
     printWindow.document.close();
 }
+
+// =========================================================
+// FUNGSI MONITORING NILAI GLOBAL
+// =========================================================
+function loadMonitoringNilai() {
+    const wadah = document.getElementById('wadahMonitoringNilai');
+    wadah.innerHTML = '<div class="col-span-full p-10 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-3xl mb-3 block text-emerald-500"></i> Memuat data monitoring...</div>';
+
+    const formData = new URLSearchParams();
+    formData.append('action', 'getMonitoringNilai');
+    formData.append('token', sessionStorage.getItem('tokenMadasa'));
+
+    gasFetch({ method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'success') {
+            renderMonitoringNilai(res.data);
+        } else {
+            wadah.innerHTML = `<div class="col-span-full p-6 text-center text-red-500"><i class="fas fa-exclamation-circle text-2xl mb-2 block"></i> ${res.message}</div>`;
+        }
+    }).catch(e => {
+        console.error("Gagal memuat monitoring:", e);
+        wadah.innerHTML = '<div class="col-span-full p-6 text-center text-red-500">Gagal terhubung ke database.</div>';
+    });
+}
+
+// =========================================================
+// FUNGSI RENDER TAMPILAN MONITORING
+// =========================================================
+function renderMonitoringNilai(data) {
+    const wadah = document.getElementById('wadahMonitoringNilai');
+    
+    if (!data || data.length === 0) {
+        wadah.innerHTML = '<div class="col-span-full text-center text-gray-500 p-8 border-2 border-dashed border-gray-200 rounded-xl">Belum ada pengaturan Master Mapel.</div>';
+        return;
+    }
+
+    // Simpan data ke memori global agar mudah dipanggil oleh tombol WA
+    window.monitoringDataCache = data;
+
+    let html = '';
+    data.forEach((item, index) => {
+        let isTK = item.kelas.toUpperCase().includes('TK') || item.kelas.toUpperCase().includes('RA');
+        let teksTerisi = isTK ? 'Hari Terisi' : 'Mapel Terisi';
+        let teksKosong = isTK ? 'Belum Diisi' : 'Mapel Kosong';
+
+        let terisiHtml = item.terisi.map(m => `<span class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-2.5 py-1 rounded-md text-xs font-bold mb-1.5 inline-flex items-center gap-1.5 shadow-sm"><i class="fas fa-check-circle"></i>${m}</span>`).join(' ');
+        let kosongHtml = item.kosong.map(m => `<span class="bg-red-50 border border-red-200 text-red-600 px-2.5 py-1 rounded-md text-xs font-bold mb-1.5 inline-flex items-center gap-1.5 shadow-sm"><i class="fas fa-times-circle"></i>${m}</span>`).join(' ');
+        
+        if (!terisiHtml) terisiHtml = '<span class="text-xs text-gray-400 italic bg-gray-50 px-2 py-1 rounded">Belum ada data diinput</span>';
+        if (!kosongHtml) kosongHtml = '<span class="text-xs text-emerald-600 italic font-bold"><i class="fas fa-check-double mr-1"></i> Semua sudah lengkap</span>';
+
+        // Styling Card
+        let progress = item.kosong.length === 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700';
+      let iconProgress = item.kosong.length === 0 ? '<i class="fas fa-check-circle"></i> Lengkap' : '<i class="fas fa-clock"></i> Proses';
+
+        html += `
+        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                    <h4 class="font-bold text-gray-800 text-base flex items-center gap-2"><i class="fas fa-chalkboard-teacher text-blue-500"></i> ${item.kelas}</h4>
+                    <span class="${progress} text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">${iconProgress}</span>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">${teksTerisi}</p>
+                    <div class="flex flex-wrap gap-1">${terisiHtml}</div>
+                </div>
+                
+                <div class="pt-3 border-t border-gray-100 mb-4">
+                    <p class="text-[10px] font-bold text-gray-400 mb-2 uppercase tracking-wider">${teksKosong}</p>
+                    <div class="flex flex-wrap gap-1">${kosongHtml}</div>
+                </div>
+            </div>
+            
+            <!-- Tombol Bagikan ke WhatsApp -->
+            <button onclick="bagikanKeWA(${index})" class="w-full mt-2 py-2.5 bg-green-500 hover:bg-green-600 text-white text-xs font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2">
+                <i class="fab fa-whatsapp text-base"></i> Share Info ke WA
+            </button>
+        </div>`;
+    });
+    
+    wadah.innerHTML = html;
+}
+
+// =========================================================
+// FUNGSI SHARE LAPORAN KE WHATSAPP
+// =========================================================
+window.bagikanKeWA = function(index) {
+    if (!window.monitoringDataCache) return;
+    let item = window.monitoringDataCache[index];
+    if (!item) return;
+
+    let isTK = item.kelas.toUpperCase().includes('TK') || item.kelas.toUpperCase().includes('RA');
+    let teksTerisi = isTK ? 'Hari Terisi' : 'Mapel Terisi';
+    let teksKosong = isTK ? 'Belum Diisi' : 'Mapel Kosong';
+
+    let statusTeks = item.kosong.length === 0 ? "✅ *SUDAH LENGKAP*" : "⏳ *DALAM PROSES / BELUM LENGKAP*";
+
+    // Merangkai Pesan WhatsApp
+    let pesanWA = `*INFO MONITORING INPUT NILAI*\n*Madrasah Darussalam*\n\n`;
+    pesanWA += `*Kelas:* ${item.kelas}\n`;
+    pesanWA += `*Status:* ${statusTeks}\n\n`;
+
+    if (item.terisi.length > 0) {
+        pesanWA += `✅ *${teksTerisi} :*\n`;
+        item.terisi.forEach(m => {
+            pesanWA += `- ${m}\n`;
+        });
+        pesanWA += `\n`;
+    }
+
+    if (item.kosong.length > 0) {
+        pesanWA += `❌ *${teksKosong} :*\n`;
+        item.kosong.forEach(m => {
+            pesanWA += `- ${m}\n`;
+        });
+        pesanWA += `\n`;
+    }
+
+    // Pesan penutup (dinamis tergantung sudah lengkap atau belum)
+    if (item.kosong.length > 0) {
+        pesanWA += `_Mohon kesediaan Ustadz/Ustadzah pengampu mapel terkait untuk segera melengkapi nilai yang masih kosong. Terima kasih._ 🙏`;
+    } else {
+        pesanWA += `_Alhamdulillah, input nilai untuk kelas ini sudah selesai. Syukron katsiran atas kerja keras Ustadz/Ustadzah._ ✨`;
+    }
+
+    // Membuka link WhatsApp Web/App
+    let urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(pesanWA)}`;
+    window.open(urlWA, '_blank');
+};
