@@ -3300,3 +3300,172 @@ window.bukaOpsiKepribadian = function(inputEl, namaKolom) {
         customClass: { popup: 'rounded-2xl p-4 sm:p-6' }
     });
 };
+
+
+// =========================================================
+// FUNGSI REKAP TOP 3 SELURUH KELAS
+// =========================================================
+function openModalRekapTop3() {
+    document.getElementById('modalRekapTop3').classList.remove('hidden');
+    loadDataRekapTop3();
+}
+
+function closeModalRekapTop3() {
+    document.getElementById('modalRekapTop3').classList.add('hidden');
+}
+
+function loadDataRekapTop3() {
+    const tbody = document.getElementById('bodyTabelRekapTop3');
+    tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-gray-500"><i class="fas fa-spinner fa-spin text-3xl mb-3 block text-emerald-500"></i>Memproses kalkulasi nilai seluruh kelas...</td></tr>';
+
+    const formData = new URLSearchParams();
+    formData.append('action', 'getRekapTop3');
+    formData.append('token', sessionStorage.getItem('tokenMadasa'));
+
+    gasFetch({ method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.status === 'success' && res.data.length > 0) {
+            
+            // ==========================================
+            // LOGIKA PENGURUTAN JENJANG & ANGKA KELAS
+            // ==========================================
+            res.data.sort((a, b) => {
+                // Fungsi membaca tingkat/bobot kelas
+                function getSkor(namaKelas) {
+                    let k = String(namaKelas).toUpperCase();
+                    let bobot = 99; // Default terbawah
+                    
+                    // 1. Tentukan bobot Jenjang
+                    if (k.includes('TK') || k.includes('RA')) bobot = 1;
+                    else if (k.includes('IBT') || k.includes('MI')) bobot = 2;
+                    else if (k.includes('SANA') || k.includes('MTS')) bobot = 3;
+                    else if (k.includes('ALIYAH') || k.includes('MA')) bobot = 4;
+
+                    // 2. Ekstrak Angka Biasa atau Angka Romawi
+                    let angka = 0;
+                    let matchAngka = k.match(/\d+/);
+                    let matchRomawi = k.match(/\b(I{1,3}|IV|V|VI{0,3}|IX|X{1,2}|XI{0,2})\b/);
+
+                    if (matchAngka) {
+                        angka = parseInt(matchAngka[0]);
+                    } else if (matchRomawi) {
+                        const mapRomawi = { 'I':1, 'II':2, 'III':3, 'IV':4, 'V':5, 'VI':6, 'VII':7, 'VIII':8, 'IX':9, 'X':10, 'XI':11, 'XII':12 };
+                        angka = mapRomawi[matchRomawi[0]] || 0;
+                    }
+                    
+                    // Contoh hasil skor: TK 1 = 1001, IBT 3 = 2003, SANA 1 = 3001
+                    return (bobot * 1000) + angka;
+                }
+
+                let skorA = getSkor(a.kelas);
+                let skorB = getSkor(b.kelas);
+
+                // Urutkan berdasarkan Jenjang & Angka Kelas
+                if (skorA !== skorB) return skorA - skorB;
+                
+                // Jika skor sama (misal "TK A" dan "TK B"), urutkan sesuai abjad nama kelasnya
+                if (a.kelas !== b.kelas) return String(a.kelas).localeCompare(String(b.kelas));
+                
+                // Terakhir, pastikan Juara 1 tampil sebelum Juara 2, dst
+                return a.rank - b.rank;
+            });
+            // ==========================================
+
+            let html = '';
+            let kelasAktif = '';
+            
+            res.data.forEach(s => {
+                // Beri garis tebal pembatas jika kelasnya berubah
+                let borderKelas = (kelasAktif !== s.kelas && kelasAktif !== '') ? 'border-t-4 border-gray-300' : '';
+                kelasAktif = s.kelas;
+                
+                // Styling visual juara
+                let rankStyle = '';
+                let rankIcon = s.rank;
+                if (s.rank === 1) { rankStyle = 'bg-amber-50 text-amber-600 font-black text-lg'; rankIcon = '<i class="fas fa-medal mr-1"></i>1'; }
+                else if (s.rank === 2) { rankStyle = 'bg-gray-100 text-gray-500 font-bold'; }
+                else if (s.rank === 3) { rankStyle = 'bg-orange-50 text-orange-500 font-bold'; }
+
+                html += `
+                <tr class="hover:bg-emerald-50 transition-colors ${borderKelas}">
+                    <td class="p-3 text-center border-r border-gray-100 font-bold text-xs bg-gray-50/50 text-gray-600 whitespace-nowrap">${escapeHTML(s.kelas)}</td>
+                    <td class="p-3 text-center border-r border-gray-100 ${rankStyle}">${rankIcon}</td>
+                    <td class="p-3 border-r border-gray-100 font-bold text-gray-800">${escapeHTML(s.nama)}</td>
+                    <td class="p-3 text-center border-r border-gray-100 font-bold text-emerald-700">${s.total}</td>
+                    <td class="p-3 text-center font-bold text-blue-600">${parseFloat(s.rata).toFixed(2)}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" class="p-10 text-center text-red-500 font-medium"><i class="fas fa-exclamation-triangle text-3xl mb-3 block text-red-300"></i>Belum ada data nilai yang memenuhi kriteria Top 3.</td></tr>';
+        }
+    }).catch(e => {
+        tbody.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-red-500">Gagal terhubung ke server.</td></tr>';
+    });
+}
+
+function cetakRekapTop3() {
+    const tabelElemen = document.getElementById('tabelRekapCetak');
+    const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const tglTtd = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+    
+    // Menarik gambar logo madrasah secara dinamis dari folder asset
+    const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <!DOCTYPE html><html><head><title>Rekap Top 3 Madrasah</title>
+        <style>
+            @page { margin: 15mm; }
+            body { font-family: 'Arial', sans-serif; font-size: 12px; color: #000; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+            th { background-color: #065f46 !important; color: white !important; -webkit-print-color-adjust: exact; text-align: center; font-weight: bold; }
+            td.center { text-align: center; }
+            td.bold { font-weight: bold; }
+            .border-thick { border-top: 3px solid #000; }
+            
+            /* KOP SURAT MODERN */
+            .kop-container { display: flex; align-items: center; border-bottom: 3px solid #065f46; padding-bottom: 10px; margin-bottom: 20px; }
+            .kop-logo { width: 70px; height: 70px; object-fit: contain; margin-right: 15px; }
+            .kop-teks { flex: 1; text-align: center; padding-right: 85px; /* Mengimbangi lebar logo agar teks benar-benar di tengah */ }
+            .kop-teks h2 { margin: 0; font-size: 24px; text-transform: uppercase; font-weight: bold; color: #065f46; }
+            .kop-teks p { margin: 5px 0 0 0; font-size: 14px; font-weight: bold; }
+            
+            /* AREA TANDA TANGAN */
+            .ttd-container { margin-top: 40px; display: flex; justify-content: flex-end; padding-right: 20px; page-break-inside: avoid; }
+            .ttd-box { text-align: center; width: 250px; }
+            .ttd-box p { margin: 0 0 5px 0; font-size: 12px; }
+            .ttd-box .jabatan { font-weight: bold; }
+            .ttd-box .nama-garis { margin-top: 80px; font-weight: bold; text-decoration: underline; }
+            
+            /* CATATAN KAKI */
+            .footer { margin-top: 30px; font-size: 10px; font-style: italic; text-align: center; color: #555; border-top: 1px dashed #aaa; padding-top: 10px; }
+        </style></head><body>
+            
+            <div class="kop-container">
+                <img src="${logoUrl}" class="kop-logo" onerror="this.style.display='none'">
+                <div class="kop-teks">
+                    <h2>Madrasah Darussalam</h2>
+                    <p>Laporan Rekapitulasi Peringkat 1, 2, dan 3 Seluruh Kelas</p>
+                </div>
+            </div>
+            
+            ${tabelElemen.outerHTML.replace(/border-t-4 border-gray-300/g, 'border-thick').replace(/class="p-3 text-center/g, 'class="center').replace(/font-bold/g, 'bold')}
+            
+            <div class="ttd-container">
+                <div class="ttd-box">
+                    <p>Bangkalan, ${tglTtd}</p>
+                    <p class="jabatan">Panitia Ujian Madrasah Darussalam</p>
+                    <p class="nama-garis">( .................................................... )</p>
+                </div>
+            </div>
+            
+            <div class="footer">Dicetak otomatis dari Sistem Penilaian Santri | Tanggal Cetak: ${tanggalCetak}</div>
+            
+            <script>window.onload=function(){ setTimeout(()=>{window.print();}, 1000); }<\/script>
+        </body></html>
+    `);
+    printWindow.document.close();
+}
