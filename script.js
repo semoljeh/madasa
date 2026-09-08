@@ -1794,15 +1794,18 @@ function loadBintangPelajar() {
             let dataIBT = res.data.filter(s => /IBT|IBTIDAIYAH|\bMI\b|\bSD\b/.test(upper(s.kelas)));
             let dataSANA = res.data.filter(s => /SANA|TSANAW|MTS|ALIYAH|\bMA\b/.test(upper(s.kelas)));
 
-           const urutkanJuaraUmum = arr => {
+            const urutkanJuaraUmum = arr => {
                 arr.sort((a, b) => {
-                    const totalB = parseFloat(b.total || 0);
-                    const totalA = parseFloat(a.total || 0);
-                    if (totalB !== totalA) return totalB - totalA;
-                    
                     const rataB = parseFloat(b.rata_asli ?? b.rata ?? 0);
                     const rataA = parseFloat(a.rata_asli ?? a.rata ?? 0);
-                    return rataB - rataA;
+                    
+                    // 1. Prioritaskan rata-rata terlebih dahulu
+                    if (rataB !== rataA) return rataB - rataA;
+                    
+                    // 2. Jika rata-rata sama (seri), gunakan total nilai sebagai penentu (tie-breaker)
+                    const totalB = parseFloat(b.total || 0);
+                    const totalA = parseFloat(a.total || 0);
+                    return totalB - totalA;
                 });
             };
 
