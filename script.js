@@ -3682,36 +3682,39 @@ const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
         <html lang="id">
         <head>
             <title>SK_${isSemester2 ? 'Bintang_Pelajar' : 'Bintang_Kelas'}_MD_${tahunPelajaranAwal}</title>
-            <style>
-                @page { margin: 20mm 20mm; }
-                body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; background: #fff; line-height: 1.4; }
+           <style>
+                /* Margin kertas atas-bawah dikurangi sedikit untuk cadangan ruang di HP */
+                @page { margin: 15mm 20mm; } 
+                /* Ukuran huruf (11pt) dikembalikan ke ukuran asli agar di Laptop tetap sempurna */
+                body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; background: #fff; line-height: 1.3; }
                 
-         .kop-surat { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 25px; position: relative; }
-.kop-surat::after { content: ""; position: absolute; left: 0; bottom: -4px; width: 100%; height: 1px; background-color: #000; }
+                .kop-surat { text-align: center; border-bottom: 3px solid #000; padding-bottom: 8px; margin-bottom: 15px; position: relative; }
+                .kop-surat::after { content: ""; position: absolute; left: 0; bottom: -4px; width: 100%; height: 1px; background-color: #000; }
                 .kop-logo { position: absolute; left: 10px; top: 0; width: 75px; height: 75px; object-fit: contain; }
                 .kop-teks h3 { margin: 0; font-size: 14pt; font-weight: normal; text-transform: uppercase; }
                 .kop-teks h1 { margin: 0; font-size: 18pt; font-weight: bold; text-transform: uppercase; }
                 .kop-teks p { margin: 0; font-size: 10pt; font-style: italic; }
                 
-                .judul-sk { text-align: center; margin-bottom: 20px; }
+                /* Jarak kosong (margin) di bawah judul dikurangi */
+                .judul-sk { text-align: center; margin-bottom: 10px; } 
                 .judul-sk h2 { margin: 0; font-size: 12pt; text-decoration: underline; text-transform: uppercase; }
                 .judul-sk p { margin: 3px 0 0 0; font-size: 11pt; }
                 
-                table.konsideran { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-                table.konsideran td { vertical-align: top; padding: 3px; }
+                table.konsideran { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+                table.konsideran td { vertical-align: top; padding: 2px; }
                 table.konsideran td:first-child { width: 120px; font-weight: bold; }
                 table.konsideran td:nth-child(2) { width: 15px; text-align: center; }
                 ol { margin: 0; padding-left: 20px; text-align: justify; }
                 
-.diktum { text-align: center; font-weight: bold; font-size: 12pt; margin: 15px 0; letter-spacing: 1px; }
+                .diktum { text-align: center; font-weight: bold; font-size: 12pt; margin: 10px 0; letter-spacing: 1px; }
                 
-              .ttd-area { margin-left: auto; width: 250px; text-align: left; margin-top: 20px; page-break-inside: avoid; }
+                .ttd-area { margin-left: auto; width: 250px; text-align: left; margin-top: 10px; page-break-inside: avoid; }
                 .ttd-area p { margin: 0 0 3px 0; }
                 .ttd-area .nama { font-weight: bold; text-decoration: underline; position: relative; z-index: 3; }
                 
-            .sign-container { position: relative; height: 80px; width: 100%; margin: 5px 0; }
-.stempel-img { position: absolute; left: -10px; top: -5px; width: 95px; height: 95px; object-fit: contain; z-index: 1; opacity: 0.85; }
-.ttd-img { position: absolute; left: 25px; top: 10px; width: 130px; height: 75px; object-fit: contain; z-index: 2; mix-blend-mode: multiply; }
+                .sign-container { position: relative; height: 80px; width: 100%; margin: 0; }
+                .stempel-img { position: absolute; left: -10px; top: -5px; width: 95px; height: 95px; object-fit: contain; z-index: 1; opacity: 0.85; }
+                .ttd-img { position: absolute; left: 25px; top: 10px; width: 130px; height: 75px; object-fit: contain; z-index: 2; mix-blend-mode: multiply; }
 
                 /* HALAMAN LAMPIRAN */
                 .page-break { page-break-before: always; }
