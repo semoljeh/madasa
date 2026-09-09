@@ -3489,6 +3489,337 @@ function cetakRekapTop3() {
     printWindow.document.close();
 }
 
+
+// =========================================================
+// FUNGSI CETAK SURAT KEPUTUSAN (SK) BINTANG KELAS & BINTANG PELAJAR (DENGAN OPSI SEMESTER)
+// =========================================================
+function cetakSKBintangPelajarUmum() {
+    const tbody = document.getElementById('bodyTabelRekapTop3');
+    if (tbody.innerText.includes('Memproses') || tbody.innerText.includes('Belum ada data')) {
+         return Swal.fire({ icon: 'error', title: 'Data Kosong', text: 'Tidak ada data juara untuk dicetak.' });
+    }
+
+    // Tampilkan Popup Pilihan Semester
+    Swal.fire({
+        title: '<span class="text-indigo-700 font-bold font-heading">Pilih Semester</span>',
+        html: `
+            <div class="text-left mt-2">
+                <label class="block text-sm font-bold text-gray-700 mb-2">SK ini dicetak untuk semester:</label>
+                <select id="pilihSemesterSK" class="w-full p-3 border border-indigo-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-gray-700 shadow-sm cursor-pointer">
+                    <option value="1">Semester 1 (Ganjil) - Hanya Bintang Kelas</option>
+                    <option value="2">Semester 2 (Genap) - Bintang Kelas & Bintang Pelajar</option>
+                </select>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-print mr-2"></i> Lanjut Cetak',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#4f46e5',
+        customClass: { popup: 'rounded-2xl p-4 sm:p-6', confirmButton: 'rounded-xl', cancelButton: 'rounded-xl' },
+        preConfirm: () => {
+            return document.getElementById('pilihSemesterSK').value;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            eksekusiCetakSKOtomatis(result.value);
+        }
+    });
+}
+
+function eksekusiCetakSKOtomatis(semesterPilihan) {
+    const tbody = document.getElementById('bodyTabelRekapTop3');
+    const barisData = tbody.querySelectorAll('tr');
+    let tabelBintangKelas = '';
+    let tabelBintangPelajar = '';
+    let noKelas = 1;
+    let noPelajar = 1;
+    
+    // Status Semester
+    const isSemester2 = (semesterPilihan === '2');
+    const teksSemester = isSemester2 ? "Genap" : "Ganjil";
+    
+    barisData.forEach(tr => {
+        const tds = tr.querySelectorAll('td');
+        if (tds.length === 5) {
+            const kelas = tds[0].innerText.trim();
+            const rankText = tds[1].innerText.replace(/[^0-9]/g, '').trim(); 
+            const namaElement = tds[2].querySelector('.font-bold.text-gray-800');
+            const nama = namaElement ? namaElement.innerText.trim() : '-';
+            const total = tds[3].innerText.trim();
+            const rata = tds[4].innerText.trim();
+
+            let romawiRank = rankText === '1' ? 'I' : (rankText === '2' ? 'II' : 'III');
+
+            // Lampiran I: Bintang Kelas (Semua Rank 1, 2, 3)
+            tabelBintangKelas += `
+                <tr>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">${noKelas++}</td>
+                    <td style="border: 1px solid #000; padding: 6px;">${nama}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">${kelas}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">${rata}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center; font-weight: bold;">${romawiRank} (${rankText})</td>
+                </tr>
+            `;
+
+            // Lampiran II: Bintang Pelajar (Khusus Rank 1, dan HANYA JIKA SEMESTER 2)
+            if (isSemester2 && rankText === '1') {
+                tabelBintangPelajar += `
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${noPelajar++}</td>
+                        <td style="border: 1px solid #000; padding: 6px;">${nama}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${kelas}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">${rata}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">Bintang Pelajar / Juara Umum</td>
+                    </tr>
+                `;
+            }
+        }
+    });
+
+    const dateNow = new Date();
+    const tglMasehi = dateNow.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+    
+    // Menentukan tahun ajaran berjalan (Juli-Des = tahun ini, Jan-Jun = tahun lalu)
+    const tahunPelajaranAwal = dateNow.getMonth() < 6 ? dateNow.getFullYear() - 1 : dateNow.getFullYear();
+    const tahunPelajaran = `${tahunPelajaranAwal}/${tahunPelajaranAwal + 1}`;
+    
+    // Menghitung urutan otomatis sejak 1984 berdasarkan PILIHAN SEMESTER
+    const semesterKe = parseInt(semesterPilihan); 
+    const urutanSejak1984 = ((tahunPelajaranAwal - 1984) * 2) + semesterKe;
+    const nomorSKOtomatis = urutanSejak1984.toString().padStart(3, '0');
+    
+    const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    const bulanRomawi = romawi[dateNow.getMonth() + 1];
+
+    const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+    
+    // LOGIKA TEKS DINAMIS BERDASARKAN SEMESTER
+    const judulTentang = isSemester2 ? "PENETAPAN BINTANG KELAS DAN BINTANG PELAJAR" : "PENETAPAN BINTANG KELAS";
+    const menimbangA = isSemester2 ? "penerima predikat Bintang Kelas dan Bintang Pelajar;" : "penerima predikat Bintang Kelas;";
+    const menimbangC = isSemester2 ? "Penetapan Bintang Kelas dan Bintang Pelajar" : "Penetapan Bintang Kelas";
+    
+    let diktumHtml = `
+        <tr>
+            <td>PERTAMA</td>
+            <td>:</td>
+            <td>Menetapkan nama-nama santri yang tercantum dalam <b>Lampiran I</b> Surat Keputusan ini sebagai <b>Bintang Kelas</b> pada masing-masing tingkatan kelas Madrasah Darussalam Semester ${teksSemester} Tahun Ajaran ${tahunPelajaran}.</td>
+        </tr>
+    `;
+
+    if (isSemester2) {
+        diktumHtml += `
+            <tr>
+                <td>KEDUA</td>
+                <td>:</td>
+                <td>Menetapkan nama santri yang tercantum dalam <b>Lampiran II</b> Surat Keputusan ini sebagai <b>Bintang Pelajar (Juara Umum)</b> Madrasah Darussalam Tahun Ajaran ${tahunPelajaran}.</td>
+            </tr>
+            <tr><td>KETIGA</td><td>:</td><td>Kepada santri yang bersangkutan diberikan piagam penghargaan serta hak-hak lain yang ditentukan oleh kebijakan madrasah sebagai bentuk apresiasi prestasi.</td></tr>
+            <tr><td>KEEMPAT</td><td>:</td><td>Segala biaya yang timbul akibat diterbitkannya Surat Keputusan ini dibebankan pada anggaran madrasah yang relevan.</td></tr>
+            <tr><td>KELIMA</td><td>:</td><td>Keputusan ini mulai berlaku sejak tanggal ditetapkan, dengan catatan apabila di kemudian hari terdapat kekeliruan dalam penetapannya, maka akan diadakan perbaikan sebagaimana mestinya.</td></tr>
+        `;
+    } else {
+        diktumHtml += `
+            <tr><td>KEDUA</td><td>:</td><td>Kepada santri yang bersangkutan diberikan piagam penghargaan serta hak-hak lain yang ditentukan oleh kebijakan madrasah sebagai bentuk apresiasi prestasi.</td></tr>
+            <tr><td>KETIGA</td><td>:</td><td>Segala biaya yang timbul akibat diterbitkannya Surat Keputusan ini dibebankan pada anggaran madrasah yang relevan.</td></tr>
+            <tr><td>KEEMPAT</td><td>:</td><td>Keputusan ini mulai berlaku sejak tanggal ditetapkan, dengan catatan apabila di kemudian hari terdapat kekeliruan dalam penetapannya, maka akan diadakan perbaikan sebagaimana mestinya.</td></tr>
+        `;
+    }
+
+    let lampiranIIHtml = '';
+    if (isSemester2) {
+        lampiranIIHtml = `
+            <div class="page-break"></div>
+            <div class="header-lampiran">
+                <b>LAMPIRAN II</b><br>
+                SURAT KEPUTUSAN KEPALA MADRASAH<br>
+                Nomor: ${nomorSKOtomatis}/SK/MD/${bulanRomawi}/${dateNow.getFullYear()}<br>
+                Tanggal: ${tglMasehi}
+            </div>
+            
+            <div class="judul-lampiran">
+                DAFTAR PENERIMA PREDIKAT BINTANG PELAJAR (JUARA UMUM)<br>
+                TAHUN AJARAN ${tahunPelajaran}
+            </div>
+            
+            <table class="data-santri">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No.</th>
+                        <th style="width: 40%;">Nama Santri</th>
+                        <th style="width: 20%;">Kelas</th>
+                        <th style="width: 15%;">Rata-Rata Rapor</th>
+                        <th style="width: 20%;">Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tabelBintangPelajar}
+                </tbody>
+            </table>
+            
+            <div class="ttd-area">
+                <p>Kepala Madrasah Darussalam,</p>
+                <div class="space"></div>
+                <p class="nama">KH. UMAR FARUQ</p>
+            </div>
+        `;
+    }
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return Swal.fire({ icon: 'error', title: 'Pop-up Diblokir!', text: 'Browser memblokir tab baru.' });
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <title>SK_${isSemester2 ? 'Bintang_Pelajar' : 'Bintang_Kelas'}_MD_${tahunPelajaranAwal}</title>
+            <style>
+                @page { margin: 20mm 20mm; }
+                body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; background: #fff; line-height: 1.4; }
+                
+         .kop-surat { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 25px; position: relative; }
+.kop-surat::after { content: ""; position: absolute; left: 0; bottom: -4px; width: 100%; height: 1px; background-color: #000; }
+                .kop-logo { position: absolute; left: 10px; top: 0; width: 75px; height: 75px; object-fit: contain; }
+                .kop-teks h3 { margin: 0; font-size: 14pt; font-weight: normal; text-transform: uppercase; }
+                .kop-teks h1 { margin: 0; font-size: 18pt; font-weight: bold; text-transform: uppercase; }
+                .kop-teks p { margin: 0; font-size: 10pt; font-style: italic; }
+                
+                .judul-sk { text-align: center; margin-bottom: 20px; }
+                .judul-sk h2 { margin: 0; font-size: 12pt; text-decoration: underline; text-transform: uppercase; }
+                .judul-sk p { margin: 3px 0 0 0; font-size: 11pt; }
+                
+                table.konsideran { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                table.konsideran td { vertical-align: top; padding: 3px; }
+                table.konsideran td:first-child { width: 120px; font-weight: bold; }
+                table.konsideran td:nth-child(2) { width: 15px; text-align: center; }
+                ol { margin: 0; padding-left: 20px; text-align: justify; }
+                
+                .diktum { text-align: center; font-weight: bold; font-size: 12pt; margin: 15px 0; letter-spacing: 1px; }
+                
+                .ttd-area { float: right; width: 250px; text-align: left; margin-top: 20px; page-break-inside: avoid; }
+                .ttd-area p { margin: 0 0 3px 0; }
+                .ttd-area .space { height: 70px; }
+                .ttd-area .nama { font-weight: bold; text-decoration: underline; }
+
+                /* HALAMAN LAMPIRAN */
+                .page-break { page-break-before: always; }
+                .header-lampiran { text-align: right; font-size: 10pt; margin-bottom: 20px; }
+                .judul-lampiran { text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 15px; text-transform: uppercase; }
+                table.data-santri { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 10.5pt; }
+                table.data-santri th, table.data-santri td { border: 1px solid #000; padding: 6px; }
+                table.data-santri th { font-weight: bold; text-align: center; background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
+                table.data-santri tr { page-break-inside: avoid; }
+            </style>
+        </head>
+        <body>
+            <!-- HALAMAN 1: KEPUTUSAN -->
+<div class="kop-surat">
+                <img src="${logoUrl}" class="kop-logo" onerror="this.style.display='none'">
+                <div class="kop-teks">
+                    <h1>MADRASAH DINIYAH DARUSSALAM</h1>
+                    <p>Jl. Bhetoran Batukessel Bandang Laok Kokop Bangkalan</p>
+                    <p>Website : www.madasa.ponpes.id | E-mail : madasaponpes@gmail.com</p>
+                </div>
+            </div>
+
+            <div class="judul-sk">
+                <h2>SURAT KEPUTUSAN KEPALA MADRASAH</h2>
+                <p>Nomor: ${nomorSKOtomatis}/SK/MD/${bulanRomawi}/${dateNow.getFullYear()}</p>
+                <p style="margin-top: 10px; font-weight: bold;">TENTANG<br>${judulTentang}<br>SEMESTER ${teksSemester.toUpperCase()} TAHUN AJARAN ${tahunPelajaran}</p>
+            </div>
+
+            <table class="konsideran">
+                <tr>
+                    <td>MENIMBANG</td>
+                    <td>:</td>
+                    <td>
+                        <ol type="a">
+                            <li>Bahwa dalam rangka memberikan apresiasi dan motivasi bagi santri yang menunjukkan prestasi akademik terbaik, perlu ditetapkan santri ${menimbangA}</li>
+                            <li>Bahwa santri yang namanya tercantum dalam lampiran surat keputusan ini dipandang memenuhi syarat, kriteria, dan kompetensi untuk menyandang predikat tersebut;</li>
+                            <li>Bahwa berdasarkan pertimbangan sebagaimana dimaksud pada poin a dan b, perlu menetapkan Surat Keputusan Kepala Madrasah tentang ${menimbangC} Tahun Ajaran ${tahunPelajaran}.</li>
+                        </ol>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MENGINGAT</td>
+                    <td>:</td>
+                    <td>
+                        <ol type="1">
+                            <li>Undang-Undang Nomor 18 Tahun 2019 tentang Pesantren;</li>
+                            <li>Peraturan Menteri Agama Republik Indonesia Nomor 31 Tahun 2020 tentang Pendidikan Pesantren;</li>
+                            <li>Anggaran Dasar dan Anggaran Rumah Tangga (AD/ART) Yayasan Pendidikan Islam Madrasah Darussalam;</li>
+                            <li>Program Kerja Madrasah Darussalam Tahun Ajaran ${tahunPelajaran}.</li>
+                        </ol>
+                    </td>
+                </tr>
+                <tr>
+                    <td>MEMPERHATIKAN</td>
+                    <td>:</td>
+                    <td>Hasil rapat pleno Dewan Guru Madrasah Darussalam tentang evaluasi hasil belajar santri Semester ${teksSemester} pada tingkat TK, Ibtidaiyah, dan Sanawiyah.</td>
+                </tr>
+            </table>
+
+            <div class="diktum">MEMUTUSKAN</div>
+
+            <table class="konsideran">
+                <tr>
+                    <td>MENETAPKAN</td>
+                    <td>:</td>
+                    <td></td>
+                </tr>
+                ${diktumHtml}
+            </table>
+
+            <div class="ttd-area">
+                <p>Ditetapkan di : Bangkalan</p>
+                <p>Pada tanggal  : ${tglMasehi}</p>
+                <p style="font-weight: bold; margin-top: 10px;">Kepala Madrasah Darussalam,</p>
+                <div class="space"></div>
+                <p class="nama">KH. UMAR FARUQ</p>
+            </div>
+
+            <!-- HALAMAN 2: LAMPIRAN I (BINTANG KELAS) -->
+            <div class="page-break"></div>
+            <div class="header-lampiran">
+                <b>LAMPIRAN I</b><br>
+                SURAT KEPUTUSAN KEPALA MADRASAH<br>
+                Nomor: ${nomorSKOtomatis}/SK/MD/${bulanRomawi}/${dateNow.getFullYear()}<br>
+                Tanggal: ${tglMasehi}
+            </div>
+            
+            <div class="judul-lampiran">
+                DAFTAR PENERIMA PREDIKAT BINTANG KELAS<br>
+                SEMESTER ${teksSemester.toUpperCase()} TAHUN AJARAN ${tahunPelajaran}
+            </div>
+            
+            <table class="data-santri">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">No.</th>
+                        <th style="width: 40%;">Nama Santri</th>
+                        <th style="width: 20%;">Kelas</th>
+                        <th style="width: 15%;">Rata-Rata Rapor</th>
+                        <th style="width: 20%;">Peringkat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tabelBintangKelas}
+                </tbody>
+            </table>
+
+            ${lampiranIIHtml}
+
+            <script>
+                window.onload = function() { 
+                    setTimeout(function() { window.print(); }, 1000); 
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
+
+
 // =========================================================
 // FUNGSI MONITORING NILAI GLOBAL
 // =========================================================
