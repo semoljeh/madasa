@@ -3705,7 +3705,7 @@ const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
                 
 .diktum { text-align: center; font-weight: bold; font-size: 12pt; margin: 15px 0; letter-spacing: 1px; }
                 
-                .ttd-area { float: right; width: 250px; text-align: left; margin-top: 20px; page-break-inside: avoid; }
+              .ttd-area { margin-left: auto; width: 250px; text-align: left; margin-top: 20px; page-break-inside: avoid; }
                 .ttd-area p { margin: 0 0 3px 0; }
                 .ttd-area .nama { font-weight: bold; text-decoration: underline; position: relative; z-index: 3; }
                 
@@ -3782,7 +3782,7 @@ const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
                 ${diktumHtml}
             </table>
 
-           <div class="ttd-area">
+         <div class="ttd-area">
                 <p>Ditetapkan di : Bangkalan</p>
                 <p>Pada tanggal  : ${tglMasehi}</p>
                 <p style="font-weight: bold; margin-top: 10px;">Kepala Madrasah Darussalam,</p>
@@ -3792,9 +3792,6 @@ const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
                 </div>
                 <p class="nama">KH. UMAR FARUQ</p>
             </div>
-            
-            <!-- TAMBAHKAN KODE INI UNTUK MENCEGAH OVERLAP KE HALAMAN 2 -->
-            <div style="clear: both;"></div>
 
             <!-- HALAMAN 2: LAMPIRAN I (BINTANG KELAS) -->
             <div class="page-break"></div>
