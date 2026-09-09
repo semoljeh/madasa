@@ -3682,51 +3682,52 @@ const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
         <html lang="id">
         <head>
             <title>SK_${isSemester2 ? 'Bintang_Pelajar' : 'Bintang_Kelas'}_MD_${tahunPelajaranAwal}</title>
-           <style>
-                /* Margin kertas ditekan menjadi 10mm (atas-bawah) agar ruang teks lebih panjang */
-                @page { margin: 10mm 15mm; } 
+           
+		   <style>
+                /* Memaksa browser menggunakan kertas ukuran Legal secara otomatis */
+                @page { size: legal portrait; margin: 15mm 20mm; } 
                 
-                /* Ukuran font sedikit dikecilkan dan spasi antar baris dirapatkan (line-height: 1.15) */
-                body { font-family: 'Times New Roman', Times, serif; font-size: 10.5pt; color: #000; background: #fff; line-height: 1.15; }
+                /* Ukuran huruf dikembalikan ke ukuran normal (11pt) agar lega dan rapi */
+                body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; background: #fff; line-height: 1.3; }
                 
-                .kop-surat { text-align: center; border-bottom: 3px solid #000; padding-bottom: 5px; margin-bottom: 10px; position: relative; }
+                .kop-surat { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; position: relative; }
                 .kop-surat::after { content: ""; position: absolute; left: 0; bottom: -4px; width: 100%; height: 1px; background-color: #000; }
-                .kop-logo { position: absolute; left: 10px; top: 0; width: 65px; height: 65px; object-fit: contain; }
-                .kop-teks h3 { margin: 0; font-size: 13pt; font-weight: normal; text-transform: uppercase; }
-                .kop-teks h1 { margin: 0; font-size: 16pt; font-weight: bold; text-transform: uppercase; }
-                .kop-teks p { margin: 0; font-size: 9pt; font-style: italic; }
+                .kop-logo { position: absolute; left: 10px; top: 0; width: 75px; height: 75px; object-fit: contain; }
+                .kop-teks h3 { margin: 0; font-size: 14pt; font-weight: normal; text-transform: uppercase; }
+                .kop-teks h1 { margin: 0; font-size: 18pt; font-weight: bold; text-transform: uppercase; }
+                .kop-teks p { margin: 0; font-size: 10pt; font-style: italic; }
                 
-                .judul-sk { text-align: center; margin-bottom: 8px; }
-                .judul-sk h2 { margin: 0; font-size: 11.5pt; text-decoration: underline; text-transform: uppercase; }
-                .judul-sk p { margin: 2px 0 0 0; font-size: 10pt; }
+                .judul-sk { text-align: center; margin-bottom: 20px; }
+                .judul-sk h2 { margin: 0; font-size: 12pt; text-decoration: underline; text-transform: uppercase; }
+                .judul-sk p { margin: 3px 0 0 0; font-size: 11pt; }
                 
-                /* Jarak antar tabel dan isi teks dikurangi */
-                table.konsideran { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
-                table.konsideran td { vertical-align: top; padding: 1px 3px; }
-                table.konsideran td:first-child { width: 115px; font-weight: bold; }
+                table.konsideran { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+                table.konsideran td { vertical-align: top; padding: 3px; }
+                table.konsideran td:first-child { width: 120px; font-weight: bold; }
                 table.konsideran td:nth-child(2) { width: 15px; text-align: center; }
                 ol { margin: 0; padding-left: 20px; text-align: justify; }
                 
-                .diktum { text-align: center; font-weight: bold; font-size: 11.5pt; margin: 8px 0; letter-spacing: 1px; }
+                .diktum { text-align: center; font-weight: bold; font-size: 12pt; margin: 15px 0; letter-spacing: 1px; }
                 
-                .ttd-area { margin-left: auto; width: 250px; text-align: left; margin-top: 10px; page-break-inside: avoid; }
-                .ttd-area p { margin: 0 0 2px 0; }
+                /* Tanda Tangan */
+                .ttd-area { margin-left: auto; width: 250px; text-align: left; margin-top: 20px; page-break-inside: avoid; }
+                .ttd-area p { margin: 0 0 3px 0; }
                 .ttd-area .nama { font-weight: bold; text-decoration: underline; position: relative; z-index: 3; }
                 
-                /* Ukuran stempel & ttd sedikit disesuaikan agar muat */
-                .sign-container { position: relative; height: 75px; width: 100%; margin: 0; }
-                .stempel-img { position: absolute; left: -10px; top: -5px; width: 90px; height: 90px; object-fit: contain; z-index: 1; opacity: 0.85; }
-                .ttd-img { position: absolute; left: 25px; top: 10px; width: 120px; height: 70px; object-fit: contain; z-index: 2; mix-blend-mode: multiply; }
+                .sign-container { position: relative; height: 90px; width: 100%; margin: 5px 0; }
+                .stempel-img { position: absolute; left: -15px; top: -10px; width: 100px; height: 100px; object-fit: contain; z-index: 1; opacity: 0.85; }
+                .ttd-img { position: absolute; left: 20px; top: 10px; width: 130px; height: 75px; object-fit: contain; z-index: 2; mix-blend-mode: multiply; }
 
                 /* HALAMAN LAMPIRAN */
                 .page-break { page-break-before: always; }
-                .header-lampiran { text-align: right; font-size: 10pt; margin-bottom: 15px; }
-                .judul-lampiran { text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 10px; text-transform: uppercase; }
-                table.data-santri { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 10pt; }
-                table.data-santri th, table.data-santri td { border: 1px solid #000; padding: 5px; }
+                .header-lampiran { text-align: right; font-size: 10pt; margin-bottom: 20px; }
+                .judul-lampiran { text-align: center; font-weight: bold; font-size: 12pt; margin-bottom: 15px; text-transform: uppercase; }
+                table.data-santri { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 10.5pt; }
+                table.data-santri th, table.data-santri td { border: 1px solid #000; padding: 6px; }
                 table.data-santri th { font-weight: bold; text-align: center; background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
                 table.data-santri tr { page-break-inside: avoid; }
             </style>
+		   
         </head>
         <body>
             <!-- HALAMAN 1: KEPUTUSAN -->
