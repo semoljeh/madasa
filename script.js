@@ -281,6 +281,7 @@ window.addEventListener('popstate', function(event) {
     const modalEdit = document.getElementById('modalEditSantri');
     const modalImport = document.getElementById('modalImportSantri');
     const modalEditNilai = document.getElementById('modalEditNilai');
+    const modalRekapTop3 = document.getElementById('modalRekapTop3'); // <-- Didaftarkan
     
     let isModalClosed = false;
 
@@ -314,6 +315,12 @@ window.addEventListener('popstate', function(event) {
         const wadah = document.getElementById('wadahInputEditNilai');
         if(wadah) wadah.innerHTML = '';
         isModalClosed = true; 
+    }
+    
+    // <-- Logika eksekusi penutupan modal Top 3 saat tombol back HP ditekan -->
+    if (modalRekapTop3 && !modalRekapTop3.classList.contains('hidden')) {
+        modalRekapTop3.classList.add('hidden');
+        isModalClosed = true;
     }
     
     if (isModalClosed) return;
@@ -3313,12 +3320,19 @@ window.bukaOpsiKepribadian = function(inputEl, namaKolom) {
 // FUNGSI REKAP TOP 3 SELURUH KELAS
 // =========================================================
 function openModalRekapTop3() {
+    // Menyisipkan history semu agar tombol "Back" di HP bisa terdeteksi
+    window.history.pushState({ modal: 'rekapTop3' }, "", "#modalRekapTop3"); 
     document.getElementById('modalRekapTop3').classList.remove('hidden');
     loadDataRekapTop3();
 }
 
 function closeModalRekapTop3() {
-    document.getElementById('modalRekapTop3').classList.add('hidden');
+    if (window.location.hash === "#modalRekapTop3") {
+        // Memicu tombol back secara sistem agar otomatis menutup modal lewat popstate
+        window.history.back(); 
+    } else {
+        document.getElementById('modalRekapTop3').classList.add('hidden');
+    }
 }
 
 function loadDataRekapTop3() {
