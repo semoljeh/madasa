@@ -3588,10 +3588,15 @@ function eksekusiCetakSKOtomatis(semesterPilihan) {
     const urutanSejak1984 = ((tahunPelajaranAwal - 1984) * 2) + semesterKe;
     const nomorSKOtomatis = urutanSejak1984.toString().padStart(3, '0');
     
-    const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
     const bulanRomawi = romawi[dateNow.getMonth() + 1];
 
-    const logoUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '') + 'asset/logo.png';
+    const baseUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '');
+    const logoUrl = baseUrl + 'asset/logo.png';
+    const ttdUrl = baseUrl + 'asset/ttdkepala.png';
+    const stempelUrl = baseUrl + 'asset/stempelibt.png';
+    
+    // LOGIKA TEKS DINAMIS BERDASARKAN SEMESTER
     
     // LOGIKA TEKS DINAMIS BERDASARKAN SEMESTER
     const judulTentang = isSemester2 ? "PENETAPAN BINTANG KELAS DAN BINTANG PELAJAR" : "PENETAPAN BINTANG KELAS";
@@ -3656,9 +3661,14 @@ function eksekusiCetakSKOtomatis(semesterPilihan) {
                 </tbody>
             </table>
             
+</table>
+            
             <div class="ttd-area">
                 <p>Kepala Madrasah Darussalam,</p>
-                <div class="space"></div>
+                <div class="sign-container">
+                    <img src="${stempelUrl}" class="stempel-img" onerror="this.style.display='none'">
+                    <img src="${ttdUrl}" class="ttd-img" onerror="this.style.display='none'">
+                </div>
                 <p class="nama">KH. UMAR FARUQ</p>
             </div>
         `;
@@ -3693,12 +3703,15 @@ function eksekusiCetakSKOtomatis(semesterPilihan) {
                 table.konsideran td:nth-child(2) { width: 15px; text-align: center; }
                 ol { margin: 0; padding-left: 20px; text-align: justify; }
                 
-                .diktum { text-align: center; font-weight: bold; font-size: 12pt; margin: 15px 0; letter-spacing: 1px; }
+.diktum { text-align: center; font-weight: bold; font-size: 12pt; margin: 15px 0; letter-spacing: 1px; }
                 
                 .ttd-area { float: right; width: 250px; text-align: left; margin-top: 20px; page-break-inside: avoid; }
                 .ttd-area p { margin: 0 0 3px 0; }
-                .ttd-area .space { height: 70px; }
-                .ttd-area .nama { font-weight: bold; text-decoration: underline; }
+                .ttd-area .nama { font-weight: bold; text-decoration: underline; position: relative; z-index: 3; }
+                
+            .sign-container { position: relative; height: 80px; width: 100%; margin: 5px 0; }
+.stempel-img { position: absolute; left: -10px; top: -5px; width: 95px; height: 95px; object-fit: contain; z-index: 1; opacity: 0.85; }
+.ttd-img { position: absolute; left: 25px; top: 10px; width: 130px; height: 75px; object-fit: contain; z-index: 2; mix-blend-mode: multiply; }
 
                 /* HALAMAN LAMPIRAN */
                 .page-break { page-break-before: always; }
@@ -3760,7 +3773,7 @@ function eksekusiCetakSKOtomatis(semesterPilihan) {
 
             <div class="diktum">MEMUTUSKAN</div>
 
-            <table class="konsideran">
+           <table class="konsideran">
                 <tr>
                     <td>MENETAPKAN</td>
                     <td>:</td>
@@ -3773,7 +3786,10 @@ function eksekusiCetakSKOtomatis(semesterPilihan) {
                 <p>Ditetapkan di : Bangkalan</p>
                 <p>Pada tanggal  : ${tglMasehi}</p>
                 <p style="font-weight: bold; margin-top: 10px;">Kepala Madrasah Darussalam,</p>
-                <div class="space"></div>
+                <div class="sign-container">
+                    <img src="${stempelUrl}" class="stempel-img" onerror="this.style.display='none'">
+                    <img src="${ttdUrl}" class="ttd-img" onerror="this.style.display='none'">
+                </div>
                 <p class="nama">KH. UMAR FARUQ</p>
             </div>
 
