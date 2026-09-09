@@ -3605,3 +3605,13 @@ window.bagikanKeWA = function(index) {
     let urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(pesanWA)}`;
     window.open(urlWA, '_blank');
 };
+
+// =========================================================
+// MENCEGAH NILAI BERUBAH SAAT MOUSE DI-SCROLL PADA INPUT ANGKA
+// =========================================================
+document.addEventListener('wheel', function(event) {
+    if (document.activeElement.type === 'number') {
+        // Menghilangkan fokus dari kotak input agar halaman bisa di-scroll dengan aman
+        document.activeElement.blur();
+    }
+});
