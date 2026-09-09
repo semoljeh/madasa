@@ -3593,7 +3593,7 @@ const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
 
     const baseUrl = window.location.origin + window.location.pathname.replace(/index\.html$/i, '');
     const logoUrl = baseUrl + 'asset/logo.png';
-    const ttdUrl = baseUrl + 'asset/ttdkepala.png';
+    const ttdUrl = baseUrl + 'asset/ttdkepala.PNG';
     const stempelUrl = baseUrl + 'asset/stempelibt.png';
     
     // LOGIKA TEKS DINAMIS BERDASARKAN SEMESTER
@@ -3684,10 +3684,8 @@ const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
             <title>SK_${isSemester2 ? 'Bintang_Pelajar' : 'Bintang_Kelas'}_MD_${tahunPelajaranAwal}</title>
            
 		   <style>
-                /* Memaksa browser menggunakan kertas ukuran Legal secara otomatis */
                 @page { size: legal portrait; margin: 15mm 20mm; } 
                 
-                /* Ukuran huruf dikembalikan ke ukuran normal (11pt) agar lega dan rapi */
                 body { font-family: 'Times New Roman', Times, serif; font-size: 11pt; color: #000; background: #fff; line-height: 1.3; }
                 
                 .kop-surat { text-align: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 20px; position: relative; }
@@ -3709,14 +3707,20 @@ const romawi = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
                 
                 .diktum { text-align: center; font-weight: bold; font-size: 12pt; margin: 15px 0; letter-spacing: 1px; }
                 
-                /* Tanda Tangan */
-                .ttd-area { margin-left: auto; width: 250px; text-align: left; margin-top: 20px; page-break-inside: avoid; }
+                /* ========================================= */
+                /* AREA TANDA TANGAN (LEBIH PRESISI)         */
+                /* ========================================= */
+                .ttd-area { margin-left: auto; width: 260px; text-align: left; margin-top: 20px; page-break-inside: avoid; }
                 .ttd-area p { margin: 0 0 3px 0; }
                 .ttd-area .nama { font-weight: bold; text-decoration: underline; position: relative; z-index: 3; }
                 
-                .sign-container { position: relative; height: 90px; width: 100%; margin: 5px 0; }
-                .stempel-img { position: absolute; left: -15px; top: -10px; width: 100px; height: 100px; object-fit: contain; z-index: 1; opacity: 0.85; }
-                .ttd-img { position: absolute; left: 20px; top: 10px; width: 130px; height: 75px; object-fit: contain; z-index: 2; mix-blend-mode: multiply; }
+                .sign-container { position: relative; height: 85px; width: 100%; margin: 5px 0; }
+                
+                /* Stempel sedikit dibesarkan dan diposisikan pas di kiri */
+                .stempel-img { position: absolute; left: -25px; top: -15px; width: 110px; height: 110px; object-fit: contain; z-index: 1; opacity: 0.85; }
+                
+                /* Tanda tangan dibesarkan & dinaikkan sedikit. mix-blend-mode DIHAPUS agar terbaca di HP */
+                .ttd-img { position: absolute; left: 15px; top: -5px; width: 150px; height: 85px; object-fit: contain; z-index: 2; }
 
                 /* HALAMAN LAMPIRAN */
                 .page-break { page-break-before: always; }
