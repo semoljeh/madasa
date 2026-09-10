@@ -80,7 +80,10 @@
     <!-- KERTAS RAPOR -->
     <div id="kertasRapor" class="bg-white shadow-2xl text-black font-sans relative box-border mx-auto hidden mt-4 mb-10" style="width: 210mm; min-height: 330mm; padding: 8mm;"></div>
 
-    <script src="../config.js?v=16"></script>
+<script>
+    var nocache = new Date().getTime();
+    document.write('<script src="../config.js?nocache=' + nocache + '"><\/script>');
+</script>
 
     <script>
         let GLOBAL_DATA_SANTRI = [];
@@ -606,9 +609,30 @@
                     const namaB = bersihkanTeks(santriInfo.nama);
                     const ayahB = bersihkanTeks(santriInfo.ayah);
                     const ibuB  = bersihkanTeks(santriInfo.ibu);
-                    const almtB = bersihkanTeks(santriInfo.alamat);
+					
+                   const almtB = bersihkanTeks(santriInfo.alamat);
 
-                    const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
+// --- KODE PENARIK FOTO OTOMATIS ---
+let fotoUrl = santriInfo.foto || '';
+let elemenFoto = `<span class="text-[11px] text-emerald-800">Pas Photo</span><br><span class="text-[11px] font-bold text-emerald-800">3 x 4</span>`;
+
+if (fotoUrl && fotoUrl.trim() !== '') {
+    let finalUrl = fotoUrl;
+    if (fotoUrl.includes('drive.google.com')) {
+        let fileId = '';
+        if (fotoUrl.includes('id=')) fileId = fotoUrl.split('id=')[1].split('&')[0];
+        else if (fotoUrl.includes('/d/')) fileId = fotoUrl.split('/d/')[1].split('/')[0];
+        
+        if (fileId) finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`;
+    }
+    elemenFoto = `<img src="${finalUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto Santri">`;
+}
+// ---------------------------------
+
+const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
+					
+					
+					
                     const tanggalCetakDefault = new Date().toLocaleDateString('id-ID', opsiTanggal);
                     
                     const tanggalTampil = setUmum.tanggal || ('Bangkalan, ' + tanggalCetakDefault);
@@ -634,7 +658,7 @@
                                 <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-4 text-xs font-bold uppercase tracking-wider text-emerald-800">Nama Santri</div>
                                 <h3 class="text-2xl font-black uppercase tracking-widest text-black mb-3">${namaB}</h3>
                                 <div class="flex justify-center items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-700">
-                                    <span>NIS / NISN :</span>
+                                    <span>NIS :</span>
                                     <span class="border-b border-black border-dashed px-4 text-black">${santriInfo.nis || '-'}</span>
                                 </div>
                             </div>
@@ -681,10 +705,10 @@
                             </table>
 
                             <div class="flex justify-between items-end px-4 mt-11 pb-4">
-                                <div class="w-[3cm] h-[4cm] border-2 border-emerald-800 flex flex-col items-center justify-center text-center relative z-10 bg-white">
-                                    <span class="text-[11px] text-emerald-800">Pas Photo</span><br>
-                                    <span class="text-[11px] font-bold text-emerald-800">3 x 4</span>
-                                </div>
+                                
+								<div class="w-[3cm] h-[4cm] border-2 border-emerald-800 flex flex-col items-center justify-center text-center relative z-10 bg-white overflow-hidden p-0">
+    ${elemenFoto}
+</div>
                                 
                                 <div class="text-center w-[250px] relative">
                                     <div class="relative z-10">
