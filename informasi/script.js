@@ -667,52 +667,7 @@ function muatRiwayatSpp(nisSantri) {
     });
 }
 
-// =========================================================
-// PWA (PROGRESSIVE WEB APP) KHUSUS PORTAL WALI SANTRI
-// =========================================================
-let deferredPromptOrtu;
-const installPromptOrtu = document.getElementById('pwaInstallPromptOrtu');
 
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        // Ubah menjadi ./sw.js agar fokus pada scope folder informasi saja
-        navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('PWA Portal Ortu aktif!'))
-        .catch(err => console.log('PWA Portal Ortu gagal: ', err));
-    });
-}
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); 
-    deferredPromptOrtu = e;
-    if (installPromptOrtu) { 
-        // Munculkan notifikasi install setelah 1.5 detik
-        setTimeout(() => { 
-            installPromptOrtu.classList.remove('translate-x-[150%]', 'opacity-0'); 
-            installPromptOrtu.classList.add('translate-x-0', 'opacity-100'); 
-        }, 1500); 
-    }
-});
-
-function tutupNotifPWAOrtu() { 
-    if(installPromptOrtu) { 
-        installPromptOrtu.classList.remove('translate-x-0', 'opacity-100'); 
-        installPromptOrtu.classList.add('translate-x-[150%]', 'opacity-0'); 
-    } 
-}
-
-function installPWAOrtu() {
-    if (deferredPromptOrtu) {
-        deferredPromptOrtu.prompt();
-        deferredPromptOrtu.userChoice.then((choiceResult) => { 
-            if (choiceResult.outcome === 'accepted') { tutupNotifPWAOrtu(); } 
-            deferredPromptOrtu = null; 
-        });
-    }
-}
-
-window.addEventListener('appinstalled', (evt) => { 
-    tutupNotifPWAOrtu(); 
-});
 
 // =========================================================
 // ROTASI QUOTES WALI SANTRI
@@ -871,3 +826,324 @@ if (waWidget && waLink) {
         }
     });
 }
+
+// =========================================================
+// KONTROL PENUH PAPAN PENGUMUMAN (MODE ADMIN)
+// =========================================================
+
+// 1. Membuka layar pop-up dan menarik daftar pengumuman
+function bukaModalPengumumanAdmin() {
+    const modal = document.getElementById('modalKelolaPengumuman');
+    const content = document.getElementById('modalKelolaPengumumanContent');
+    if (modal && content) {
+        modal.classList.remove('hidden');
+        
+        // Memasukkan state (riwayat semu) ke memori HP agar tombol Back terdeteksi
+        history.pushState({ modalAdminTerbuka: true }, null, location.href);
+        
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+        muatListPengumumanAdmin();
+    }
+}
+
+// 2. Menutup layar pop-up (Ditambah parameter deteksi tombol Back)
+function tutupModalPengumumanAdmin(dariTombolBack = false) {
+    const modal = document.getElementById('modalKelolaPengumuman');
+    const content = document.getElementById('modalKelolaPengumumanContent');
+    if (modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            resetFormPengumuman(); // Bersihkan form saat ditutup
+        }, 300);
+
+        // Bersihkan state jika ditutup manual lewat tombol X (bukan lewat tombol Back HP)
+        if (!dariTombolBack && history.state && history.state.modalAdminTerbuka) {
+            history.back(); 
+        }
+    }
+}
+
+// 3. Mengembalikan form ke mode "Tambah Baru"
+
+function resetFormPengumuman() {
+    document.getElementById('adminIdPengumuman').value = "0";
+    document.getElementById('adminTglPengumuman').value = "";
+    document.getElementById('adminJdlPengumuman').value = "";
+    document.getElementById('adminIsiPengumuman').value = "";
+    
+    // Ubah nilai bawaan dropdown menjadi kosong (kembali ke "-- Pilih Kategori --")
+    document.getElementById('adminKatPengumuman').value = ""; 
+    
+    document.getElementById('titleFormPengumuman').innerText = "Tambah Pengumuman Baru";
+    document.getElementById('badgeEditMode').classList.add('hidden');
+    
+    gantiContohPengumuman();
+}
+
+// 4. Menarik data list pengumuman untuk ditampilkan ke Admin
+function muatListPengumumanAdmin() {
+    const wadah = document.getElementById('wadahListAdminPengumuman');
+    wadah.innerHTML = '<div class="text-center text-xs text-gray-400 py-4"><i class="fas fa-spinner fa-spin mr-1"></i> Sedang mensinkronisasi data...</div>';
+
+    const fd = new URLSearchParams();
+    fd.append('action', 'getPengumuman');
+
+    // Menggunakan gasFetch karena ini adalah standar routing sistem Anda
+    gasFetch({ method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+        wadah.innerHTML = '';
+        if (res.status === 'success' && res.data.length > 0) {
+            res.data.forEach(item => {
+                let badgeClass = "bg-gray-100 text-gray-600 border-gray-200";
+                let cat = item.kategori ? item.kategori.toUpperCase() : "";
+                
+                if (cat.includes("LIBUR")) badgeClass = "bg-red-50 text-red-600 border-red-200";
+                else if (cat.includes("UJIAN")) badgeClass = "bg-purple-50 text-purple-600 border-purple-200";
+                else if (cat.includes("LOMBA")) badgeClass = "bg-orange-50 text-orange-600 border-orange-200";
+                else if (cat.includes("AKADEMIK")) badgeClass = "bg-blue-50 text-blue-600 border-blue-200";
+                else if (cat.includes("KEGIATAN") || cat.includes("HAFLAH")) badgeClass = "bg-emerald-50 text-emerald-600 border-emerald-200";
+
+                // Escaping data agar tidak bentrok dengan tanda petik saat edit ditekan
+                const safeJdl = item.judul.replace(/'/g, "\\'");
+                const safeTgl = item.tanggal.replace(/'/g, "\\'");
+                const safeIsi = item.isi.replace(/'/g, "\\'").replace(/\n/g, "\\n");
+                const safeKat = item.kategori.replace(/'/g, "\\'");
+
+                wadah.innerHTML += `
+                    <div class="p-4 bg-white border border-gray-200 rounded-xl flex flex-col sm:flex-row justify-between gap-3 shadow-sm hover:border-emerald-300 transition-all">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="px-2 py-0.5 text-[9px] font-bold border rounded uppercase ${badgeClass}">${item.kategori}</span>
+                                <span class="text-[11px] font-bold text-gray-400"><i class="far fa-calendar-alt"></i> ${item.tanggal}</span>
+                            </div>
+                            <h6 class="text-sm font-bold text-gray-800">${item.judul}</h6>
+                           <p class="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed whitespace-pre-line">${item.isi}</p>
+                        </div>
+                        <div class="flex sm:flex-col gap-2 shrink-0 border-t sm:border-t-0 sm:border-l border-gray-100 pt-3 sm:pt-0 sm:pl-3">
+                            <button onclick="editPengumuman('${item.id}', '${safeTgl}', '${safeKat}', '${safeJdl}', '${safeIsi}')" class="flex-1 sm:flex-none w-full sm:w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white flex items-center justify-center transition-colors text-xs shadow-sm"><i class="fas fa-edit mr-1 sm:mr-0"></i><span class="sm:hidden">Edit</span></button>
+                            <button onclick="hapusPengumuman('${item.id}')" class="flex-1 sm:flex-none w-full sm:w-8 h-8 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white flex items-center justify-center transition-colors text-xs shadow-sm"><i class="fas fa-trash-alt mr-1 sm:mr-0"></i><span class="sm:hidden">Hapus</span></button>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            wadah.innerHTML = '<div class="text-center text-xs text-gray-400 py-6 italic border border-dashed border-gray-200 rounded-xl bg-gray-50">Belum ada pengumuman. Papan di portal ortu saat ini kosong.</div>';
+        }
+    })
+    .catch(err => {
+        wadah.innerHTML = '<div class="text-center text-xs text-red-400 py-4">Gagal memuat daftar pengumuman. Periksa koneksi.</div>';
+    });
+}
+
+// 5. Fungsi saat tombol "Edit" di klik (Mengisi formulir otomatis)
+function editPengumuman(id, tgl, kat, jdl, isi) {
+    document.getElementById('adminIdPengumuman').value = id;
+    document.getElementById('adminTglPengumuman').value = tgl;
+    document.getElementById('adminKatPengumuman').value = kat;
+    document.getElementById('adminJdlPengumuman').value = jdl;
+    
+    // Kembalikan newline (\n) agar format paragraf di textarea rapi
+    document.getElementById('adminIsiPengumuman').value = isi.replace(/\\n/g, "\n");
+    
+    document.getElementById('titleFormPengumuman').innerText = "Edit Pengumuman";
+    document.getElementById('badgeEditMode').classList.remove('hidden');
+    
+    // Scroll otomatis ke atas form agar admin fokus ke form
+    document.getElementById('modalKelolaPengumumanContent').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 6. Menyimpan hasil ketikan (Mode Baru / Edit) ke Database
+function simpanPengumumanAdmin() {
+    const id = document.getElementById('adminIdPengumuman').value;
+    const tgl = document.getElementById('adminTglPengumuman').value.trim();
+    const kat = document.getElementById('adminKatPengumuman').value.trim();
+    const jdl = document.getElementById('adminJdlPengumuman').value.trim();
+    const isi = document.getElementById('adminIsiPengumuman').value.trim();
+
+    if(!tgl || !jdl || !isi) return Swal.fire('Perhatian', 'Kolom Tanggal, Judul, dan Isi tidak boleh dikosongkan!', 'warning');
+
+    const btn = document.querySelector('button[onclick="simpanPengumumanAdmin()"]');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Menyimpan...</span>';
+    btn.disabled = true;
+
+    // AMBIL TOKEN LOGIN ADMIN DARI MEMORI BROWSER
+const fd = new URLSearchParams();
+    fd.append('action', 'savePengumuman');
+    
+    // AMBIL TOKEN DENGAN AMAN (Mencegah pengiriman teks "null")
+    let tokenAdmin = null;
+    if (typeof token !== 'undefined' && token) tokenAdmin = token;
+    else if (sessionStorage.getItem('token')) tokenAdmin = sessionStorage.getItem('token');
+    else if (localStorage.getItem('token')) tokenAdmin = localStorage.getItem('token');
+    
+    // Jika gasFetch Anda sudah otomatis menyelipkan token, fd.append ini akan diabaikan.
+    if (tokenAdmin) {
+        fd.append('token', tokenAdmin);
+    }
+    fd.append('id', id);
+    fd.append('tanggal', tgl);
+    fd.append('kategori', kat);
+    fd.append('judul', jdl);
+    fd.append('isi', isi);
+
+    gasFetch({ method: 'POST', body: fd })
+    .then(r => r.json())
+    .then(res => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        if(res.status === 'success') {
+            Swal.fire('Sukses', res.message, 'success');
+            resetFormPengumuman(); 
+            muatListPengumumanAdmin(); 
+        } else {
+            Swal.fire('Gagal', res.message, 'error');
+        }
+    })
+    .catch(err => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        Swal.fire('Error', 'Terjadi kesalahan jaringan saat menyimpan.', 'error');
+    });
+}
+
+// 7. Menghapus pengumuman
+function hapusPengumuman(id) {
+    Swal.fire({
+        title: 'Cabut Pengumuman?',
+        text: "Pengumuman ini akan dihapus secara permanen dari layar Wali Santri.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#9ca3af',
+        confirmButtonText: 'Ya, Cabut'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+            
+            const fd = new URLSearchParams();
+            fd.append('action', 'deletePengumuman');
+            fd.append('id', id);
+
+            // AMBIL TOKEN DENGAN AMAN
+            let tokenAdmin = null;
+            if (typeof token !== 'undefined' && token) tokenAdmin = token;
+            else if (sessionStorage.getItem('token')) tokenAdmin = sessionStorage.getItem('token');
+            else if (localStorage.getItem('token')) tokenAdmin = localStorage.getItem('token');
+            
+            if (tokenAdmin) {
+                fd.append('token', tokenAdmin);
+            }
+            fd.append('id', id);
+
+            gasFetch({ method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    Swal.fire('Dihapus!', res.message, 'success');
+                    muatListPengumumanAdmin(); 
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            })
+            .catch(err => Swal.fire('Error', 'Terjadi kesalahan jaringan.', 'error'));
+        }
+    });
+}
+// 7. Menghapus pengumuman
+function hapusPengumuman(id) {
+    Swal.fire({
+        title: 'Cabut Pengumuman?',
+        text: "Pengumuman ini akan dihapus secara permanen dari layar Wali Santri.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#9ca3af',
+        confirmButtonText: 'Ya, Cabut'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire({ title: 'Menghapus...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); }});
+            
+            const fd = new URLSearchParams();
+            fd.append('action', 'deletePengumuman');
+            fd.append('id', id);
+
+            gasFetch({ method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                if(res.status === 'success') {
+                    Swal.fire('Dihapus!', res.message, 'success');
+                    muatListPengumumanAdmin(); // Render ulang list
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            })
+            .catch(err => Swal.fire('Error', 'Terjadi kesalahan jaringan.', 'error'));
+        }
+    });
+}
+
+// Mengganti teks petunjuk (placeholder) sesuai kategori yang dipilih
+function gantiContohPengumuman() {
+    // Jangan ubah form jika admin sedang mengedit pengumuman yang sudah ada
+    if (document.getElementById('adminIdPengumuman').value !== "0") return;
+
+    const kategori = document.getElementById('adminKatPengumuman').value;
+    const judul = document.getElementById('adminJdlPengumuman');
+    const isi = document.getElementById('adminIsiPengumuman');
+
+    // Kosongkan isian asli agar Admin mengetik sendiri
+    judul.value = "";
+    isi.value = "";
+
+    // Berikan teks bayangan (penjelasan) berdasarkan kategori
+    if (kategori === "") {
+        judul.placeholder = "Pilih kategori terlebih dahulu...";
+        isi.placeholder = "Pilih kategori untuk melihat petunjuk penulisan isi pengumuman...";
+    }
+    else if (kategori === "Akademik") {
+        judul.placeholder = "Contoh: Info Pembagian Rapor / Evaluasi Belajar";
+        isi.placeholder = "Petunjuk: Jelaskan informasi akademik di sini. Misal: Kapan rapor dibagikan, syarat pengambilan rapor, atau info kegiatan belajar mengajar lainnya.";
+    } 
+    else if (kategori === "Libur") {
+        judul.placeholder = "Contoh: Libur Hari Raya / Libur Semester";
+        isi.placeholder = "Petunjuk: Jelaskan detail libur di sini. Sebutkan tanggal mulai libur dan tegaskan tanggal berapa santri wajib masuk kembali ke madrasah.";
+    } 
+    else if (kategori === "Ujian") {
+        judul.placeholder = "Contoh: Jadwal Ujian Penilaian Akhir Semester (PAS)";
+        isi.placeholder = "Petunjuk: Jelaskan detail pelaksanaan ujian. Misal: Tanggal pelaksanaan ujian, himbauan untuk memantau jam belajar anak di rumah, atau persyaratan ujian.";
+    } 
+    else if (kategori === "Lomba") {
+        judul.placeholder = "Contoh: Rangkaian Lomba Peringatan Hari Santri";
+        isi.placeholder = "Petunjuk: Sebutkan jenis-jenis perlombaan yang diadakan, kapan pelaksanaannya (siang/malam), dan ketentuan untuk santri atau wali santri.";
+    } 
+    else if (kategori === "Kegiatan") {
+        judul.placeholder = "Contoh: Pengajian Akbar & Haflah Akhirussanah";
+        isi.placeholder = "Petunjuk: Jelaskan detail kegiatan madrasah. Sebutkan waktu pelaksanaan, lokasi acara, dan himbauan kehadiran untuk wali santri.";
+    }
+}
+
+// =========================================================
+// EVENT LISTENER GLOBAL UNTUK TOMBOL BACK HP (ADMIN MODE)
+// =========================================================
+window.addEventListener('popstate', function (event) {
+    // 1. Tutup notifikasi SweetAlert jika kebetulan sedang muncul
+    if (typeof Swal !== 'undefined' && Swal.isVisible()) {
+        Swal.close();
+    }
+    
+    // 2. Tutup Modal Kelola Pengumuman jika sedang terbuka
+    const modalAdmin = document.getElementById('modalKelolaPengumuman');
+    if (modalAdmin && !modalAdmin.classList.contains('hidden')) {
+        // Kirim argumen 'true' agar sistem tahu ini dari tombol Back, bukan dari tombol X
+        tutupModalPengumumanAdmin(true); 
+    }
+});

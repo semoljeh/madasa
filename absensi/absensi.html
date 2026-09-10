@@ -8,7 +8,6 @@
     <link rel="icon" type="image/png" href="../asset/logoweb.png">
     <link rel="shortcut icon" href="../asset/logoweb.png" type="image/png">
     
-    <link rel="manifest" href="../manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -20,7 +19,7 @@
         tailwind.config = { theme: { extend: { colors: { emerald: { 600: '#059669', 700: '#047857', 800: '#065f46' } }, fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] } } } }
     </script>
     
-<style>
+    <style>
         body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
 
         /* DESAIN CUSTOM DROPDOWN KELAS */
@@ -54,7 +53,6 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
     </style>
-	
 </head>
 <body class="text-gray-800 p-4 sm:p-8">
 
@@ -87,35 +85,59 @@
 
         <!-- 2 TAB MENU -->
         <div class="grid grid-cols-2 gap-1 sm:gap-2 mb-6 bg-white p-1.5 sm:p-2 rounded-2xl shadow-sm border border-gray-100">
-            <button onclick="switchTab('scan')" id="tabScan" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 bg-emerald-600 text-white rounded-xl font-bold text-[10px] sm:text-sm transition-all shadow-sm">
-                <i class="fas fa-qrcode text-lg sm:text-base"></i> <span>Scanner</span>
-            </button>
-            <button onclick="switchTab('manual')" id="tabManual" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 text-gray-500 hover:bg-gray-50 rounded-xl font-bold text-[10px] sm:text-sm transition-all">
+            <!-- Tombol Manual (Kiri - AKTIF DEFAULT) -->
+            <button onclick="switchTab('manual')" id="tabManual" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 bg-emerald-600 text-white rounded-xl font-bold text-[10px] sm:text-sm transition-all shadow-sm">
                 <i class="fas fa-list-check text-lg sm:text-base"></i> <span>Manual</span>
+            </button>
+
+            <!-- Tombol Scanner (Kanan - MATI DEFAULT) -->
+            <button onclick="switchTab('scan')" id="tabScan" class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 py-2 sm:py-3 text-gray-500 hover:bg-gray-50 rounded-xl font-bold text-[10px] sm:text-sm transition-all">
+                <i class="fas fa-qrcode text-lg sm:text-base"></i> <span>Scanner</span>
             </button>
         </div>
     </div>
 
     <!-- AREA 1: SCANNER -->
-    <div id="areaScan" class="max-w-md mx-auto">
+    <div id="areaScan" class="max-w-md mx-auto hidden">
         <div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 text-center">
-            <p class="text-sm text-gray-500 mb-3 font-medium">Arahkan kamera ke Barcode ID Card Santri</p>
             
-            <!-- Notifikasi Scan Sukses -->
-            <div id="scanResult" class="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl hidden shadow-sm transition-all">
-                <i class="fas fa-check-circle text-emerald-500 text-2xl mb-1"></i>
-                <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Berhasil Discan</div>
-                <div id="namaTerscan" class="text-gray-800 text-lg font-black uppercase mt-1 leading-tight"></div>
-                <div id="nisTerscan" class="text-emerald-700 text-sm font-bold tracking-widest mt-1"></div>
+            <!-- TOMBOL BUKA KAMERA -->
+            <div id="wadahTombolMulai" class="py-10 flex flex-col items-center justify-center border-2 border-dashed border-emerald-200 rounded-2xl bg-emerald-50 mb-4 transition-all">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-3xl mb-4 shadow-sm border border-emerald-200">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <p class="text-sm text-gray-600 mb-5 font-medium px-4">Kamera belum aktif. Klik tombol di bawah untuk mulai memindai barcode santri.</p>
+                <button onclick="mulaiScannerSekarang()" class="px-8 py-3 bg-emerald-600 text-white font-bold rounded-xl shadow-md hover:bg-emerald-700 hover:shadow-lg transition-all transform hover:-translate-y-1 flex items-center gap-2">
+                    <i class="fas fa-power-off"></i> Buka Kamera Scanner
+                </button>
             </div>
 
-            <!-- Kamera -->
-            <div id="reader" class="w-full rounded-2xl overflow-hidden border border-gray-200"></div>
+            <!-- AREA KAMERA (Sembunyi by default) -->
+            <div id="wadahKamera" class="hidden relative">
+                <p class="text-sm text-gray-500 mb-3 font-medium">Arahkan kamera ke Barcode ID Card Santri</p>
+                
+                <!-- Notifikasi Scan Sukses -->
+                <div id="scanResult" class="mb-4 p-3 bg-emerald-50 border border-emerald-200 rounded-2xl hidden shadow-sm transition-all">
+                    <i class="fas fa-check-circle text-emerald-500 text-2xl mb-1"></i>
+                    <div class="text-xs text-gray-500 font-medium uppercase tracking-wide">Berhasil Discan</div>
+                    <div id="namaTerscan" class="text-gray-800 text-lg font-black uppercase mt-1 leading-tight"></div>
+                    <div id="nisTerscan" class="text-emerald-700 text-sm font-bold tracking-widest mt-1"></div>
+                </div>
+
+                <!-- Kamera -->
+                <div id="reader" class="w-full rounded-2xl overflow-hidden border border-gray-200 bg-black"></div>
+                
+                <!-- Tombol Tutup Kamera -->
+                <button onclick="hentikanScanner()" class="mt-4 px-5 py-2.5 bg-red-50 text-red-600 border border-red-200 font-bold rounded-xl shadow-sm hover:bg-red-100 transition-all w-full flex items-center justify-center gap-2">
+                    <i class="fas fa-times-circle"></i> Tutup Kamera
+                </button>
+            </div>
+
         </div>
     </div>
 
     <!-- AREA 2: MANUAL -->
-    <div id="areaManual" class="max-w-5xl mx-auto hidden">
+    <div id="areaManual" class="max-w-5xl mx-auto">
         <div class="bg-white p-5 sm:p-6 rounded-3xl shadow-sm border border-gray-100 mb-6">
             
              <div class="mb-5 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 relative z-20" id="customSelectWrapper">
@@ -138,24 +160,42 @@
 
             <div class="overflow-x-auto rounded-2xl border border-gray-100 shadow-sm w-full">
                 <table class="w-full text-left border-collapse min-w-[500px]">
-                    <thead class="bg-gray-50 text-gray-500 text-[10px] sm:text-xs uppercase border-b border-gray-100">
+               <thead class="bg-gray-50 text-gray-500 text-[10px] sm:text-xs uppercase border-b border-gray-100">
                         <tr>
                             <th class="p-3 text-center border-r border-gray-100 w-10">No</th>
                             <th class="p-3 border-r border-gray-100">Nama Santri</th>
-                            <th class="p-3 text-center border-r border-gray-100 w-40">Status</th>
-                            <th class="p-3 text-center w-32">Aksi</th>
+                            <th class="p-3 text-center w-48">Status Kehadiran</th>
                         </tr>
                     </thead>
                     <tbody id="bodyTabelManual" class="text-sm divide-y divide-gray-50 bg-white">
-                        <tr><td colspan="4" class="p-8 text-center text-gray-400">Silakan pilih kelas terlebih dahulu.</td></tr>
+                        <tr><td colspan="3" class="p-8 text-center text-gray-400">Silakan pilih kelas terlebih dahulu.</td></tr>
                     </tbody>
-                </table>
+                   
+               </table>
             </div>
+            
+            <!-- TOMBOL AKSI MASSAL (Simpan Semua & Rekap) -->
+            <div id="wadahAksiMassal" class="mt-5 flex flex-col sm:flex-row items-center justify-between gap-3 hidden">
+                
+                <!-- KOTAK REKAP REAL-TIME -->
+                <div id="ringkasanAbsen" class="text-xs sm:text-sm font-medium text-gray-600 bg-gray-50 px-4 py-3 rounded-xl border border-gray-200 w-full sm:w-auto text-center sm:text-left flex-1">
+                    Memuat rekapitulasi...
+                </div>
+
+                <button onclick="simpanSemuaAbsenManual()" class="w-full sm:w-auto px-8 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 shadow-md transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-save text-lg"></i> Simpan Semua
+                </button>
+            </div>
+
         </div>
     </div>
 
-    <!-- KONFIGURASI BACKEND -->
-    <script src="../config.js?v=16"></script>
+    <!-- KONFIGURASI BACKEND (AUTO NO-CACHE) -->
+    <script>
+        var nocache = new Date().getTime();
+        document.write('<script src="../config.js?nocache=' + nocache + '"><\/script>');
+    </script>
+	
     <script>
         const beepSound = new Audio('../asset/notif.mp3');
         
@@ -166,6 +206,7 @@
         let JAM_BUKA = 0; 
         let JAM_TUTUP = 24; 
         let STATUS_SISTEM = 'Buka';
+		let LIBUR_JUMAT = 'Aktif';
 
         function showLoading(show, teks="Memproses...") { 
             document.getElementById('loadingScreen').style.display = show ? 'flex' : 'none'; 
@@ -182,13 +223,14 @@
             fdStatus.append('action', 'getStatusAbsen');
             fdStatus.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            gasFetch( { method: 'POST', body: fdStatus })
+            fetch(GAS_URL, { method: 'POST', body: fdStatus })
             .then(r=>r.json())
             .then(res => {
                 if (res.status === 'success') {
                     STATUS_SISTEM = res.status_absen;
                     if(res.jam_buka !== undefined) JAM_BUKA = parseInt(res.jam_buka);
                     if(res.jam_tutup !== undefined) JAM_TUTUP = parseInt(res.jam_tutup);
+                    if(res.libur_jumat !== undefined) LIBUR_JUMAT = res.libur_jumat; 
                     renderBadgeStatus(STATUS_SISTEM);
                 }
                 ambilDataSantri();
@@ -204,16 +246,19 @@
             formData.append('action', 'getSantri');
             formData.append('token', sessionStorage.getItem('tokenMadasa'));
             
-            gasFetch( { method: 'POST', body: formData })
+            fetch(GAS_URL, { method: 'POST', body: formData })
             .then(r => r.json()) 
             .then(res => {
                 showLoading(false);
                 if(res.status === 'success') {
                     DATA_SANTRI = res.data;
-                    mulaiScanner(); 
                     
                     // --- PANGGIL FUNGSI PEMBUAT DROPDOWN KELAS OTOMATIS & BERURUTAN ---
                     buatOpsiKelasDinamisAbsensi();
+                    
+                    // --- KUNCI SISTEM KE TAB MANUAL SAAT PERTAMA KALI DIBUKA ---
+                    switchTab('manual');
+                    
                 } else {
                     Swal.fire('Peringatan', 'Data santri kosong.', 'warning');
                 }
@@ -224,23 +269,20 @@
             });
         }
 
-// ==========================================================
-// FUNGSI MEMBUAT OPSI KELAS OTOMATIS (CUSTOM SELECT)
-// ==========================================================
-function buatOpsiKelasDinamisAbsensi() {
-    const listEl = document.getElementById('customSelectList');
-    if (!listEl) return;
+        // ==========================================================
+        // FUNGSI MEMBUAT OPSI KELAS OTOMATIS (CUSTOM SELECT)
+        // ==========================================================
+        function buatOpsiKelasDinamisAbsensi() {
+            const listEl = document.getElementById('customSelectList');
+            if (!listEl) return;
 
-    // 1. Ambil seluruh nama kelas unik dari data santri dan urutkan
-    // MODIFIKASI: Sembunyikan yang mengandung lulus, alumni, atau diberhentikan
-    const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
-        .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
-        .sort();
+            // MODIFIKASI: Sembunyikan yang mengandung lulus, alumni, atau diberhentikan
+            const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
+                .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
+                .sort();
 
-    // 2. Tentukan bobot urutan jenjang pendidikan
-    let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
+            let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
 
-            // 3. Kelompokkan secara otomatis berdasarkan kata kunci nama kelas
             let kelompokKelas = {};
             kelasUnik.forEach(k => {
                 let kUpper = k.toUpperCase();
@@ -256,16 +298,14 @@ function buatOpsiKelasDinamisAbsensi() {
                 kelompokKelas[kategori].push(k);
             });
 
-            // Urutkan kategori berdasarkan bobot jenjang dari TK ke Aliyah
             let kategoriUrut = Object.keys(kelompokKelas).sort((a, b) => (bobotJenjang[a] || 99) - (bobotJenjang[b] || 99));
 
-            // 4. Susun elemen HTML <li> sesuai urutan baru
             let htmlList = `<li class="custom-option-item text-gray-400 text-center !pl-3" onclick="pilihKelasCustom('', '-- Silakan Pilih Kelas --')">-- Reset Pilihan --</li>`;
             
             kategoriUrut.forEach(kategori => {
                 htmlList += `<li class="custom-option-group"><i class="fas fa-layer-group mr-2 opacity-50"></i>${kategori}</li>`;
                 kelompokKelas[kategori].forEach(kelas => {
-                    let safeKelas = kelas.replace(/'/g, "\\'"); // Mencegah error jika ada tanda petik
+                    let safeKelas = kelas.replace(/'/g, "\\'"); 
                     htmlList += `<li class="custom-option-item" onclick="pilihKelasCustom('${safeKelas}', '${safeKelas}')">${kelas}</li>`;
                 });
             });
@@ -285,7 +325,6 @@ function buatOpsiKelasDinamisAbsensi() {
                 });
             }
 
-            // Menutup daftar jika mengeklik area mana saja di luar kotak
             document.addEventListener('click', (e) => {
                 const list = document.getElementById('customSelectList');
                 const wrapper = document.getElementById('customSelectWrapper');
@@ -303,12 +342,32 @@ function buatOpsiKelasDinamisAbsensi() {
             icon.classList.toggle('rotate-180');
         }
 
-        function pilihKelasCustom(nilai, teks) {
+        async function pilihKelasCustom(nilai, teks) {
             document.getElementById('filterKelasManual').value = nilai; 
             document.getElementById('customSelectText').innerText = teks; 
             
             toggleCustomSelect(); 
-            renderTabelManual(); // Panggil fungsi absensi agar tabel otomatis muncul
+            
+            if (nilai) {
+                showLoading(true, `Mengecek data absen hari ini...`);
+                const fd = new URLSearchParams();
+                fd.append('action', 'getAbsenHariIni');
+                fd.append('kelas', nilai);
+                fd.append('token', sessionStorage.getItem('tokenMadasa'));
+
+                try {
+                    const response = await fetch(GAS_URL, { method: 'POST', body: fd });
+                    const res = await response.json();
+                    window.ABSEN_HARI_INI = res.data || {}; 
+                } catch(e) {
+                    window.ABSEN_HARI_INI = {};
+                }
+                showLoading(false);
+            } else {
+                window.ABSEN_HARI_INI = {};
+            }
+            
+            renderTabelManual(); 
         }
 
         function renderBadgeStatus(status) {
@@ -325,7 +384,6 @@ function buatOpsiKelasDinamisAbsensi() {
         function switchTab(tab) {
             const btnScan = document.getElementById('tabScan');
             const btnManual = document.getElementById('tabManual');
-            
             const areaScan = document.getElementById('areaScan');
             const areaManual = document.getElementById('areaManual');
 
@@ -342,17 +400,22 @@ function buatOpsiKelasDinamisAbsensi() {
             if(tab === 'scan') {
                 btnScan.className = classAktif; 
                 areaScan.classList.remove('hidden');
-                if(html5QrcodeScanner) html5QrcodeScanner.resume();
             } else {
                 btnManual.className = classAktif; 
                 areaManual.classList.remove('hidden');
-                if(html5QrcodeScanner) html5QrcodeScanner.pause(true);
+                hentikanScanner();
             }
         }
 
-        async function mulaiScanner() {
+        async function mulaiScannerSekarang() {
+            document.getElementById('wadahTombolMulai').classList.add('hidden');
+            document.getElementById('wadahKamera').classList.remove('hidden');
+
             try {
-                html5QrcodeScanner = new Html5Qrcode("reader");
+                if (!html5QrcodeScanner) {
+                    html5QrcodeScanner = new Html5Qrcode("reader");
+                }
+                
                 const cameras = await Html5Qrcode.getCameras();
                 if (!cameras || cameras.length === 0) throw new Error("Kamera tidak ditemukan");
                 
@@ -370,10 +433,23 @@ function buatOpsiKelasDinamisAbsensi() {
                     onScanSuccess,
                     (err) => {}
                 );
+                isScanning = false;
             } catch (err) {
                 console.error(err);
-                Swal.fire({ icon: 'error', title: 'Kamera Gagal', text: 'Kamera tidak dapat diakses. Pastikan Anda telah memberikan izin.' });
+                hentikanScanner();
+                Swal.fire({ icon: 'error', title: 'Kamera Gagal', text: 'Kamera tidak dapat diakses. Pastikan Anda telah memberikan izin pada browser.' });
             }
+        }
+
+        function hentikanScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().then(() => {
+                    html5QrcodeScanner.clear();
+                    html5QrcodeScanner = null;
+                }).catch(e => console.log(e));
+            }
+            document.getElementById('wadahKamera').classList.add('hidden');
+            document.getElementById('wadahTombolMulai').classList.remove('hidden');
         }
 
         function cekIzinAbsen() {
@@ -386,7 +462,7 @@ function buatOpsiKelasDinamisAbsensi() {
             const hari = waktu.getDay();
             const jam = waktu.getHours(); 
 
-            if (hari === 5) {
+            if (hari === 5 && LIBUR_JUMAT === 'Aktif') {
                 Swal.fire({ icon: 'info', title: 'Libur Rutin', text: 'Hari ini hari Jum\'at. Sistem absen sedang diliburkan.' });
                 return false;
             }
@@ -446,7 +522,7 @@ function buatOpsiKelasDinamisAbsensi() {
             fd.append('status', status); 
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            gasFetch( { method: 'POST', body: fd })
+            fetch(GAS_URL, { method: 'POST', body: fd })
             .then(r => r.json())
             .then(res => {
                 if(!isScan) showLoading(false);
@@ -482,44 +558,169 @@ function buatOpsiKelasDinamisAbsensi() {
         function renderTabelManual() {
             const kelas = document.getElementById('filterKelasManual').value;
             const tbody = document.getElementById('bodyTabelManual');
+            const wadahAksi = document.getElementById('wadahAksiMassal');
             
             if (DATA_SANTRI.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-red-500">Data santri kosong.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-red-500">Data santri kosong.</td></tr>';
+                if(wadahAksi) wadahAksi.classList.add('hidden');
                 return;
             }
 
             const santriKelas = DATA_SANTRI.filter(s => s.kelas === kelas);
 
             if (santriKelas.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-8 text-center text-gray-400">Tidak ada santri di kelas ini.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" class="p-8 text-center text-gray-400">Tidak ada santri di kelas ini.</td></tr>';
+                if(wadahAksi) wadahAksi.classList.add('hidden');
                 return;
             }
 
+            if(wadahAksi) wadahAksi.classList.remove('hidden');
             tbody.innerHTML = '';
+            
+            const absenHariIni = window.ABSEN_HARI_INI || {};
+            
             santriKelas.forEach((s, i) => {
+                const statusTersimpan = absenHariIni[s.nis];
+                const isTersimpan = !!statusTersimpan; 
+                
+                const classRow = isTersimpan ? 'bg-gray-50 opacity-60' : 'hover:bg-emerald-50/50';
+                const disableSelect = isTersimpan ? 'disabled' : '';
+                const bgSelect = isTersimpan ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-50 text-gray-700 cursor-pointer focus:ring-2 focus:ring-emerald-500';
+                
                 tbody.innerHTML += `
-                <tr id="baris_${s.nis}" class="hover:bg-emerald-50/50 transition-all border-b border-gray-100 last:border-none">
+                <tr id="baris_${s.nis}" class="${classRow} transition-all border-b border-gray-100 last:border-none">
                     <td class="p-4 text-center border-r border-gray-100 text-gray-500 font-medium">${i + 1}</td>
                     <td class="p-4 border-r border-gray-100">
                         <p class="font-bold text-sm text-gray-800">${s.nama}</p>
                         <p class="text-[10px] text-gray-500 mt-0.5">NIS: ${s.nis}</p>
                     </td>
-                    <td class="p-3 text-center border-r border-gray-100 align-middle">
-                        <select id="status_${s.nis}" class="w-full min-w-[110px] p-2.5 border border-gray-200 rounded-xl text-xs sm:text-sm outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50 text-gray-700 font-semibold cursor-pointer text-center transition-all">
-                            <option value="" disabled selected>- Status -</option>
-                            <option value="Hadir">✅ Hadir</option>
-                            <option value="Izin">✉️ Izin</option>
-                            <option value="Sakit">🤒 Sakit</option>
-                            <option value="Alfa">❌ Alfa</option>
-                        </select>
-                    </td>
                     <td class="p-3 text-center align-middle">
-                        <button onclick="simpanAbsenManual('${s.nis}', '${s.nama}', '${s.kelas}')" class="px-5 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-bold hover:bg-emerald-700 shadow-sm transition-all w-full sm:w-auto">
-                            Simpan
-                        </button>
+                        <select id="status_${s.nis}" onchange="hitungRekapRealtime()" ${disableSelect} class="w-full min-w-[110px] p-2.5 border border-gray-200 rounded-xl text-xs sm:text-sm outline-none font-semibold text-center transition-all ${bgSelect}">
+                            <option value="" ${!isTersimpan ? 'selected' : ''} disabled>- Status -</option>
+                            <option value="Hadir" ${statusTersimpan === 'Hadir' ? 'selected' : ''}>✅ Hadir</option>
+                            <option value="Izin" ${statusTersimpan === 'Izin' ? 'selected' : ''}>✉️ Izin</option>
+                            <option value="Sakit" ${statusTersimpan === 'Sakit' ? 'selected' : ''}>🤒 Sakit</option>
+                            <option value="Alfa" ${statusTersimpan === 'Alfa' ? 'selected' : ''}>❌ Alfa</option>
+                        </select>
                     </td>
                 </tr>`;
             });
+
+            hitungRekapRealtime();
+        }
+		
+        async function simpanSemuaAbsenManual() {
+            if (!cekIzinAbsen()) return;
+
+            const kelas = document.getElementById('filterKelasManual').value;
+            if (!kelas) {
+                Swal.fire({ icon: 'warning', title: 'Pilih Kelas', text: 'Silakan pilih kelas terlebih dahulu.' });
+                return;
+            }
+
+            const santriKelas = DATA_SANTRI.filter(s => s.kelas === kelas);
+            
+            let adaYangKosong = false;
+            let namaSantriKosong = "";
+            let paketDataAbsen = []; 
+
+            for (let i = 0; i < santriKelas.length; i++) {
+                const selectEl = document.getElementById('status_' + santriKelas[i].nis);
+                if (!selectEl || selectEl.value === "") {
+                    adaYangKosong = true;
+                    namaSantriKosong = santriKelas[i].nama; 
+                    break; 
+                }
+                
+                paketDataAbsen.push({
+                    nis: santriKelas[i].nis,
+                    nama: santriKelas[i].nama,
+                    kelas: santriKelas[i].kelas,
+                    status: selectEl.value
+                });
+            }
+
+            if (adaYangKosong) {
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'Absensi Belum Lengkap', 
+                    text: `Silakan pilih status kehadiran untuk SEMUA santri. (${namaSantriKosong} belum dipilih)` 
+                });
+                return; 
+            }
+
+            showLoading(true, `Menyimpan absensi Kelas ${kelas}...`);
+
+            const fd = new URLSearchParams();
+            fd.append('action', 'simpanAbsenMassal'); 
+            fd.append('data_absen', JSON.stringify(paketDataAbsen)); 
+            fd.append('token', sessionStorage.getItem('tokenMadasa'));
+
+            try {
+                const response = await fetch(GAS_URL, { method: 'POST', body: fd });
+                const res = await response.json();
+                
+                showLoading(false);
+                
+                if (res.status === 'success') {
+                    santriKelas.forEach(s => {
+                        document.getElementById('baris_' + s.nis).classList.add('bg-gray-50', 'opacity-60');
+                    });
+
+                    if (res.dilewati > 0) {
+                        Swal.fire({ icon: 'warning', title: 'Selesai dengan Catatan', text: `Sebagian data berhasil disimpan, namun ada ${res.dilewati} santri yang dilewati (sudah diabsen sebelumnya).` });
+                    } else {
+                        Swal.fire({ icon: 'success', title: 'Berhasil!', text: `Seluruh data absensi Kelas ${kelas} berhasil disimpan.` });
+                    }
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Data Sudah Tercatat', text: `Absensi untuk Kelas ${kelas} sepertinya sudah terekam penuh di database hari ini.` });
+                }
+            } catch (error) {
+                showLoading(false);
+                Swal.fire({ icon: 'error', title: 'Gagal Memproses', text: 'Koneksi terputus saat mengirim paket data.' });
+            }
+        }
+
+        function hitungRekapRealtime() {
+            const kelas = document.getElementById('filterKelasManual').value;
+            if (!kelas) return;
+
+            const santriKelas = DATA_SANTRI.filter(s => s.kelas === kelas);
+            let hadir = 0, izin = 0, sakit = 0, alfa = 0, belum = 0;
+
+            santriKelas.forEach(s => {
+                const selectEl = document.getElementById('status_' + s.nis);
+                if (selectEl) {
+                    if (selectEl.value === 'Hadir') hadir++;
+                    else if (selectEl.value === 'Izin') izin++;
+                    else if (selectEl.value === 'Sakit') sakit++;
+                    else if (selectEl.value === 'Alfa') alfa++;
+                    else belum++;
+                }
+            });
+
+            const tgl = new Date();
+            const namaBulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Ags", "Sep", "Okt", "Nov", "Des"];
+            const tglFormat = `${tgl.getDate()} ${namaBulan[tgl.getMonth()]} ${tgl.getFullYear()}`;
+            const ringkasanEl = document.getElementById('ringkasanAbsen');
+
+            if (ringkasanEl) {
+                if (belum > 0) {
+                    ringkasanEl.innerHTML = `<span class="text-red-500 font-bold"><i class="fas fa-exclamation-triangle"></i> Ada ${belum} santri belum diabsen</span>`;
+                } else {
+                    ringkasanEl.innerHTML = `
+                        <div class="flex items-center justify-between px-2">
+                            <span class="font-bold text-gray-800"><i class="fas fa-calendar-check text-emerald-600 mr-1"></i> ${tglFormat}</span>
+                            <div class="flex gap-3">
+                                <span class="text-emerald-600 font-bold" title="Hadir">H: ${hadir}</span>
+                                <span class="text-blue-500 font-bold" title="Izin">I: ${izin}</span>
+                                <span class="text-orange-500 font-bold" title="Sakit">S: ${sakit}</span>
+                                <span class="text-red-600 font-bold" title="Alfa">A: ${alfa}</span>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
         }
     </script>
 </body>
