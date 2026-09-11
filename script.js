@@ -3984,75 +3984,56 @@ function bagikanPantauNilaiWA() {
 
     // JIKA MEMILIH "PANTAU SEMUA KELAS"
     if (GLOBAL_KELAS_PANTAU === 'Semua') {
-        let kelasMapBelum = {};
-        let kelasMapSelesai = {};
+        let kelasMap = {};
+        let adaBelum = false;
 
-        // Kelompokkan data per kelas
+        // Kelompokkan data mapel per kelas menjadi satu wadah tanpa dipisah
         data.rekap.forEach(item => {
             if (item.isHeader) return; // Abaikan data header UI
             let namaKelas = item.kelasAsal;
             
+            if (!kelasMap[namaKelas]) kelasMap[namaKelas] = [];
+            
             if (item.persen === 100) {
-                if (!kelasMapSelesai[namaKelas]) kelasMapSelesai[namaKelas] = [];
-                kelasMapSelesai[namaKelas].push(`✅ ${item.mapel}`);
+                kelasMap[namaKelas].push(`✅ ${item.mapel}`);
             } else {
-                if (!kelasMapBelum[namaKelas]) kelasMapBelum[namaKelas] = [];
-                kelasMapBelum[namaKelas].push(`⏳ ${item.mapel} _(${item.terisi}/${item.total} Santri)_`);
+                adaBelum = true;
+                kelasMap[namaKelas].push(`⏳ ${item.mapel} _(${item.terisi}/${item.total} Santri)_`);
             }
         });
 
-        let adaBelum = Object.keys(kelasMapBelum).length > 0;
-        let adaSelesai = Object.keys(kelasMapSelesai).length > 0;
+        // Cetak daftar yang sudah digabung
+        for (let kls in kelasMap) {
+            pesan += `🏫 *${kls}*\n`;
+            pesan += kelasMap[kls].join('\n') + `\n\n`;
+        }
 
-        // Cetak daftar yang belum selesai (Prioritas)
         if (adaBelum) {
-            pesan += `*🚨 DAFTAR BELUM SELESAI:*\n\n`;
-            for (let kls in kelasMapBelum) {
-                pesan += `🏫 *${kls}*\n`;
-                pesan += kelasMapBelum[kls].join('\n') + `\n\n`;
-            }
             pesan += `_Mohon perkenan Ustadz/Ustadzah pengampu untuk dapat segera melengkapi nilainya._\n\n`;
-        }
-
-        // Cetak daftar yang sudah selesai
-        if (adaSelesai) {
-            pesan += `*🌟 DAFTAR SELESAI (100%):*\n\n`;
-            for (let kls in kelasMapSelesai) {
-                pesan += `🏫 *${kls}*\n`;
-                pesan += kelasMapSelesai[kls].join('\n') + `\n\n`;
-            }
-        }
-        
-        if (!adaBelum && adaSelesai) {
+        } else {
              pesan += `_Alhamdulillah, seluruh data pada ${teksKelasTarget} telah selesai diinput 100%._\n\n`;
         }
 
     } else {
-        // JIKA HANYA MEMILIH 1 KELAS SPESIFIK (Tampilan Biasa)
-        let mapelSelesai = [];
-        let mapelBelum = [];
+        // JIKA HANYA MEMILIH 1 KELAS SPESIFIK
+        let daftarMapel = [];
+        let adaBelum = false;
 
         data.rekap.forEach(item => {
             if (item.isHeader) return;
             if (item.persen === 100) {
-                mapelSelesai.push(`✅ ${item.mapel}`);
+                daftarMapel.push(`✅ ${item.mapel}`);
             } else {
-                mapelBelum.push(`⏳ ${item.mapel} _(${item.terisi}/${item.total} Santri)_`);
+                adaBelum = true;
+                daftarMapel.push(`⏳ ${item.mapel} _(${item.terisi}/${item.total} Santri)_`);
             }
         });
 
-        if (mapelBelum.length > 0) {
-            pesan += `*🚨 DAFTAR MAPEL BELUM SELESAI:*\n`;
-            pesan += mapelBelum.join('\n') + `\n\n`;
+        pesan += daftarMapel.join('\n') + `\n\n`;
+
+        if (adaBelum) {
             pesan += `_Mohon perkenan Ustadz/Ustadzah pengampu untuk dapat segera melengkapi nilainya._\n\n`;
-        }
-
-        if (mapelSelesai.length > 0) {
-            pesan += `*🌟 DAFTAR MAPEL SELESAI (100%):*\n`;
-            pesan += mapelSelesai.join('\n') + `\n\n`;
-        }
-
-        if (mapelBelum.length === 0 && mapelSelesai.length > 0) {
+        } else {
             pesan += `_Alhamdulillah, seluruh data pada ${teksKelasTarget} telah selesai diinput 100%._\n\n`;
         }
     }
