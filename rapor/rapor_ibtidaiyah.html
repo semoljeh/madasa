@@ -115,7 +115,7 @@
             }
         };
 
-        function buatOsciKelasOtomatis() {
+function buatOsciKelasOtomatis() {
             const selectKelas = document.getElementById('raporKelas');
             if (!selectKelas) return;
             
@@ -123,7 +123,10 @@
                                   .filter(kelas => {
                                       if (!kelas) return false;
                                       let kUpper = kelas.toUpperCase();
-                                      return kUpper.includes('IBT') || kUpper.includes('MI') || kUpper.includes('SD');
+                                      const isAlumni = kUpper.includes('LULUS') || kUpper.includes('ALUMNI') || kUpper.includes('DIBERHENTIKAN');
+                                      const isIbt = kUpper.includes('IBT') || kUpper.includes('MI') || kUpper.includes('SD');
+                                      
+                                      return isIbt && !isAlumni; // <-- Aturan baru: Harus kelas Ibtidaiyah dan BUKAN Alumni
                                   })
                                   .sort();
 
@@ -150,11 +153,18 @@
             }
         }
 
-        function populateSantriRapor() {
+function populateSantriRapor() {
             const kelasPilih = document.getElementById('raporKelas').value;
             const selectSantri = document.getElementById('raporSantri');
             selectSantri.innerHTML = '<option value="" disabled selected>-- Pilih Santri --</option>';
-            const santriKelasIni = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelasPilih);
+            
+            // Filter: Hanya ambil santri di kelas terpilih DAN yang statusnya bukan Lulus/Alumni/Diberhentikan
+            const santriKelasIni = GLOBAL_DATA_SANTRI.filter(s => {
+                const kLower = (s.kelas || '').toLowerCase();
+                const isAlumni = kLower.includes('lulus') || kLower.includes('alumni') || kLower.includes('diberhentikan');
+                return s.kelas === kelasPilih && !isAlumni;
+            });
+            
             santriKelasIni.forEach(s => { selectSantri.innerHTML += `<option value="${s.nis}">${s.nis} - ${s.nama}</option>`; });
             selectSantri.disabled = false;
         }

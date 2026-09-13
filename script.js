@@ -2872,8 +2872,10 @@ function buatOpsiSemuaKelasOtomatis() {
         }
     });
 
-    const listDropdown = [
-        { id: 'filterKelasSantri', defaultText: 'Semua Kelas', defaultValue: 'Semua', callback: 'filterSantri', useAktifOnly: false },
+   const listDropdown = [
+        // UBAH useAktifOnly menjadi true pada baris filterKelasSantri di bawah ini:
+        { id: 'filterKelasSantri', defaultText: 'Semua Kelas', defaultValue: 'Semua', callback: 'filterSantri', useAktifOnly: true },
+        
         { id: 'pilihKelasNilai', defaultText: '-- Silakan Pilih Kelas Dulu --', defaultValue: '', callback: 'aktifkanFilterKedua', useAktifOnly: true },
         { id: 'filterKelasDataNilai', defaultText: '-- Pilih Kelas Terlebih Dahulu --', defaultValue: '', callback: '', useAktifOnly: true },
         { id: 'filterKelasRanking', defaultText: '-- Pilih Kelas Untuk Melihat Ranking --', defaultValue: '', callback: '', useAktifOnly: true },
@@ -2881,7 +2883,10 @@ function buatOpsiSemuaKelasOtomatis() {
         { id: 'mutasiKelasAsal', defaultText: '-- Pilih Kelas Asal --', defaultValue: '', callback: 'loadTabelMutasi', useAktifOnly: true },
         { id: 'mutasiKelasTujuan', defaultText: '-- Pilih Tujuan --', defaultValue: '', callback: '', useAktifOnly: true },
         { id: 'add_kelas', defaultText: 'Pilih...', defaultValue: '', callback: '', useAktifOnly: true },
+        
+        // edit_kelas dibiarkan false agar admin tetap bisa memindahkan siswa ke status DO/Alumni secara manual
         { id: 'edit_kelas', defaultText: 'Pilih...', defaultValue: '', callback: '', useAktifOnly: false }, 
+        
         { id: 'filterKelasPantau', defaultText: 'Pantau Semua Kelas', defaultValue: 'Semua', callback: 'loadPantauNilai', useAktifOnly: true }
     ];
 
