@@ -239,7 +239,7 @@ OneSignalDeferred.push(async function(OneSignal) {
 
 <button onclick="window.location.href='cetak/cetakkartu.html'" class="w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
     <i class="fas fa-id-card w-5 text-emerald-300"></i>
-    Cetak Kartu Ujian
+    Cetak Kartu
 </button>
 
 <button onclick="showView('mutasi')" class="admin-only nav-link w-full flex items-center gap-3 px-4 py-3 text-emerald-100 hover:bg-emerald-700/50 rounded-xl transition-all text-sm">
@@ -449,12 +449,12 @@ OneSignalDeferred.push(async function(OneSignal) {
                                 <button onclick="showView('home')" class="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 text-gray-600 hover:bg-teal-100 hover:text-teal-600 transition-all shadow-sm shrink-0"><i class="fas fa-arrow-left"></i></button>
                                 <div><h3 class="text-lg sm:text-xl font-heading font-bold text-gray-800">Data Induk Santri</h3><p class="text-xs text-gray-500 mt-0.5 sm:mt-1">Manajemen biodata seluruh santri aktif</p></div>
                             </div>
-						<div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-    <!-- TOMBOL BARU: Download Template -->
 
-<button onclick="downloadTemplateExcel()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-gray-500 text-white rounded-xl hover:bg-gray-600 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
-    <i class="fas fa-file-excel"></i> Template XLSX
-</button>
+<div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+    <!-- TOMBOL BARU: Download Template -->
+    <button onclick="downloadTemplateExcel()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-gray-500 text-white rounded-xl hover:bg-gray-600 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
+        <i class="fas fa-file-excel"></i> Template XLSX
+    </button>
     
     <button onclick="openModalImportSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-amber-500 text-white rounded-xl hover:bg-amber-600 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
         <i class="fas fa-file-import"></i> Import
@@ -464,11 +464,13 @@ OneSignalDeferred.push(async function(OneSignal) {
         <i class="fas fa-user-plus"></i> Tambah
     </button>
 	
-	    <button onclick="cetakDataSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
+    <button onclick="cetakDataSantri()" class="w-full sm:w-auto px-4 py-3 sm:py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-sm transition-all flex items-center justify-center gap-2 text-sm font-bold">
         <i class="fas fa-print"></i> Cetak
     </button>
-	
+
 </div>
+
+
                         </div>
                         <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-5 sm:mb-6">
                             <div class="relative flex-1">
@@ -477,13 +479,14 @@ OneSignalDeferred.push(async function(OneSignal) {
                             </div>
 							
 							
-<div class="relative w-full sm:w-48 custom-select-wrapper">
+<div class="relative w-full sm:w-72 lg:w-[320px] custom-select-wrapper">
     <div onclick="toggleCustomSelectGlobal('filterKelasSantri')" class="w-full p-3 sm:p-2.5 border border-gray-200 rounded-xl bg-gray-50 hover:bg-white text-sm font-medium text-gray-700 flex justify-between items-center cursor-pointer transition-all shadow-sm">
         <span id="text_filterKelasSantri" class="truncate">Semua Kelas</span>
         <i class="fas fa-chevron-down text-gray-400 transition-transform duration-300 ml-2 shrink-0" id="icon_filterKelasSantri"></i>
     </div>
     <input type="hidden" id="filterKelasSantri" value="Semua">
-    <ul id="list_filterKelasSantri" class="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto hidden"></ul>
+    <!-- Dropdown dilebarkan ke kiri (right-0) dan diberi min-width ekstra untuk desktop -->
+    <ul id="list_filterKelasSantri" class="absolute right-0 z-50 w-full sm:w-auto sm:min-w-[100%] lg:min-w-[400px] mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-64 overflow-y-auto hidden custom-scrollbar"></ul>
 </div>
 							
 							
