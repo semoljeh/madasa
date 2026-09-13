@@ -990,6 +990,12 @@ async function generateTabelAbsen() {
 
     showLoading(true, "Memeriksa Data Tersimpan...");
 
+    // TAMBAHAN: Reset input mapel TK setiap kali ganti hari/kelas agar tidak tumpang tindih
+    if (kelas.includes('TK')) {
+        document.getElementById('global_tk_m1').value = '';
+        document.getElementById('global_tk_m2').value = '';
+    }
+
     let mapNilaiLama = {};
     let mapStatusNilai = {};
     const bersihTeks = (str) => String(str === null || str === undefined ? '' : str)
@@ -1035,6 +1041,11 @@ async function generateTabelAbsen() {
                     };
                 }
             });
+            
+            // TAMBAHAN: Isi otomatis input Mapel 1 dan 2 jika ada data yang dikembalikan server
+            if (resStatus.m1) document.getElementById('global_tk_m1').value = resStatus.m1;
+            if (resStatus.m2) document.getElementById('global_tk_m2').value = resStatus.m2;
+
         } else {
             const setSelesai = new Set((resStatus.savedNis || []).map(bersihNis));
             const statusServer = resStatus.statusNis || {};
@@ -1074,6 +1085,12 @@ async function generateTabelAbsen() {
                     const idxHari = headers.findIndex(h => bersihTeks(h) === 'hari');
                     const idxN1 = headers.findIndex(h => bersihTeks(h).includes('nilai 1') || bersihTeks(h) === 'n1');
                     const idxN2 = headers.findIndex(h => bersihTeks(h).includes('nilai 2') || bersihTeks(h) === 'n2');
+                    
+                    // TAMBAHAN FALLBACK: Cari index nama mapel untuk diisi otomatis
+                    const idxM1 = headers.findIndex(h => bersihTeks(h) === 'mapel 1' || bersihTeks(h) === 'm1');
+                    const idxM2 = headers.findIndex(h => bersihTeks(h) === 'mapel 2' || bersihTeks(h) === 'm2');
+                    let foundM1 = '';
+                    let foundM2 = '';
 
                     dataRows.forEach(row => {
                         if (idxNis > -1 && idxHari > -1 && bersihTeks(row[idxHari]) === bersihTeks(subFilterValue)) {
@@ -1082,8 +1099,17 @@ async function generateTabelAbsen() {
                                 n1: (idxN1 > -1 && row[idxN1] !== '' && row[idxN1] !== null) ? true : '',
                                 n2: (idxN2 > -1 && row[idxN2] !== '' && row[idxN2] !== null) ? true : ''
                             };
+                            
+                            // TAMBAHAN FALLBACK: Ekstrak nama mapel
+                            if (!foundM1 && idxM1 > -1 && row[idxM1]) foundM1 = row[idxM1];
+                            if (!foundM2 && idxM2 > -1 && row[idxM2]) foundM2 = row[idxM2];
                         }
                     });
+                    
+                    // TAMBAHAN FALLBACK: Inject ke UI input
+                    if (foundM1) document.getElementById('global_tk_m1').value = foundM1;
+                    if (foundM2) document.getElementById('global_tk_m2').value = foundM2;
+
                 } else {
                     const idxNis = headers.findIndex(h => bersihTeks(h) === 'nis');
                     const idxMapel = headers.findIndex(h => bersihTeks(h) === bersihTeks(subFilterValue));
