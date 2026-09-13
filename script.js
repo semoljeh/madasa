@@ -977,7 +977,7 @@ function sorotBaris(inputEl, isFocus) {
 }
 
 // =========================================================
-// FUNGSI RENDER TABEL INPUT NILAI (DIUPGRADE: KUNCI PRIVASI & CONTRENG)
+// FUNGSI RENDER TABEL INPUT NILAI (DIPERBARUI)
 // =========================================================
 async function generateTabelAbsen() { 
     const kelas = document.getElementById('pilihKelasNilai').value; 
@@ -990,10 +990,12 @@ async function generateTabelAbsen() {
 
     showLoading(true, "Memeriksa Data Tersimpan...");
 
-    // TAMBAHAN: Reset input mapel TK setiap kali ganti hari/kelas agar tidak tumpang tindih
+    // Kosongkan nama mapel beserta memori attribute setiap pindah kelas/hari
     if (kelas.includes('TK')) {
-        document.getElementById('global_tk_m1').value = '';
-        document.getElementById('global_tk_m2').value = '';
+        let inputM1 = document.getElementById('global_tk_m1');
+        let inputM2 = document.getElementById('global_tk_m2');
+        if(inputM1) { inputM1.value = ''; inputM1.setAttribute('data-original', ''); }
+        if(inputM2) { inputM2.value = ''; inputM2.setAttribute('data-original', ''); }
     }
 
     let mapNilaiLama = {};
@@ -1007,15 +1009,9 @@ async function generateTabelAbsen() {
         .replace(/^'+/, '')
         .trim();
 
-    // V16: untuk menentukan tanda centang, kita hanya membutuhkan STATUS
-    // apakah nilai sudah tersimpan. Pembacaan status memakai JSONP read-only,
-    // sehingga tidak terganggu CORS redirect ContentService Apps Script.
     try {
         const token = sessionStorage.getItem('tokenMadasa') || '';
-        const paramsStatus = {
-            token: token,
-            kelas: kelas
-        };
+        const paramsStatus = { token: token, kelas: kelas };
 
         if (kelas.includes('TK')) {
             paramsStatus.hari = subFilterValue;
@@ -1035,16 +1031,19 @@ async function generateTabelAbsen() {
             santriKelasIni.forEach(s => {
                 const nis = bersihNis(s.nis);
                 if (setN1.has(nis) || setN2.has(nis)) {
-                    mapNilaiLama[bersihTeks(nis)] = {
-                        n1: setN1.has(nis) ? true : '',
-                        n2: setN2.has(nis) ? true : ''
-                    };
+                    mapNilaiLama[bersihTeks(nis)] = { n1: setN1.has(nis) ? true : '', n2: setN2.has(nis) ? true : '' };
                 }
             });
             
-            // TAMBAHAN: Isi otomatis input Mapel 1 dan 2 jika ada data yang dikembalikan server
-            if (resStatus.m1) document.getElementById('global_tk_m1').value = resStatus.m1;
-            if (resStatus.m2) document.getElementById('global_tk_m2').value = resStatus.m2;
+            // Masukkan data mapel ke form dan jadikan acuan "data-original"
+            if (resStatus.m1) {
+                let m1El = document.getElementById('global_tk_m1');
+                m1El.value = resStatus.m1; m1El.setAttribute('data-original', resStatus.m1);
+            }
+            if (resStatus.m2) {
+                let m2El = document.getElementById('global_tk_m2');
+                m2El.value = resStatus.m2; m2El.setAttribute('data-original', resStatus.m2);
+            }
 
         } else {
             const setSelesai = new Set((resStatus.savedNis || []).map(bersihNis));
@@ -1052,20 +1051,12 @@ async function generateTabelAbsen() {
             santriKelasIni.forEach(s => {
                 const nis = bersihNis(s.nis);
                 const key = bersihTeks(nis);
-                if (setSelesai.has(nis)) {
-                    mapNilaiLama[key] = true;
-                } else if (statusServer[nis]) {
-                    mapStatusNilai[key] = String(statusServer[nis]).toUpperCase();
-                }
+                if (setSelesai.has(nis)) mapNilaiLama[key] = true;
+                else if (statusServer[nis]) mapStatusNilai[key] = String(statusServer[nis]).toUpperCase();
             });
         }
-
-        console.log(`[STATUS NILAI] ${kelas} / ${subFilterValue}: ${resStatus.count || 0} data selesai.`);
-        if (resStatus.warning) console.warn('[STATUS NILAI]', resStatus.warning);
     } catch (statusError) {
-        console.warn('[STATUS NILAI] JSONP gagal, mencoba pembacaan lama sebagai fallback.', statusError);
-
-        // Fallback untuk deployment Apps Script lama yang belum memiliki getStatusNilai.
+        console.warn('[STATUS NILAI] JSONP gagal, menggunakan fallback.', statusError);
         try {
             const formData = new URLSearchParams();
             formData.append('action', 'getDataNilai');
@@ -1083,14 +1074,12 @@ async function generateTabelAbsen() {
                 if (kelas.includes('TK')) {
                     const idxNis = headers.findIndex(h => bersihTeks(h) === 'nis');
                     const idxHari = headers.findIndex(h => bersihTeks(h) === 'hari');
-                    const idxN1 = headers.findIndex(h => bersihTeks(h).includes('nilai 1') || bersihTeks(h) === 'n1');
-                    const idxN2 = headers.findIndex(h => bersihTeks(h).includes('nilai 2') || bersihTeks(h) === 'n2');
+                    const idxN1 = headers.findIndex(h => bersihTeks(h).includes('n1') || bersihTeks(h).includes('nilai 1'));
+                    const idxN2 = headers.findIndex(h => bersihTeks(h).includes('n2') || bersihTeks(h).includes('nilai 2'));
                     
-                    // TAMBAHAN FALLBACK: Cari index nama mapel untuk diisi otomatis
-                    const idxM1 = headers.findIndex(h => bersihTeks(h) === 'mapel 1' || bersihTeks(h) === 'm1');
-                    const idxM2 = headers.findIndex(h => bersihTeks(h) === 'mapel 2' || bersihTeks(h) === 'm2');
-                    let foundM1 = '';
-                    let foundM2 = '';
+                    const idxM1 = headers.findIndex(h => bersihTeks(h) === 'm1' || bersihTeks(h) === 'mapel 1');
+                    const idxM2 = headers.findIndex(h => bersihTeks(h) === 'm2' || bersihTeks(h) === 'mapel 2');
+                    let foundM1 = ''; let foundM2 = '';
 
                     dataRows.forEach(row => {
                         if (idxNis > -1 && idxHari > -1 && bersihTeks(row[idxHari]) === bersihTeks(subFilterValue)) {
@@ -1099,16 +1088,13 @@ async function generateTabelAbsen() {
                                 n1: (idxN1 > -1 && row[idxN1] !== '' && row[idxN1] !== null) ? true : '',
                                 n2: (idxN2 > -1 && row[idxN2] !== '' && row[idxN2] !== null) ? true : ''
                             };
-                            
-                            // TAMBAHAN FALLBACK: Ekstrak nama mapel
                             if (!foundM1 && idxM1 > -1 && row[idxM1]) foundM1 = row[idxM1];
                             if (!foundM2 && idxM2 > -1 && row[idxM2]) foundM2 = row[idxM2];
                         }
                     });
                     
-                    // TAMBAHAN FALLBACK: Inject ke UI input
-                    if (foundM1) document.getElementById('global_tk_m1').value = foundM1;
-                    if (foundM2) document.getElementById('global_tk_m2').value = foundM2;
+                    if (foundM1) { let m1El = document.getElementById('global_tk_m1'); m1El.value = foundM1; m1El.setAttribute('data-original', foundM1); }
+                    if (foundM2) { let m2El = document.getElementById('global_tk_m2'); m2El.value = foundM2; m2El.setAttribute('data-original', foundM2); }
 
                 } else {
                     const idxNis = headers.findIndex(h => bersihTeks(h) === 'nis');
@@ -1116,17 +1102,14 @@ async function generateTabelAbsen() {
 
                     if (idxNis > -1 && idxMapel > -1) {
                         dataRows.forEach(row => {
-                            const nilaiMapel = row[idxMapel];
-                            if (nilaiMapel !== undefined && nilaiMapel !== null && nilaiMapel !== '') {
+                            if (row[idxMapel] !== undefined && row[idxMapel] !== null && row[idxMapel] !== '') {
                                 mapNilaiLama[bersihTeks(bersihNis(row[idxNis]))] = true;
                             }
                         });
                     }
                 }
             }
-        } catch (fallbackError) {
-            console.error('[STATUS NILAI] Tidak dapat membaca status nilai tersimpan.', fallbackError);
-        }
+        } catch (fallbackError) {}
     }
 
     showLoading(false); 
@@ -1135,9 +1118,7 @@ async function generateTabelAbsen() {
         tbody.innerHTML = '<tr><td colspan="10" class="p-6 text-center text-red-500 font-bold"><i class="fas fa-exclamation-triangle mr-2"></i> Kelas ini masih kosong, belum ada santri.</td></tr>'; 
     } else { 
         let barisHTML = [];
-        
         santriKelasIni.forEach((s, idx) => { 
-            // PERBAIKAN BUG: Pastikan NIS dibersihkan dari tanda kutip sebelum dicocokkan
             let nisBersih = bersihTeks(bersihNis(s.nis));
             let html = `<tr class="group hover:bg-emerald-50 transition-colors duration-200 santri-absen-row"> <td class="p-3 text-center text-gray-500 font-medium border-r border-gray-200">${idx + 1}</td>`; 
             
@@ -1145,14 +1126,13 @@ async function generateTabelAbsen() {
                 let valN1 = mapNilaiLama[nisBersih] !== undefined ? mapNilaiLama[nisBersih].n1 : "";
                 let valN2 = mapNilaiLama[nisBersih] !== undefined ? mapNilaiLama[nisBersih].n2 : "";
                 
-                // Render logika UI untuk mengecek valN1 dan valN2
                 let colN1 = valN1 !== "" 
                     ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-[10px] font-bold text-gray-400">Selesai</span></div>` 
                     : `<input type="number" class="input-tk-n1 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" data-nis="${s.nis}" placeholder="N1" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
                 
                let colN2 = valN2 !== "" 
-    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-[10px] font-bold text-gray-400">Selesai</span></div>` 
-    : `<input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" data-nis="${s.nis}" placeholder="N2" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
+                    ? `<div class="w-16 sm:w-20 mx-auto bg-gray-100 border border-gray-200 rounded-lg p-2 flex items-center justify-center cursor-not-allowed" title="Selesai Diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-[10px] font-bold text-gray-400">Selesai</span></div>` 
+                    : `<input type="number" class="input-tk-n2 w-16 sm:w-20 mx-auto block p-2 border border-emerald-300 rounded-lg font-bold text-center outline-none focus:ring-2 focus:ring-emerald-500 bg-white" data-nis="${s.nis}" placeholder="N2" oninput="validasiInputNilai(this)" onfocus="sorotBaris(this, true)" onblur="sorotBaris(this, false)">`;
                 
                 html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white group-hover:bg-emerald-50 z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px] transition-colors duration-200"> <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${s.nama}</p> </td> <td class="p-2 border-r border-gray-200 bg-gray-50/50">${colN1}</td> <td class="p-2 bg-gray-50/50">${colN2}</td>`; 
             } else { 
@@ -1160,7 +1140,6 @@ async function generateTabelAbsen() {
                 let valMapel = mapNilaiLama[nisBersih] !== undefined ? mapNilaiLama[nisBersih] : "";
                 let statusMapel = mapStatusNilai[nisBersih] || "";
                 
-                // V16: angka 0 adalah nilai sah. Nilai kosong dapat diberi status Tidak Hadir / Menunggu Susulan.
                 let colMapel;
                 if (valMapel !== "") {
                     colMapel = `<div class="w-full min-w-[110px] max-w-[150px] mx-auto bg-gray-100 border-2 border-gray-200 rounded-lg p-2 flex items-center justify-center gap-2 cursor-not-allowed shadow-inner" title="Privasi: Nilai sudah diinput"><i class="fas fa-check-circle text-emerald-500 text-lg"></i><span class="text-xs font-bold text-gray-500">Selesai</span></div>`;
@@ -1177,19 +1156,14 @@ async function generateTabelAbsen() {
                             ${statusMapel ? `<div class="text-[10px] font-bold text-amber-700"><i class="fas fa-clock mr-1"></i>${labelStatus}</div>` : ''}
                         </div>`;
                 }
-                
-                html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white group-hover:bg-emerald-50 z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px] transition-colors duration-200"> 
-                <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${escapeHTML(s.nama)}</p> </td> <td class="p-3 text-center bg-gray-50/50">${colMapel}</td>`; 
+                html += `<td class="p-3 text-sm border-r border-gray-200 text-gray-500 whitespace-nowrap">${s.nis}</td> <td class="p-3 border-r border-gray-200 md:sticky md:left-0 bg-white group-hover:bg-emerald-50 z-10 md:shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] min-w-[140px] max-w-[200px] transition-colors duration-200"> <p class="font-bold text-gray-800 whitespace-normal text-xs sm:text-sm leading-snug">${escapeHTML(s.nama)}</p> </td> <td class="p-3 text-center bg-gray-50/50">${colMapel}</td>`; 
             } 
             html += `</tr>`; 
-            
             barisHTML.push(html);
         }); 
-        
         tbody.innerHTML = barisHTML.join('');
     } 
     
-    // Setup Visual Header & Footer (Tetap dipertahankan)
     if (kelas.includes('TK')) { 
         document.getElementById('headerTK').style.display = 'table-header-group'; 
         document.getElementById('headerIBT').style.display = 'none'; 
@@ -1206,6 +1180,9 @@ async function generateTabelAbsen() {
     document.getElementById('formInputNilaiBulk').classList.remove('hidden'); 
 }
 
+// =========================================================
+// LISTENER SUBMIT FORM INPUT NILAI MASSAL
+// =========================================================
 document.getElementById('formInputNilaiBulk').addEventListener('submit', function(e) { 
     e.preventDefault(); 
     if (this.querySelectorAll('.border-red-500').length > 0) { 
@@ -1217,23 +1194,35 @@ document.getElementById('formInputNilaiBulk').addEventListener('submit', functio
     const filterKedua = document.getElementById('pilihFilterKedua').value; 
     let paketBulk = []; 
     
-if (kelasPilih.includes('TK')) { 
-        const globalM1 = document.getElementById('global_tk_m1').value; 
-        const globalM2 = document.getElementById('global_tk_m2').value; 
+    // Variabel pendeteksi untuk edit mapel TK
+    let mapelTkBerubah = false;
+    let currentM1 = "";
+    let currentM2 = "";
+    
+    if (kelasPilih.includes('TK')) { 
+        const elM1 = document.getElementById('global_tk_m1'); 
+        const elM2 = document.getElementById('global_tk_m2'); 
+        currentM1 = elM1.value; 
+        currentM2 = elM2.value; 
+
+        // Deteksi apakah nama mapel berubah dari nama awal database
+        let originalM1 = elM1.getAttribute('data-original') || '';
+        let originalM2 = elM2.getAttribute('data-original') || '';
+        if (currentM1 !== originalM1 || currentM2 !== originalM2) {
+            mapelTkBerubah = true;
+        }
+        
         let adaIsianNilai = false; 
         
         document.querySelectorAll('#bodyTabelAbsen tr.santri-absen-row').forEach(tr => { 
             const n1Input = tr.querySelector('.input-tk-n1'); 
             const n2Input = tr.querySelector('.input-tk-n2'); 
             
-            // Bypass aman: Jika N1 dan N2 sudah "Selesai" (bukan input lagi), lewati baris ini
             if (!n1Input && !n2Input) return;
 
-            // Ambil NIS dan Nama dengan aman langsung dari teks kolom tabel
             const nis = tr.cells[1].innerText.trim();
             const nama = tr.cells[2].innerText.trim();
             
-            // Cek isi nilai dengan aman
             const n1 = n1Input ? n1Input.value : ""; 
             const n2 = n2Input ? n2Input.value : ""; 
 
@@ -1245,11 +1234,16 @@ if (kelasPilih.includes('TK')) {
                 if(n2!=="") count++; 
                 let rata = count > 0 ? (total/count).toFixed(2) : 0; 
                 
-                paketBulk.push({ nis: nis, nama: nama, m1: globalM1, n1: n1, m2: globalM2, n2: n2, total: total, rata: rata }); 
+                // Gunakan currentM1 & currentM2 terbaru
+                paketBulk.push({ nis: nis, nama: nama, m1: currentM1, n1: n1, m2: currentM2, n2: n2, total: total, rata: rata }); 
             } 
         }); 
         
-        if (adaIsianNilai && globalM1 === "") { Swal.fire({ icon: 'warning', title: 'Mapel 1 Kosong', text: 'Tolong isi Nama Mapel 1.'}); return; } 
+        // Cek hanya mapel 1 (Wajib)
+        if ((adaIsianNilai || mapelTkBerubah) && currentM1 === "") { 
+            Swal.fire({ icon: 'warning', title: 'Mapel 1 Kosong', text: 'Tolong isi Nama Mapel 1.'}); return; 
+        } 
+
     } else { 
         document.querySelectorAll('.input-ibt').forEach(input => {
             if (!input.disabled && input.value !== "") {
@@ -1258,7 +1252,6 @@ if (kelasPilih.includes('TK')) {
         }); 
     }
 
-    // Status disimpan terpisah agar kosong/tidak hadir tidak pernah berubah menjadi nilai 0.
     let paketStatus = [];
     if (!kelasPilih.includes('TK')) {
         document.querySelectorAll('.status-ibt').forEach(select => {
@@ -1274,7 +1267,10 @@ if (kelasPilih.includes('TK')) {
         });
     }
     
-    if (paketBulk.length === 0 && paketStatus.length === 0) { Swal.fire({ icon: 'warning', title: 'Belum Ada Perubahan', text: 'Masukkan nilai atau pilih status santri terlebih dahulu.'}); return; } 
+    // VALIDASI UPDATE: Mengizinkan request berjalan jika tidak ada nilai baru, TETAPI nama mapel TK di-edit.
+    if (paketBulk.length === 0 && paketStatus.length === 0 && !mapelTkBerubah) { 
+        Swal.fire({ icon: 'warning', title: 'Belum Ada Perubahan', text: 'Masukkan nilai atau edit nama mapel terlebih dahulu.'}); return; 
+    } 
     
     const btnSubmit = this.querySelector('button[type="submit"]'); 
     const originalText = btnSubmit.innerHTML; 
@@ -1291,14 +1287,19 @@ if (kelasPilih.includes('TK')) {
     formData.append('list_nilai', JSON.stringify(paketBulk)); 
     
     if (kelasPilih.includes('TK')) { 
-        formData.append('hari', filterKedua); 
+        formData.append('hari', filterKedua);
+        formData.append('m1_baru', currentM1);
+        formData.append('m2_baru', currentM2);
+        formData.append('mapel_tk_berubah', mapelTkBerubah ? 'ya' : 'tidak');
     } else { 
         formData.append('mapel', filterKedua); 
         formData.append('semua_mapel', JSON.stringify(JADWAL_MAPEL[kelasPilih].semua)); 
     }
     
     const requests = [];
-    if (paketBulk.length > 0) {
+
+    // Jika ada nilai baru atau hanya mengubah nama mapel TK, jalankan request simpan
+    if (paketBulk.length > 0 || (kelasPilih.includes('TK') && mapelTkBerubah)) {
         requests.push(
             gasFetch({ method: 'POST', body: formData })
                 .then(res => res.json())
@@ -1334,11 +1335,10 @@ if (kelasPilih.includes('TK')) {
         Swal.fire({
             icon: 'success',
             title: 'Sukses!',
-            text: `Perubahan berhasil disimpan. Nilai 0 tetap dihitung sebagai nilai sah.`,
+            text: `Perubahan berhasil disimpan.`,
             confirmButtonColor: '#059669'
         });
     }).catch(err => {
-        console.error('[INPUT NILAI V16]', err);
         showLoading(false);
         btnSubmit.disabled = false;
         btnSubmit.classList.remove('pointer-events-none', 'opacity-70');
