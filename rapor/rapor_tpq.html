@@ -88,26 +88,41 @@
         </div>
     </div>
 
-   <div id="kertasRapor" class="bg-white mx-auto shadow-2xl relative box-border hidden" style="width: 215mm; min-height: 330mm; padding: 10mm 15mm;">
+  <div id="kertasRapor" class="bg-white mx-auto shadow-2xl relative box-border hidden" style="width: 215mm; min-height: 330mm; padding: 10mm 15mm;">
         
-        <div class="flex items-center justify-between pb-2 border-b-[3px] border-black mb-1 relative">
-            <!-- Kode img val_stempel sudah bersih dari sini -->
-            
-            <div class="w-20 text-center">
-                <img src="../asset/logotk.png" class="w-[70px] h-[70px] object-contain mx-auto" onerror="this.outerHTML='<div class=\\'w-[70px] h-[70px] rounded-full border-2 border-emerald-800 flex items-center justify-center text-emerald-800 text-2xl font-bold bg-gray-50\\'><i class=\\'fas fa-mosque\\'></i></div>'" alt="Logo TK">
+       <!-- KOP SURAT RESMI -->
+        <div class="flex items-center justify-between pb-3 relative">
+            <!-- Sisi Kiri: Logo -->
+            <div class="w-[85px] text-center shrink-0">
+                <img src="../asset/logotk.png" class="w-[85px] h-[85px] object-contain mx-auto" onerror="this.outerHTML='<div class=\\'w-[85px] h-[85px] rounded-full border-[3px] border-emerald-800 flex items-center justify-center text-emerald-800 text-3xl font-bold bg-gray-50\\'><i class=\\'fas fa-mosque\\'></i></div>'" alt="Logo TK">
             </div>
                 
-            <div class="flex-1 text-center relative z-10">
-                <h1 class="text-lg font-heading font-bold text-emerald-800 uppercase tracking-widest mb-1">TK - RA (RAUDLATUL ATHFAL)</h1>
-                <h2 class="text-2xl font-black uppercase tracking-widest text-black mb-1">DARUSSALAM</h2>
-                <p class="text-[10px] font-medium text-gray-600 leading-tight">
-                    Bhetoran Batukessel, Bandang Laok, Kokop, Bangkalan, Kode Pos 69155<br>
-                    Website: www.madasa.ponpes.id | Email: madasaponpes@gmail.com
+            <!-- Bagian Tengah: Teks Identitas -->
+            <div class="flex-1 text-center relative z-10 px-2">
+                <!-- Tambahan whitespace-nowrap agar teks tidak turun -->
+                <h1 class="text-[17px] font-bold text-emerald-800 uppercase tracking-[0.1em] mb-0.5 whitespace-nowrap" style="font-family: 'Times New Roman', Times, serif;">
+                    TK - RAUDLATUL ATHFAL
+                </h1>
+                <h2 class="text-[30px] font-black uppercase tracking-[0.15em] text-black leading-none mb-1.5 whitespace-nowrap" style="font-family: 'Times New Roman', Times, serif;">
+                    DARUSSALAM
+                </h2>
+                <!-- Tambahan whitespace-nowrap agar kode pos tidak turun -->
+                <p class="text-[10px] font-bold text-black leading-tight uppercase tracking-wider mb-0.5 whitespace-nowrap">
+                    Bhetoran Batukessel, Bandang Laok, Kokop, Bangkalan
+                </p>
+                <p class="text-[10px] font-medium text-gray-800 leading-tight">
+                    Website: www.madasa.ponpes.id | E-mail: madasaponpes@gmail.com
                 </p>
             </div>
-            <div class="w-20"></div>
+
+            <!-- Sisi Kanan: Penyeimbang Margin (Harus sama persis dengan lebar wadah logo) -->
+            <div class="w-[85px] shrink-0"></div>
         </div>
-        <div class="w-full border-b border-black mb-4 mt-[2px]"></div>
+        
+        <!-- GARIS GANDA KOP SURAT -->
+        <div class="w-full border-t-[4px] border-black mt-1 mb-[2px]"></div>
+        <div class="w-full border-t-[1.5px] border-black mb-5"></div>
+        <!-- AKHIR KOP SURAT -->
 
         <h3 class="text-center text-[14px] font-bold uppercase mb-3 tracking-widest underline underline-offset-4">PENCAPAIAN KOMPETENSI SANTRI</h3>
 
