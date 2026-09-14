@@ -115,7 +115,7 @@
             }
         };
 
-function buatOsciKelasOtomatis() {
+        function buatOsciKelasOtomatis() {
             const selectKelas = document.getElementById('raporKelas');
             if (!selectKelas) return;
             
@@ -126,7 +126,7 @@ function buatOsciKelasOtomatis() {
                                       const isAlumni = kUpper.includes('LULUS') || kUpper.includes('ALUMNI') || kUpper.includes('DIBERHENTIKAN');
                                       const isIbt = kUpper.includes('IBT') || kUpper.includes('MI') || kUpper.includes('SD');
                                       
-                                      return isIbt && !isAlumni; // <-- Aturan baru: Harus kelas Ibtidaiyah dan BUKAN Alumni
+                                      return isIbt && !isAlumni;
                                   })
                                   .sort();
 
@@ -153,12 +153,11 @@ function buatOsciKelasOtomatis() {
             }
         }
 
-function populateSantriRapor() {
+        function populateSantriRapor() {
             const kelasPilih = document.getElementById('raporKelas').value;
             const selectSantri = document.getElementById('raporSantri');
             selectSantri.innerHTML = '<option value="" disabled selected>-- Pilih Santri --</option>';
             
-            // Filter: Hanya ambil santri di kelas terpilih DAN yang statusnya bukan Lulus/Alumni/Diberhentikan
             const santriKelasIni = GLOBAL_DATA_SANTRI.filter(s => {
                 const kLower = (s.kelas || '').toLowerCase();
                 const isAlumni = kLower.includes('lulus') || kLower.includes('alumni') || kLower.includes('diberhentikan');
@@ -252,6 +251,7 @@ function populateSantriRapor() {
             }).catch(err => { showLoading(false); Swal.fire('Error', 'Gagal memuat data rapor dari server.', 'error'); });
         }
 
+        // FUNGSI RENDER KERTAS RAPOR (Diperbaiki)
         function renderKertasRapor(kelas, info, headers, nilaiRow, rank, totalSantri, pengaturan) {
             const kertas = document.getElementById('kertasRapor');
             
@@ -274,6 +274,26 @@ function populateSantriRapor() {
                     if (parts.length === 2) kamusDinamis[parts[0].trim().toUpperCase()] = parts[1].trim();
                 });
             }
+
+            // PERBAIKAN URL ADA DI SINI (Di dalam fungsi yang tepat)
+            function konversiUrlDrive(urlMentah) {
+                if (!urlMentah || urlMentah.trim() === '') return '';
+                if (urlMentah.includes('drive.google.com')) {
+                    let fileId = '';
+                    if (urlMentah.includes('id=')) fileId = urlMentah.split('id=')[1].split('&')[0];
+                    else if (urlMentah.includes('/d/')) fileId = urlMentah.split('/d/')[1].split('/')[0];
+                    
+                    if (fileId) {
+                        let waktuSekarang = new Date().getTime();
+                        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800&t=${waktuSekarang}`;
+                    }
+                }
+                return urlMentah;
+            }
+
+            let urlWali = konversiUrlDrive(setUmum.url_wali);
+            let urlKepala = konversiUrlDrive(setUmum.url_kepala);
+            let urlStempel = konversiUrlDrive(setUmum.url_stempel);
 
             document.title = `Rapor_Ibtidaiyah_${info.nama.replace(/\s+/g,"_")}`;
 
@@ -322,7 +342,6 @@ function populateSantriRapor() {
                 let hIndo = nilai !== '' ? terbilang(nilai) : '';
                 let hArab = nilai !== '' ? terbilangArab(nilai) : '';
                 
-                // 100% MURNI DARI DATABASE/SETTINGS
                 let mArab = nama !== '' ? (kamusDinamis[nama.toUpperCase()] || nama) : '';
                 let numStr = nilai !== '' ? toArabicNumeral(nilai) : '';
 
@@ -532,7 +551,8 @@ function populateSantriRapor() {
                     </div>
                 </div>
 
-<div class="flex justify-between text-center font-bold text-black mt-5 text-[11px] relative z-10">
+                <!-- WADAH TTD DI KERTAS RAPOR -->
+                <div class="flex justify-between text-center font-bold text-black mt-5 text-[11px] relative z-10">
                     <div class="w-1/3 flex flex-col justify-between items-center" style="height: 95px;">
                         <div class="w-full relative z-10"><p class="font-normal mb-0.5">&nbsp;</p><p>Orang Tua/Wali</p></div>
                         <div class="w-full relative z-10"><div class="border-b border-black inline-block min-w-[180px] pb-0.5 whitespace-nowrap">&nbsp;</div></div>
@@ -542,7 +562,7 @@ function populateSantriRapor() {
                         <div class="w-full relative z-10"><p class="font-normal mb-0.5">&nbsp;</p><p>Guru Wali Kelas</p></div>
                         
                         <div class="absolute inset-0 flex items-center justify-center z-30 pt-4 pointer-events-none">
-                            <img src="${setUmum.url_wali || ''}" class="h-20 max-w-[180px] object-contain relative z-20 ${setUmum.url_wali ? '' : 'hidden'}" alt="TTD Wali">
+                            <img src="${urlWali}" class="h-20 max-w-[180px] object-contain relative z-20 mix-blend-multiply ${urlWali ? '' : 'hidden'}" alt="TTD Wali">
                         </div>
                         
                         <div class="w-full relative z-10"><div class="border-b border-black inline-block min-w-[180px] pb-0.5 uppercase whitespace-nowrap">${setUmum.wali || '&nbsp;'}</div></div>
@@ -552,8 +572,8 @@ function populateSantriRapor() {
                         <div class="w-full relative z-10"><p class="font-normal mb-0.5">${setUmum.tanggal || 'Bangkalan, ........................'}</p><p>Kepala Madrasah</p></div>
                         
                         <div class="absolute inset-0 flex items-center justify-center z-30 pt-4 pointer-events-none">
-                            <img src="${setUmum.url_kepala || ''}" class="relative z-20 h-20 max-w-[180px] object-contain ${setUmum.url_kepala ? '' : 'hidden'}" alt="TTD Kepala">
-                            <img src="${setUmum.url_stempel || ''}" class="absolute z-30 h-24 max-w-[180px] object-contain -ml-8 mt-2 ${setUmum.url_stempel ? '' : 'hidden'}" alt="Stempel">
+                            <img src="${urlKepala}" class="relative z-20 h-20 max-w-[180px] object-contain mix-blend-multiply ${urlKepala ? '' : 'hidden'}" alt="TTD Kepala">
+                            <img src="${urlStempel}" class="absolute z-30 h-24 max-w-[180px] object-contain -ml-8 mt-2 mix-blend-multiply ${urlStempel ? '' : 'hidden'}" alt="Stempel">
                         </div>
                         
                         <div class="w-full relative z-10"><div class="border-b border-black inline-block min-w-[180px] pb-0.5 uppercase whitespace-nowrap">${setUmum.kepala || '&nbsp;'}</div></div>
@@ -563,7 +583,7 @@ function populateSantriRapor() {
             
             kertas.classList.remove('hidden');
         }
-
+  
         function cetakRapor() { 
             const kertas = document.getElementById('kertasRapor');
             if(!kertas || kertas.innerHTML.trim() === '') {
@@ -619,36 +639,46 @@ function populateSantriRapor() {
                     const namaB = bersihkanTeks(santriInfo.nama);
                     const ayahB = bersihkanTeks(santriInfo.ayah);
                     const ibuB  = bersihkanTeks(santriInfo.ibu);
-					
-                   const almtB = bersihkanTeks(santriInfo.alamat);
+                    const almtB = bersihkanTeks(santriInfo.alamat);
 
-// --- KODE PENARIK FOTO OTOMATIS ---
-let fotoUrl = santriInfo.foto || '';
-let elemenFoto = `<span class="text-[11px] text-emerald-800">Pas Photo</span><br><span class="text-[11px] font-bold text-emerald-800">3 x 4</span>`;
+                    let fotoUrl = santriInfo.foto || '';
+                    let elemenFoto = `<span class="text-[11px] text-emerald-800">Pas Photo</span><br><span class="text-[11px] font-bold text-emerald-800">3 x 4</span>`;
 
-if (fotoUrl && fotoUrl.trim() !== '') {
-    let finalUrl = fotoUrl;
-    if (fotoUrl.includes('drive.google.com')) {
-        let fileId = '';
-        if (fotoUrl.includes('id=')) fileId = fotoUrl.split('id=')[1].split('&')[0];
-        else if (fotoUrl.includes('/d/')) fileId = fotoUrl.split('/d/')[1].split('/')[0];
-        
-        if (fileId) finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`;
-    }
-    elemenFoto = `<img src="${finalUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto Santri">`;
-}
-// ---------------------------------
+                    if (fotoUrl && fotoUrl.trim() !== '') {
+                        let finalUrl = fotoUrl;
+                        if (fotoUrl.includes('drive.google.com')) {
+                            let fileId = '';
+                            if (fotoUrl.includes('id=')) fileId = fotoUrl.split('id=')[1].split('&')[0];
+                            else if (fotoUrl.includes('/d/')) fileId = fotoUrl.split('/d/')[1].split('/')[0];
+                            
+                            if (fileId) finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`;
+                        }
+                        elemenFoto = `<img src="${finalUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto Santri">`;
+                    }
 
-const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
-					
-					
-					
+                    const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
                     const tanggalCetakDefault = new Date().toLocaleDateString('id-ID', opsiTanggal);
-                    
                     const tanggalTampil = setUmum.tanggal || ('Bangkalan, ' + tanggalCetakDefault);
                     const namaKepala = setUmum.kepala || '..............................';
-                    const urlKepala = '../asset/ttdibt.PNG';
-                    const urlStempel = '../asset/stempelibt.png';
+
+                    // PERBAIKAN URL UNTUK SAMPUL BIODATA
+                    function konversiUrlDrive(urlMentah) {
+                        if (!urlMentah || urlMentah.trim() === '') return '';
+                        if (urlMentah.includes('drive.google.com')) {
+                            let fileId = '';
+                            if (urlMentah.includes('id=')) fileId = urlMentah.split('id=')[1].split('&')[0];
+                            else if (urlMentah.includes('/d/')) fileId = urlMentah.split('/d/')[1].split('/')[0];
+                            
+                            if (fileId) {
+                                let waktuSekarang = new Date().getTime();
+                                return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800&t=${waktuSekarang}`;
+                            }
+                        }
+                        return urlMentah;
+                    }
+
+                    let urlKepala = konversiUrlDrive(setUmum.url_kepala);
+                    let urlStempel = konversiUrlDrive(setUmum.url_stempel);
 
                     const kertas = document.getElementById('kertasRapor');
                     kertas.classList.remove('hidden');
@@ -717,8 +747,8 @@ const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
                             <div class="flex justify-between items-end px-4 mt-11 pb-4">
                                 
 								<div class="w-[3cm] h-[4cm] border-2 border-emerald-800 flex flex-col items-center justify-center text-center relative z-10 bg-white overflow-hidden p-0">
-    ${elemenFoto}
-</div>
+                                    ${elemenFoto}
+                                </div>
                                 
                                 <div class="text-center w-[250px] relative">
                                     <div class="relative z-10">
@@ -726,9 +756,10 @@ const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
                                         <p class="m-0 text-[13px] font-bold mb-1">Kepala Madrasah</p>
                                     </div>
                                     
+                                    <!-- WADAH TTD DI BIODATA -->
                                     <div class="relative flex justify-center items-center h-[75px] w-full my-1 pointer-events-none z-30">
-                                        <img src="${urlKepala}" class="relative h-20 z-20 ${urlKepala ? '' : 'hidden'}" alt="TTD Kepala">
-                                        <img src="${urlStempel}" class="absolute h-24 -ml-16 z-30 ${urlStempel ? '' : 'hidden'}" alt="Stempel">
+                                        <img src="${urlKepala}" class="relative h-20 z-20 mix-blend-multiply ${urlKepala ? '' : 'hidden'}" alt="TTD Kepala">
+                                        <img src="${urlStempel}" class="absolute h-24 -ml-16 z-30 mix-blend-multiply ${urlStempel ? '' : 'hidden'}" alt="Stempel">
                                     </div>
 
                                     <div class="relative z-10">
