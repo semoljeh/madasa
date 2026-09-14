@@ -1963,6 +1963,8 @@ function loadRankingKelas() {
     });
 }
 
+
+
 function loadSettingRapor() {
     const kelas = document.getElementById('settingKelas').value; 
     if(!kelas) return; 
@@ -1991,39 +1993,72 @@ function loadSettingRapor() {
         document.getElementById('set_semester').value = u.semester || ''; 
       
         const valTahun = u.tahun || '';
-const inputTahun = document.getElementById('set_tahun');
-const selectMetode = document.getElementById('pilih_metode_tahun');
+        const inputTahun = document.getElementById('set_tahun');
+        const selectMetode = document.getElementById('pilih_metode_tahun');
 
-inputTahun.value = valTahun;
+        inputTahun.value = valTahun;
 
-if (selectMetode && selectMetode.options.length > 0) {
-    // Jika tahun di database berbeda dengan tahun otomatis, munculkan kolom manual
-    if (valTahun !== '' && valTahun !== selectMetode.options[0].value) {
-        selectMetode.value = 'manual';
-        inputTahun.classList.remove('hidden');
-    } else {
-        selectMetode.selectedIndex = 0;
-        inputTahun.classList.add('hidden');
-    }
-}
+        if (selectMetode && selectMetode.options.length > 0) {
+            if (valTahun !== '' && valTahun !== selectMetode.options[0].value) {
+                selectMetode.value = 'manual';
+                inputTahun.classList.remove('hidden');
+            } else {
+                selectMetode.selectedIndex = 0;
+                inputTahun.classList.add('hidden');
+            }
+        }
 	  
         document.getElementById('set_tanggal').value = u.tanggal || ''; 
         document.getElementById('set_kepala').value = u.kepala || ''; 
         document.getElementById('set_wali').value = u.wali || ''; 
-		
         document.getElementById('set_status_rilis').value = u.status_rilis || 'Sembunyi';
-
         document.getElementById('set_mapel_tulis').value = res.mapel_tulis || ''; 
         document.getElementById('set_mapel_praktek').value = res.mapel_praktek || ''; 
         document.getElementById('set_mapel_baca').value = res.mapel_baca || ''; 
         document.getElementById('set_kamus').value = res.kamus || '';
 
-        const mapImg = [{url: u.url_wali, imgId: 'preview_wali', teksId: 'teks_wali'}, {url: u.url_kepala, imgId: 'preview_kepala', teksId: 'teks_kepala'}, {url: u.url_stempel, imgId: 'preview_stempel', teksId: 'teks_stempel'}]; 
+        // PERBAIKAN: Menggunakan endpoint Thumbnail (Sama seperti foto profil santri yang terbukti lolos dari blokir)
+        // Ditambah Anti-Cache (Timestamp) agar sisa memori error di browser terhapus paksa.
+        const mapImg = [
+            {url: u.url_wali, imgId: 'preview_wali', teksId: 'teks_wali'}, 
+            {url: u.url_kepala, imgId: 'preview_kepala', teksId: 'teks_kepala'}, 
+            {url: u.url_stempel, imgId: 'preview_stempel', teksId: 'teks_stempel'}
+        ]; 
+        
         mapImg.forEach(m => { 
             const imgEl = document.getElementById(m.imgId); 
             const txtEl = document.getElementById(m.teksId); 
-            if(m.url) { imgEl.src = m.url; imgEl.classList.remove('hidden'); txtEl.classList.add('hidden'); } 
-            else { imgEl.src = ''; imgEl.classList.add('hidden'); txtEl.classList.remove('hidden'); } 
+            
+            // Hapus sisa error blocker dari percobaan sebelumnya
+            imgEl.onerror = null;
+            
+            if (m.url && m.url.trim() !== '') { 
+                let finalUrl = m.url;
+                
+                if (m.url.includes('drive.google.com')) {
+                    let fileId = '';
+                    if (m.url.includes('id=')) fileId = m.url.split('id=')[1].split('&')[0];
+                    else if (m.url.includes('/d/')) fileId = m.url.split('/d/')[1].split('/')[0];
+                    
+                    if (fileId) {
+                        // Bypass cache error dengan menambahkan parameter &t=waktu_sekarang
+                        let waktuSekarang = new Date().getTime();
+                        finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800&t=${waktuSekarang}`; 
+                    }
+                }
+                
+                imgEl.src = finalUrl; 
+                imgEl.classList.remove('hidden'); 
+                if(txtEl) txtEl.classList.add('hidden'); 
+                
+            } else { 
+                imgEl.removeAttribute('src'); 
+                imgEl.classList.add('hidden'); 
+                if(txtEl) {
+                    txtEl.innerText = "Belum ada gambar";
+                    txtEl.classList.remove('hidden', 'text-red-400', 'text-[10px]'); 
+                }
+            } 
         });
         
         const santriKelas = GLOBAL_DATA_SANTRI.filter(s => s.kelas === kelas); 
@@ -2031,10 +2066,9 @@ if (selectMetode && selectMetode.options.length > 0) {
         tbody.innerHTML = ''; 
         let det = res.detail || {}; 
         
-if (santriKelas.length === 0) {
+        if (santriKelas.length === 0) {
             tbody.innerHTML = '<tr><td colspan="10" class="p-8 text-center text-red-500 font-bold"><i class="fas fa-exclamation-triangle mr-2 block text-3xl mb-2 text-red-300"></i> Belum ada santri di kelas ini.<br><span class="text-sm font-normal text-gray-500">Silakan tambahkan santri terlebih dahulu di menu Data Santri.</span></td></tr>';
         } else {
-            // --- LOGIKA MENEBAK KELAS BERIKUTNYA SECARA OTOMATIS ---
             let teksNaikRomawi = "Naik ke Kelas ...";
             let teksTinggal = `Tinggal di ${kelas}`;
             let suffixTingkat = "";
@@ -2069,27 +2103,24 @@ if (santriKelas.length === 0) {
                 teksNaikRomawi = `Naik ke Kelas B${suffixTingkat}`;
             }
 
-            // Hapus pembuatan <datalist>, langsung bersihkan isi tabel untuk disiapkan
             tbody.innerHTML = '';
 
            santriKelas.forEach(s => { 
                 let d = det[s.nis] || {akhlaq:'', kerajinan:'', disiplin:'', rapi:'', sakit:'', izin:'', alpa:'', catatan:'', keputusan:''}; 
-                let isTK = kelasUpper.includes('TK') || kelasUpper.includes('RA');
                 
                 tbody.innerHTML += ` 
                 <tr class="set-santri-row hover:bg-gray-50 transition-all border-b border-gray-100" data-nis="${s.nis}">
                     <td class="p-3 border-r font-bold sticky left-0 bg-white z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)] text-gray-800 min-w-[130px] max-w-[150px] md:max-w-none md:min-w-[250px] whitespace-normal leading-snug">${s.nama}</td>
                     
                     <td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Akhlaq')" class="inp-akhlaq w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.akhlaq}" readonly placeholder="-"></td> 
-<td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Kerajinan')" class="inp-rajin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.kerajinan}" readonly placeholder="-"></td> 
-<td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Kedisiplinan')" class="inp-disiplin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.disiplin}" readonly placeholder="-"></td> 
-<td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Kerapian')" class="inp-rapi w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.rapi}" readonly placeholder="-"></td>
+                    <td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Kerajinan')" class="inp-rajin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.kerajinan}" readonly placeholder="-"></td> 
+                    <td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Kedisiplinan')" class="inp-disiplin w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.disiplin}" readonly placeholder="-"></td> 
+                    <td class="p-1 border-r bg-blue-50/30"><input type="text" onclick="bukaOpsiKepribadian(this, 'Kerapian')" class="inp-rapi w-10 sm:w-12 mx-auto block text-center border-2 border-blue-200 rounded p-1 font-bold text-blue-700 outline-none cursor-pointer hover:bg-blue-100 bg-white transition-colors shadow-sm" value="${d.rapi}" readonly placeholder="-"></td>
                     
                     <td class="p-1 border-r bg-orange-50/30"><input type="number" class="inp-sakit w-10 sm:w-12 mx-auto block text-center border-2 border-orange-200 rounded p-1 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.sakit}"></td> 
                     <td class="p-1 border-r bg-orange-50/30"><input type="number" class="inp-izin w-10 sm:w-12 mx-auto block text-center border-2 border-orange-200 rounded p-1 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.izin}"></td> 
                     <td class="p-1 border-r bg-orange-50/30"><input type="number" class="inp-alpa w-10 sm:w-12 mx-auto block text-center border-2 border-orange-200 rounded p-1 font-bold text-orange-700 outline-none focus:border-orange-500" value="${d.alpa}"></td> 
                     
-                    <!-- PERUBAHAN UI KEPUTUSAN (INPUT + TOMBOL PANAH) -->
                     <td class="p-1 border-r bg-emerald-50/30">
                         <div class="flex items-stretch w-48 mx-auto">
                             <input type="text" class="inp-keputusan w-full border-2 border-emerald-200 border-r-0 rounded-l p-1.5 text-xs font-semibold text-emerald-800 outline-none focus:border-emerald-500" value="${escapeHTML(d.keputusan)}" placeholder="Ketik/Pilih...">
@@ -2097,23 +2128,22 @@ if (santriKelas.length === 0) {
                         </div>
                     </td>
 
-                    <!-- PERUBAHAN UI CATATAN (INPUT + TOMBOL PANAH) -->
                     <td class="p-1 bg-purple-50/30">
                         <div class="flex items-stretch w-72 mx-auto">
                             <input type="text" class="inp-catatan w-full border-2 border-purple-200 border-r-0 rounded-l p-1.5 text-xs font-medium text-purple-800 outline-none focus:border-purple-500" value="${escapeHTML(d.catatan)}" placeholder="Ketik/Pilih...">
-                            <button type="button" onclick="bukaOpsiCatatan(this, ${isTK})" class="bg-purple-100 border-2 border-purple-200 text-purple-700 px-2.5 rounded-r hover:bg-purple-200 transition-all shadow-sm"><i class="fas fa-caret-down"></i></button>
+                            <button type="button" onclick="bukaOpsiCatatan(this, ${kelasUpper.includes('TK') || kelasUpper.includes('RA')})" class="bg-purple-100 border-2 border-purple-200 text-purple-700 px-2.5 rounded-r hover:bg-purple-200 transition-all shadow-sm"><i class="fas fa-caret-down"></i></button>
                         </div>
                     </td>
                 </tr>`; 
             });
         }
-
-
     }).catch(e => {
         showLoading(false);
         Swal.fire('Error', 'Gagal memuat pengaturan. Periksa koneksi internet.', 'error');
     });
 }
+
+
 
 document.getElementById('formSettingRapor').addEventListener('submit', function(e){ 
     e.preventDefault(); 

@@ -499,13 +499,31 @@ function terbilang(angka) {
             document.getElementById('val_wali').innerText = d.pengaturan.wali || '&nbsp;';
             document.getElementById('val_kepala').innerText = d.pengaturan.kepala || '&nbsp;';
 
-            function pasangGambar(idElemen, urlGambar) {
+   function pasangGambar(idElemen, urlGambar) {
                 const imgEl = document.getElementById(idElemen);
-                if (urlGambar && urlGambar.trim() !== '' && urlGambar.includes('http')) {
-                    imgEl.src = urlGambar; imgEl.classList.remove('hidden');
+                if (urlGambar && urlGambar.trim() !== '') {
+                    let finalUrl = urlGambar;
+                    if (urlGambar.includes('drive.google.com')) {
+                        let fileId = '';
+                        if (urlGambar.includes('id=')) fileId = urlGambar.split('id=')[1].split('&')[0];
+                        else if (urlGambar.includes('/d/')) fileId = urlGambar.split('/d/')[1].split('/')[0];
+                        
+                        if (fileId) {
+                            let waktuSekarang = new Date().getTime();
+                            finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800&t=${waktuSekarang}`; 
+                        }
+                    }
+                    imgEl.src = finalUrl; 
+                    imgEl.classList.remove('hidden');
                     imgEl.onerror = function() { this.classList.add('hidden'); };
-                } else { imgEl.classList.add('hidden'); }
+                } else { 
+                    imgEl.classList.add('hidden'); 
+                }
             }
+
+            pasangGambar('val_stempel', d.pengaturan.url_stempel);
+            pasangGambar('img_wali', d.pengaturan.url_wali);
+            pasangGambar('img_kepala', d.pengaturan.url_kepala);
 
             pasangGambar('val_stempel', d.pengaturan.url_stempel);
             pasangGambar('img_wali', d.pengaturan.url_wali);
@@ -685,12 +703,24 @@ if (fotoUrl && fotoUrl.trim() !== '') {
 const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
 			
 			
-            const tanggalCetakDefault = new Date().toLocaleDateString('id-ID', opsiTanggal);
-            
+const tanggalCetakDefault = new Date().toLocaleDateString('id-ID', opsiTanggal);
             const tanggalTampil = setUmum.tanggal || ('Bangkalan, ' + tanggalCetakDefault);
             const namaKepala = setUmum.kepala || '..............................';
-            const urlKepala = '../asset/ttdtk.png';
-            const urlStempel = '../asset/stempeltk.png';
+            
+            // FUNGSI KONVERSI URL DRIVE UNTUK BIODATA
+            function konversiUrlDrive(urlMentah) {
+                if (!urlMentah || urlMentah.trim() === '') return '';
+                if (urlMentah.includes('drive.google.com')) {
+                    let fileId = '';
+                    if (urlMentah.includes('id=')) fileId = urlMentah.split('id=')[1].split('&')[0];
+                    else if (urlMentah.includes('/d/')) fileId = urlMentah.split('/d/')[1].split('/')[0];
+                    if (fileId) return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800&t=${new Date().getTime()}`;
+                }
+                return urlMentah;
+            }
+
+            const urlKepala = konversiUrlDrive(setUmum.url_kepala);
+            const urlStempel = konversiUrlDrive(setUmum.url_stempel);
 
             const kertas = document.getElementById('kertasRapor');
             
