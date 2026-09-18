@@ -85,6 +85,10 @@
                 padding: 0 !important;
             }
 			
+			/* --- TAMBAHAN UNTUK ABSEN RAPORT --- */
+            body.print-absen-raport #gridKartu, body.print-absen-raport #areaDenah, body.print-absen-raport #gridKartuWali, body.print-absen-raport #gridLabelRaport, body.print-absen-raport #areaDaftarHadir { display: none !important; }
+            body.print-absen-raport #areaDaftarHadirRaport { display: block !important; width: 100% !important; }
+			
            .label-page {
                 display: inline-block !important; 
                 vertical-align: top !important; 
@@ -305,7 +309,7 @@
                         </div>
                     </div>
 
-                    <div class="lg:col-span-12 md:col-span-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2 md:gap-3 mt-4 pt-5 border-t border-emerald-100/60 w-full">
+                   <div class="lg:col-span-12 md:col-span-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-2 md:gap-3 mt-4 pt-5 border-t border-emerald-100/60 w-full">
                         <button onclick="tarikDataSantri()" id="btnTarik" class="bg-white border-2 border-emerald-700 text-emerald-800 hover:bg-emerald-50 py-3.5 px-2 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2">
                             <svg class="w-4 h-4 flex-none text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                             <span id="txtTarik" class="whitespace-nowrap text-xs md:text-sm">Tarik Data</span>
@@ -325,7 +329,13 @@
 
                         <button onclick="cetakAbsen()" id="btnCetakAbsen" class="bg-indigo-600 text-white border border-indigo-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-indigo-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
                             <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                            <span class="whitespace-nowrap text-xs md:text-sm">Absen</span>
+                            <span class="whitespace-nowrap text-xs md:text-sm">Absen Ujian</span>
+                        </button>
+
+                        <!-- TOMBOL BARU: CETAK ABSEN RAPORT -->
+                        <button onclick="cetakAbsenRaport()" id="btnCetakAbsenRaport" class="bg-sky-600 text-white border border-sky-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-sky-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            <span class="whitespace-nowrap text-xs md:text-sm">Absen Raport</span>
                         </button>
 
                         <button onclick="cetakDenah()" id="btnCetakDenah" class="bg-blue-600 text-white border border-blue-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-blue-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
@@ -333,18 +343,17 @@
                             <span class="whitespace-nowrap text-xs md:text-sm">Denah</span>
                         </button>
                         
-                        <!-- TOMBOL BARU: CETAK KARTU WALI -->
                         <button onclick="cetakKartuWali()" id="btnCetakWali" class="bg-teal-600 text-white border border-teal-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-teal-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
                             <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.252a1 1 0 01.293-.707l8.96-8.96A6 6 0 0115 7z"></path></svg>
                             <span class="whitespace-nowrap text-xs md:text-sm">Akun Wali</span>
                         </button>
 
-                        <!-- TOMBOL BARU: CETAK LABEL RAPORT -->
                         <button onclick="cetakLabelRaport()" id="btnCetakLabel" class="bg-rose-600 text-white border border-rose-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-rose-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
                             <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
                             <span class="whitespace-nowrap text-xs md:text-sm">Label Raport</span>
                         </button>
                     </div>
+					
                 </div>
                 
                 <div id="infoStatistik" class="mt-6 text-sm text-emerald-900 font-semibold bg-emerald-100/50 border border-emerald-200 p-4 rounded-xl flex items-start gap-3 hidden transition-all">
@@ -374,9 +383,15 @@
         </div>
     </div>
 
-    <!-- AREA DENAH RUANG -->
+   <!-- AREA DENAH RUANG -->
     <div id="areaDenah" class="hidden relative z-10 pb-10 mt-6 md:mt-0 w-full overflow-visible">
         <div id="kertasDenahWrapper" class="flex flex-col transition-transform duration-300 shrink-0" style="width: 215.9mm; min-width: 215.9mm;">
+        </div>
+    </div>
+
+    <!-- AREA DAFTAR HADIR RAPORT (BARU) -->
+    <div id="areaDaftarHadirRaport" class="hidden relative z-10 pb-10 mt-6 md:mt-0 w-full overflow-visible">
+        <div id="kertasAbsenRaportWrapper" class="flex flex-col transition-transform duration-300 shrink-0" style="width: 215.9mm; min-width: 215.9mm;">
         </div>
     </div>
 
@@ -636,7 +651,7 @@ try {
             document.getElementById('checkAllKelas').checked = false;
         }
 
-        function generateData() {
+      function generateData() {
             const checkedBoxes = document.querySelectorAll('.kelas-checkbox:checked');
             const arrayKelasDipilih = Array.from(checkedBoxes).map(cb => cb.value);
             const modeSusun = document.getElementById('modeSusun').value;
@@ -759,12 +774,14 @@ try {
                 document.getElementById('btnCetakDenah').disabled = false;
                 document.getElementById('btnCetakWali').disabled = false;
                 document.getElementById('btnCetakLabel').disabled = false;
+                document.getElementById('btnCetakAbsenRaport').disabled = false; // Aktifkan tombol baru
 
                 renderKartuHTML();
                 renderAbsenHTML();
                 renderDenahHTML();
                 renderKartuWaliHTML();
                 renderLabelRaportHTML();
+                renderAbsenRaportHTML(); // Render data untuk area absen raport
 
                 txtGenerate.textContent = "Proses";
                 iconGenerate.classList.remove('hidden');
@@ -781,6 +798,286 @@ try {
                 switchToKartu(); 
                 closeAllPanels(); 
             }, 600);
+        }
+
+        function switchToKartu() {
+            document.getElementById('gridKartu').classList.remove('hidden');
+            document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
+            document.getElementById('gridKartuWali').classList.add('hidden');
+            document.getElementById('gridLabelRaport').classList.add('hidden');
+            document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+        }
+        function switchToAbsen() {
+            document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
+            document.getElementById('gridKartuWali').classList.add('hidden');
+            document.getElementById('gridLabelRaport').classList.add('hidden');
+            document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaDaftarHadir').classList.remove('hidden');
+			setTimeout(sesuaikanSkalaCetak, 100);
+        }
+        function switchToAbsenRaport() {
+            document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
+            document.getElementById('gridKartuWali').classList.add('hidden');
+            document.getElementById('gridLabelRaport').classList.add('hidden');
+            document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDaftarHadirRaport').classList.remove('hidden');
+			setTimeout(sesuaikanSkalaCetak, 100);
+        }
+        function switchToDenah() {
+            document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('gridKartuWali').classList.add('hidden');
+            document.getElementById('gridLabelRaport').classList.add('hidden');
+            document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaDenah').classList.remove('hidden');
+			setTimeout(sesuaikanSkalaCetak, 100);
+        }
+        function switchToWali() {
+            document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
+            document.getElementById('gridLabelRaport').classList.add('hidden');
+            document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('gridKartuWali').classList.remove('hidden');
+        }
+        function switchToLabel() {
+            document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
+            document.getElementById('gridKartuWali').classList.add('hidden');
+            document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('gridLabelRaport').classList.remove('hidden');
+        }
+
+       // FUNGSI BARU: Mengatur nama file dinamis berdasarkan kelas yang dicentang
+        function getNamaFileDinamis(prefix) {
+            let checked = document.querySelectorAll('.kelas-checkbox:checked');
+            if (checked.length === 0) return prefix;
+            
+            // Ambil nama kelas, bersihkan karakter aneh
+            let kelasTerpilih = Array.from(checked).map(cb => cb.value.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_"));
+            
+            // Jika kelas yang dipilih lebih dari 3, tambahkan "_DLL" agar nama file tidak terlalu panjang
+            let teksKelas = kelasTerpilih.length > 3 ? kelasTerpilih.slice(0, 3).join("_") + "_DLL" : kelasTerpilih.join("_");
+            
+            return `${prefix}_${teksKelas}`;
+        }
+
+        function cetakKartu() {
+            switchToKartu();
+            document.body.classList.remove('print-absen', 'print-denah', 'print-wali', 'print-label', 'print-absen-raport');
+            document.body.classList.add('print-kartu');
+            
+            let originalTitle = document.title;
+            document.title = getNamaFileDinamis("Kartu_Ujian");
+            
+            setTimeout(() => { 
+                window.print(); 
+                document.title = originalTitle; 
+            }, 150);
+        }
+        
+        function cetakAbsen() {
+            switchToAbsen();
+            document.body.classList.remove('print-kartu', 'print-denah', 'print-wali', 'print-label', 'print-absen-raport');
+            document.body.classList.add('print-absen');
+            
+            let originalTitle = document.title;
+            document.title = getNamaFileDinamis("Absen_Ujian");
+
+            setTimeout(() => { 
+                window.print(); 
+                document.title = originalTitle; 
+            }, 150);
+        }
+
+        function cetakAbsenRaport() {
+            switchToAbsenRaport();
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali', 'print-label');
+            document.body.classList.add('print-absen-raport');
+            
+            let originalTitle = document.title;
+            document.title = getNamaFileDinamis("Absen_Raport");
+
+            setTimeout(() => { 
+                window.print(); 
+                document.title = originalTitle; 
+            }, 150);
+        }
+
+        function cetakDenah() {
+            switchToDenah();
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-wali', 'print-label', 'print-absen-raport');
+            document.body.classList.add('print-denah');
+            
+            let originalTitle = document.title;
+            document.title = getNamaFileDinamis("Denah_Ujian");
+
+            setTimeout(() => { 
+                window.print(); 
+                document.title = originalTitle; 
+            }, 150);
+        }
+
+        function cetakKartuWali() {
+            switchToWali();
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-label', 'print-absen-raport');
+            document.body.classList.add('print-wali');
+            
+            let originalTitle = document.title;
+            document.title = getNamaFileDinamis("Akun_Wali");
+
+            setTimeout(() => { 
+                window.print(); 
+                document.title = originalTitle; 
+            }, 150);
+        }
+
+        function cetakLabelRaport() {
+            switchToLabel();
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali', 'print-absen-raport');
+            document.body.classList.add('print-label');
+            
+            let originalTitle = document.title;
+            document.title = getNamaFileDinamis("Label_Raport");
+
+            setTimeout(() => { 
+                window.print(); 
+                document.title = originalTitle; 
+            }, 150);
+        }
+
+// FUNGSI BARU: MENGHASILKAN HTML DAFTAR HADIR RAPORT BERDASARKAN KELAS (DENGAN PAGINASI)
+        function renderAbsenRaportHTML() {
+            const area = document.getElementById('kertasAbsenRaportWrapper');
+            area.innerHTML = '';
+
+            const strSemester = document.getElementById('inputSemester').value;
+            const strTahun = document.getElementById('inputTahunAjaran').value;
+
+            // Dikelompokkan berdasarkan KELAS, bukan Ruang Ujian.
+            const mapKelas = {};
+            dataGlobalCetak.forEach(s => {
+                if(!mapKelas[s.kelas]) mapKelas[s.kelas] = [];
+                mapKelas[s.kelas].push(s);
+            });
+
+            let sortedKelas = Object.keys(mapKelas).sort((a, b) => a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'}));
+
+            sortedKelas.forEach(kelasNama => {
+                let santriKelas = mapKelas[kelasNama].sort((a,b) => a.nama.localeCompare(b.nama));
+                
+                // --- PERBAIKAN: BATAS MAKSIMAL BARIS DINAIKKAN MENJADI 35 ---
+                // Agar kelas dengan jumlah santri di bawah 35 bisa muat 1 lembar kertas Legal.
+                const MAX_BARIS = 35; 
+                const totalPages = Math.ceil(santriKelas.length / MAX_BARIS);
+
+                for (let page = 0; page < totalPages; page++) {
+                    let startIdx = page * MAX_BARIS;
+                    let chunk = santriKelas.slice(startIdx, startIdx + MAX_BARIS);
+                    let barisTabel = '';
+                    
+                    chunk.forEach((s, chunkIdx) => {
+                        let idx = startIdx + chunkIdx; // Nomor urut global per kelas
+                        let namaWali = (s.ayah && s.ayah.trim() !== '-' && s.ayah.trim() !== '') ? s.ayah : 
+                                       ((s.ibu && s.ibu.trim() !== '-' && s.ibu.trim() !== '') ? s.ibu : '.......................');
+
+                        // PERBAIKAN: Mengurangi padding tabel (py-1.5) dan tinggi kolom (h-8) agar baris lebih rapat
+                        barisTabel += `
+                            <tr class="text-gray-900 border-b border-gray-400">
+                                <td class="text-center py-1.5 px-2 font-semibold border-r border-gray-400">${idx + 1}</td>
+                                <td class="text-center py-1.5 px-2 tracking-wider border-r border-gray-400">${s.nis}</td>
+                                <td class="py-1.5 px-3 font-bold uppercase border-r border-gray-400">${s.nama}</td>
+                                <td class="py-1.5 px-3 font-medium uppercase border-r border-gray-400">${namaWali}</td>
+                                <td class="py-1.5 px-2 relative align-top w-[14%] h-8 border-r border-gray-400">
+                                    <span class="text-[10px] text-gray-600 absolute top-1 left-2">${idx + 1}.</span>
+                                </td>
+                                <td class="py-1.5 px-2 text-center align-middle w-[10%]">
+                                    <div class="w-3.5 h-3.5 border border-gray-400 rounded-[2px] mx-auto shadow-sm"></div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    // Tanda tangan HANYA dimunculkan di halaman terakhir dari kelas tersebut
+                    let areaTandaTangan = '';
+                    if (page === totalPages - 1) {
+                        areaTandaTangan = `
+                            <div class="mt-4 mb-2 flex justify-end px-12 text-sm font-semibold text-gray-900 area-ttd">
+                                <div class="text-center">
+                                    <p>Wali Kelas</p>
+                                    <div class="h-12"></div>
+                                    <p class="underline underline-offset-4">( .................................................... )</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Keterangan Halaman
+                    let infoHalaman = totalPages > 1 ? `<span class="text-sm font-semibold text-emerald-700 ml-2 block mt-1">(Hal ${page + 1} dari ${totalPages})</span>` : '';
+
+                    area.innerHTML += `
+                        <div class="halaman-absen bg-white sm:shadow-[0_0_15px_rgba(0,0,0,0.05)] mb-10 mx-auto w-full max-w-[215.9mm] py-4 border border-gray-300 relative" style="box-sizing: border-box;">
+                            
+                            <div class="border-b-[3px] border-double border-black pb-2 mb-3 flex justify-between items-center min-h-[50px]">
+                                <img src="../asset/logo.png" alt="Logo" class="w-14 h-14 object-contain flex-none">
+                                <div class="text-center flex-1 px-4">
+                                    <h1 class="text-xl md:text-2xl font-black uppercase tracking-widest text-gray-900 leading-tight">Daftar Hadir Pengambilan Raport</h1>
+                                    <h2 class="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-gray-800 mt-1">Madrasah Diniyah Darussalam</h2>
+                                    <p class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-emerald-700 mt-1 border-t-2 border-emerald-100/50 inline-block pt-1">Semester ${strSemester} • Tahun Ajaran ${strTahun}</p>
+                                </div>
+                                <div class="w-14 flex-none"></div>
+                            </div>
+
+                            <div class="flex justify-between items-end mb-3">
+                                <table class="text-sm font-semibold text-gray-800 ml-2 mb-1">
+                                    <tr>
+                                        <td class="py-1 w-32">Hari / Tanggal</td>
+                                        <td class="py-1 w-4 text-center">:</td>
+                                        <td class="py-1 w-48 border-b border-gray-400 border-dotted"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-1">Waktu</td>
+                                        <td class="py-1 text-center">:</td>
+                                        <td class="py-1 border-b border-gray-400 border-dotted"></td>
+                                    </tr>
+                                </table>
+                                <div class="text-right mr-2">
+                                    <div class="border-[2px] border-black px-5 py-1.5 rounded-lg bg-gray-50 text-center min-w-[140px] inline-block">
+                                        <p class="text-[9px] uppercase font-bold text-gray-700 tracking-widest mb-0.5">Kelas</p>
+                                        <p class="text-lg md:text-xl font-black text-black leading-none truncate">${kelasNama}</p>
+                                    </div>
+                                    ${infoHalaman}
+                                </div>
+                            </div>
+
+                            <div class="w-full mb-2">
+                                <table class="tabel-absen text-sm border-2 border-gray-800 w-full">
+                                    <thead class="bg-gray-100 border-b-2 border-gray-800">
+                                        <tr class="font-bold uppercase tracking-wider text-gray-900 text-center text-[11px]">
+                                            <th class="py-1.5 px-2 w-10 border-r border-gray-400">No</th>
+                                            <th class="py-1.5 px-2 w-24 border-r border-gray-400">No. Induk</th>
+                                            <th class="py-1.5 px-3 text-left border-r border-gray-400 w-[30%]">Nama Peserta Didik</th>
+                                            <th class="py-1.5 px-3 text-left border-r border-gray-400 w-[26%]">Nama Wali</th>
+                                            <th class="py-1.5 px-2 border-r border-gray-400">Tanda Tangan</th>
+                                            <th class="py-1.5 px-2">Dikembalikan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${barisTabel}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            ${areaTandaTangan}
+
+                        </div>
+                    `;
+                }
+            });
         }
 
         function switchToKartu() {
@@ -1355,6 +1652,10 @@ try {
             const wadahAbsen = document.getElementById('areaDaftarHadir');
             const kertasAbsen = document.getElementById('kertasAbsenWrapper');
             if (!wadahAbsen.classList.contains('hidden')) applyZoom(wadahAbsen, kertasAbsen);
+            
+            const wadahAbsenRaport = document.getElementById('areaDaftarHadirRaport');
+            const kertasAbsenRaport = document.getElementById('kertasAbsenRaportWrapper');
+            if (!wadahAbsenRaport.classList.contains('hidden')) applyZoom(wadahAbsenRaport, kertasAbsenRaport);
 
             const wadahDenah = document.getElementById('areaDenah');
             const kertasDenah = document.getElementById('kertasDenahWrapper');
