@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
+    <meta name="referrer" content="no-referrer">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak Rapor - Ibtidaiyah</title>
@@ -252,6 +255,10 @@
         }
 
         // FUNGSI RENDER KERTAS RAPOR (Diperbaiki)
+      
+	  // =========================================================
+        // FUNGSI RENDER KERTAS RAPOR IBTIDAIYAH (Diperbarui)
+        // =========================================================
         function renderKertasRapor(kelas, info, headers, nilaiRow, rank, totalSantri, pengaturan) {
             const kertas = document.getElementById('kertasRapor');
             
@@ -275,8 +282,8 @@
                 });
             }
 
-            // PERBAIKAN URL ADA DI SINI (Di dalam fungsi yang tepat)
-            function konversiUrlDrive(urlMentah) {
+            // PERBAIKAN URL KERTAS NILAI (Mendukung File Lokal & Drive CDN)
+            function konversiUrlLengkap(urlMentah) {
                 if (!urlMentah || urlMentah.trim() === '') return '';
                 if (urlMentah.includes('drive.google.com')) {
                     let fileId = '';
@@ -284,16 +291,15 @@
                     else if (urlMentah.includes('/d/')) fileId = urlMentah.split('/d/')[1].split('/')[0];
                     
                     if (fileId) {
-                        let waktuSekarang = new Date().getTime();
-                        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800&t=${waktuSekarang}`;
+                        return `https://lh3.googleusercontent.com/d/${fileId}`;
                     }
                 }
                 return urlMentah;
             }
 
-            let urlWali = konversiUrlDrive(setUmum.url_wali);
-            let urlKepala = konversiUrlDrive(setUmum.url_kepala);
-            let urlStempel = konversiUrlDrive(setUmum.url_stempel);
+            let urlWali = konversiUrlLengkap(setUmum.url_wali);
+            let urlKepala = konversiUrlLengkap(setUmum.url_kepala);
+            let urlStempel = konversiUrlLengkap(setUmum.url_stempel);
 
             document.title = `Rapor_Ibtidaiyah_${info.nama.replace(/\s+/g,"_")}`;
 
@@ -384,7 +390,7 @@
                     <div class="w-20"><img src="../asset/logo.png" class="h-16 w-16 object-contain" alt="Logo Madrasah"></div>
                     <div class="flex-1 text-center">
                         <h1 class="text-[32px] font-bold leading-none mb-0" style="font-family: 'Traditional Arabic', serif; color: #000;">مدرسة دينية دار السلام</h1>
-                        <h2 class="text-[14px] font-black uppercase tracking-widest text-black mt-1 mb-0">MADRASAH  DINIYAH DARUSSALAM</h2>
+                        <h2 class="text-[14px] font-black uppercase tracking-widest text-black mt-1 mb-0">MADRASAH DINIYAH DARUSSALAM</h2>
                         <p class="text-[10px] font-bold text-black uppercase tracking-widest leading-tight mb-0.5">Bhetoran Batukessel Bandang Laok Kokop Bangkalan</p>
                         <p class="text-[9px] text-gray-800 font-medium leading-tight">E-mail: madasaponpes@gmail.com | Website: www.madasa.ponpes.id</p>
                     </div>
@@ -583,7 +589,8 @@
             
             kertas.classList.remove('hidden');
         }
-  
+
+        // FUNGSI CETAK RAPOR (Timer Diperpanjang)
         function cetakRapor() { 
             const kertas = document.getElementById('kertasRapor');
             if(!kertas || kertas.innerHTML.trim() === '') {
@@ -597,12 +604,16 @@
             const judulAsli = document.title;
             document.title = "Rapor_Ibtidaiyah_" + nis + "_" + nama.replace(/\s+/g,"_");
 
+            // Timer diperpanjang menjadi 1200ms
             setTimeout(() => {
                 window.print();
                 document.title = judulAsli;
-            }, 500);
+            }, 1200);
         }
         
+        // =========================================================
+        // FUNGSI CETAK SAMPUL & BIODATA IBTIDAIYAH (Anti-Gagal Load)
+        // =========================================================
         function cetakSampulBiodata() {
             const nis = document.getElementById('raporSantri').value;
             const kelasLengkap = document.getElementById('raporKelas').value;
@@ -612,7 +623,7 @@
             const santriInfo = GLOBAL_DATA_SANTRI.find(x => x.nis == nis);
             if(!santriInfo) return Swal.fire('Error', 'Data santri tidak ditemukan.', 'error');
 
-            showLoading(true, "Menarik Data Pengaturan...");
+            showLoading(true, "Menyiapkan Halaman Cetak...");
             
             const fdSet = new URLSearchParams(); 
             fdSet.append('action', 'getPengaturan'); 
@@ -624,8 +635,6 @@
             gasFetch( { method: 'POST', body: fdSet })
                 .then(r => r.json())
                 .then(resSet => {
-                    showLoading(false);
-                    
                     let setUmum = {};
                     if(resSet.status === 'success') {
                         setUmum = resSet.umum || {};
@@ -641,6 +650,7 @@
                     const ibuB  = bersihkanTeks(santriInfo.ibu);
                     const almtB = bersihkanTeks(santriInfo.alamat);
 
+                    // PERBAIKAN URL CDN UNTUK FOTO
                     let fotoUrl = santriInfo.foto || '';
                     let elemenFoto = `<span class="text-[11px] text-emerald-800">Pas Photo</span><br><span class="text-[11px] font-bold text-emerald-800">3 x 4</span>`;
 
@@ -650,8 +660,7 @@
                             let fileId = '';
                             if (fotoUrl.includes('id=')) fileId = fotoUrl.split('id=')[1].split('&')[0];
                             else if (fotoUrl.includes('/d/')) fileId = fotoUrl.split('/d/')[1].split('/')[0];
-                            
-                            if (fileId) finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`;
+                            if (fileId) finalUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
                         }
                         elemenFoto = `<img src="${finalUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto Santri">`;
                     }
@@ -661,24 +670,20 @@
                     const tanggalTampil = setUmum.tanggal || ('Bangkalan, ' + tanggalCetakDefault);
                     const namaKepala = setUmum.kepala || '..............................';
 
-                    // PERBAIKAN URL UNTUK SAMPUL BIODATA
-                    function konversiUrlDrive(urlMentah) {
+                    // PERBAIKAN URL UNTUK SAMPUL BIODATA (Mendukung File Lokal & Drive CDN)
+                    function konversiUrlLengkap(urlMentah) {
                         if (!urlMentah || urlMentah.trim() === '') return '';
                         if (urlMentah.includes('drive.google.com')) {
                             let fileId = '';
                             if (urlMentah.includes('id=')) fileId = urlMentah.split('id=')[1].split('&')[0];
                             else if (urlMentah.includes('/d/')) fileId = urlMentah.split('/d/')[1].split('/')[0];
-                            
-                            if (fileId) {
-                                let waktuSekarang = new Date().getTime();
-                                return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800&t=${waktuSekarang}`;
-                            }
+                            if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
                         }
                         return urlMentah;
                     }
 
-                    let urlKepala = konversiUrlDrive(setUmum.url_kepala);
-                    let urlStempel = konversiUrlDrive(setUmum.url_stempel);
+                    let urlKepala = konversiUrlLengkap(setUmum.url_kepala);
+                    let urlStempel = konversiUrlLengkap(setUmum.url_stempel);
 
                     const kertas = document.getElementById('kertasRapor');
                     kertas.classList.remove('hidden');
@@ -773,16 +778,43 @@
                     const judulAsli = document.title;
                     document.title = "Biodata_Ibtidaiyah_" + santriInfo.nis + "_" + namaB;
 
-                    setTimeout(() => {
+                    // --- SISTEM PRELOAD CERDAS (ANTI-GAGAL) ---
+                    const semuaGambar = Array.from(kertas.querySelectorAll('img')).filter(img => img.src && !img.classList.contains('hidden'));
+                    let gambarSelesai = 0;
+                    const totalGambar = semuaGambar.length;
+
+                    if (totalGambar === 0) {
+                        showLoading(false);
                         window.print();
                         document.title = judulAsli;
-                    }, 500);
+                    } else {
+                        semuaGambar.forEach(img => {
+                            if (img.complete) {
+                                gambarSelesai++;
+                                cekSelesai();
+                            } else {
+                                img.addEventListener('load', () => { gambarSelesai++; cekSelesai(); });
+                                img.addEventListener('error', () => { gambarSelesai++; cekSelesai(); });
+                            }
+                        });
+
+                        function cekSelesai() {
+                            if (gambarSelesai >= totalGambar) {
+                                setTimeout(() => {
+                                    showLoading(false);
+                                    window.print();
+                                    document.title = judulAsli;
+                                }, 300); 
+                            }
+                        }
+                    }
                     
                 }).catch(err => {
                     showLoading(false);
                     Swal.fire('Error', 'Gagal memuat pengaturan dari server.', 'error');
                 });
         }
+	  
     </script>
 </body>
 </html>

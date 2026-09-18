@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
+     <meta name="referrer" content="no-referrer">
+     
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak Rapor - Sanawiyah</title>
@@ -255,6 +258,9 @@
         // =========================================================
         // FUNGSI RENDER KERTAS RAPOR SANAWIYAH
         // =========================================================
+// =========================================================
+        // FUNGSI RENDER KERTAS RAPOR SANAWIYAH
+        // =========================================================
         function renderKertasRapor(kelas, info, headers, nilaiRow, rank, totalSantri, pengaturan) {
             const kertas = document.getElementById('kertasRapor');
             
@@ -278,8 +284,8 @@
                 });
             }
 
-            // PERBAIKAN URL UNTUK KERTAS NILAI (Ditaruh di dalam fungsi)
-            function konversiUrlDrive(urlMentah) {
+            // PERBAIKAN URL KERTAS NILAI (Mendukung File Lokal & Drive CDN)
+            function konversiUrlLengkap(urlMentah) {
                 if (!urlMentah || urlMentah.trim() === '') return '';
                 if (urlMentah.includes('drive.google.com')) {
                     let fileId = '';
@@ -287,16 +293,15 @@
                     else if (urlMentah.includes('/d/')) fileId = urlMentah.split('/d/')[1].split('/')[0];
                     
                     if (fileId) {
-                        let waktuSekarang = new Date().getTime();
-                        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800&t=${waktuSekarang}`;
+                        return `https://lh3.googleusercontent.com/d/${fileId}`;
                     }
                 }
                 return urlMentah;
             }
 
-            let urlWali = konversiUrlDrive(setUmum.url_wali);
-            let urlKepala = konversiUrlDrive(setUmum.url_kepala);
-            let urlStempel = konversiUrlDrive(setUmum.url_stempel);
+            let urlWali = konversiUrlLengkap(setUmum.url_wali);
+            let urlKepala = konversiUrlLengkap(setUmum.url_kepala);
+            let urlStempel = konversiUrlLengkap(setUmum.url_stempel);
 
             document.title = `Rapor_Sanawiyah_${info.nama.replace(/\s+/g,"_")}`;
 
@@ -600,10 +605,11 @@
             const judulAsli = document.title;
             document.title = "Rapor_Sanawiyah_" + nis + "_" + nama.replace(/\s+/g,"_");
 
+            // Timer diperpanjang
             setTimeout(() => {
                 window.print();
                 document.title = judulAsli;
-            }, 500);
+            }, 1200);
         }
         
         // =========================================================
@@ -647,6 +653,7 @@
                     const ibuB  = bersihkanTeks(santriInfo.ibu);
                     const almtB = bersihkanTeks(santriInfo.alamat);
 
+                    // PERBAIKAN URL CDN UNTUK FOTO
                     let fotoUrl = santriInfo.foto || '';
                     let elemenFoto = `<span class="text-[11px] text-emerald-800">Pas Photo</span><br><span class="text-[11px] font-bold text-emerald-800">3 x 4</span>`;
 
@@ -657,7 +664,7 @@
                             if (fotoUrl.includes('id=')) fileId = fotoUrl.split('id=')[1].split('&')[0];
                             else if (fotoUrl.includes('/d/')) fileId = fotoUrl.split('/d/')[1].split('/')[0];
                             
-                            if (fileId) finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w500`;
+                            if (fileId) finalUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
                         }
                         elemenFoto = `<img src="${finalUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto Santri">`;
                     }
@@ -667,8 +674,8 @@
                     const tanggalTampil = setUmum.tanggal || ('Bangkalan, ' + tanggalCetakDefault);
                     const namaKepala = setUmum.kepala || '..............................';
 
-                    // PERBAIKAN URL UNTUK SAMPUL BIODATA
-                    function konversiUrlDrive(urlMentah) {
+                    // PERBAIKAN URL UNTUK SAMPUL BIODATA (Mendukung File Lokal & Drive CDN)
+                    function konversiUrlLengkap(urlMentah) {
                         if (!urlMentah || urlMentah.trim() === '') return '';
                         if (urlMentah.includes('drive.google.com')) {
                             let fileId = '';
@@ -676,15 +683,14 @@
                             else if (urlMentah.includes('/d/')) fileId = urlMentah.split('/d/')[1].split('/')[0];
                             
                             if (fileId) {
-                                let waktuSekarang = new Date().getTime();
-                                return `https://drive.google.com/thumbnail?id=${fileId}&sz=w800&t=${waktuSekarang}`;
+                                return `https://lh3.googleusercontent.com/d/${fileId}`;
                             }
                         }
                         return urlMentah;
                     }
 
-                    let urlKepala = konversiUrlDrive(setUmum.url_kepala);
-                    let urlStempel = konversiUrlDrive(setUmum.url_stempel);
+                    let urlKepala = konversiUrlLengkap(setUmum.url_kepala);
+                    let urlStempel = konversiUrlLengkap(setUmum.url_stempel);
 
                     const kertas = document.getElementById('kertasRapor');
                     kertas.classList.remove('hidden');
@@ -779,10 +785,240 @@
                     const judulAsli = document.title;
                     document.title = "Biodata_Sanawiyah_" + santriInfo.nis + "_" + namaB;
 
+                    // Timer diperpanjang
                     setTimeout(() => {
                         window.print();
                         document.title = judulAsli;
-                    }, 500);
+                    }, 1200);
+                    
+                }).catch(err => {
+                    showLoading(false);
+                    Swal.fire('Error', 'Gagal memuat pengaturan dari server.', 'error');
+                });
+        }
+
+        function cetakRapor() { 
+            const kertas = document.getElementById('kertasRapor');
+            if(!kertas || kertas.innerHTML.trim() === '') {
+                return Swal.fire('Perhatian', 'Silakan klik tombol "Nilai" terlebih dahulu sebelum mencetak.', 'warning');
+            }
+            
+            const nis = document.getElementById('raporSantri').value;
+            const santriInfo = GLOBAL_DATA_SANTRI.find(x => x.nis == nis);
+            const nama = santriInfo ? santriInfo.nama : 'Santri';
+
+            const judulAsli = document.title;
+            document.title = "Rapor_Sanawiyah_" + nis + "_" + nama.replace(/\s+/g,"_");
+
+            setTimeout(() => {
+                window.print();
+                document.title = judulAsli;
+            }, 500);
+        }
+        
+
+// =========================================================
+        // FUNGSI CETAK SAMPUL & BIODATA SANAWIYAH (VERSI ANTI-GAGAL LOAD GAMBAR)
+        // =========================================================
+        function cetakSampulBiodata() {
+            const nis = document.getElementById('raporSantri').value;
+            const kelasLengkap = document.getElementById('raporKelas').value;
+            
+            if(!nis || !kelasLengkap) return Swal.fire('Perhatian', 'Pilih kelas dan nama santri terlebih dahulu.', 'warning');
+
+            const santriInfo = GLOBAL_DATA_SANTRI.find(x => x.nis == nis);
+            if(!santriInfo) return Swal.fire('Error', 'Data santri tidak ditemukan.', 'error');
+
+            showLoading(true, "Menyiapkan Halaman Cetak...");
+            
+            const fdSet = new URLSearchParams(); 
+            fdSet.append('action', 'getPengaturan'); 
+            fdSet.append('kelas', kelasLengkap);
+            
+            const tokenTersimpan = sessionStorage.getItem('tokenMadasa');
+            if (tokenTersimpan) fdSet.append('token', tokenTersimpan);
+
+            gasFetch( { method: 'POST', body: fdSet })
+                .then(r => r.json())
+                .then(resSet => {
+                    let setUmum = {};
+                    if(resSet.status === 'success') {
+                        setUmum = resSet.umum || {};
+                    }
+
+                    const bersihkanTeks = (teks) => {
+                        if (!teks) return '-';
+                        return teks.toString().replace(/\uFFFD/g, "'").replace(/[’‘`]/g, "'");
+                    };
+
+                    const namaB = bersihkanTeks(santriInfo.nama);
+                    const ayahB = bersihkanTeks(santriInfo.ayah);
+                    const ibuB  = bersihkanTeks(santriInfo.ibu);
+                    const almtB = bersihkanTeks(santriInfo.alamat);
+
+                    // PERBAIKAN URL CDN UNTUK FOTO
+                    let fotoUrl = santriInfo.foto || '';
+                    let elemenFoto = `<span class="text-[11px] text-emerald-800">Pas Photo</span><br><span class="text-[11px] font-bold text-emerald-800">3 x 4</span>`;
+
+                    if (fotoUrl && fotoUrl.trim() !== '') {
+                        let finalUrl = fotoUrl;
+                        if (fotoUrl.includes('drive.google.com')) {
+                            let fileId = '';
+                            if (fotoUrl.includes('id=')) fileId = fotoUrl.split('id=')[1].split('&')[0];
+                            else if (fotoUrl.includes('/d/')) fileId = fotoUrl.split('/d/')[1].split('/')[0];
+                            if (fileId) finalUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+                        }
+                        elemenFoto = `<img src="${finalUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="Foto Santri">`;
+                    }
+
+                    const opsiTanggal = { day: 'numeric', month: 'long', year: 'numeric' };
+                    const tanggalCetakDefault = new Date().toLocaleDateString('id-ID', opsiTanggal);
+                    const tanggalTampil = setUmum.tanggal || ('Bangkalan, ' + tanggalCetakDefault);
+                    const namaKepala = setUmum.kepala || '..............................';
+
+                    // PERBAIKAN URL UNTUK SAMPUL BIODATA (Mendukung File Lokal & Drive CDN)
+                    function konversiUrlLengkap(urlMentah) {
+                        if (!urlMentah || urlMentah.trim() === '') return '';
+                        if (urlMentah.includes('drive.google.com')) {
+                            let fileId = '';
+                            if (urlMentah.includes('id=')) fileId = urlMentah.split('id=')[1].split('&')[0];
+                            else if (urlMentah.includes('/d/')) fileId = urlMentah.split('/d/')[1].split('/')[0];
+                            if (fileId) return `https://lh3.googleusercontent.com/d/${fileId}`;
+                        }
+                        return urlMentah;
+                    }
+
+                    let urlKepala = konversiUrlLengkap(setUmum.url_kepala);
+                    let urlStempel = konversiUrlLengkap(setUmum.url_stempel);
+
+                    const kertas = document.getElementById('kertasRapor');
+                    kertas.classList.remove('hidden');
+                    
+                    kertas.innerHTML = `
+                        <!-- SAMPUL SANAWIYAH -->
+                        <div class="flex flex-col justify-center items-center text-center" style="height: 270mm; page-break-after: always; box-sizing: border-box; padding: 20px;">
+                            <img src="../asset/logo.png" class="w-48 h-48 object-contain mb-8" alt="Logo">
+                            <h1 class="text-3xl font-black uppercase tracking-widest mb-1 text-emerald-800">Buku Laporan Penilaian</h1>
+                           <h2 class="text-2xl font-bold uppercase tracking-widest text-black mb-2">Hasil Belajar Santri</h2>
+                            <div class="w-3/4 border-b-2 border-emerald-800 mb-12"></div>
+                            <h1 class="text-[40px] font-bold leading-none mb-2 text-emerald-800" style="font-family: 'Traditional Arabic', serif;">مدرسة دينية دار السلام</h1>
+                            <h2 class="text-xl font-black uppercase tracking-widest text-black mb-1">MADRASAH DINIYAH DARUSSALAM</h2>
+                            <p class="text-sm font-bold text-gray-700 uppercase tracking-wider mb-12">Bhetoran Batukessel Bandang Laok Kokop Bangkalan</p>
+                            
+                            <div class="w-3/4 border-2 border-emerald-800 p-6 rounded-lg bg-white relative mt-4">
+                                <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-white px-4 text-xs font-bold uppercase tracking-wider text-emerald-800">Nama Santri</div>
+                              <h3 class="text-xl font-black uppercase tracking-widest text-black mb-3">${namaB}</h3>
+                                <div class="flex justify-center items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-700">
+                                    <span>NIS :</span>
+                                    <span class="border-b border-black border-dashed px-4 text-black">${santriInfo.nis || '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BIODATA SANAWIYAH -->
+                        <div class="flex flex-col" style="font-family: 'Times New Roman', Times, serif; padding: 5mm 10mm; color: #000; min-height: 270mm; position: relative; box-sizing: border-box;">
+                            
+                            <style>
+                                #tabelBiodata td { padding: 4px 0; }
+                            </style>
+
+                            <div class="text-center mb-4 shrink-0">
+                                <img src="../asset/logo.png" class="w-20 h-20 object-contain mx-auto mb-4" alt="Logo">
+                                <h2 class="text-[16px] font-bold uppercase tracking-wider m-0 text-emerald-800">LAPORAN HASIL BELAJAR SANTRI</h2>
+                                <h1 class="text-[18px] font-bold uppercase tracking-widest m-0">MADRASAH DINIYAH DARUSSALAM</h1>
+                            </div>
+
+                            <div class="text-[14px] font-bold underline mb-3 tracking-wide text-emerald-800 shrink-0">IDENTITAS SANTRI</div>
+
+                            <table id="tabelBiodata" class="w-full text-[13px] leading-relaxed no-border shrink-0" style="border: none !important;">
+                                <tr style="border:none;"><td class="w-[4%] align-top" style="border:none;">1.</td><td class="w-[38%] align-top" style="border:none;">Nama Lengkap</td><td class="w-[2%] align-top" style="border:none;">:</td><td class="align-top uppercase font-bold" style="border:none;">${namaB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">2.</td><td class="align-top" style="border:none;">Nomor Induk Santri</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">${santriInfo.nis || '-'}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">3.</td><td class="align-top" style="border:none;">Jenis Kelamin</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${santriInfo.jk || '-'}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">4.</td><td class="align-top" style="border:none;">Tempat Tanggal Lahir</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${santriInfo.ttl || '-'}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">5.</td><td class="align-top" style="border:none;">Agama</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Islam</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">6.</td><td class="align-top" style="border:none;">Alamat Santri</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${almtB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">7.</td><td class="align-top" style="border:none;">Madrasah</td><td class="align-top" style="border:none;"></td><td class="align-top" style="border:none;"></td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">a. Nama Madrasah</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Madrasah Darussalam</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">b. Alamat Madrasah</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Bhetoran Batukessel Bandang Laok</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">c. Kecamatan</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Kokop</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">d. Kabupaten</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Bangkalan</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">8.</td><td class="align-top" style="border:none;">Nama Orang Tua</td><td class="align-top" style="border:none;"></td><td class="align-top" style="border:none;"></td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">a. Ayah</td><td class="align-top" style="border:none;">:</td><td class="align-top uppercase" style="border:none;">${ayahB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;"></td><td class="align-top pl-4" style="border:none;">b. Ibu</td><td class="align-top" style="border:none;">:</td><td class="align-top uppercase" style="border:none;">${ibuB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">9.</td><td class="align-top" style="border:none;">Alamat Orang Tua</td><td class="align-top" style="border:none;">:</td><td class="align-top capitalize" style="border:none;">${almtB}</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">10.</td><td class="align-top" style="border:none;">Agama Orang Tua</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Islam</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">11.</td><td class="align-top" style="border:none;">Pekerjaan Orang Tua</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">12.</td><td class="align-top" style="border:none;">Nama Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">13.</td><td class="align-top" style="border:none;">Alamat Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">14.</td><td class="align-top" style="border:none;">Nomor Telepon</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">15.</td><td class="align-top" style="border:none;">Agama Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">Islam</td></tr>
+                                <tr style="border:none;"><td class="align-top" style="border:none;">16.</td><td class="align-top" style="border:none;">Pekerjaan Wali</td><td class="align-top" style="border:none;">:</td><td class="align-top" style="border:none;">............................................................</td></tr>
+                            </table>
+
+                            <div class="flex justify-between items-end px-4 mt-8 pb-4">
+                                
+								<div class="w-[3cm] h-[4cm] border-2 border-emerald-800 flex flex-col items-center justify-center text-center relative z-10 bg-white overflow-hidden p-0">
+                                    ${elemenFoto}
+                                </div>
+                                
+                                <div class="text-center w-[250px] relative">
+                                    <div class="relative z-10">
+                                        <p class="m-0 text-[13px] mb-1">${tanggalTampil}</p>
+                                        <p class="m-0 text-[13px] font-bold mb-1">Kepala Madrasah</p>
+                                    </div>
+                                    
+                                    <!-- WADAH TTD DI BIODATA -->
+                                    <div class="relative flex justify-center items-center h-[75px] w-full my-1 pointer-events-none z-30">
+                                        <img src="${urlKepala}" class="relative h-20 z-20 mix-blend-multiply ${urlKepala ? '' : 'hidden'}" alt="TTD Kepala">
+                                        <img src="${urlStempel}" class="absolute h-24 -ml-16 z-30 mix-blend-multiply ${urlStempel ? '' : 'hidden'}" alt="Stempel">
+                                    </div>
+
+                                    <div class="relative z-10">
+                                        <p class="m-0 text-[14px] font-bold underline tracking-wide uppercase">${namaKepala}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    const judulAsli = document.title;
+                    document.title = "Biodata_Sanawiyah_" + santriInfo.nis + "_" + namaB;
+
+                    // --- SISTEM PRELOAD CERDAS (ANTI-GAGAL) ---
+                    // Mengambil semua tag <img> yang ada di dalam kertasRapor dan tidak berstatus hidden
+                    const semuaGambar = Array.from(kertas.querySelectorAll('img')).filter(img => img.src && !img.classList.contains('hidden'));
+                    let gambarSelesai = 0;
+                    const totalGambar = semuaGambar.length;
+
+                    if (totalGambar === 0) {
+                        // Jika tidak ada gambar yang perlu diload, langsung cetak
+                        showLoading(false);
+                        window.print();
+                        document.title = judulAsli;
+                    } else {
+                        // Pasang pendeteksi pada setiap gambar
+                        semuaGambar.forEach(img => {
+                            if (img.complete) {
+                                gambarSelesai++;
+                                cekSelesai();
+                            } else {
+                                img.addEventListener('load', () => { gambarSelesai++; cekSelesai(); });
+                                img.addEventListener('error', () => { gambarSelesai++; cekSelesai(); }); // Lanjut meskipun error
+                            }
+                        });
+
+                        function cekSelesai() {
+                            // Jika jumlah gambar yang beres (sukses/error) sudah sama dengan total gambar
+                            if (gambarSelesai >= totalGambar) {
+                                // Ekstra waktu 300ms agar rendering visual ke layar stabil 100%
+                                setTimeout(() => {
+                                    showLoading(false);
+                                    window.print();
+                                    document.title = judulAsli;
+                                }, 300); 
+                            }
+                        }
+                    }
                     
                 }).catch(err => {
                     showLoading(false);
