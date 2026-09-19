@@ -134,6 +134,29 @@
             </div>
 			
 			
+			<!-- KOTAK TAMBAHAN: STATUS SISTEM MANUAL -->
+<div class="bg-orange-50 p-5 rounded-2xl border border-orange-100 mb-6 shadow-sm">
+    <label class="text-sm font-bold text-orange-800 block mb-1">
+        <i class="fas fa-power-off mr-2"></i>Status Absensi Manual
+    </label>
+    <p class="text-[11px] text-orange-600 mb-4">Gunakan fitur ini untuk meliburkan atau membuka absensi secara manual (contoh: Libur Nasional / Cuti Bersama).</p>
+    
+    <div class="mb-4">
+        <label class="text-xs font-bold text-gray-600 block mb-1.5">Keterangan Libur / Status</label>
+        <input type="text" id="ketStatus" placeholder="Masukkan keterangan (opsional)..." class="w-full p-3 border border-white rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500 bg-white shadow-sm font-medium text-gray-800">
+    </div>
+    
+    <div class="flex flex-col sm:flex-row gap-3">
+        <button onclick="ubahStatusSistem('Libur')" class="flex-1 flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 font-bold text-sm transition-all shadow-sm">
+            <i class="fas fa-ban mr-2"></i> Tutup & Liburkan
+        </button>
+        <button onclick="ubahStatusSistem('Buka')" class="flex-1 flex items-center justify-center px-4 py-3 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 font-bold text-sm transition-all shadow-sm">
+            <i class="fas fa-check-circle mr-2"></i> Buka Absensi
+        </button>
+    </div>
+</div>
+			
+			
 			<!-- KOTAK TAMBAHAN: PENGATURAN AUTO ALFA -->
             <div class="bg-red-50 p-4 sm:p-5 rounded-2xl border border-red-100 mb-6 flex justify-between items-center shadow-sm">
                 <div>
