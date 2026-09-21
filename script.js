@@ -4503,3 +4503,130 @@ function bagikanDataKurangWA(kelasMap) {
     const urlWA = `https://api.whatsapp.com/send?text=${encodeURIComponent(pesan)}`;
     window.open(urlWA, '_blank');
 }
+
+// ==========================================
+// FUNGSI PILIHAN SUMBER FOTO (KAMERA / GALERI)
+// ==========================================
+window.pilihSumberFoto = function() {
+    Swal.fire({
+        title: '<span class="text-blue-700 font-bold font-heading text-lg">Pilih Sumber Foto</span>',
+        html: `
+            <div class="flex flex-col gap-3 mt-2">
+                <button onclick="bukaKamera()" class="p-3 border-2 border-emerald-200 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-sm transition-all shadow-sm flex items-center gap-3">
+                    <i class="fas fa-camera text-emerald-500 text-xl"></i> <span>Gunakan Kamera</span>
+                </button>
+                <button onclick="bukaGaleri()" class="p-3 border-2 border-blue-200 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold text-sm transition-all shadow-sm flex items-center gap-3">
+                    <i class="fas fa-folder-open text-blue-500 text-xl"></i> <span>Unggah dari File/Galeri</span>
+                </button>
+            </div>
+        `,
+        showConfirmButton: false,
+        showCloseButton: true,
+        customClass: { popup: 'rounded-2xl p-4 sm:p-6 w-[90%] max-w-sm' }
+    });
+};
+
+// Variabel untuk menyimpan aliran video (stream) kamera
+let streamWebcam = null;
+
+window.bukaKamera = function() {
+    Swal.close();
+    setTimeout(() => {
+        // Deteksi apakah pengguna menggunakan HP atau PC
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        
+        if (isMobile) {
+            // Jika HP: Gunakan input file bawaan untuk memicu kamera sistem
+            const inputFoto = document.getElementById('edit_foto');
+            inputFoto.setAttribute('accept', 'image/*'); 
+            inputFoto.setAttribute('capture', 'environment');
+            inputFoto.click();
+        } else {
+            // Jika PC/Laptop: Buka Modal Webcam WebRTC
+            bukaWebcamDesktop();
+        }
+    }, 300);
+};
+
+window.bukaGaleri = function() {
+    Swal.close();
+    setTimeout(() => {
+        const inputFoto = document.getElementById('edit_foto');
+        inputFoto.setAttribute('accept', 'image/jpeg, image/png');
+        inputFoto.removeAttribute('capture');
+        inputFoto.click();
+    }, 300);
+};
+
+// ==========================================
+// FUNGSI WEBCAM KHUSUS DESKTOP/PC
+// ==========================================
+function bukaWebcamDesktop() {
+    const modal = document.getElementById('modalWebcam');
+    const video = document.getElementById('webcamVideo');
+    
+    modal.classList.remove('hidden');
+    
+    // Meminta izin akses kamera ke browser
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            streamWebcam = stream;
+            video.srcObject = stream;
+        })
+        .catch(function(err) {
+            console.error("Error webcam: ", err);
+            tutupWebcam();
+            Swal.fire('Kamera Tidak Aksesibel', 'Browser diblokir mengakses kamera atau laptop Anda tidak memiliki webcam.', 'error');
+        });
+}
+
+window.tutupWebcam = function() {
+    document.getElementById('modalWebcam').classList.add('hidden');
+    // Matikan lampu kamera / hentikan stream saat ditutup
+    if (streamWebcam) {
+        streamWebcam.getTracks().forEach(track => track.stop());
+        streamWebcam = null;
+    }
+};
+
+window.jepretFoto = function() {
+    const video = document.getElementById('webcamVideo');
+    const canvas = document.getElementById('webcamCanvas');
+    const context = canvas.getContext('2d');
+    
+    // Ambil resolusi asli dari kamera
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    
+    // Balikkan (mirror) canvas agar hasil jepretan sama dengan pratinjau di layar
+    context.translate(canvas.width, 0);
+    context.scale(-1, 1);
+    
+    // Gambar frame dari video ke canvas
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    // Ubah gambar menjadi format Base64 (JPG)
+    const dataUri = canvas.toDataURL('image/jpeg');
+    
+    // Tutup webcam dan lempar gambar ke modal crop 3x4
+    tutupWebcam();
+    bukaModalCropDariWebcam(dataUri);
+};
+
+function bukaModalCropDariWebcam(dataUri) {
+    const imageToCrop = document.getElementById('imageToCrop');
+    imageToCrop.src = dataUri;
+    document.getElementById('modalCropFoto').classList.remove('hidden');
+    
+    // Hancurkan cropper lama jika ada, lalu buat baru agar tidak tumpang tindih
+    if (typeof cropper !== 'undefined' && cropper) {
+        cropper.destroy();
+    }
+    
+    cropper = new Cropper(imageToCrop, {
+        aspectRatio: 3 / 4,
+        viewMode: 2,
+        autoCropArea: 0.9,
+        background: false
+    });
+}
