@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Sistem Sedang Diperbarui - Madrasah Darussalam</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { 
+            theme: { 
+                extend: { 
+                    colors: { emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669' }, neon: { cyan: '#00f3ff', pink: '#ff00ff', purple: '#bc13fe' } }, 
+                    fontFamily: { sans: ['Inter', 'sans-serif'], heading: ['Poppins', 'sans-serif'] } 
+                } 
+            } 
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #050505;
+            color: white;
+            overflow: hidden;
+            margin: 0;
+            height: 100vh;
+            width: 100vw;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #gameCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: block;
+        }
+        
+        .glass-panel {
+            background: rgba(10, 10, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-3px, 0, 0); }
+            20%, 80% { transform: translate3d(5px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Kanvas Utama -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Latar Belakang Grid -->
+    <div class="fixed inset-0 z-0 pointer-events-none opacity-20" style="background-image: linear-gradient(rgba(0, 243, 255, 0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.2) 1px, transparent 1px); background-size: 40px 40px;"></div>
+
+    <!-- UI Overlay Saat Main -->
+    <div id="scoreUI" class="fixed top-4 left-4 right-4 z-20 flex justify-between pointer-events-none opacity-0 transition-opacity duration-300">
+        <div class="glass-panel px-5 py-2 rounded-2xl flex items-center gap-3">
+            <i class="fas fa-cube text-neon-cyan"></i>
+            <p class="font-heading font-black text-white text-xl" id="scoreDisplay">0</p>
+        </div>
+        
+        <div class="glass-panel px-5 py-2 rounded-2xl flex items-center gap-2">
+            <p class="font-heading font-bold text-white/80 text-sm">REKOR: <span id="highestScore" class="text-neon-pink font-black">0</span></p>
+        </div>
+    </div>
+
+    <!-- PANEL 1: Menu Awal -->
+    <div id="introPanel" class="fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ease-out">
+        <div class="glass-panel rounded-[2rem] p-8 sm:p-10 max-w-md w-full text-center relative overflow-hidden">
+            
+            <div class="mx-auto w-24 h-24 bg-gray-900 rounded-full flex items-center justify-center border-2 border-neon-cyan mb-6 relative">
+                <i class="fas fa-microchip text-4xl text-neon-cyan"></i>
+                <div class="absolute inset-0 border-t-2 border-neon-pink rounded-full animate-spin"></div>
+            </div>
+
+            <h1 class="text-3xl font-heading font-black text-white mb-2 tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-purple">
+                SISTEM DIPERBARUI
+            </h1>
+            
+            <p class="text-gray-300 text-sm sm:text-base mb-8 leading-relaxed font-medium">
+                Portal Madasa sedang dalam perawatan. Bantu kami menghancurkan "bug" sistem di game ini!
+            </p>
+
+            <button onclick="mulaiSesiGame()" class="group relative px-8 py-4 w-full bg-transparent border-2 border-neon-cyan rounded-full font-black text-neon-cyan text-lg hover:bg-neon-cyan hover:text-black transition-all duration-300 overflow-hidden">
+                <span class="relative flex items-center justify-center gap-3">
+                    <i class="fas fa-play"></i> HANCURKAN BUG
+                </span>
+            </button>
+
+            <button onclick="location.reload()" class="mt-6 w-full py-2 text-gray-400 text-sm font-semibold hover:text-white transition-colors flex items-center justify-center gap-2">
+                <i class="fas fa-sync-alt"></i> Muat Ulang Halaman
+            </button>
+        </div>
+    </div>
+
+    <!-- PANEL 2: Game Over -->
+    <div id="gameOverPanel" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="glass-panel rounded-[2rem] p-8 max-w-sm w-full text-center relative overflow-hidden">
+            
+            <h2 class="font-heading font-black text-neon-pink text-5xl mb-2 transform -rotate-2">SYSTEM<br>FAILURE</h2>
+            
+            <div class="bg-black/60 rounded-2xl p-4 my-6 border border-white/10">
+                <p class="text-gray-400 text-xs font-bold tracking-widest mb-1">BUG DIHANCURKAN</p>
+                <div class="flex justify-center items-center gap-2">
+                    <i class="fas fa-cube text-neon-cyan text-xl"></i>
+                    <span id="finalScore" class="text-white font-black text-4xl">0</span>
+                </div>
+            </div>
+            
+            <button onclick="mainLagi()" class="px-8 py-4 w-full bg-neon-cyan text-black font-black rounded-full hover:scale-105 transition-transform mb-3 flex items-center justify-center gap-2">
+                <i class="fas fa-redo"></i> REBOOT SISTEM
+            </button>
+            <button onclick="kembaliKeMenu()" class="w-full py-3 text-gray-400 text-sm font-bold hover:text-white transition-colors">
+                KEMBALI KE MENU
+            </button>
+        </div>
+    </div>
+
+    <!-- LOGIKA GAME NEON BREAKOUT FINAL -->
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let canvasWidth = window.innerWidth;
+        let canvasHeight = window.innerHeight;
+
+        let isPlaying = false;
+        let isGameOver = false;
+        
+        let score = 0;
+        let frameCount = 0; // Penghitung waktu untuk menambah kecepatan
+        let highScore = localStorage.getItem('madasaNeonScore') || 0; 
+        
+        // Objek Game
+        let paddle = { x: 0, y: 0, w: 100, h: 15, color: '#00f3ff' };
+        let ball = { x: 0, y: 0, r: 8, dx: 0, dy: 0, speed: 4, color: '#ff00ff' }; // Mulai dengan pelan
+        let bricks = [];
+        let particles = [];
+        
+        const colors = ['#ff00ff', '#bc13fe', '#00f3ff', '#34d399', '#facc15'];
+
+        const introPanel = document.getElementById('introPanel');
+        const gameOverPanel = document.getElementById('gameOverPanel');
+        const scoreUI = document.getElementById('scoreUI');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const highestScoreEl = document.getElementById('highestScore');
+        const finalScoreEl = document.getElementById('finalScore');
+        
+        highestScoreEl.innerText = highScore;
+
+        // ==== AUDIO SINTETIS RETRO ====
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function playSound(type) {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            if (type === 'hit') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'break') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.start(now); osc.stop(now + 0.1);
+            } else if (type === 'fail') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, now);
+                osc.frequency.exponentialRampToValueAtTime(50, now + 0.5);
+                gainNode.gain.setValueAtTime(0.2, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now); osc.stop(now + 0.5);
+            }
+        }
+
+        // ==== RESIZE & SETUP ====
+        function resizeCanvas() {
+            canvasWidth = window.innerWidth;
+            canvasHeight = window.innerHeight;
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+            
+            paddle.w = canvasWidth < 600 ? 120 : 150;
+            paddle.y = canvasHeight - 70; 
+            
+            if (!isPlaying) {
+                paddle.x = canvasWidth / 2 - paddle.w / 2;
+                ball.x = canvasWidth / 2;
+                ball.y = paddle.y - ball.r - 2;
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // ==== GENERATE BLOK/BRICKS ====
+        function initBricks() {
+            bricks = [];
+            const cols = Math.floor(canvasWidth / 70); 
+            const rows = 5;
+            const padding = 10;
+            const w = (canvasWidth - (padding * (cols + 1))) / cols;
+            const h = 25;
+            const offsetTop = 100;
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    bricks.push({
+                        x: (c * (w + padding)) + padding,
+                        y: (r * (h + padding)) + offsetTop,
+                        w: w, h: h,
+                        status: 1,
+                        color: colors[r % colors.length]
+                    });
+                }
+            }
+        }
+
+        // ==== KONTROL PEMAIN (PADDLE) ====
+        function handleMove(e) {
+            if (!isPlaying || isGameOver) return;
+            let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            
+            paddle.x = clientX - paddle.w / 2;
+            
+            if (paddle.x < 0) paddle.x = 0;
+            if (paddle.x + paddle.w > canvasWidth) paddle.x = canvasWidth - paddle.w;
+        }
+
+        window.addEventListener('mousemove', handleMove);
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault(); 
+            handleMove(e);
+        }, { passive: false });
+
+        // ==== EFEK PARTIKEL ====
+        function spawnParticles(x, y, color) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 10,
+                    vy: (Math.random() - 0.5) * 10,
+                    size: Math.random() * 4 + 2,
+                    color: color,
+                    life: 1.0
+                });
+            }
+        }
+
+        function drawParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                
+                ctx.globalAlpha = 1.0;
+                
+                p.x += p.vx; p.y += p.vy;
+                p.life -= 0.04;
+                
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        // ==== MANAJEMEN STATE ====
+        function mulaiSesiGame() {
+            introPanel.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            scoreUI.classList.remove('opacity-0');
+
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            resetGame();
+            gameLoop(); 
+        }
+        
+        function mainLagi() {
+            resetGame();
+            gameLoop();
+        }
+
+        function kembaliKeMenu() {
+            gameOverPanel.classList.add('opacity-0', 'pointer-events-none');
+            scoreUI.classList.add('opacity-0');
+            introPanel.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+            isPlaying = false;
+        }
+
+        function resetGame() {
+            score = 0;
+            scoreDisplay.innerText = score;
+            isGameOver = false;
+            isPlaying = true;
+            frameCount = 0; // Reset penghitung waktu
+            
+            // Atur kecepatan awal menjadi lebih santai/lambat
+            ball.speed = canvasWidth < 600 ? 4.5 : 5.5; 
+            
+            ball.x = canvasWidth / 2;
+            ball.y = paddle.y - 20;
+            ball.dx = ball.speed * (Math.random() > 0.5 ? 1 : -1);
+            ball.dy = -ball.speed;
+            
+            paddle.x = canvasWidth / 2 - paddle.w / 2;
+            particles = [];
+            
+            initBricks();
+            
+            gameOverPanel.classList.add('opacity-0', 'pointer-events-none');
+            document.body.classList.remove('shake');
+        }
+
+        // ==== LOOP RENDER UTAMA ====
+        function gameLoop() {
+            if (!isPlaying || isGameOver) return;
+
+            frameCount++; // Menambah waktu game
+
+            // Efek Trail (Jejak Bola)
+            ctx.fillStyle = 'rgba(5, 5, 5, 0.4)';
+            ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+            // 1. Gambar Bricks (Blok)
+            let activeBricks = 0;
+            bricks.forEach(b => {
+                if (b.status === 1) {
+                    activeBricks++;
+                    ctx.fillStyle = b.color;
+                    ctx.fillRect(b.x, b.y, b.w, b.h);
+                    
+                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                    ctx.fillRect(b.x, b.y + b.h/2 - 1, b.w, 2);
+                }
+            });
+
+            // Regenerasi Blok saat habis
+            if (activeBricks === 0) {
+                initBricks();
+                if (ball.speed < 12) ball.speed += 1; 
+            }
+
+            // 2. Gambar Paddle
+            ctx.fillStyle = paddle.color;
+            ctx.beginPath();
+            ctx.roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 8);
+            ctx.fill();
+
+            // 3. Update & Gambar Bola
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+
+            ctx.fillStyle = ball.color;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 4. Deteksi Tabrakan Dinding Layar
+            if (ball.x + ball.r > canvasWidth) {
+                ball.x = canvasWidth - ball.r;
+                ball.dx = -Math.abs(ball.dx);
+                playSound('hit');
+            } else if (ball.x - ball.r < 0) {
+                ball.x = ball.r;
+                ball.dx = Math.abs(ball.dx);
+                playSound('hit');
+            }
+            if (ball.y - ball.r < 0) {
+                ball.y = ball.r;
+                ball.dy = Math.abs(ball.dy);
+                playSound('hit');
+            }
+
+            // 5. Deteksi Tabrakan Paddle
+            if (ball.y + ball.r >= paddle.y && ball.y - ball.r <= paddle.y + paddle.h && ball.x + ball.r >= paddle.x && ball.x - ball.r <= paddle.x + paddle.w) {
+                if (ball.dy > 0) { 
+                    playSound('hit');
+                    let hitPoint = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2); 
+                    let angle = hitPoint * (Math.PI / 3); 
+                    
+                    let currentSpeed = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy);
+                    ball.dx = currentSpeed * Math.sin(angle);
+                    ball.dy = -currentSpeed * Math.cos(angle);
+                    
+                    ball.y = paddle.y - ball.r - 1; 
+                }
+            }
+
+            // 6. Deteksi Tabrakan Blok
+            for (let i = 0; i < bricks.length; i++) {
+                let b = bricks[i];
+                if (b.status === 1) {
+                    let closestX = Math.max(b.x, Math.min(ball.x, b.x + b.w));
+                    let closestY = Math.max(b.y, Math.min(ball.y, b.y + b.h));
+
+                    let distanceX = ball.x - closestX;
+                    let distanceY = ball.y - closestY;
+                    let distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+
+                    if (distanceSquared < (ball.r * ball.r)) {
+                        b.status = 0; 
+                        score += 10;
+                        scoreDisplay.innerText = score;
+                        playSound('break');
+                        spawnParticles(b.x + b.w/2, b.y + b.h/2, b.color);
+                        
+                        if (Math.abs(distanceX) > Math.abs(distanceY)) {
+                            ball.dx = -ball.dx; 
+                        } else {
+                            ball.dy = -ball.dy; 
+                        }
+                        
+                        break; 
+                    }
+                }
+            }
+
+            // 7. SISTEM KECEPATAN BERTAMBAH SEIRING WAKTU (PROGRESIF)
+            // Setiap ~3.5 detik kecepatan bola akan naik otomatis tanpa harus naik level
+            if (frameCount % 200 === 0 && ball.speed < 12) {
+                ball.speed += 0.15; // Kenaikan kecepatan yang stabil
+                
+                // Normalisasi laju sumbu x dan y agar sesuai dengan kecepatan baru
+                let currentSpeed = Math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy);
+                ball.dx = (ball.dx / currentSpeed) * ball.speed;
+                ball.dy = (ball.dy / currentSpeed) * ball.speed;
+            }
+
+            // 8. Game Over
+            if (ball.y - ball.r > canvasHeight) {
+                isGameOver = true;
+                isPlaying = false;
+                playSound('fail');
+                document.body.classList.add('shake');
+                
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem('madasaNeonScore', highScore);
+                    highestScoreEl.innerText = highScore;
+                }
+                
+                finalScoreEl.innerText = score;
+                setTimeout(() => gameOverPanel.classList.remove('opacity-0', 'pointer-events-none'), 500);
+            }
+
+            drawParticles();
+            requestAnimationFrame(gameLoop);
+        }
+
+        resizeCanvas();
+        initBricks();
+
+        // Render layar awal statis
+        ctx.fillStyle = '#050505';
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+        
+        bricks.forEach(b => {
+            ctx.fillStyle = b.color;
+            ctx.fillRect(b.x, b.y, b.w, b.h);
+        });
+        
+        ctx.fillStyle = paddle.color;
+        ctx.beginPath();
+        ctx.roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 8);
+        ctx.fill();
+
+    </script>
+</body>
+</html>
