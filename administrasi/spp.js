@@ -907,8 +907,9 @@ function hapusKas(rincian, jenis) {
     });
 }
 
+
 // =========================================================
-// FUNGSI KIRIM INFO ADMINISTRASI SPP KE WHATSAPP (PECAH BULAN OTOMATIS)
+// FUNGSI KIRIM INFO ADMINISTRASI SYAHRIAH (BULANAN) KE WHATSAPP 
 // =========================================================
 function kirimWaTagihan(nis) {
     // 1. Cari data santri berdasarkan NIS
@@ -945,22 +946,16 @@ function kirimWaTagihan(nis) {
             let thn = parts[parts.length - 1];
             
             // Logika cerdas: Cek apakah formatnya mengandung gabungan banyak bulan
-            // Syarat: kata pertama angka (tanggal), kata terakhir angka (tahun), dan ada koma (,)
             if (!isNaN(tgl) && !isNaN(thn) && parts.length >= 3 && ket.includes(',')) {
-                // Ambil deretan nama bulan di tengah-tengah
                 let bulanString = ket.substring(tgl.length, ket.length - thn.length).trim();
                 let listBulan = bulanString.split(',').map(b => b.trim());
-                
-                // Bagi nominal sesuai jumlah bulan yang dibayar sekaligus
                 let nominalPerBulan = nominal / listBulan.length;
                 
-                // Cetak per baris
                 listBulan.forEach(bulan => {
                     teksRincian += `\n${counter}. ${tgl} ${bulan} ${thn} : ${formatRp(nominalPerBulan)} ( ✅ )`;
                     counter++;
                 });
             } else {
-                // Jika hanya 1 bulan saja, atau beasiswa (Bintang Pelajar)
                 teksRincian += `\n${counter}. ${ket} : ${formatRp(nominal)} ( ✅ )`;
                 counter++;
             }
@@ -969,20 +964,104 @@ function kirimWaTagihan(nis) {
         teksRincian = "\n\n*Catatan Pembayaran Masuk:*\n_Belum ada data pembayaran yang tercatat._";
     }
 
-    let sisaTunggakan = Math.max(0, TOTAL_TAGIHAN_SETAHUN - totalTerbayar);
+    // ===============================================================
+    // 4. LOGIKA PERHITUNGAN TUNGGAKAN BULAN BERJALAN & TOTAL 1 TAHUN
+    // ===============================================================
+    // Asumsi TOTAL_TAGIHAN_SETAHUN sudah ada (variabel global/konstanta)
+    const BIAYA_PER_BULAN = TOTAL_TAGIHAN_SETAHUN / 12;
     
-   // 4. Rangkai pesan utuh
-    let teksPesan = `Assalamu'alaikum Wr. Wb.\n\nBapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi SPP ananda *${santri.nama.trim()}*.\n\n*Ringkasan Administrasi:*\n🔸 Ketetapan 1 Tahun: *${formatRp(TOTAL_TAGIHAN_SETAHUN)}*\n🔸 Telah Ditunaikan: *${formatRp(totalTerbayar)}*\n🔸 Sisa Administrasi: *${formatRp(sisaTunggakan)}*${teksRincian}\n\nMohon abaikan pesan ini apabila Bapak/Ibu telah menyelesaikan seluruh administrasi tersebut.\n\nAtas perhatian dan kerja samanya, kami sampaikan _Jazakumullah khairan_.\n\nWassalamu'alaikum Wr. Wb.\n\n_~ Ini adalah pesan otomatis dari sistem administrasi Madasa (Madrasah Darussalam) ~_`;
+    // Menghitung bulan ke-berapa saat ini (Asumsi Tahun Ajaran mulai JULI)
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth(); // Index: 0 (Jan) - 11 (Des)
+    let bulanKe;
     
-    // 5. Eksekusi ke WhatsApp
+    if (currentMonth >= 6) { // Juli (6) sampai Desember (11)
+        bulanKe = currentMonth - 6 + 1; 
+    } else { // Januari (0) sampai Juni (5)
+        bulanKe = currentMonth + 6 + 1;
+    }
+
+    // Tagihan yang SEHARUSNYA sudah lunas hingga bulan berjalan
+    let tagihanSampaiBulanIni = bulanKe * BIAYA_PER_BULAN;
+    
+    // Cegah tagihan berjalan melebihi total tagihan setahun
+    if (tagihanSampaiBulanIni > TOTAL_TAGIHAN_SETAHUN) {
+        tagihanSampaiBulanIni = TOTAL_TAGIHAN_SETAHUN;
+    }
+
+    const sisaTotalSatuTahun = Math.max(0, TOTAL_TAGIHAN_SETAHUN - totalTerbayar);
+    const tunggakanSaatIni = Math.max(0, tagihanSampaiBulanIni - totalTerbayar);
+
+    // ===============================================================
+    // 5. PENENTUAN ISI PESAN BERDASARKAN STATUS PEMBAYARAN
+    // ===============================================================
+    const namaSantri = santri.nama.trim();
+    let teksPesan = "";
+
+    if (sisaTotalSatuTahun <= 0) {
+        // KONDISI 1: LUNAS 1 TAHUN PENUH
+        teksPesan = `Assalamu'alaikum Wr. Wb.
+
+Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, kami mendoakan semoga Bapak/Ibu senantiasa dalam lindungan-Nya.
+
+Alhamdulillah, kami menginformasikan bahwa administrasi Syahriah (Bulanan) ananda *${namaSantri}* untuk tahun ajaran ini telah *LUNAS SEPENUHNYA*. ${teksRincian}
+
+Kami mengucapkan _Jazakumullah khairan katsiran_ atas kelancaran Bapak/Ibu. Semoga rezeki Bapak/Ibu senantiasa diberkahi dan dilipatgandakan oleh Allah SWT.
+
+Wassalamu'alaikum Wr. Wb.
+
+_~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
+
+    } else if (tunggakanSaatIni <= 0) {
+        // KONDISI 2: LUNAS BULAN INI / SUDAH BAYAR UNTUK BULAN DEPAN (Tidak menunggak)
+        teksPesan = `Assalamu'alaikum Wr. Wb.
+
+Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, kami mendoakan semoga Bapak/Ibu senantiasa dalam lindungan-Nya.
+
+Melalui pesan ini, kami ingin mengucapkan terima kasih karena administrasi Syahriah (Bulanan) ananda *${namaSantri}* sampai bulan ini telah tertunaikan dengan lancar (tidak ada tunggakan berjalan).
+
+*Ringkasan Administrasi:*
+🔸 Ketetapan 1 Tahun: *${formatRp(TOTAL_TAGIHAN_SETAHUN)}*
+🔸 Telah Ditunaikan: *${formatRp(totalTerbayar)}*
+🔸 Sisa Menuju Lunas 1 Tahun: *${formatRp(sisaTotalSatuTahun)}*${teksRincian}
+
+_Jazakumullah khairan_ atas kerja sama dan kedisiplinan Bapak/Ibu. Semoga Allah membalas dengan rezeki yang berkah.
+
+Wassalamu'alaikum Wr. Wb.
+
+_~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
+
+    } else {
+        // KONDISI 3: ADA TUNGGAKAN DI BULAN BERJALAN ATAU BULAN LALU
+        teksPesan = `Assalamu'alaikum Wr. Wb.
+
+Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi Syahriah (Bulanan) ananda *${namaSantri}*.
+
+Berdasarkan catatan kami, saat ini terdapat tagihan Syahriah yang belum terselesaikan. Berikut adalah rinciannya:
+
+*Fokus Tagihan S.d Bulan Ini:*
+🔸 Total Menunggak: *${formatRp(tunggakanSaatIni)}*
+
+*(Informasi Total 1 Tahun)*
+🔸 Ketetapan 1 Tahun: *${formatRp(TOTAL_TAGIHAN_SETAHUN)}*
+🔸 Telah Ditunaikan: *${formatRp(totalTerbayar)}*
+🔸 Sisa Keseluruhan: *${formatRp(sisaTotalSatuTahun)}*${teksRincian}
+
+Mohon abaikan pesan ini apabila Bapak/Ibu baru saja menyelesaikan administrasi tersebut. Atas perhatian dan kerja samanya, kami sampaikan _Jazakumullah khairan_.
+
+Wassalamu'alaikum Wr. Wb.
+
+_~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
+    }
+    
+    // ===============================================================
+    // 6. EKSEKUSI KE WHATSAPP
+    // ===============================================================
     let linkWa = `https://wa.me/${noHpAsli}?text=${encodeURIComponent(teksPesan)}`;
     window.open(linkWa, '_blank');
 }
 
 
-// =========================================================
-// FUNGSI CETAK KARTU SPP (KERTAS F4 - 4 KARTU PER HALAMAN)
-// =========================================================
 // =========================================================
 // FUNGSI CETAK KARTU SPP (KERTAS F4 - 4 KARTU PER HALAMAN)
 // =========================================================
