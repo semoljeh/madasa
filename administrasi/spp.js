@@ -967,23 +967,33 @@ function kirimWaTagihan(nis) {
     // ===============================================================
     // 4. LOGIKA PERHITUNGAN OTOMATIS BERDASARKAN KALENDER HIJRIYAH
     // ===============================================================
-    const BIAYA_PER_BULAN = TOTAL_TAGIHAN_SETAHUN / 12;
     
-    // Mengambil angka bulan Hijriyah saat ini menggunakan fitur bawaan JavaScript
-    // Format en-US-u-ca-islamic memastikan outputnya hanya angka bulan (1 untuk Muharram, 10 untuk Syawal, dst)
-    const formatterHijri = new Intl.DateTimeFormat('en-US-u-ca-islamic', { month: 'numeric' });
-    const angkaBulanHijriRaw = formatterHijri.format(new Date());
-    const currentHijriMonth = parseInt(angkaBulanHijriRaw.replace(/[^0-9]/g, ''), 10); 
+    // PERBAIKAN: Langsung mengambil dari variabel global, bukan dibagi 12
+    const BIAYA_PER_BULAN = TARIF_SPP_BULAN; 
+    const MAKSIMAL_BULAN = JUMLAH_BULAN_SPP;
+
+    // Mendapatkan bulan Hijriyah saat ini dengan metode yang lebih stabil
+    let currentHijriMonth = 1; 
+    try {
+        const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { month: 'numeric' });
+        const parts = formatter.formatToParts(new Date());
+        parts.forEach(p => { 
+            if (p.type === 'month') {
+                currentHijriMonth = parseInt(p.value, 10);
+            }
+        });
+    } catch(e) {
+        console.error("Gagal membaca kalender Hijriyah", e);
+    }
     
     // Syawal adalah bulan ke-10 dalam kalender Hijriyah
     const BULAN_AWAL_AJARAN = 10; 
     
     // Hitung sudah berapa bulan berjalan dari Syawal
-    // Rumus memutar: jika sekarang Syawal(10) hasilnya 1. Jika Dzulhijjah(12) hasilnya 3. Jika Muharram(1) hasilnya 4.
     let bulanKe = ((currentHijriMonth - BULAN_AWAL_AJARAN + 12) % 12) + 1;
 
-    // Batasi maksimal 12 bulan dalam satu tahun ajaran
-    if (bulanKe > 12) bulanKe = 12;
+    // Batasi maksimal bulan dalam satu tahun ajaran sesuai pengaturan (misal 11 bulan)
+    if (bulanKe > MAKSIMAL_BULAN) bulanKe = MAKSIMAL_BULAN;
 
     // Tagihan yang SEHARUSNYA sudah lunas hingga bulan Hijriyah berjalan
     let tagihanSampaiBulanIni = bulanKe * BIAYA_PER_BULAN;
