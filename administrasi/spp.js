@@ -957,7 +957,7 @@ function kirimWaTagihan(nis) {
             namaBulanTerbayar = [...urutanBulanSyahriah]; // Anggap lunas semua bulan
         } 
         // Jika format tanggal & tahun normal (bisa satu atau banyak bulan)
-        else if (!isNaN(tgl) && !isNaN(thn) && parts.length >= 3) {
+        else if (!isNaN(tgl) && !isNaN(thn) && parts.length >= 3 && ket.includes(',')) {
             let bulanString = ket.substring(tgl.length, ket.length - thn.length).trim();
             let listBulan = bulanString.split(',').map(b => b.trim());
             let nominalPerBulan = nominal / listBulan.length;
@@ -978,13 +978,20 @@ function kirimWaTagihan(nis) {
                 }
             });
         } 
-        // Format lainnya (sisa angsuran dll)
+        // Format lainnya (sisa angsuran dll atau cuma 1 bulan)
         else {
-            semuaBulanDibayar.push({ teksCetak: `${ket} : ${formatRp(nominal)} ( ✅ )`, indexBulan: 99 });
+            // Cek apakah ket hanya menyebut 1 bulan yang valid
+            let idxBlnTunggal = urutanBulanSyahriah.indexOf(ket);
+            if (idxBlnTunggal !== -1) {
+                namaBulanTerbayar.push(ket);
+                semuaBulanDibayar.push({ teksCetak: `${ket} : ${formatRp(nominal)} ( ✅ )`, indexBulan: idxBlnTunggal });
+            } else {
+                semuaBulanDibayar.push({ teksCetak: `${ket} : ${formatRp(nominal)} ( ✅ )`, indexBulan: 99 });
+            }
         }
     });
 
-    // Mengurutkan riwayat yang dicetak berdasarkan Index Bulan (Syawal = 0, Dzulqa'dah = 1, dst)
+    // Mengurutkan riwayat yang dicetak secara otomatis dari Syawal
     semuaBulanDibayar.sort((a, b) => a.indexBulan - b.indexBulan);
     
     let teksRincian = "";
@@ -998,30 +1005,53 @@ function kirimWaTagihan(nis) {
     }
 
     // ===============================================================
-    // 5. LOGIKA DETEKSI SISA BULAN NUNGGAK (Total 1 Tahun)
+    // 5. LOGIKA DETEKSI BULAN BERJALAN & SISA TUNGGAKAN
     // ===============================================================
     const sisaTotalSatuTahun = Math.max(0, TOTAL_TAGIHAN_SETAHUN - totalTerbayar);
-    let batasBulan = JUMLAH_BULAN_SPP > 12 ? 12 : JUMLAH_BULAN_SPP; // Sesuai target bulan di setting
-    let arrayBulanNunggak = [];
+    const batasSetahun = JUMLAH_BULAN_SPP > 12 ? 12 : JUMLAH_BULAN_SPP;
+
+    // A. Dapatkan Bulan Hijriyah Saat Ini secara Real-Time
+    let currentHijriMonth = 1; 
+    try {
+        const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { month: 'numeric' });
+        const parts = formatter.formatToParts(new Date());
+        parts.forEach(p => { 
+            if (p.type === 'month') currentHijriMonth = parseInt(p.value, 10);
+        });
+    } catch(e) {
+        console.error("Gagal membaca kalender Hijriyah", e);
+    }
     
-    // Cek satu-satu, bulan mana yang tidak ada di daftar bayar
-    for (let i = 0; i < batasBulan; i++) {
-        let namaBln = urutanBulanSyahriah[i];
-        if (!namaBulanTerbayar.includes(namaBln)) {
-            arrayBulanNunggak.push(namaBln);
+    // B. Hitung Bulan Berjalan (Syawal = Bulan ke-1, Dzulqa'dah = 2, dst)
+    const BULAN_AWAL_AJARAN = 10; // Syawal
+    let bulanBerjalan = ((currentHijriMonth - BULAN_AWAL_AJARAN + 12) % 12) + 1;
+    if (bulanBerjalan > batasSetahun) bulanBerjalan = batasSetahun;
+
+    // C. Hitung Nominal Tunggakan HANYA sampai bulan berjalan
+    let tagihanIdealSampaiBulanIni = bulanBerjalan * TARIF_SPP_BULAN;
+    let tunggakanSaatIni = Math.max(0, tagihanIdealSampaiBulanIni - totalTerbayar);
+
+    // D. Cari Spesifik Nama Bulan yang Menunggak (Hanya sampai bulan berjalan)
+    let arrayBulanNunggak = [];
+    if (tunggakanSaatIni > 0) {
+        for (let i = 0; i < bulanBerjalan; i++) {
+            let namaBln = urutanBulanSyahriah[i];
+            if (!namaBulanTerbayar.includes(namaBln)) {
+                arrayBulanNunggak.push(namaBln);
+            }
         }
     }
     
-    // Rangkai teks tunggakan dengan rapi
+    // E. Rangkai Teks Sisa Bulan dengan rapi
     let teksBulanNunggak = "";
-    if (sisaTotalSatuTahun <= 0) {
-        teksBulanNunggak = "Tidak ada (Lunas)";
-    } else if (arrayBulanNunggak.length === batasBulan) {
-        teksBulanNunggak = "Seluruh Bulan (Belum ada pembayaran)";
+    if (tunggakanSaatIni <= 0) {
+        teksBulanNunggak = "Tidak ada (Lunas sampai bulan ini)";
     } else if (arrayBulanNunggak.length === 1) {
         teksBulanNunggak = arrayBulanNunggak[0]; // Jika cuma 1 bulan
+    } else if (arrayBulanNunggak.length > 1) {
+        teksBulanNunggak = arrayBulanNunggak.join(", "); // Jika banyak bulan
     } else {
-        teksBulanNunggak = arrayBulanNunggak.join(", "); // Gabungkan jika banyak
+        teksBulanNunggak = "Terdapat kurang bayar / angsuran tertunda";
     }
 
     // ===============================================================
@@ -1044,21 +1074,41 @@ Wassalamu'alaikum Wr. Wb.
 
 _~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
 
-    } else {
-        // KONDISI 2: MASIH ADA TUNGGAKAN DI TAHUN INI
+    } else if (tunggakanSaatIni <= 0) {
+        // KONDISI 2: LUNAS SAMPAI BULAN INI (Tidak Menunggak)
         teksPesan = `Assalamu'alaikum Wr. Wb.
 
-Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi Syahriah (Bulanan) ananda *${namaSantri}*.
+Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, kami mendoakan semoga Bapak/Ibu senantiasa dalam lindungan-Nya.
 
-Berdasarkan catatan kami, berikut adalah ringkasan administrasi Syahriah ananda:
+Melalui pesan ini, kami ingin mengucapkan terima kasih karena administrasi Syahriah (Bulanan) ananda *${namaSantri}* s.d bulan berjalan ini telah tertunaikan dengan lancar (tidak ada tunggakan).
 
 *Ringkasan Administrasi:*
 🔸 Ketetapan 1 Tahun: *${formatRp(TOTAL_TAGIHAN_SETAHUN)}*
 🔸 Telah Ditunaikan: *${formatRp(totalTerbayar)}*
-🔸 Sisa Tunggakan: *${formatRp(sisaTotalSatuTahun)}*
+🔸 Sisa Menuju Lunas 1 Tahun: *${formatRp(sisaTotalSatuTahun)}*${teksRincian}
 
-*Bulan Belum Tertunaikan:*
-_${teksBulanNunggak}_${teksRincian}
+_Jazakumullah khairan_ atas kerja sama dan kedisiplinan Bapak/Ibu. Semoga Allah membalas dengan rezeki yang berkah.
+
+Wassalamu'alaikum Wr. Wb.
+
+_~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
+
+    } else {
+        // KONDISI 3: MASIH ADA TUNGGAKAN BERJALAN
+        teksPesan = `Assalamu'alaikum Wr. Wb.
+
+Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi Syahriah (Bulanan) ananda *${namaSantri}*.
+
+Berdasarkan catatan kami, saat ini terdapat tagihan Syahriah yang belum terselesaikan s.d bulan berjalan ini. Berikut rinciannya:
+
+*Fokus Tagihan S.d Bulan Ini:*
+🔸 Total Menunggak: *${formatRp(tunggakanSaatIni)}*
+🔸 Bulan Belum Lunas: _${teksBulanNunggak}_
+
+*(Informasi Total 1 Tahun)*
+🔸 Ketetapan 1 Tahun: *${formatRp(TOTAL_TAGIHAN_SETAHUN)}*
+🔸 Telah Ditunaikan: *${formatRp(totalTerbayar)}*
+🔸 Sisa Keseluruhan: *${formatRp(sisaTotalSatuTahun)}*${teksRincian}
 
 Mohon abaikan pesan ini apabila Bapak/Ibu baru saja menyelesaikan administrasi tersebut. Atas perhatian dan kerja samanya, kami sampaikan _Jazakumullah khairan_.
 
