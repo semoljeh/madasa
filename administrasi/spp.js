@@ -934,7 +934,7 @@ function kirimWaTagihan(nis) {
     
     if (historiAnak.length > 0) {
         teksRincian = "\n\n*Catatan Pembayaran Masuk:*";
-        let counter = 1; // Untuk nomor urut
+        let counter = 1;
         
         historiAnak.forEach(item => {
             let nominal = parseFloat(item.nominal) || 0;
@@ -945,7 +945,7 @@ function kirimWaTagihan(nis) {
             let tgl = parts[0]; 
             let thn = parts[parts.length - 1];
             
-            // Logika cerdas: Cek apakah formatnya mengandung gabungan banyak bulan
+            // Logika cerdas pemecah banyak bulan
             if (!isNaN(tgl) && !isNaN(thn) && parts.length >= 3 && ket.includes(',')) {
                 let bulanString = ket.substring(tgl.length, ket.length - thn.length).trim();
                 let listBulan = bulanString.split(',').map(b => b.trim());
@@ -965,23 +965,27 @@ function kirimWaTagihan(nis) {
     }
 
     // ===============================================================
-    // 4. LOGIKA PERHITUNGAN TUNGGAKAN BULAN BERJALAN & TOTAL 1 TAHUN
+    // 4. LOGIKA PERHITUNGAN OTOMATIS BERDASARKAN KALENDER HIJRIYAH
     // ===============================================================
-    // Asumsi TOTAL_TAGIHAN_SETAHUN sudah ada (variabel global/konstanta)
     const BIAYA_PER_BULAN = TOTAL_TAGIHAN_SETAHUN / 12;
     
-    // Menghitung bulan ke-berapa saat ini (Asumsi Tahun Ajaran mulai JULI)
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth(); // Index: 0 (Jan) - 11 (Des)
-    let bulanKe;
+    // Mengambil angka bulan Hijriyah saat ini menggunakan fitur bawaan JavaScript
+    // Format en-US-u-ca-islamic memastikan outputnya hanya angka bulan (1 untuk Muharram, 10 untuk Syawal, dst)
+    const formatterHijri = new Intl.DateTimeFormat('en-US-u-ca-islamic', { month: 'numeric' });
+    const angkaBulanHijriRaw = formatterHijri.format(new Date());
+    const currentHijriMonth = parseInt(angkaBulanHijriRaw.replace(/[^0-9]/g, ''), 10); 
     
-    if (currentMonth >= 6) { // Juli (6) sampai Desember (11)
-        bulanKe = currentMonth - 6 + 1; 
-    } else { // Januari (0) sampai Juni (5)
-        bulanKe = currentMonth + 6 + 1;
-    }
+    // Syawal adalah bulan ke-10 dalam kalender Hijriyah
+    const BULAN_AWAL_AJARAN = 10; 
+    
+    // Hitung sudah berapa bulan berjalan dari Syawal
+    // Rumus memutar: jika sekarang Syawal(10) hasilnya 1. Jika Dzulhijjah(12) hasilnya 3. Jika Muharram(1) hasilnya 4.
+    let bulanKe = ((currentHijriMonth - BULAN_AWAL_AJARAN + 12) % 12) + 1;
 
-    // Tagihan yang SEHARUSNYA sudah lunas hingga bulan berjalan
+    // Batasi maksimal 12 bulan dalam satu tahun ajaran
+    if (bulanKe > 12) bulanKe = 12;
+
+    // Tagihan yang SEHARUSNYA sudah lunas hingga bulan Hijriyah berjalan
     let tagihanSampaiBulanIni = bulanKe * BIAYA_PER_BULAN;
     
     // Cegah tagihan berjalan melebihi total tagihan setahun
@@ -1013,7 +1017,7 @@ Wassalamu'alaikum Wr. Wb.
 _~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
 
     } else if (tunggakanSaatIni <= 0) {
-        // KONDISI 2: LUNAS BULAN INI / SUDAH BAYAR UNTUK BULAN DEPAN (Tidak menunggak)
+        // KONDISI 2: LUNAS SAMPAI BULAN INI (Tidak ada tunggakan)
         teksPesan = `Assalamu'alaikum Wr. Wb.
 
 Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, kami mendoakan semoga Bapak/Ibu senantiasa dalam lindungan-Nya.
