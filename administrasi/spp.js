@@ -55,12 +55,41 @@ function updateWaktuLokal() {
 // =========================================================
 // INISIALISASI AWAL (LOAD DATA & SALDO)
 // =========================================================
-function initSpp() {
+async function initSpp() {
     updateWaktuLokal();
-    setInterval(updateWaktuLokal, 1000);
-    ambilMasterSantri();
-    ambilSettingSpp(); 
-    loadBukuKas();
+    if (!window.intervalWaktu) window.intervalWaktu = setInterval(updateWaktuLokal, 1000);
+
+    // 1. Tampilkan Loading Screen yang mengunci layar
+    showLoading(true, "Menyiapkan Data Aplikasi...");
+
+    try {
+        // 2. Tarik semua data berbarengan dan TUNGGU sampai ketiganya selesai (100%)
+        await Promise.all([
+            ambilMasterSantri(),
+            ambilSettingSpp(),
+            loadBukuKas()
+        ]);
+        
+        // 3. Jika ketiga data di atas SUKSES ditarik, matikan loading
+        showLoading(false);
+    } catch (error) {
+        // Jika gagal ditarik, tampilkan pesan tanpa mengunci layar terus-menerus
+        showLoading(false);
+        console.error("Kesalahan inisialisasi:", error);
+        Swal.fire({
+            title: 'Koneksi Server Sibuk',
+            text: 'Terjadi antrean data karena sistem diakses bersamaan. Silakan muat ulang.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '<i class="fas fa-sync"></i> Muat Ulang',
+            cancelButtonText: 'Tutup',
+            allowOutsideClick: false
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload(); 
+            }
+        });
+    }
 }
 
 if (document.readyState === 'loading') {
@@ -74,20 +103,21 @@ function ambilMasterSantri() {
     fd.append('action', 'getSantri');
     fd.append('token', sessionStorage.getItem('tokenMadasa')); 
     
-    gasFetch( { method: 'POST', body: fd })
+    // Tambahkan 'return' agar bisa ditunggu oleh initSpp()
+    return gasFetch( { method: 'POST', body: fd })
     .then(r => r.json())
     .then(res => {
         if(res.status === 'success') {
             LOKAL_DATA_SANTRI = res.data;
-            
-            // Panggil fungsi untuk membuat daftar kelas otomatis dari database
             buatDropdownKelasOtomatis();
-
-            if (document.getElementById('filterKelasSpp').value) {
-                loadDataSpp();
-            }
+            if (document.getElementById('filterKelasSpp').value) loadDataSpp();
+        } else {
+            throw new Error("Gagal mengambil data santri");
         }
-    }).catch(e => console.log("Gagal muat master santri"));
+    }).catch(e => {
+        console.log("Gagal muat master santri", e);
+        throw e; // Lempar error ke initSpp()
+    });
 }
 
 
@@ -196,7 +226,8 @@ function formatInputRupiah(input) {
 
 function getAngkaMurni(stringInput) {
     if (!stringInput) return 0;
-    return parseFloat(stringInput.toString().replace(/\./g, '')) || 0;
+    // Hapus semua karakter yang BUKAN angka 0-9
+    return parseFloat(stringInput.toString().replace(/[^0-9]/g, '')) || 0; 
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -215,7 +246,10 @@ function ambilSettingSpp() {
     fd.append('action', 'getSettingSpp');
     fd.append('token', sessionStorage.getItem('tokenMadasa'));
     
-    gasFetch( { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+    // Tambahkan 'return'
+    return gasFetch( { method: 'POST', body: fd })
+    .then(r=>r.json())
+    .then(res => {
         if(res.status === 'success') {
             TARIF_SPP_BULAN = parseFloat(res.nominal) || 0;
             JUMLAH_BULAN_SPP = parseFloat(res.bulan) || 0;
@@ -224,7 +258,12 @@ function ambilSettingSpp() {
             document.getElementById('input_tarif_spp').value = TARIF_SPP_BULAN > 0 ? new Intl.NumberFormat('id-ID').format(TARIF_SPP_BULAN) : "";
             document.getElementById('input_bulan_spp').value = JUMLAH_BULAN_SPP > 0 ? JUMLAH_BULAN_SPP : "";
             document.getElementById('info_spp_total').innerText = formatRp(TOTAL_TAGIHAN_SETAHUN);
+        } else {
+            throw new Error("Gagal load pengaturan");
         }
+    }).catch(e => {
+        console.log("Gagal muat setting", e);
+        throw e; // Lempar error ke initSpp()
     });
 }
 
@@ -326,8 +365,24 @@ function loadDataSpp() {
 let warnaSisa = sisaTunggakan === 0 ? 'text-emerald-600' : 'text-red-500';
                 let teksSisa = sisaTunggakan === 0 ? '<i class="fas fa-check-circle"></i> LUNAS' : formatRp(sisaTunggakan);
 
-                // Cek ketersediaan nomor HP HANYA untuk warna tombol (Hijau jika ada, abu-abu jika kosong)
+// Cek ketersediaan nomor HP HANYA untuk warna tombol
                 let warnaTombolWa = santri.hp ? 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed';
+
+// =======================================================
+                // LOGIKA PENYEMBUNYIAN TOMBOL WHATSAPP
+                let userSaatIni = sessionStorage.getItem('username') || sessionStorage.getItem('namaMadasa') || '';
+                let htmlTombolWa = '';
+                if (userSaatIni.toLowerCase() === 'kangadmin') {
+                    htmlTombolWa = `
+                        <button onclick="kirimWaTagihan('${santri.nis}')" title="Kirim Info Tagihan ke WA" class="w-8 h-8 rounded-lg ${warnaTombolWa} transition-all shadow-sm">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                    `;
+                }
+
+                // PERBAIKAN: Amankan nama santri dari tanda petik yang merusak tombol
+                let namaAman = santri.nama ? santri.nama.toString().replace(/'/g, "\\'").replace(/"/g, "&quot;") : 'Santri';
+                // =======================================================
 
                 // Render Baris Tabel
                 tbody.innerHTML += `
@@ -341,12 +396,11 @@ let warnaSisa = sisaTunggakan === 0 ? 'text-emerald-600' : 'text-red-500';
                         <td class="p-4 text-center">
                             <div class="flex items-center justify-center gap-2">
                                 
-                                <!-- TOMBOL WHATSAPP YANG LEBIH AMAN (HANYA MENGIRIMKAN NIS) -->
-                                <button onclick="kirimWaTagihan('${santri.nis}')" title="Kirim Info Tagihan ke WA" class="w-8 h-8 rounded-lg ${warnaTombolWa} transition-all shadow-sm">
-                                    <i class="fab fa-whatsapp"></i>
-                                </button>
+                                ${htmlTombolWa}
                                 
-                                <button onclick="bukaRiwayatSpp('${santri.nis}', '${santri.nama.replace(/'/g, "\\'")}')" title="Lihat Riwayat" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-list"></i></button>
+                                <!-- Tombol Riwayat yang sudah diamankan -->
+                                <button onclick="bukaRiwayatSpp('${santri.nis}', '${namaAman}')" title="Lihat Riwayat" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-list"></i></button>
+                                
                                 <button onclick="openModalSpp('${santri.nis}')" title="Bayar SPP" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i class="fas fa-plus"></i></button>
                             </div>
                         </td>
@@ -365,13 +419,14 @@ let warnaSisa = sisaTunggakan === 0 ? 'text-emerald-600' : 'text-red-500';
 function kalkulasiOtomatisBulan() {
     if (document.getElementById('cek_bintang_pelajar').checked) return; 
 
-    const jumlahBulanDipilih = document.querySelectorAll('.cek-bulan:checked').length;
+    // PENTING: Hanya hitung checkbox yang TERCENTANG dan TIDAK TERKUNCI (bukan riwayat)
+    const jumlahBulanDipilih = document.querySelectorAll('.cek-bulan:checked:not(:disabled)').length;
     const inputNominal = document.getElementById('spp_nominal');
 
     if (jumlahBulanDipilih > 0) {
         inputNominal.value = new Intl.NumberFormat('id-ID').format(TARIF_SPP_BULAN * jumlahBulanDipilih);
     } else {
-        inputNominal.value = new Intl.NumberFormat('id-ID').format(TARIF_SPP_BULAN);
+        inputNominal.value = "0"; // Default Rp 0 jika belum ada bulan baru yang dipilih
     }
 }
 
@@ -430,11 +485,13 @@ function openModalSpp(targetNis = null) {
 
     toggleBintangPelajar(); 
     
-    if (targetNis && targetNis !== 'tambah') {
+   if (targetNis && targetNis !== 'tambah') {
         document.getElementById('spp_nis_nama').value = targetNis;
+        cekBulanTerbayar(); // <-- Tambahkan baris ini
     } else {
         document.getElementById('spp_nis_nama').value = ""; 
         document.getElementById('spp_nis_nama').selectedIndex = 0; 
+        cekBulanTerbayar(); // <-- Tambahkan baris ini juga
     }
     
     window.history.pushState({ modal: 'formSpp' }, "", "#formSpp");
@@ -467,7 +524,7 @@ document.getElementById('formInputSpp').addEventListener('submit', function(e) {
     } else {
         const tgl = document.getElementById('spp_tanggal').value;
         const thn = document.getElementById('spp_tahun').value;
-        const arrayBulanDiceklis = Array.from(document.querySelectorAll('.cek-bulan:checked')).map(cb => cb.value);
+      const arrayBulanDiceklis = Array.from(document.querySelectorAll('.cek-bulan:checked:not(:disabled)')).map(cb => cb.value);
         
         if (arrayBulanDiceklis.length === 0) {
             btnSubmit.disabled = false; btnSubmit.innerHTML = teksAsli;
@@ -508,35 +565,46 @@ document.getElementById('formInputSpp').addEventListener('submit', function(e) {
 // =========================================================
 // MODAL RIWAYAT TRANSAKSI SPP (PER SANTRI)
 // =========================================================
-function bukaRiwayatSpp(nis, nama) {
-    document.getElementById('riwayat_nama_santri').innerText = `${nis} - ${nama}`;
-    const tbody = document.getElementById('bodyRiwayatSpp');
-    tbody.innerHTML = '';
-    
-    let historiAnak = HISTORI_GLOBAL.filter(d => d.nis == nis);
-    
-    if(historiAnak.length > 0) {
-        historiAnak.forEach((item, idx) => {
-            let warnaBadge = item.status === 'LUNAS' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
-            tbody.innerHTML += `
-                <tr>
-                    <td class="p-3 text-center text-gray-500">${idx+1}</td>
-                    <td class="p-3 font-semibold text-gray-700">${item.keterangan}</td>
-                    <td class="p-3 text-right font-bold text-blue-600">${formatRp(item.nominal)}</td>
-                    <td class="p-3 text-center"><span class="px-2 py-1 rounded text-xs font-bold ${warnaBadge}">${item.status}</span></td>
-                    <td class="p-3 text-center">
-                        <button onclick="hapusSpp('${item.nis}', '${item.keterangan}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
-                    </td>
-                </tr>
-            `;
-        });
-    } else {
-        tbody.innerHTML = '<tr><td colspan="5" class="p-5 text-center text-gray-400 italic">Belum ada riwayat transaksi.</td></tr>';
+window.bukaRiwayatSpp = function(nis, nama) {
+    try {
+        document.getElementById('riwayat_nama_santri').innerText = `${nis} - ${nama}`;
+        const tbody = document.getElementById('bodyRiwayatSpp');
+        tbody.innerHTML = '';
+        
+        // Memastikan HISTORI_GLOBAL tidak memicu error jika kosong
+        let historiAnak = (Array.isArray(HISTORI_GLOBAL) ? HISTORI_GLOBAL : []).filter(d => d.nis == nis);
+        
+        if(historiAnak.length > 0) {
+            historiAnak.forEach((item, idx) => {
+                let warnaBadge = item.status === 'LUNAS' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
+                
+                // PERBAIKAN BUG: Mencegah error tombol Hapus saat bulan mengandung tanda petik (cth: Sya'ban)
+                let ketAman = item.keterangan ? item.keterangan.toString().replace(/'/g, "\\'").replace(/"/g, "&quot;") : '-';
+                
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 text-center text-gray-500">${idx+1}</td>
+                        <td class="p-3 font-semibold text-gray-700">${item.keterangan}</td>
+                        <td class="p-3 text-right font-bold text-blue-600">${formatRp(item.nominal)}</td>
+                        <td class="p-3 text-center"><span class="px-2 py-1 rounded text-xs font-bold ${warnaBadge}">${item.status}</span></td>
+                        <td class="p-3 text-center">
+                            <button onclick="hapusSpp('${item.nis}', '${ketAman}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" class="p-5 text-center text-gray-400 italic">Belum ada riwayat transaksi.</td></tr>';
+        }
+        
+        window.history.pushState({ modal: 'riwayatSpp' }, "", "#riwayatSpp");
+        document.getElementById('modalRiwayatSpp').classList.remove('hidden');
+        
+    } catch (error) {
+        console.error("Sistem gagal memuat riwayat:", error);
+        Swal.fire('Error Tampilan', 'Gagal memproses data riwayat. Silakan muat ulang halaman.', 'error');
     }
-    
-    window.history.pushState({ modal: 'riwayatSpp' }, "", "#riwayatSpp");
-    document.getElementById('modalRiwayatSpp').classList.remove('hidden');
-}
+};
 
 function closeRiwayatSpp() { 
     document.getElementById('modalRiwayatSpp').classList.add('hidden'); 
@@ -575,7 +643,8 @@ function loadBukuKas() {
     fd.append('action', 'getBukuKas');
     fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-    gasFetch( { method: 'POST', body: fd })
+    // Tambahkan 'return'
+    return gasFetch( { method: 'POST', body: fd })
     .then(r => r.json())
     .then(res => {
         if(res.status === 'success') {
@@ -584,8 +653,13 @@ function loadBukuKas() {
             document.getElementById('kas_pemasukan').innerText = formatRp(res.masuk);
             document.getElementById('kas_pengeluaran').innerText = formatRp(res.keluar);
             document.getElementById('kas_saldo').innerText = formatRp(res.saldo);
+        } else {
+            throw new Error("Gagal load buku kas");
         }
-    }).catch(e => console.log("Gagal memuat buku kas", e));
+    }).catch(e => {
+        console.log("Gagal memuat buku kas", e);
+        throw e; // Lempar error ke initSpp()
+    });
 }
 
 // =========================================================
@@ -712,11 +786,13 @@ function tarikLaporanKas() {
                 let strMasuk = item.masuk > 0 ? formatRp(item.masuk) : '-';
                 let strKeluar = item.keluar > 0 ? formatRp(item.keluar) : '-';
                 
-           
-            // --- KODE TOMBOL (HANYA SISA HAPUS) ---
+                // Amankan rincian dari tanda petik (single & double quotes) agar tidak merusak HTML tombol
+                let rincianAman = item.rincian ? item.rincian.toString().replace(/'/g, "\\'").replace(/"/g, "&quot;") : '-';
+                
+                // Kode tombol dengan parameter yang sudah diamankan
                 let tombolAksi = `
                     <div class="flex items-center justify-center">
-                        <button onclick="hapusKas('${item.rincian}', '${item.jenis}')" title="Hapus" class="w-8 h-8 rounded bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"><i class="fas fa-trash"></i></button>
+                        <button onclick="hapusKas('${rincianAman}', '${item.jenis}')" title="Hapus" class="w-8 h-8 rounded bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-sm"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
 
@@ -727,7 +803,7 @@ function tarikLaporanKas() {
                         <td class="p-3 text-center"><span class="px-2 py-1 rounded text-[10px] font-bold ${warnaJenis}">${item.jenis}</span></td>
                         <td class="p-3 text-right font-bold text-emerald-600">${strMasuk}</td>
                         <td class="p-3 text-right font-bold text-red-500">${strKeluar}</td>
-                        <td class="p-3 text-center">${tombolAksi}</td> <!-- KOLOM AKSI DIMASUKKAN -->
+                        <td class="p-3 text-center">${tombolAksi}</td>
                     </tr>
                 `;
             });
@@ -908,9 +984,6 @@ function hapusKas(rincian, jenis) {
 }
 
 
-// =========================================================
-// FUNGSI KIRIM INFO ADMINISTRASI SYAHRIAH (BULANAN) KE WHATSAPP 
-// =========================================================
 function kirimWaTagihan(nis) {
     // 1. Cari data santri berdasarkan NIS
     let santri = LOKAL_DATA_SANTRI.find(s => s.nis == nis);
@@ -956,8 +1029,8 @@ function kirimWaTagihan(nis) {
             semuaBulanDibayar.push({ teksCetak: `${ket} : ${formatRp(nominal)} ( ✅ )`, indexBulan: -1 });
             namaBulanTerbayar = [...urutanBulanSyahriah]; // Anggap lunas semua bulan
         } 
-        // Jika format tanggal & tahun normal (bisa satu atau banyak bulan)
-        else if (!isNaN(tgl) && !isNaN(thn) && parts.length >= 3 && ket.includes(',')) {
+        // Jika format tanggal & tahun normal (bisa satu atau banyak bulan) - Perbaikan disini
+        else if (!isNaN(tgl) && !isNaN(thn) && parts.length >= 3) {
             let bulanString = ket.substring(tgl.length, ket.length - thn.length).trim();
             let listBulan = bulanString.split(',').map(b => b.trim());
             let nominalPerBulan = nominal / listBulan.length;
@@ -1004,9 +1077,7 @@ function kirimWaTagihan(nis) {
         teksRincian = "\n\n*Catatan Pembayaran Masuk:*\n_Belum ada data pembayaran yang tercatat._";
     }
 
-    // ===============================================================
     // 5. LOGIKA DETEKSI BULAN BERJALAN & SISA TUNGGAKAN
-    // ===============================================================
     const sisaTotalSatuTahun = Math.max(0, TOTAL_TAGIHAN_SETAHUN - totalTerbayar);
     const batasSetahun = JUMLAH_BULAN_SPP > 12 ? 12 : JUMLAH_BULAN_SPP;
 
@@ -1054,14 +1125,11 @@ function kirimWaTagihan(nis) {
         teksBulanNunggak = "Terdapat kurang bayar / angsuran tertunda";
     }
 
-    // ===============================================================
     // 6. PENENTUAN ISI PESAN BERDASARKAN STATUS PEMBAYARAN
-    // ===============================================================
     const namaSantri = santri.nama.trim();
     let teksPesan = "";
 
     if (sisaTotalSatuTahun <= 0) {
-        // KONDISI 1: LUNAS 1 TAHUN PENUH
         teksPesan = `Assalamu'alaikum Wr. Wb.
 
 Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, kami mendoakan semoga Bapak/Ibu senantiasa dalam lindungan-Nya.
@@ -1075,7 +1143,6 @@ Wassalamu'alaikum Wr. Wb.
 _~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
 
     } else if (tunggakanSaatIni <= 0) {
-        // KONDISI 2: LUNAS SAMPAI BULAN INI (Tidak Menunggak)
         teksPesan = `Assalamu'alaikum Wr. Wb.
 
 Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, kami mendoakan semoga Bapak/Ibu senantiasa dalam lindungan-Nya.
@@ -1094,7 +1161,6 @@ Wassalamu'alaikum Wr. Wb.
 _~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
 
     } else {
-        // KONDISI 3: MASIH ADA TUNGGAKAN BERJALAN
         teksPesan = `Assalamu'alaikum Wr. Wb.
 
 Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi Syahriah (Bulanan) ananda *${namaSantri}*.
@@ -1117,9 +1183,7 @@ Wassalamu'alaikum Wr. Wb.
 _~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
     }
     
-    // ===============================================================
     // 7. EKSEKUSI KE WHATSAPP
-    // ===============================================================
     let linkWa = `https://wa.me/${noHpAsli}?text=${encodeURIComponent(teksPesan)}`;
     window.open(linkWa, '_blank');
 }
@@ -1343,4 +1407,61 @@ function cetakKartuSppKelas() {
         </html>
     `);
     printWindow.document.close();
+}
+
+
+
+function cekBulanTerbayar() {
+    const nis = document.getElementById('spp_nis_nama').value;
+    if (!nis) return;
+
+    // 1. Kembalikan semua checkbox ke kondisi awal (bersih & bisa diklik)
+    const checkboxes = document.querySelectorAll('.cek-bulan');
+    checkboxes.forEach(cb => {
+        cb.checked = false;
+        cb.disabled = false; 
+        cb.closest('label').classList.remove('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+        cb.closest('label').classList.add('bg-white', 'cursor-pointer');
+    });
+
+    // 2. Tarik riwayat pembayaran khusus anak ini
+    let historiAnak = HISTORI_GLOBAL.filter(d => d.nis == nis);
+    let namaBulanTerbayar = [];
+    const urutanBulanSyahriah = ["Syawal", "Dzulqa'dah", "Dzulhijjah", "Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban", "Ramadhan"];
+
+    // 3. Ekstrak data bulan dari keterangan kuitansi
+    historiAnak.forEach(item => {
+        let ket = item.keterangan.toString().trim();
+        if (ket.toLowerCase().includes('bintang pelajar')) {
+            namaBulanTerbayar = [...urutanBulanSyahriah]; // Lunas semua
+        } else {
+            let parts = ket.split(' ');
+            // Pengecekan format: Jika minimal 3 kata dan diapit oleh angka (Tanggal & Tahun)
+            if (parts.length >= 3 && !isNaN(parts[0]) && !isNaN(parts[parts.length - 1])) {
+                let thn = parts[parts.length - 1];
+                let tgl = parts[0];
+                let bulanString = ket.substring(tgl.length, ket.length - thn.length).trim();
+                let listBulan = bulanString.split(',').map(b => b.trim());
+                listBulan.forEach(bulan => {
+                    if (urutanBulanSyahriah.includes(bulan)) namaBulanTerbayar.push(bulan);
+                });
+            } else {
+                // Untuk satu bulan tanpa tanggal/tahun, atau format lama
+                if (urutanBulanSyahriah.includes(ket)) namaBulanTerbayar.push(ket);
+            }
+        }
+    });
+
+    // 4. Centang dan gembok (disable) bulan yang sudah terbayar
+    checkboxes.forEach(cb => {
+        if (namaBulanTerbayar.includes(cb.value)) {
+            cb.checked = true;
+            cb.disabled = true; // Kunci agar guru tidak bisa salah klik
+            cb.closest('label').classList.remove('bg-white', 'cursor-pointer');
+            cb.closest('label').classList.add('bg-gray-100', 'opacity-50', 'cursor-not-allowed');
+        }
+    });
+
+    // 5. Setel ulang kalkulasi nominal
+    kalkulasiOtomatisBulan();
 }
