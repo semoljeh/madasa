@@ -367,16 +367,13 @@ let warnaSisa = sisaTunggakan === 0 ? 'text-emerald-600' : 'text-red-500';
                 let warnaTombolWa = santri.hp ? 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed';
 
 // =======================================================
-                // LOGIKA PENYEMBUNYIAN TOMBOL WHATSAPP
-                let userSaatIni = sessionStorage.getItem('username') || sessionStorage.getItem('namaMadasa') || '';
-                let htmlTombolWa = '';
-                if (userSaatIni.toLowerCase() === 'kangadmin') {
-                    htmlTombolWa = `
-                        <button onclick="kirimWaTagihan('${santri.nis}')" title="Kirim Info Tagihan ke WA" class="w-8 h-8 rounded-lg ${warnaTombolWa} transition-all shadow-sm">
-                            <i class="fab fa-whatsapp"></i>
-                        </button>
-                    `;
-                }
+// LOGIKA TOMBOL WHATSAPP (Dimunculkan kembali)
+let htmlTombolWa = `
+    <button type="button" onclick="kirimWaTagihan('${santri.nis}')" title="Kirim Info Tagihan ke WA" class="w-8 h-8 rounded-lg ${warnaTombolWa} transition-all shadow-sm">
+        <i class="fab fa-whatsapp"></i>
+    </button>
+`;
+// =======================================================
 
                 // PERBAIKAN: Amankan nama santri dari tanda petik yang merusak tombol
                 let namaAman = santri.nama ? santri.nama.toString().replace(/'/g, "\\'").replace(/"/g, "&quot;") : 'Santri';
