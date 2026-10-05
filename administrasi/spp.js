@@ -352,56 +352,46 @@ function loadDataSpp() {
             selectNama.innerHTML += `<option value="${s.nis}">${s.nis} - ${s.nama}</option>`; 
         });
         
-        if (santriDitemukan.length > 0) {
+if (santriDitemukan.length > 0) {
             let nomor = 1;
+            let htmlTabel = ''; // Menampung HTML sekaligus agar tag tidak bocor
+
             santriDitemukan.forEach((santri) => {
                 let historiSpp = HISTORI_GLOBAL.filter(d => d.nis == santri.nis);
                 let totalTerbayar = 0;
                 historiSpp.forEach(item => { totalTerbayar += parseFloat(item.nominal) || 0; });
                 let sisaTunggakan = Math.max(0, TOTAL_TAGIHAN_SETAHUN - totalTerbayar);
                 
-let warnaSisa = sisaTunggakan === 0 ? 'text-emerald-600' : 'text-red-500';
+                let warnaSisa = sisaTunggakan === 0 ? 'text-emerald-600' : 'text-red-500';
                 let teksSisa = sisaTunggakan === 0 ? '<i class="fas fa-check-circle"></i> LUNAS' : formatRp(sisaTunggakan);
-
-// Cek ketersediaan nomor HP HANYA untuk warna tombol
                 let warnaTombolWa = santri.hp ? 'bg-green-50 text-green-600 hover:bg-green-600 hover:text-white' : 'bg-gray-100 text-gray-400 cursor-not-allowed';
 
-// =======================================================
-// LOGIKA TOMBOL WHATSAPP (Dimunculkan kembali)
-let htmlTombolWa = `
-    <button type="button" onclick="kirimWaTagihan('${santri.nis}')" title="Kirim Info Tagihan ke WA" class="w-8 h-8 rounded-lg ${warnaTombolWa} transition-all shadow-sm">
-        <i class="fab fa-whatsapp"></i>
-    </button>
-`;
-// =======================================================
-
-                // PERBAIKAN: Amankan nama santri dari tanda petik yang merusak tombol
-                let namaAman = santri.nama ? santri.nama.toString().replace(/'/g, "\\'").replace(/"/g, "&quot;") : 'Santri';
-                // =======================================================
-
-// Render Baris Tabel
-tbody.innerHTML += `
-    <tr class="hover:bg-gray-50 transition-all border-b border-gray-50">
-        <td class="p-4 text-center text-gray-500 font-medium">${nomor++}</td>
-        <td class="p-4 font-mono text-gray-500">${santri.nis}</td>
-        <td class="p-4 font-bold text-gray-800">${santri.nama}</td>
-        <td class="p-4 text-center text-gray-600 font-semibold">${formatRp(TOTAL_TAGIHAN_SETAHUN)}</td>
-        <td class="p-4 text-center font-bold text-blue-600">${formatRp(totalTerbayar)}</td>
-        <td class="p-4 text-center font-bold ${warnaSisa}">${teksSisa}</td>
-        <td class="p-4 text-center">
-            <div class="flex items-center justify-center gap-2">
-                
-                ${htmlTombolWa}
-                
-                <!-- HANYA KIRIM NIS DAN TAMBAHKAN type="button" -->
-                <button type="button" onclick="bukaRiwayatSpp('${santri.nis}')" title="Lihat Riwayat" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-list"></i></button>
-                
-                <button type="button" onclick="openModalSpp('${santri.nis}')" title="Bayar SPP" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i class="fas fa-plus"></i></button>
-            </div>
-        </td>
-    </tr>
-`;
+                // Render per baris ke penampung (SUDAH DITAMBAHKAN event.stopPropagation())
+                htmlTabel += `
+                    <tr class="hover:bg-gray-50 transition-all border-b border-gray-50">
+                        <td class="p-4 text-center text-gray-500 font-medium">${nomor++}</td>
+                        <td class="p-4 font-mono text-gray-500">${santri.nis}</td>
+                        <td class="p-4 font-bold text-gray-800">${santri.nama}</td>
+                        <td class="p-4 text-center text-gray-600 font-semibold">${formatRp(TOTAL_TAGIHAN_SETAHUN)}</td>
+                        <td class="p-4 text-center font-bold text-blue-600">${formatRp(totalTerbayar)}</td>
+                        <td class="p-4 text-center font-bold ${warnaSisa}">${teksSisa}</td>
+                        <td class="p-4 text-center">
+                            <div class="flex items-center justify-center gap-2 relative z-20">
+                                
+                                <button type="button" onclick="event.stopPropagation(); kirimWaTagihan('${santri.nis}')" title="WA" class="w-9 h-9 flex items-center justify-center rounded-xl ${warnaTombolWa} shadow-sm transition-all"><i class="fab fa-whatsapp"></i></button>
+                                
+                                <button type="button" onclick="event.stopPropagation(); bukaRiwayatSpp('${santri.nis}')" title="Riwayat" class="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm transition-all"><i class="fas fa-list"></i></button>
+                                
+                                <button type="button" onclick="event.stopPropagation(); openModalSpp('${santri.nis}')" title="Bayar SPP" class="w-9 h-9 flex items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white shadow-sm transition-all"><i class="fas fa-plus"></i></button>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                `;
             });
+
+            tbody.innerHTML = htmlTabel; // Tembakkan HTML sekaligus di akhir (Anti-Bocor)
+
         } else {
             tbody.innerHTML = '<tr><td colspan="7" class="p-10 text-center text-gray-400">Belum ada data santri di kelas ini. Periksa data Master Santri Anda.</td></tr>';
         }
@@ -559,42 +549,43 @@ document.getElementById('formInputSpp').addEventListener('submit', function(e) {
 
 window.bukaRiwayatSpp = function(nis) {
     try {
-        // Ambil nama secara dinamis untuk menghindari error HTML
         let santri = LOKAL_DATA_SANTRI.find(s => s.nis == nis);
-        let nama = santri ? santri.nama : 'Santri';
+        let namaAman = santri ? santri.nama : 'Santri';
 
-        document.getElementById('riwayat_nama_santri').innerText = `${nis} - ${nama}`;
+        document.getElementById('riwayat_nama_santri').innerText = `${nis} - ${namaAman}`;
         const tbody = document.getElementById('bodyRiwayatSpp');
-        tbody.innerHTML = '';
         
-        // Memastikan HISTORI_GLOBAL tidak memicu error jika kosong
         let historiAnak = (Array.isArray(HISTORI_GLOBAL) ? HISTORI_GLOBAL : []).filter(d => d.nis == nis);
         
         if(historiAnak.length > 0) {
+            let htmlRiwayat = '';
             historiAnak.forEach((item, idx) => {
                 let warnaBadge = item.status === 'LUNAS' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700';
-                
-                // PERBAIKAN BUG: Mencegah error tombol Hapus saat bulan mengandung tanda petik (cth: Sya'ban)
                 let ketAman = item.keterangan ? item.keterangan.toString().replace(/'/g, "\\'").replace(/"/g, "&quot;") : '-';
                 
-                tbody.innerHTML += `
+                htmlRiwayat += `
                     <tr>
                         <td class="p-3 text-center text-gray-500">${idx+1}</td>
                         <td class="p-3 font-semibold text-gray-700">${item.keterangan}</td>
                         <td class="p-3 text-right font-bold text-blue-600">${formatRp(item.nominal)}</td>
                         <td class="p-3 text-center"><span class="px-2 py-1 rounded text-xs font-bold ${warnaBadge}">${item.status}</span></td>
                         <td class="p-3 text-center">
-                            <button onclick="hapusSpp('${item.nis}', '${ketAman}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                            <button type="button" onclick="hapusSpp('${item.nis}', '${ketAman}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
             });
+            tbody.innerHTML = htmlRiwayat;
         } else {
             tbody.innerHTML = '<tr><td colspan="5" class="p-5 text-center text-gray-400 italic">Belum ada riwayat transaksi.</td></tr>';
         }
         
         window.history.pushState({ modal: 'riwayatSpp' }, "", "#riwayatSpp");
-        document.getElementById('modalRiwayatSpp').classList.remove('hidden');
+        
+        // PAKSA MUNCUL DENGAN DISPLAY FLEX (Mengabaikan konflik class hidden)
+        const modalEl = document.getElementById('modalRiwayatSpp');
+        modalEl.classList.remove('hidden');
+        modalEl.style.display = 'flex';
         
     } catch (error) {
         console.error("Sistem gagal memuat riwayat:", error);
@@ -603,7 +594,10 @@ window.bukaRiwayatSpp = function(nis) {
 };
 
 function closeRiwayatSpp() { 
-    document.getElementById('modalRiwayatSpp').classList.add('hidden'); 
+    const modalEl = document.getElementById('modalRiwayatSpp');
+    modalEl.classList.add('hidden'); 
+    modalEl.style.display = 'none'; // Sembunyikan secara mutlak
+    
     if (window.location.hash === "#riwayatSpp") window.history.back();
 }
 
