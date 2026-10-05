@@ -59,27 +59,25 @@ async function initSpp() {
     updateWaktuLokal();
     if (!window.intervalWaktu) window.intervalWaktu = setInterval(updateWaktuLokal, 1000);
 
-    // 1. Tampilkan Loading Screen yang mengunci layar
     showLoading(true, "Menyiapkan Data Aplikasi...");
 
     try {
-        // 2. Tarik semua data berbarengan dan TUNGGU sampai ketiganya selesai (100%)
         await Promise.all([
             ambilMasterSantri(),
             ambilSettingSpp(),
             loadBukuKas()
         ]);
         
-        // 3. Jika ketiga data di atas SUKSES ditarik, matikan loading
         showLoading(false);
     } catch (error) {
-        // Jika gagal ditarik, tampilkan pesan tanpa mengunci layar terus-menerus
         showLoading(false);
         console.error("Kesalahan inisialisasi:", error);
+        
+        // TAMPILKAN PESAN ERROR ASLI DI POPUP
         Swal.fire({
-            title: 'Koneksi Server Sibuk',
-            text: 'Terjadi antrean data karena sistem diakses bersamaan. Silakan muat ulang.',
-            icon: 'warning',
+            title: 'Gagal Memuat Data',
+            text: error.message || 'Terjadi kesalahan saat menghubungi server.',
+            icon: 'error',
             showCancelButton: true,
             confirmButtonText: '<i class="fas fa-sync"></i> Muat Ulang',
             cancelButtonText: 'Tutup',
@@ -103,7 +101,6 @@ function ambilMasterSantri() {
     fd.append('action', 'getSantri');
     fd.append('token', sessionStorage.getItem('tokenMadasa')); 
     
-    // Tambahkan 'return' agar bisa ditunggu oleh initSpp()
     return gasFetch( { method: 'POST', body: fd })
     .then(r => r.json())
     .then(res => {
@@ -112,10 +109,11 @@ function ambilMasterSantri() {
             buatDropdownKelasOtomatis();
             if (document.getElementById('filterKelasSpp').value) loadDataSpp();
         } else {
-            throw new Error("Gagal mengambil data santri");
+            // TANGKAP PESAN ERROR ASLI DARI SERVER
+            throw new Error(res.message || "Data santri gagal dimuat. Cek format data di server.");
         }
     }).catch(e => {
-        console.log("Gagal muat master santri", e);
+        console.error("Gagal muat master santri:", e);
         throw e; // Lempar error ke initSpp()
     });
 }
@@ -384,28 +382,28 @@ let warnaSisa = sisaTunggakan === 0 ? 'text-emerald-600' : 'text-red-500';
                 let namaAman = santri.nama ? santri.nama.toString().replace(/'/g, "\\'").replace(/"/g, "&quot;") : 'Santri';
                 // =======================================================
 
-                // Render Baris Tabel
-                tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition-all border-b border-gray-50">
-                        <td class="p-4 text-center text-gray-500 font-medium">${nomor++}</td>
-                        <td class="p-4 font-mono text-gray-500">${santri.nis}</td>
-                        <td class="p-4 font-bold text-gray-800">${santri.nama}</td>
-                        <td class="p-4 text-center text-gray-600 font-semibold">${formatRp(TOTAL_TAGIHAN_SETAHUN)}</td>
-                        <td class="p-4 text-center font-bold text-blue-600">${formatRp(totalTerbayar)}</td>
-                        <td class="p-4 text-center font-bold ${warnaSisa}">${teksSisa}</td>
-                        <td class="p-4 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                
-                                ${htmlTombolWa}
-                                
-                                <!-- Tombol Riwayat yang sudah diamankan -->
-                                <button onclick="bukaRiwayatSpp('${santri.nis}', '${namaAman}')" title="Lihat Riwayat" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-list"></i></button>
-                                
-                                <button onclick="openModalSpp('${santri.nis}')" title="Bayar SPP" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+// Render Baris Tabel
+tbody.innerHTML += `
+    <tr class="hover:bg-gray-50 transition-all border-b border-gray-50">
+        <td class="p-4 text-center text-gray-500 font-medium">${nomor++}</td>
+        <td class="p-4 font-mono text-gray-500">${santri.nis}</td>
+        <td class="p-4 font-bold text-gray-800">${santri.nama}</td>
+        <td class="p-4 text-center text-gray-600 font-semibold">${formatRp(TOTAL_TAGIHAN_SETAHUN)}</td>
+        <td class="p-4 text-center font-bold text-blue-600">${formatRp(totalTerbayar)}</td>
+        <td class="p-4 text-center font-bold ${warnaSisa}">${teksSisa}</td>
+        <td class="p-4 text-center">
+            <div class="flex items-center justify-center gap-2">
+                
+                ${htmlTombolWa}
+                
+                <!-- HANYA KIRIM NIS DAN TAMBAHKAN type="button" -->
+                <button type="button" onclick="bukaRiwayatSpp('${santri.nis}')" title="Lihat Riwayat" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm"><i class="fas fa-list"></i></button>
+                
+                <button type="button" onclick="openModalSpp('${santri.nis}')" title="Bayar SPP" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"><i class="fas fa-plus"></i></button>
+            </div>
+        </td>
+    </tr>
+`;
             });
         } else {
             tbody.innerHTML = '<tr><td colspan="7" class="p-10 text-center text-gray-400">Belum ada data santri di kelas ini. Periksa data Master Santri Anda.</td></tr>';
@@ -562,11 +560,12 @@ document.getElementById('formInputSpp').addEventListener('submit', function(e) {
     });
 });
 
-// =========================================================
-// MODAL RIWAYAT TRANSAKSI SPP (PER SANTRI)
-// =========================================================
-window.bukaRiwayatSpp = function(nis, nama) {
+window.bukaRiwayatSpp = function(nis) {
     try {
+        // Ambil nama secara dinamis untuk menghindari error HTML
+        let santri = LOKAL_DATA_SANTRI.find(s => s.nis == nis);
+        let nama = santri ? santri.nama : 'Santri';
+
         document.getElementById('riwayat_nama_santri').innerText = `${nis} - ${nama}`;
         const tbody = document.getElementById('bodyRiwayatSpp');
         tbody.innerHTML = '';
