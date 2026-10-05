@@ -479,7 +479,7 @@ function openModalSpp(targetNis = null) {
         cekBulanTerbayar(); // <-- Tambahkan baris ini juga
     }
     
-    window.history.pushState({ modal: 'formSpp' }, "", "#formSpp");
+  // window.history.pushState({ modal: 'formSpp' }, "", "#formSpp");
     document.getElementById('modalFormSpp').classList.remove('hidden');
 }
 
@@ -581,7 +581,7 @@ window.bukaRiwayatSpp = function(nis) {
             tbody.innerHTML = '<tr><td colspan="5" class="p-5 text-center text-gray-400 italic">Belum ada riwayat transaksi.</td></tr>';
         }
         
-        window.history.pushState({ modal: 'riwayatSpp' }, "", "#riwayatSpp");
+      // window.history.pushState({ modal: 'riwayatSpp' }, "", "#riwayatSpp");
         document.getElementById('modalRiwayatSpp').classList.remove('hidden');
         
     } catch (error) {
