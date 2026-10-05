@@ -549,6 +549,7 @@ document.getElementById('formInputSpp').addEventListener('submit', function(e) {
 
 window.bukaRiwayatSpp = function(nis) {
     try {
+        // Ambil nama santri secara aman
         let santri = LOKAL_DATA_SANTRI.find(s => s.nis == nis);
         let namaAman = santri ? santri.nama : 'Santri';
 
@@ -575,17 +576,13 @@ window.bukaRiwayatSpp = function(nis) {
                     </tr>
                 `;
             });
-            tbody.innerHTML = htmlRiwayat;
+            tbody.innerHTML = htmlRiwayat; // Tembakkan HTML tabel riwayat sekaligus
         } else {
             tbody.innerHTML = '<tr><td colspan="5" class="p-5 text-center text-gray-400 italic">Belum ada riwayat transaksi.</td></tr>';
         }
         
         window.history.pushState({ modal: 'riwayatSpp' }, "", "#riwayatSpp");
-        
-        // PAKSA MUNCUL DENGAN DISPLAY FLEX (Mengabaikan konflik class hidden)
-        const modalEl = document.getElementById('modalRiwayatSpp');
-        modalEl.classList.remove('hidden');
-        modalEl.style.display = 'flex';
+        document.getElementById('modalRiwayatSpp').classList.remove('hidden');
         
     } catch (error) {
         console.error("Sistem gagal memuat riwayat:", error);
@@ -594,10 +591,7 @@ window.bukaRiwayatSpp = function(nis) {
 };
 
 function closeRiwayatSpp() { 
-    const modalEl = document.getElementById('modalRiwayatSpp');
-    modalEl.classList.add('hidden'); 
-    modalEl.style.display = 'none'; // Sembunyikan secara mutlak
-    
+    document.getElementById('modalRiwayatSpp').classList.add('hidden'); 
     if (window.location.hash === "#riwayatSpp") window.history.back();
 }
 
