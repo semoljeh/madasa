@@ -1431,3 +1431,188 @@ function cekBulanTerbayar() {
 
     kalkulasiOtomatisBulan();
 }
+
+// =========================================================
+// FUNGSI CETAK LAPORAN REKAP PER KELAS (A4 PORTRAIT)
+// =========================================================
+function cetakLaporanKelas() {
+    const kelas = document.getElementById('filterKelasSpp').value;
+    if (!kelas) return Swal.fire('Perhatian', 'Silakan pilih kelas terlebih dahulu pada filter di atas tabel untuk mencetak laporan.', 'warning');
+
+    let kelasBersih = kelas.toString().trim().toLowerCase();
+    let kelasAlternatif = kelasBersih.includes('-') ? kelasBersih.split('-')[1].trim() : kelasBersih;
+
+    let santriDitemukan = LOKAL_DATA_SANTRI.filter(s => {
+        let kelasDB = s.kelas ? s.kelas.toString().trim().toLowerCase() : '';
+        return kelasDB === kelasBersih || kelasDB === kelasAlternatif;
+    });
+
+    if (santriDitemukan.length === 0) {
+        return Swal.fire('Kosong', 'Tidak ada data santri di kelas ini.', 'error');
+    }
+
+    const baseUrl = window.location.origin + window.location.pathname.replace(/administrasi\/spp\.html$/i, '');
+    const logoUrl = baseUrl + 'asset/logo.png';
+    const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    let htmlTabel = '';
+    let nomor = 1;
+    
+    // Variabel untuk menampung total keseluruhan di bagian bawah tabel
+    let grandTotalTagihan = 0;
+    let grandTotalDibayar = 0;
+    let grandTotalTunggakan = 0;
+
+    // Hitung data per santri
+    santriDitemukan.forEach(santri => {
+        let historiSpp = HISTORI_GLOBAL.filter(d => d.nis == santri.nis);
+        let totalTerbayar = 0;
+        
+        historiSpp.forEach(item => { totalTerbayar += parseFloat(item.nominal) || 0; });
+        let sisaTunggakan = Math.max(0, TOTAL_TAGIHAN_SETAHUN - totalTerbayar);
+        
+        // Penentuan Status
+        let statusHtml = sisaTunggakan === 0 ? '<span style="color: #059669;">LUNAS</span>' : '<span style="color: #dc2626;">BELUM LUNAS</span>';
+
+        grandTotalTagihan += TOTAL_TAGIHAN_SETAHUN;
+        grandTotalDibayar += totalTerbayar;
+        grandTotalTunggakan += sisaTunggakan;
+
+        htmlTabel += `
+            <tr>
+                <td style="text-align: center;">${nomor++}</td>
+                <td style="text-align: center; font-family: monospace;">${santri.nis}</td>
+                <td><strong>${santri.nama}</strong></td>
+                <td style="text-align: right;">${formatRp(TOTAL_TAGIHAN_SETAHUN)}</td>
+                <td style="text-align: right; color: #059669; font-weight: bold;">${formatRp(totalTerbayar)}</td>
+                <td style="text-align: right; color: ${sisaTunggakan > 0 ? '#dc2626' : '#333'};">${formatRp(sisaTunggakan)}</td>
+                <td style="text-align: center; font-weight: bold; font-size: 10px;">${statusHtml}</td>
+            </tr>
+        `;
+    });
+
+    // --- KALKULASI PERSENTASE UNTUK KOLOM KOSONG DI BAWAH ---
+    let persentaseBayar = 0;
+    if (grandTotalTagihan > 0) {
+        persentaseBayar = (grandTotalDibayar / grandTotalTagihan) * 100;
+    }
+    
+    // Hilangkan angka nol desimal di belakang koma yang tidak perlu (misal 100.00% jadi 100%)
+    let teksPersen = parseFloat(persentaseBayar.toFixed(2)) + "%";
+    
+    // Penentuan warna otomatis berdasarkan progres pembayaran
+    let warnaPersen = persentaseBayar >= 100 ? '#059669' : (persentaseBayar >= 50 ? '#d97706' : '#dc2626');
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return Swal.fire('Pop-up Diblokir', 'Izinkan pop-up browser untuk mencetak laporan.', 'error');
+
+    // Injeksi HTML dan CSS untuk Cetak (Desain Profesional A4)
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <title>Laporan_SPP_Kelas_${kelas}</title>
+            <style>
+                @page { size: A4 portrait; margin: 15mm; }
+                body { font-family: 'Arial', sans-serif; font-size: 11px; color: #111; margin: 0; padding: 0; }
+                
+                /* KOP SURAT */
+                .kop-surat { display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+                .kop-surat img { width: 65px; height: 65px; margin-right: 15px; }
+                .kop-surat .teks { flex: 1; text-align: center; padding-right: 80px; }
+                .kop-surat h2 { margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold; color: #000; letter-spacing: 1px; }
+                .kop-surat p { margin: 5px 0 0 0; font-size: 12px; }
+                
+                /* JUDUL LAPORAN */
+                .judul-laporan { text-align: center; margin-bottom: 20px; }
+                .judul-laporan h3 { margin: 0; font-size: 15px; text-transform: uppercase; text-decoration: underline; }
+                .judul-laporan p { margin: 5px 0 0 0; font-size: 11px; font-weight: bold; }
+
+                /* TABEL UTAMA */
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
+                th, td { border: 1px solid #444; padding: 6px 8px; vertical-align: middle; }
+                th { background-color: #f3f4f6 !important; font-weight: bold; text-align: center; text-transform: uppercase; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                
+                /* STRIPING WARNA BARIS */
+                tbody tr:nth-child(even) { background-color: #fafafa !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                
+                /* FOOTER TABEL (REKAP) */
+                tfoot th { background-color: #e5e7eb !important; font-weight: bold; text-align: right; font-size: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                
+                /* AREA TANDA TANGAN */
+                .signature-area { margin-top: 40px; display: flex; justify-content: space-between; padding: 0 40px; page-break-inside: avoid; }
+                .signature-box { text-align: center; width: 200px; }
+                .signature-box p { margin: 0 0 5px 0; font-size: 12px; }
+                .signature-box .name { margin-top: 70px; font-weight: bold; text-decoration: underline; font-size: 12px; }
+                
+                /* CATATAN KAKI */
+                .footer { text-align: center; font-size: 9px; font-style: italic; color: #777; margin-top: 30px; border-top: 1px dashed #aaa; padding-top: 10px; }
+            </style>
+        </head>
+        <body>
+            <div class="kop-surat">
+                <img src="${logoUrl}" onerror="this.style.display='none'">
+                <div class="teks">
+                    <h2>Madrasah Darussalam</h2>
+                    <p>Sistem Informasi Administrasi & Keuangan Santri</p>
+                </div>
+            </div>
+            
+            <div class="judul-laporan">
+                <h3>Rekapitulasi Pembayaran SPP / Syahriyah</h3>
+                <p>Kelas: ${kelas.toUpperCase()} | Periode Filter: Keseluruhan</p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th width="5%">No</th>
+                        <th width="12%">NIS</th>
+                        <th width="30%">Nama Santri</th>
+                        <th width="15%">Tagihan 1 Thn</th>
+                        <th width="15%">Telah Dibayar</th>
+                        <th width="13%">Tunggakan</th>
+                        <th width="10%">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${htmlTabel}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="3">TOTAL AKUMULASI KELAS INI :</th>
+                        <th style="text-align: right;">${formatRp(grandTotalTagihan)}</th>
+                        <th style="text-align: right; color: #059669;">${formatRp(grandTotalDibayar)}</th>
+                        <th style="text-align: right; color: #dc2626;">${formatRp(grandTotalTunggakan)}</th>
+                        
+                        <!-- KOLOM PERSENTASE BARU -->
+                        <th style="text-align: center; color: ${warnaPersen}; font-size: 14px;">${teksPersen}</th>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <div class="signature-area">
+                <div class="signature-box">
+                    <p>Mengetahui,</p>
+                    <p><strong>Kepala Madrasah</strong></p>
+                    <div class="name">( ...................................... )</div>
+                </div>
+                <div class="signature-box">
+                    <p>Bangkalan, ${tanggalCetak.split(',')[1]}</p>
+                    <p><strong>Bendahara Madrasah</strong></p>
+                    <div class="name">( ...................................... )</div>
+                </div>
+            </div>
+
+            <div class="footer">Dicetak otomatis dari Sistem Administrasi Madasa | Dokumen Sah | Tanggal Cetak: ${tanggalCetak}</div>
+            
+            <script> 
+                window.onload = function() { 
+                    setTimeout(function() { window.print(); }, 1500); 
+                }; 
+            </script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
