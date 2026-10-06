@@ -1433,7 +1433,7 @@ function cekBulanTerbayar() {
 }
 
 // =========================================================
-// FUNGSI CETAK LAPORAN REKAP PER KELAS (A4 PORTRAIT)
+// FUNGSI CETAK LAPORAN REKAP PER KELAS (F4 / 210x330mm PORTRAIT)
 // =========================================================
 function cetakLaporanKelas() {
     const kelas = document.getElementById('filterKelasSpp').value;
@@ -1491,29 +1491,30 @@ function cetakLaporanKelas() {
         `;
     });
 
-    // --- KALKULASI PERSENTASE UNTUK KOLOM KOSONG DI BAWAH ---
+    // --- KALKULASI PERSENTASE KEPATUHAN ---
     let persentaseBayar = 0;
     if (grandTotalTagihan > 0) {
         persentaseBayar = (grandTotalDibayar / grandTotalTagihan) * 100;
     }
     
-    // Hilangkan angka nol desimal di belakang koma yang tidak perlu (misal 100.00% jadi 100%)
+    // Hilangkan angka nol desimal di belakang koma yang tidak perlu
     let teksPersen = parseFloat(persentaseBayar.toFixed(2)) + "%";
     
-    // Penentuan warna otomatis berdasarkan progres pembayaran
+    // Penentuan warna otomatis berdasarkan progres
     let warnaPersen = persentaseBayar >= 100 ? '#059669' : (persentaseBayar >= 50 ? '#d97706' : '#dc2626');
 
     const printWindow = window.open('', '_blank');
     if (!printWindow) return Swal.fire('Pop-up Diblokir', 'Izinkan pop-up browser untuk mencetak laporan.', 'error');
 
-    // Injeksi HTML dan CSS untuk Cetak (Desain Profesional A4)
+    // Injeksi HTML dan CSS untuk Cetak (Ukuran presisi 210 x 330 mm)
     printWindow.document.write(`
         <!DOCTYPE html>
         <html lang="id">
         <head>
             <title>Laporan_SPP_Kelas_${kelas}</title>
             <style>
-                @page { size: A4 portrait; margin: 15mm; }
+                /* MENGUBAH UKURAN KERTAS MENJADI 210x330 mm (F4) */
+                @page { size: 210mm 330mm portrait; margin: 15mm; }
                 body { font-family: 'Arial', sans-serif; font-size: 11px; color: #111; margin: 0; padding: 0; }
                 
                 /* KOP SURAT */
@@ -1584,8 +1585,6 @@ function cetakLaporanKelas() {
                         <th style="text-align: right;">${formatRp(grandTotalTagihan)}</th>
                         <th style="text-align: right; color: #059669;">${formatRp(grandTotalDibayar)}</th>
                         <th style="text-align: right; color: #dc2626;">${formatRp(grandTotalTunggakan)}</th>
-                        
-                        <!-- KOLOM PERSENTASE BARU -->
                         <th style="text-align: center; color: ${warnaPersen}; font-size: 14px;">${teksPersen}</th>
                     </tr>
                 </tfoot>
