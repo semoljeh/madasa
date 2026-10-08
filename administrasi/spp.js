@@ -1615,3 +1615,250 @@ function cetakLaporanKelas() {
     `);
     printWindow.document.close();
 }
+
+
+
+// =========================================================
+// FUNGSI CETAK KENDALI BULANAN (MANUAL GURU + SAMPUL, 11 BULAN, F4 LANDSCAPE)
+// =========================================================
+function cetakLaporanBulananKelas() {
+    const kelas = document.getElementById('filterKelasSpp').value;
+    if (!kelas) return Swal.fire('Perhatian', 'Silakan pilih kelas terlebih dahulu pada filter di atas tabel.', 'warning');
+
+    let kelasBersih = kelas.toString().trim().toLowerCase();
+    let kelasAlternatif = kelasBersih.includes('-') ? kelasBersih.split('-')[1].trim() : kelasBersih;
+
+    let santriDitemukan = LOKAL_DATA_SANTRI.filter(s => {
+        let kelasDB = s.kelas ? s.kelas.toString().trim().toLowerCase() : '';
+        return kelasDB === kelasBersih || kelasDB === kelasAlternatif;
+    });
+
+    if (santriDitemukan.length === 0) {
+        return Swal.fire('Kosong', 'Tidak ada data santri di kelas ini.', 'error');
+    }
+
+    const baseUrl = window.location.origin + window.location.pathname.replace(/administrasi\/spp\.html$/i, '');
+    const logoUrl = baseUrl + 'asset/logo.png';
+    const tanggalCetak = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Daftar 11 Bulan Syahriah lengkap (Ramadhan Dihapus)
+    const urutanBulan = ["Syawal", "Dzulqa'dah", "Dzulhijjah", "Muharram", "Safar", "Rabiul Awal", "Rabiul Akhir", "Jumadil Awal", "Jumadil Akhir", "Rajab", "Sya'ban"];
+
+    let htmlTabel = '';
+    let nomor = 1;
+
+    // Membuat baris tabel santri
+    santriDitemukan.forEach(santri => {
+        let cellBulanHTML = '';
+        urutanBulan.forEach(() => {
+            cellBulanHTML += `<td></td>`;
+        });
+
+        htmlTabel += `
+            <tr>
+                <td style="text-align: center;">${nomor++}</td>
+                <td style="text-align: center; font-family: monospace;">${santri.nis}</td>
+                <td style="font-weight: bold; text-transform: uppercase;">${santri.nama}</td>
+                ${cellBulanHTML}
+                <td></td> <!-- Kolom kosong untuk Paraf Wali -->
+            </tr>
+        `;
+    });
+
+    // Menghapus pengaturan width persentase agar kolom otomatis mengikuti teks
+    let headerBulanHTML = urutanBulan.map(b => `<th style="font-size: 10px;">${b}</th>`).join('');
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return Swal.fire('Pop-up Diblokir', 'Izinkan pop-up browser untuk mencetak laporan.', 'error');
+
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <title>Buku_Kendali_Kelas_${kelas}</title>
+            <style>
+                /* PENGATURAN KERTAS F4 LANDSCAPE */
+                @page { size: 330mm 210mm landscape; margin: 10mm 15mm; }
+                body { font-family: 'Arial', sans-serif; font-size: 11px; color: #111; margin: 0; padding: 0; background: #fff; }
+                
+                /* ==================== DESAIN SAMPUL ==================== */
+                .cover-page {
+                    width: 100%;
+                    height: 175mm; 
+                    padding: 5mm; 
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    page-break-after: always; 
+                    box-sizing: border-box;
+                }
+                .cover-border {
+                    width: 100%;
+                    height: 100%;
+                    border: 5px double #222; 
+                    padding: 25px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: space-between;
+                    text-align: center;
+                    border-radius: 8px;
+                    box-sizing: border-box; 
+                }
+                .cover-logo { width: 130px; height: 130px; margin-top: 10px; }
+                .cover-title { font-size: 32px; font-weight: bold; margin: 15px 0 5px 0; letter-spacing: 2px; text-transform: uppercase; }
+                .cover-subtitle { font-size: 22px; margin: 0; font-weight: normal; letter-spacing: 1px; color: #444; }
+                
+                .cover-details { 
+                    width: 65%; 
+                    margin: 20px auto; 
+                    border: 2px solid #444; 
+                    padding: 15px 30px; 
+                    border-radius: 12px;
+                    background-color: #fafafa !important;
+                    -webkit-print-color-adjust: exact;
+                }
+                .detail-box { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 18px; font-weight: bold; }
+                .detail-box:last-child { margin-bottom: 0; }
+                .detail-label { text-align: left; width: 40%; }
+                .detail-colon { width: 5%; text-align: center; }
+                .detail-value { text-align: left; width: 55%; border-bottom: 1px dashed #777; }
+                .detail-value.filled { border-bottom: none; font-size: 20px; color: #000; text-transform: uppercase; }
+
+                .cover-footer { margin-bottom: 5px; font-size: 12px; font-weight: bold; color: #333; }
+                .cover-footer p { margin: 3px 0; }
+
+                /* ==================== DESAIN HALAMAN ISI (TABEL) ==================== */
+                .kop-surat { display: flex; align-items: center; border-bottom: 3px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+                .kop-surat img { width: 60px; height: 60px; margin-right: 15px; }
+                .kop-surat .teks { flex: 1; text-align: center; padding-right: 75px; }
+                .kop-surat h2 { margin: 0; font-size: 22px; text-transform: uppercase; font-weight: bold; color: #000; }
+                .kop-surat p { margin: 5px 0 0 0; font-size: 12px; }
+                
+                .judul-laporan { text-align: center; margin-bottom: 15px; }
+                .judul-laporan h3 { margin: 0; font-size: 15px; text-transform: uppercase; text-decoration: underline; }
+                .judul-laporan p { margin: 5px 0 0 0; font-size: 12px; font-weight: bold; }
+
+                table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
+                th, td { border: 1px solid #444; padding: 6px 8px; vertical-align: middle; }
+                
+                /* MENGUNCI HEADER AGAR TEKS TIDAK TURUN KE BAWAH (NO WRAP) */
+                th { 
+                    background-color: #f3f4f6 !important; 
+                    font-weight: bold; 
+                    text-align: center; 
+                    -webkit-print-color-adjust: exact; 
+                    print-color-adjust: exact; 
+                    line-height: 1.2;
+                    white-space: nowrap; /* Ini yang membuat teks menjadi 1 baris */
+                }
+                
+                /* Pengecualian khusus untuk kolom Nama Santri agar tetap bisa fleksibel jika terlalu panjang */
+                th.col-nama { white-space: normal; width: auto; }
+                th.col-kecil { width: 1%; } /* Membuat kolom No & NIS setipis mungkin */
+                
+                tbody tr { height: 35px; }
+                tbody tr:nth-child(even) { background-color: #f9fafb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                
+                .signature-area { margin-top: 30px; display: flex; justify-content: space-between; padding: 0 50px; page-break-inside: avoid; }
+                .signature-box { text-align: center; width: 220px; }
+                .signature-box p { margin: 0 0 5px 0; font-size: 12px; }
+                .signature-box .name { margin-top: 60px; font-weight: bold; text-decoration: underline; font-size: 12px; }
+                
+                .footer { text-align: center; font-size: 9px; font-style: italic; color: #777; margin-top: 20px; border-top: 1px dashed #aaa; padding-top: 10px; }
+            </style>
+        </head>
+        <body>
+            <!-- HALAMAN 1: SAMPUL DEPAN -->
+            <div class="cover-page">
+                <div class="cover-border">
+                    <img src="${logoUrl}" class="cover-logo" onerror="this.style.display='none'">
+                    <div>
+                        <h1 class="cover-title">BUKU KENDALI ADMINISTRASI<br>SYAHRIYAH SANTRI</h1>
+                        <h2 class="cover-subtitle">MADRASAH DARUSSALAM</h2>
+                    </div>
+                    
+                    <div class="cover-details">
+                        <div class="detail-box">
+                            <div class="detail-label">KELAS</div>
+                            <div class="detail-colon">:</div>
+                            <div class="detail-value filled">${kelas}</div>
+                        </div>
+                        <div class="detail-box">
+                            <div class="detail-label">WALI KELAS</div>
+                            <div class="detail-colon">:</div>
+                            <div class="detail-value"></div> 
+                        </div>
+                        <div class="detail-box">
+                            <div class="detail-label">TAHUN AJARAN</div>
+                            <div class="detail-colon">:</div>
+                            <div class="detail-value"></div> 
+                        </div>
+                    </div>
+
+                    <div class="cover-footer">
+                        <p>Sistem Informasi Administrasi & Keuangan Madrasah</p>
+                        <p>Website: www.madasa.ponpes.id | Email: madasaponpes@gmail.com</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HALAMAN 2 DST: ISI TABEL DATA -->
+            <div class="kop-surat">
+                <img src="${logoUrl}" onerror="this.style.display='none'">
+                <div class="teks">
+                    <h2>Madrasah Darussalam</h2>
+                    <p>Sistem Informasi Administrasi & Keuangan Santri</p>
+                </div>
+            </div>
+            
+            <div class="judul-laporan">
+                <h3>Lembar Kendali Syahriyah Bulanan (Manual)</h3>
+                <p>Kelas: ${kelas.toUpperCase()} | Lembar Pengisian Wali Kelas</p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-kecil">NO</th>
+                        <th class="col-kecil">NIS</th>
+                        <th class="col-nama">NAMA SANTRI</th>
+                        ${headerBulanHTML}
+                        <th>PARAF WALI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${htmlTabel}
+                </tbody>
+            </table>
+            
+            <div class="signature-area">
+                <div class="signature-box">
+                    <p>Mengetahui,</p>
+                    <p><strong>Kepala Madrasah</strong></p>
+                    <div class="name">( ...................................... )</div>
+                </div>
+                <div class="signature-box">
+                    <p>Memeriksa,</p>
+                    <p><strong>Wali Kelas</strong></p>
+                    <div class="name">( ...................................... )</div>
+                </div>
+                <div class="signature-box">
+                    <p>Bangkalan, ${tanggalCetak.split(',')[1]}</p>
+                    <p><strong>Bendahara Madrasah</strong></p>
+                    <div class="name">( ...................................... )</div>
+                </div>
+            </div>
+
+            <div class="footer">Dicetak dari Sistem Administrasi Madasa | Tanggal Cetak: ${tanggalCetak} | Format Dokumen Kosong</div>
+            
+            <script> 
+                window.onload = function() { 
+                    setTimeout(function() { window.print(); }, 1500); 
+                }; 
+            </script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}

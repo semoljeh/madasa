@@ -221,18 +221,25 @@
                 </ul>
             </div>
 			
-           <!-- AREA TOMBOL KONTROL BARU -->
-    <div class="flex flex-wrap gap-2 w-full sm:w-auto shrink-0 justify-end">
-        <button onclick="cetakLaporanKelas()" class="flex-1 sm:flex-none px-4 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm">
-            <i class="fas fa-file-invoice"></i> Laporan Kelas
-        </button>
-        <button onclick="cetakKartuSppKelas()" class="flex-1 sm:flex-none px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm">
-            <i class="fas fa-id-badge"></i> Cetak Kartu
-        </button>
-        <button onclick="openModalSpp('tambah')" class="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm">
-            <i class="fas fa-plus"></i> Tambah SPP
-        </button>
-    </div>
+  
+<!-- AREA TOMBOL KONTROL BARU -->
+<div class="flex flex-wrap gap-2 w-full sm:w-auto shrink-0 justify-end">
+    <!-- Tombol Form Bulanan Baru -->
+    <button onclick="cetakLaporanBulananKelas()" class="flex-1 sm:flex-none px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm">
+        <i class="fas fa-calendar-check"></i> Form Bulanan
+    </button>
+    
+    <!-- Tombol yang sudah ada sebelumnya -->
+    <button onclick="cetakLaporanKelas()" class="flex-1 sm:flex-none px-4 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm">
+        <i class="fas fa-file-invoice"></i> Laporan Kelas
+    </button>
+    <button onclick="cetakKartuSppKelas()" class="flex-1 sm:flex-none px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm">
+        <i class="fas fa-id-badge"></i> Cetak Kartu
+    </button>
+    <button onclick="openModalSpp('tambah')" class="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 text-sm">
+        <i class="fas fa-plus"></i> Tambah SPP
+    </button>
+</div>
 	
         </div>
 
