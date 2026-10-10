@@ -985,6 +985,9 @@ function hapusKas(rincian, jenis) {
     });
 }
 
+// =========================================================
+// LOGIKA KIRIM NOTIFIKASI WA (DIPERBARUI DENGAN RINCIAN ALOKASI & TITIPAN)
+// =========================================================
 function kirimWaTagihan(nis) {
     let santri = LOKAL_DATA_SANTRI.find(s => s.nis == nis);
     if (!santri) {
@@ -1001,6 +1004,7 @@ function kirimWaTagihan(nis) {
     
     let historiAnak = HISTORI_GLOBAL.filter(d => d.nis == nis);
     let totalTerbayar = 0;
+    let totalDialokasikan = 0;
     
     const urutanBulanSyahriah = [
         "Syawal", "Dzulqa'dah", "Dzulhijjah", "Muharram", "Safar", 
@@ -1011,6 +1015,7 @@ function kirimWaTagihan(nis) {
     let semuaBulanDibayar = [];
     let namaBulanTerbayar = [];
 
+    // --- PROSES PEMUCAHAN NOMINAL TRANSAKSI PER BULAN ---
     historiAnak.forEach(item => {
         let nominal = parseFloat(item.nominal) || 0;
         totalTerbayar += nominal;
@@ -1021,25 +1026,41 @@ function kirimWaTagihan(nis) {
         let thn = parts[parts.length - 1];
         
         if (ket.toLowerCase().includes('bintang pelajar')) {
-            semuaBulanDibayar.push({ teksCetak: `${ket} : ${formatRp(nominal)} ( ✅ )`, indexBulan: -1 });
+            semuaBulanDibayar.push({ teksCetak: `${ket} (LUNAS 1 TAHUN) ✅`, indexBulan: -1 });
             namaBulanTerbayar = [...urutanBulanSyahriah]; 
+            totalDialokasikan += nominal;
         } 
         else if (!isNaN(tgl) && !isNaN(thn) && parts.length >= 3) {
             let bulanString = ket.substring(tgl.length, ket.length - thn.length).trim();
             let listBulan = bulanString.split(',').map(b => b.trim());
-            let nominalPerBulan = nominal / listBulan.length;
             
+            let sisaNominalTransaksi = nominal;
+
             listBulan.forEach(bulan => {
                 let idxBln = urutanBulanSyahriah.indexOf(bulan);
+                let nominalAlokasi = 0;
+                
+                // Alokasikan uang pas sebesar TARIF SPP, sisanya lanjut ke bulan berikutnya
+                if (sisaNominalTransaksi >= TARIF_SPP_BULAN) {
+                    nominalAlokasi = TARIF_SPP_BULAN;
+                    sisaNominalTransaksi -= TARIF_SPP_BULAN;
+                } else if (sisaNominalTransaksi > 0) {
+                    nominalAlokasi = sisaNominalTransaksi;
+                    sisaNominalTransaksi = 0;
+                }
+                
+                totalDialokasikan += nominalAlokasi;
+                let teksLunas = nominalAlokasi >= TARIF_SPP_BULAN ? '( ✅ Lunas )' : '( ⏳ Angsur )';
+                
                 if (idxBln !== -1) {
                     semuaBulanDibayar.push({ 
-                        teksCetak: `${tgl} ${bulan} ${thn} : ${formatRp(nominalPerBulan)} ( ✅ )`, 
+                        teksCetak: `Bulan ${bulan} : ${formatRp(nominalAlokasi)} ${teksLunas}`, 
                         indexBulan: idxBln 
                     });
                     namaBulanTerbayar.push(bulan);
                 } else {
                     semuaBulanDibayar.push({ 
-                        teksCetak: `${tgl} ${bulan} ${thn} : ${formatRp(nominalPerBulan)} ( ✅ )`, 
+                        teksCetak: `${bulan} : ${formatRp(nominalAlokasi)}`, 
                         indexBulan: 99 
                     });
                 }
@@ -1049,9 +1070,13 @@ function kirimWaTagihan(nis) {
             let idxBlnTunggal = urutanBulanSyahriah.indexOf(ket);
             if (idxBlnTunggal !== -1) {
                 namaBulanTerbayar.push(ket);
-                semuaBulanDibayar.push({ teksCetak: `${ket} : ${formatRp(nominal)} ( ✅ )`, indexBulan: idxBlnTunggal });
+                let nominalAlokasi = nominal >= TARIF_SPP_BULAN ? TARIF_SPP_BULAN : nominal;
+                let teksLunas = nominalAlokasi >= TARIF_SPP_BULAN ? '( ✅ Lunas )' : '( ⏳ Angsur )';
+                totalDialokasikan += nominalAlokasi;
+                semuaBulanDibayar.push({ teksCetak: `Bulan ${ket} : ${formatRp(nominalAlokasi)} ${teksLunas}`, indexBulan: idxBlnTunggal });
             } else {
-                semuaBulanDibayar.push({ teksCetak: `${ket} : ${formatRp(nominal)} ( ✅ )`, indexBulan: 99 });
+                totalDialokasikan += nominal;
+                semuaBulanDibayar.push({ teksCetak: `${ket} : ${formatRp(nominal)}`, indexBulan: 99 });
             }
         }
     });
@@ -1060,16 +1085,27 @@ function kirimWaTagihan(nis) {
     
     let teksRincian = "";
     if (semuaBulanDibayar.length > 0) {
-        teksRincian = "\n\n*Catatan Pembayaran Masuk:*";
+        teksRincian = "\n\n*Rincian Alokasi Bulan:*";
         semuaBulanDibayar.forEach((item, index) => {
             teksRincian += `\n${index + 1}. ${item.teksCetak}`;
         });
     } else {
-        teksRincian = "\n\n*Catatan Pembayaran Masuk:*\n_Belum ada data pembayaran yang tercatat._";
+        teksRincian = "\n\n*Rincian Alokasi Bulan:*\n_Belum ada data pembayaran yang tercatat._";
     }
 
     const sisaTotalSatuTahun = Math.max(0, TOTAL_TAGIHAN_SETAHUN - totalTerbayar);
     const batasSetahun = JUMLAH_BULAN_SPP > 12 ? 12 : JUMLAH_BULAN_SPP;
+
+    // --- DETEKSI SALDO TITIPAN (SISA PECAHAN) ---
+    let saldoTitipan = Math.max(0, totalTerbayar - totalDialokasikan);
+    let teksTitipan = "";
+    if (saldoTitipan > 0) {
+        teksTitipan = `\n🔸 Saldo Titipan (Akumulasi bln berikutnya): *${formatRp(saldoTitipan)}*`;
+    }
+    
+    // Rangkum daftar nama bulan unik yang sudah disentuh
+    let uniqueBulanTerbayar = [...new Set(namaBulanTerbayar)];
+    let stringDaftarBulan = uniqueBulanTerbayar.length > 0 ? uniqueBulanTerbayar.join(", ") : "Belum ada";
 
     let currentHijriMonth = 1; 
     try {
@@ -1099,7 +1135,7 @@ function kirimWaTagihan(nis) {
     
     let teksBulanNunggak = "";
     if (tunggakanSaatIni <= 0) {
-        teksBulanNunggak = "Tidak ada (Lunas sampai bulan ini)";
+        teksBulanNunggak = "Tidak ada (Lancar s.d bulan ini)";
     } else if (arrayBulanNunggak.length === 1) {
         teksBulanNunggak = arrayBulanNunggak[0]; 
     } else if (arrayBulanNunggak.length > 1) {
@@ -1112,57 +1148,58 @@ function kirimWaTagihan(nis) {
     let teksPesan = "";
 
     if (sisaTotalSatuTahun <= 0) {
+        let teksKelebihanLunas = saldoTitipan > 0 ? `\n\n_(Catatan: Terdapat kelebihan pembayaran / saldo mengendap sebesar *${formatRp(saldoTitipan)}*)_` : '';
+        
         teksPesan = `Assalamu'alaikum Wr. Wb.
 
-Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, kami mendoakan semoga Bapak/Ibu senantiasa dalam lindungan-Nya.
+Bapak/Ibu Wali Santri *Madrasah Darussalam*,
 
-Alhamdulillah, kami menginformasikan bahwa administrasi Syahriah (Bulanan) ananda *${namaSantri}* untuk tahun ajaran ini telah *LUNAS SEPENUHNYA*. ${teksRincian}
+Alhamdulillah, administrasi Syahriah (Bulanan) ananda *${namaSantri}* untuk tahun ajaran ini telah *LUNAS SEPENUHNYA*.${teksKelebihanLunas}
+${teksRincian}
 
-Kami mengucapkan _Jazakumullah khairan katsiran_ atas kelancaran Bapak/Ibu. Semoga rezeki Bapak/Ibu senantiasa diberkahi dan dilipatgandakan oleh Allah SWT.
-
+_Jazakumullah khairan_ atas kelancaran Bapak/Ibu. Semoga berkah.
 Wassalamu'alaikum Wr. Wb.
-
-_~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
+_~ Sistem Administrasi Madasa ~_`;
 
     } else if (tunggakanSaatIni <= 0) {
         teksPesan = `Assalamu'alaikum Wr. Wb.
 
-Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, kami mendoakan semoga Bapak/Ibu senantiasa dalam lindungan-Nya.
+Bapak/Ibu Wali Santri *Madrasah Darussalam*,
 
-Melalui pesan ini, kami ingin mengucapkan terima kasih karena administrasi Syahriah (Bulanan) ananda *${namaSantri}* s.d bulan berjalan ini telah tertunaikan dengan lancar (tidak ada tunggakan).
+Terima kasih, administrasi Syahriah (Bulanan) ananda *${namaSantri}* s.d bulan berjalan ini telah tertunaikan dengan lancar.
 
 *Ringkasan Administrasi:*
 🔸 Ketetapan 1 Tahun: *${formatRp(TOTAL_TAGIHAN_SETAHUN)}*
 🔸 Telah Ditunaikan: *${formatRp(totalTerbayar)}*
-🔸 Sisa Menuju Lunas 1 Tahun: *${formatRp(sisaTotalSatuTahun)}*${teksRincian}
+🔸 Sisa Menuju Lunas: *${formatRp(sisaTotalSatuTahun)}*${teksTitipan}
+🔸 Daftar Bulan Disetor: _${stringDaftarBulan}_
+${teksRincian}
 
-_Jazakumullah khairan_ atas kerja sama dan kedisiplinan Bapak/Ibu. Semoga Allah membalas dengan rezeki yang berkah.
-
+_Jazakumullah khairan_ atas kedisiplinan Bapak/Ibu. Semoga berkah.
 Wassalamu'alaikum Wr. Wb.
-
-_~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
+_~ Sistem Administrasi Madasa ~_`;
 
     } else {
         teksPesan = `Assalamu'alaikum Wr. Wb.
 
-Bapak/Ibu Wali Santri *Madrasah Darussalam* yang dirahmati Allah, mohon izin menyampaikan informasi terkait administrasi Syahriah (Bulanan) ananda *${namaSantri}*.
+Bapak/Ibu Wali Santri *Madrasah Darussalam*,
 
-Berdasarkan catatan kami, saat ini terdapat tagihan Syahriah yang belum terselesaikan s.d bulan berjalan ini. Berikut rinciannya:
+Mohon izin menginformasikan tagihan administrasi Syahriah (Bulanan) ananda *${namaSantri}* s.d bulan berjalan:
 
 *Fokus Tagihan S.d Bulan Ini:*
 🔸 Total Menunggak: *${formatRp(tunggakanSaatIni)}*
-🔸 Bulan Belum Lunas: _${teksBulanNunggak}_
+🔸 Bulan Menunggak: _${teksBulanNunggak}_
 
 *(Informasi Total 1 Tahun)*
 🔸 Ketetapan 1 Tahun: *${formatRp(TOTAL_TAGIHAN_SETAHUN)}*
 🔸 Telah Ditunaikan: *${formatRp(totalTerbayar)}*
-🔸 Sisa Keseluruhan: *${formatRp(sisaTotalSatuTahun)}*${teksRincian}
+🔸 Sisa Menuju Lunas: *${formatRp(sisaTotalSatuTahun)}*${teksTitipan}
+🔸 Daftar Bulan Disetor: _${stringDaftarBulan}_
+${teksRincian}
 
-Mohon abaikan pesan ini apabila Bapak/Ibu baru saja menyelesaikan administrasi tersebut. Atas perhatian dan kerja samanya, kami sampaikan _Jazakumullah khairan_.
-
+Abaikan jika baru saja menyelesaikan administrasi. Terima kasih.
 Wassalamu'alaikum Wr. Wb.
-
-_~ Ini adalah pesan otomatis dari sistem administrasi Madasa ~_`;
+_~ Sistem Administrasi Madasa ~_`;
     }
     
     let linkWa = `https://wa.me/${noHpAsli}?text=${encodeURIComponent(teksPesan)}`;
