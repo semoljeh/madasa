@@ -384,10 +384,11 @@
     </div>
 
 
-<script>
-    var nocache = new Date().getTime();
-    document.write('<script src="../config.js?nocache=' + nocache + '"><\/script>');
-</script>
+<!-- KONFIGURASI BACKEND (AUTO NO-CACHE) -->
+    <script>
+        var nocache = new Date().getTime();
+        document.write('<script src="../config.js?nocache=' + nocache + '"><\/script>');
+    </script>
     
     <script>
         let JAM_BUKA = 12;
@@ -408,8 +409,7 @@
             formData.append('action', 'getSantri');
             formData.append('token', sessionStorage.getItem('tokenMadasa'));
             
-            // PERBAIKAN 1: gasFetch diganti fetch(GAS_URL
-            fetch(GAS_URL, { method: 'POST', body: formData })
+            gasFetch({ method: 'POST', body: formData })
             .then(r => r.text()) 
             .then(text => {
                 showLoading(false);
@@ -424,6 +424,7 @@
                         Swal.fire('Peringatan', res.message || 'Data santri kosong.', 'warning');
                     }
                 } catch(e) {
+                    console.error("Parse Error/Execution Error:", e);
                     Swal.fire('Error Server', 'Terjadi kesalahan sistem atau token tidak valid.', 'error');
                 }
             })
@@ -432,11 +433,8 @@
                 Swal.fire('Error Koneksi', 'Gagal memuat data santri. Pastikan internet stabil.', 'error'); 
             });
         }
-		
-		
-		
-		
-		function simpanLiburJumat() {
+
+        function simpanLiburJumat() {
             showLoading(true, "Menyimpan pengaturan Jum'at...");
             const statusJumat = document.getElementById('optLiburJumat').value;
             const fd = new URLSearchParams();
@@ -444,16 +442,14 @@
             fd.append('status_jumat', statusJumat);
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+            gasFetch({ method: 'POST', body: fd }).then(r => r.json()).then(res => {
                 showLoading(false);
                 if(res.status === 'success') Swal.fire({toast: true, position: 'top-end', icon: 'success', title: res.message, showConfirmButton: false, timer: 2000});
                 else Swal.fire('Gagal', res.message, 'error');
             }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal menyambung ke server', 'error'); });
         }
-		
-		
-		
-		function simpanAutoAlfa() {
+
+        function simpanAutoAlfa() {
             showLoading(true, "Menyimpan pengaturan Auto Alfa...");
             const statusAlfa = document.getElementById('optAutoAlfa').value;
             const fd = new URLSearchParams();
@@ -461,29 +457,22 @@
             fd.append('auto_alfa', statusAlfa);
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+            gasFetch({ method: 'POST', body: fd }).then(r => r.json()).then(res => {
                 showLoading(false);
                 if(res.status === 'success') Swal.fire({toast: true, position: 'top-end', icon: 'success', title: res.message, showConfirmButton: false, timer: 2000});
                 else Swal.fire('Gagal', res.message, 'error');
             }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal menyambung ke server', 'error'); });
         }
-		
-		
-		
 
-// ==========================================================
-// FUNGSI MEMBUAT OPSI KELAS REKAP (CUSTOM SELECT DIPERBAIKI)
-// ==========================================================
-function buatOpsiKelasDinamisAbsensi() {
-    const listEl = document.getElementById('customSelectListRekap');
-    if (!listEl) return;
+        function buatOpsiKelasDinamisAbsensi() {
+            const listEl = document.getElementById('customSelectListRekap');
+            if (!listEl) return;
 
-    // MODIFIKASI: Filter Alumni agar tidak masuk di Rekap
-    const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
-        .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
-        .sort();
-        
-    let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
+            const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
+                .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
+                .sort();
+                
+            let bobotJenjang = { "TK / RA": 1, "IBTIDAIYAH": 2, "SANAWIYAH": 3, "ALIYAH": 4 };
 
             let kelompokKelas = {};
             kelasUnik.forEach(k => {
@@ -594,20 +583,16 @@ function buatOpsiKelasDinamisAbsensi() {
             }
         }
 
-// ==========================================================
-// FUNGSI SURAT IZIN SANTRI
-// ==========================================================
-function populateKelasIzin() {
-    // MODIFIKASI: Filter Alumni agar tidak masuk di Surat Izin
-    const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
-        .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
-        .sort();
-        
-    const selKelas = document.getElementById('izin_kelas');
-    kelasUnik.forEach(k => {
-        selKelas.innerHTML += `<option value="${k}">${k}</option>`;
-    });
-}
+        function populateKelasIzin() {
+            const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
+                .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
+                .sort();
+                
+            const selKelas = document.getElementById('izin_kelas');
+            kelasUnik.forEach(k => {
+                selKelas.innerHTML += `<option value="${k}">${k}</option>`;
+            });
+        }
 
         function loadSantriIzin() {
             const kelas = document.getElementById('izin_kelas').value;
@@ -620,10 +605,6 @@ function populateKelasIzin() {
             });
         }
 
-
-       // ==========================================================
-        // FUNGSI CETAK SURAT IZIN SANTRI
-        // ==========================================================
         function cetakSuratIzin() {
             const nis = document.getElementById('izin_santri').value;
             if(!nis) return Swal.fire('Perhatian', 'Pilih santri terlebih dahulu.', 'warning');
@@ -673,7 +654,6 @@ function populateKelasIzin() {
                         border-radius: 8px;
                     }
                     
-                    /* STYLING KOP KARTU */
                     .header-surat { display: flex; align-items: center; justify-content: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
                     .header-surat img { width: 55px; height: 55px; margin-right: 15px; }
                     .header-teks { flex: 1; text-align: center; }
@@ -681,7 +661,6 @@ function populateKelasIzin() {
                     .header-teks h3 { margin: 0 0 5px 0; font-size: 16px; text-transform: uppercase; font-weight: bold; }
                     .header-teks p { margin: 0; font-size: 10px; font-weight: bold; }
                     
-                    /* ISI SURAT */
                     .judul-surat { text-align: center; font-size: 15px; font-weight: bold; text-decoration: underline; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
                     
                     .isi-surat { font-size: 13px; line-height: 1.6; margin-bottom: 20px; }
@@ -697,8 +676,6 @@ function populateKelasIzin() {
             </head>
             <body>
                 <div class="surat-container">
-                    
-                    <!-- KOP SURAT -->
                     <div class="header-surat">
                         <img src="../asset/logo.png" onerror="this.style.display='none'">
                         <div class="header-teks">
@@ -712,7 +689,6 @@ function populateKelasIzin() {
                     
                     <div class="isi-surat">
                         <p style="text-align: center; font-weight: bold; margin-bottom: 15px;">Assalamu'alaikum Warahmatullahi Wabarakatuh</p>
-                        
                         <p>Dengan hormat,</p>
                         <p>Melalui surat ini, kami menerangkan bahwa santri di bawah ini:</p>
                         
@@ -744,7 +720,6 @@ function populateKelasIzin() {
                         </div>
                     </div>
                 </div>
-                
                 <script> 
                     window.onload = function() { setTimeout(function() { window.print(); }, 1500); }; 
                 <\/script>
@@ -754,9 +729,6 @@ function populateKelasIzin() {
             printWindow.document.close();
         }
 
-        // ==========================================================
-        // FUNGSI ID CARD
-        // ==========================================================
         let timerCariCetak;
         function filterCetakTertunda() {
             clearTimeout(timerCariCetak);
@@ -782,35 +754,35 @@ function populateKelasIzin() {
                         <path d="M0,0 L200,0 L200,80 Q150,80 100,110 Q50,80 0,80 Z" fill="#D4AF37"/>
                         <path d="M0,0 L200,0 L200,76 Q150,76 100,105 Q50,76 0,76 Z" fill="#033323"/>
                     </svg>
-					
-                  <div class="absolute top-[7.5mm] left-0 w-full flex flex-col items-center z-10 pointer-events-none">
-    <h4 class="text-[#D4AF37] text-[6.5px] font-semibold tracking-[0.25em] uppercase mb-[1px]">Madrasah</h4>
-    <h2 class="text-white text-[25px] font-normal leading-none mt-1" style="font-family: 'Diwani Jali', serif;" dir="rtl">دينية دار السلام</h2>
-</div>
-					
-                  <div class="absolute top-[23mm] left-1/2 -translate-x-1/2 w-[14mm] h-[14mm] bg-[#FDFBF7] rounded-full p-[1.5px] z-20 shadow-md border-[1.5px] border-[#D4AF37] flex items-center justify-center">
-    <img src="../asset/logo.png" alt="Logo" class="w-full h-full object-contain rounded-full" onerror="this.style.display='none'">
-</div>
-					
-                  <div class="absolute top-[38.5mm] left-0 w-full flex flex-col items-center px-2 z-10">
-    <h3 class="font-black text-[#033323] text-[10.5px] uppercase w-full leading-tight text-center px-2 break-words whitespace-normal line-clamp-2">${s.nama}</h3>
-    <div class="flex items-center justify-center gap-2 mt-[1mm] mb-[1.5mm] w-full px-6">
-        <div class="h-[1px] flex-1 bg-[#D4AF37] opacity-50"></div>
-        <svg width="8" height="8" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" fill="none" stroke="#D4AF37" stroke-width="2" transform="rotate(45 12 12)"/></svg>
-        <div class="h-[1px] flex-1 bg-[#D4AF37] opacity-50"></div>
-    </div>
-    <div class="bg-gradient-to-r from-[#033323] to-[#065f46] border border-[#D4AF37] rounded-[2px] px-2 py-[1px] shadow-sm"><p class="text-[6px] text-white font-bold uppercase tracking-[0.1em] leading-none">${s.kelas}</p></div>
-</div>
-					
-                 <div class="absolute top-[52.5mm] left-1/2 -translate-x-1/2 z-10 flex flex-col items-center w-[48mm]">
-    <div class="bg-white p-[3px] rounded shadow-sm border border-gray-200 w-full flex justify-center">
-        <svg class="barcode-svg" jsbarcode-format="CODE128" jsbarcode-value="${s.nis}" jsbarcode-height="45" jsbarcode-width="2.5" jsbarcode-displayvalue="false" jsbarcode-margin="0" style="width: 100%; height: auto;"></svg>
-    </div>
-    <p class="text-[9.5px] font-black text-[#033323] tracking-[0.25em] mt-[3px] leading-none">${s.nis}</p>
-    <p class="text-[6px] font-semibold text-[#065f46] tracking-wider mt-[2px] leading-normal pb-[1px] w-full text-center truncate px-1">${s.ttl}</p>
-</div>
-					
-                   <svg class="absolute bottom-0 left-0 w-full z-0" style="height: 10mm;" viewBox="0 0 200 40" preserveAspectRatio="none">
+                    
+                    <div class="absolute top-[7.5mm] left-0 w-full flex flex-col items-center z-10 pointer-events-none">
+                        <h4 class="text-[#D4AF37] text-[6.5px] font-semibold tracking-[0.25em] uppercase mb-[1px]">Madrasah</h4>
+                        <h2 class="text-white text-[25px] font-normal leading-none mt-1" style="font-family: 'Diwani Jali', serif;" dir="rtl">دينية دار السلام</h2>
+                    </div>
+                    
+                    <div class="absolute top-[23mm] left-1/2 -translate-x-1/2 w-[14mm] h-[14mm] bg-[#FDFBF7] rounded-full p-[1.5px] z-20 shadow-md border-[1.5px] border-[#D4AF37] flex items-center justify-center">
+                        <img src="../asset/logo.png" alt="Logo" class="w-full h-full object-contain rounded-full" onerror="this.style.display='none'">
+                    </div>
+                    
+                    <div class="absolute top-[38.5mm] left-0 w-full flex flex-col items-center px-2 z-10">
+                        <h3 class="font-black text-[#033323] text-[10.5px] uppercase w-full leading-tight text-center px-2 break-words whitespace-normal line-clamp-2">${s.nama}</h3>
+                        <div class="flex items-center justify-center gap-2 mt-[1mm] mb-[1.5mm] w-full px-6">
+                            <div class="h-[1px] flex-1 bg-[#D4AF37] opacity-50"></div>
+                            <svg width="8" height="8" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" fill="none" stroke="#D4AF37" stroke-width="2" transform="rotate(45 12 12)"/></svg>
+                            <div class="h-[1px] flex-1 bg-[#D4AF37] opacity-50"></div>
+                        </div>
+                        <div class="bg-gradient-to-r from-[#033323] to-[#065f46] border border-[#D4AF37] rounded-[2px] px-2 py-[1px] shadow-sm"><p class="text-[6px] text-white font-bold uppercase tracking-[0.1em] leading-none">${s.kelas}</p></div>
+                    </div>
+                    
+                    <div class="absolute top-[52.5mm] left-1/2 -translate-x-1/2 z-10 flex flex-col items-center w-[48mm]">
+                        <div class="bg-white p-[3px] rounded shadow-sm border border-gray-200 w-full flex justify-center">
+                            <svg class="barcode-svg" jsbarcode-format="CODE128" jsbarcode-value="${s.nis}" jsbarcode-height="45" jsbarcode-width="2.5" jsbarcode-displayvalue="false" jsbarcode-margin="0" style="width: 100%; height: auto;"></svg>
+                        </div>
+                        <p class="text-[9.5px] font-black text-[#033323] tracking-[0.25em] mt-[3px] leading-none">${s.nis}</p>
+                        <p class="text-[6px] font-semibold text-[#065f46] tracking-wider mt-[2px] leading-normal pb-[1px] w-full text-center truncate px-1">${s.ttl}</p>
+                    </div>
+                    
+                    <svg class="absolute bottom-0 left-0 w-full z-0" style="height: 10mm;" viewBox="0 0 200 40" preserveAspectRatio="none">
                         <path d="M0,40 L200,40 L200,6 Q150,6 100,0 Q50,6 0,6 Z" fill="#D4AF37"/>
                         <path d="M0,40 L200,40 L200,9 Q150,9 100,3 Q50,9 0,9 Z" fill="#033323"/>
                     </svg>
@@ -825,9 +797,6 @@ function populateKelasIzin() {
             JsBarcode(".barcode-svg").init();
         }
 
-        // ==========================================================
-        // FUNGSI PENGATURAN KONTROL & JAM ABSEN
-        // ==========================================================
         function ubahStatusSistem(statusBaru) {
             const ket = document.getElementById('ketStatus').value || (statusBaru === 'Libur' ? "Libur Madrasah" : "Absensi Berjalan Normal");
             let judul = statusBaru === 'Libur' ? 'Tutup Absen & Liburkan?' : 'Buka Kembali Absen?';
@@ -845,8 +814,7 @@ function populateKelasIzin() {
                     fd.append('keterangan', ket);
                     fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-                    // PERBAIKAN 2
-                    fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+                    gasFetch({ method: 'POST', body: fd }).then(r => r.json()).then(res => {
                         showLoading(false);
                         if (res.status === 'success') {
                             Swal.fire('Berhasil', res.message, 'success');
@@ -863,8 +831,7 @@ function populateKelasIzin() {
             fd.append('action', 'getStatusAbsen');
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            // PERBAIKAN 3
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+            gasFetch({ method: 'POST', body: fd }).then(r=>r.json()).then(res => {
                 if (res.status === 'success') {
                     renderBadgeStatus(res.status_absen);
                     if(res.status_absen === 'Libur' && res.keterangan !== "-") {
@@ -881,13 +848,13 @@ function populateKelasIzin() {
                     if(res.lat) document.getElementById('inputLat').value = res.lat;
                     if(res.lng) document.getElementById('inputLng').value = res.lng;
                     if(res.radius) document.getElementById('inputRadius').value = res.radius;
-					if(res.libur_jumat) document.getElementById('optLiburJumat').value = res.libur_jumat;
-					if(res.auto_alfa) document.getElementById('optAutoAlfa').value = res.auto_alfa;
+                    if(res.libur_jumat) document.getElementById('optLiburJumat').value = res.libur_jumat;
+                    if(res.auto_alfa) document.getElementById('optAutoAlfa').value = res.auto_alfa;
                 }
             }).catch(e => console.log('Gagal cek status sistem:', e));
         }
 
-function renderBadgeStatus(status) {
+        function renderBadgeStatus(status) {
             const badge = document.getElementById('badgeStatus');
             if(status === 'Libur') {
                 badge.className = 'flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-red-50 text-red-600 border border-red-200 rounded-full shadow-sm whitespace-nowrap shrink-0 transition-all';
@@ -914,8 +881,7 @@ function renderBadgeStatus(status) {
             fd.append('jam_tutup', valTutup);
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            // PERBAIKAN 4
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+            gasFetch({ method: 'POST', body: fd }).then(r => r.json()).then(res => {
                 showLoading(false);
                 if (res.status === 'success') {
                     Swal.fire('Berhasil', res.message, 'success');
@@ -927,16 +893,12 @@ function renderBadgeStatus(status) {
             }).catch(e => { showLoading(false); Swal.fire('Error', 'Gagal menyambung ke server.', 'error'); });
         }
 
-        // ==========================================================
-        // FUNGSI REKAP ABSENSI
-        // ==========================================================
         function muatBulanTersedia() {
             const fd = new URLSearchParams();
             fd.append('action', 'getBulanTersedia');
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            // PERBAIKAN 5
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+            gasFetch({ method: 'POST', body: fd }).then(r=>r.json()).then(res => {
                 const selectBulan = document.getElementById('filterBulanRekap');
                 if (res.status === 'success' && res.data.length > 0) {
                     selectBulan.innerHTML = ''; 
@@ -949,7 +911,7 @@ function renderBadgeStatus(status) {
             }).catch(e => console.error('Gagal memuat bulan:', e));
         }
 
-function tarikDataRekap() {
+        function tarikDataRekap() {
             const bulanTahun = document.getElementById('filterBulanRekap').value;
             const kelas = document.getElementById('filterKelasRekap').value;
             const tbody = document.getElementById('bodyTabelRekap');
@@ -966,8 +928,7 @@ function tarikDataRekap() {
             fd.append('kelas', kelas);
             fd.append('token', sessionStorage.getItem('tokenMadasa')); 
 
-            // PERBAIKAN 6
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r=>r.json()).then(res => {
+            gasFetch({ method: 'POST', body: fd }).then(r=>r.json()).then(res => {
                 showLoading(false);
                 tbody.innerHTML = '';
                 
@@ -991,17 +952,16 @@ function tarikDataRekap() {
                     });
                 } else {
                     tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-red-500 font-bold">${res.message}</td></tr>`;
-                    console.error("Error dari Server:", res.message); // Menampilkan pesan error di console
+                    console.error("Error dari Server:", res.message);
                 }
             }).catch(e => {
                 showLoading(false);
                 tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-red-500 font-bold">Gagal terhubung ke server atau format data salah.</td></tr>';
-                console.error("Error Jaringan:", e); // Laporan error yang spesifik
+                console.error("Error Jaringan:", e); 
                 Swal.fire('Error', 'Gagal memuat rekap bulanan. Cek koneksi.', 'error');
             });
         }
 
-        // --- LOGIKA LOKASI GPS ---
         function dapatkanLokasiSaatIni() {
             if (navigator.geolocation) {
                 showLoading(true, "Mencari koordinat GPS...");
@@ -1038,8 +998,7 @@ function tarikDataRekap() {
             fd.append('radius', radius || 50);
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            // PERBAIKAN 7
-            fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+            gasFetch({ method: 'POST', body: fd }).then(r => r.json()).then(res => {
                 showLoading(false);
                 if (res.status === 'success') {
                     Swal.fire('Berhasil', res.message, 'success');
@@ -1053,12 +1012,11 @@ function tarikDataRekap() {
             }).then((result) => {
                 if (result.isConfirmed) {
                     showLoading(true, "Menghapus...");
-                   const fd = new URLSearchParams();
+                    const fd = new URLSearchParams();
                     fd.append('action', 'hapusLokasiAbsen');
                     fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-                    // PERBAIKAN 8
-                    fetch(GAS_URL, { method: 'POST', body: fd }).then(r => r.json()).then(res => {
+                    gasFetch({ method: 'POST', body: fd }).then(r => r.json()).then(res => {
                         showLoading(false);
                         if (res.status === 'success') {
                             document.getElementById('inputLat').value = '';
@@ -1069,8 +1027,8 @@ function tarikDataRekap() {
                 }
             });
         }
-		
-		function eksekusiAlfaOtomatis() {
+        
+        function eksekusiAlfaOtomatis() {
             Swal.fire({
                 title: 'Jalankan Proses Alfa?',
                 text: 'Sistem akan mengecek seluruh santri dan menandai "Alfa" bagi yang belum memiliki rekam jejak absen HARI INI.',
@@ -1087,7 +1045,7 @@ function tarikDataRekap() {
                     fd.append('action', 'eksekusiAlfaOtomatis');
                     fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-                    fetch(GAS_URL, { method: 'POST', body: fd })
+                    gasFetch({ method: 'POST', body: fd })
                     .then(r => r.json())
                     .then(res => {
                         showLoading(false);
@@ -1103,8 +1061,8 @@ function tarikDataRekap() {
                 }
             });
         }
-		
-		
     </script>
+
+
 </body>
 </html>

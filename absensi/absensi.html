@@ -196,7 +196,8 @@
         document.write('<script src="../config.js?nocache=' + nocache + '"><\/script>');
     </script>
 	
-    <script>
+
+<script>
         const beepSound = new Audio('../asset/notif.mp3');
         
         let DATA_SANTRI = [];
@@ -223,7 +224,7 @@
             fdStatus.append('action', 'getStatusAbsen');
             fdStatus.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fdStatus })
+            gasFetch({ method: 'POST', body: fdStatus })
             .then(r=>r.json())
             .then(res => {
                 if (res.status === 'success') {
@@ -246,19 +247,14 @@
             formData.append('action', 'getSantri');
             formData.append('token', sessionStorage.getItem('tokenMadasa'));
             
-            fetch(GAS_URL, { method: 'POST', body: formData })
+            gasFetch({ method: 'POST', body: formData })
             .then(r => r.json()) 
             .then(res => {
                 showLoading(false);
                 if(res.status === 'success') {
                     DATA_SANTRI = res.data;
-                    
-                    // --- PANGGIL FUNGSI PEMBUAT DROPDOWN KELAS OTOMATIS & BERURUTAN ---
                     buatOpsiKelasDinamisAbsensi();
-                    
-                    // --- KUNCI SISTEM KE TAB MANUAL SAAT PERTAMA KALI DIBUKA ---
                     switchTab('manual');
-                    
                 } else {
                     Swal.fire('Peringatan', 'Data santri kosong.', 'warning');
                 }
@@ -269,14 +265,10 @@
             });
         }
 
-        // ==========================================================
-        // FUNGSI MEMBUAT OPSI KELAS OTOMATIS (CUSTOM SELECT)
-        // ==========================================================
         function buatOpsiKelasDinamisAbsensi() {
             const listEl = document.getElementById('customSelectList');
             if (!listEl) return;
 
-            // MODIFIKASI: Sembunyikan yang mengandung lulus, alumni, atau diberhentikan
             const kelasUnik = [...new Set(DATA_SANTRI.map(s => s.kelas))]
                 .filter(k => k && !k.toLowerCase().includes('lulus') && !k.toLowerCase().includes('alumni') && !k.toLowerCase().includes('diberhentikan'))
                 .sort();
@@ -313,9 +305,6 @@
             listEl.innerHTML = htmlList;
         }
 
-        // ==========================================================
-        // LOGIKA INTERAKSI BUKA TUTUP MENU CUSTOM KELAS
-        // ==========================================================
         document.addEventListener("DOMContentLoaded", () => {
             const displayBox = document.getElementById('customSelectDisplay');
             if (displayBox) {
@@ -356,7 +345,7 @@
                 fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
                 try {
-                    const response = await fetch(GAS_URL, { method: 'POST', body: fd });
+                    const response = await gasFetch({ method: 'POST', body: fd });
                     const res = await response.json();
                     window.ABSEN_HARI_INI = res.data || {}; 
                 } catch(e) {
@@ -522,7 +511,7 @@
             fd.append('status', status); 
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
-            fetch(GAS_URL, { method: 'POST', body: fd })
+            gasFetch({ method: 'POST', body: fd })
             .then(r => r.json())
             .then(res => {
                 if(!isScan) showLoading(false);
@@ -555,7 +544,7 @@
             });
         }
 
-function renderTabelManual() {
+        function renderTabelManual() {
             const kelas = document.getElementById('filterKelasManual').value;
             const tbody = document.getElementById('bodyTabelManual');
             const wadahAksi = document.getElementById('wadahAksiMassal');
@@ -629,7 +618,7 @@ function renderTabelManual() {
 
             hitungRekapRealtime();
         }
-		
+
         async function simpanSemuaAbsenManual() {
             if (!cekIzinAbsen()) return;
 
@@ -695,7 +684,7 @@ function renderTabelManual() {
             fd.append('token', sessionStorage.getItem('tokenMadasa'));
 
             try {
-                const response = await fetch(GAS_URL, { method: 'POST', body: fd });
+                const response = await gasFetch({ method: 'POST', body: fd });
                 const res = await response.json();
                 
                 showLoading(false);
@@ -771,6 +760,7 @@ function renderTabelManual() {
                 }
             }
         }
-    </script>
+    </script>	
+	
 </body>
 </html>

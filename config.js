@@ -1,4 +1,4 @@
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxligi4IAwmZ2A90zandppBHog7XjITxQUKFckheLmkEDJHzyFSQuUchOpxlejByLyyIA/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxqvIIVOOmqNccdnSidFy59m4XBwwk38vX2t2QG7WdxMUsNTd2GzNIVyu-OykQEGEjFpg/exec';
 
 // Gunakan URL unik pada setiap request agar browser/proxy tidak memakai ulang
 // redirect sementara ContentService Google Apps Script.
