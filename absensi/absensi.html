@@ -555,7 +555,7 @@
             });
         }
 
-        function renderTabelManual() {
+function renderTabelManual() {
             const kelas = document.getElementById('filterKelasManual').value;
             const tbody = document.getElementById('bodyTabelManual');
             const wadahAksi = document.getElementById('wadahAksiMassal');
@@ -578,24 +578,45 @@
             tbody.innerHTML = '';
             
             const absenHariIni = window.ABSEN_HARI_INI || {};
+            const jumlahSudahAbsen = santriKelas.filter(s => !!absenHariIni[s.nis]).length;
+            const sudahAdaAbsenKelas = jumlahSudahAbsen > 0;
+
+            if (sudahAdaAbsenKelas) {
+                tbody.innerHTML += `
+                <tr class="bg-amber-50 border-b border-amber-200">
+                    <td colspan="3" class="p-3.5 text-xs sm:text-sm text-amber-800 font-medium">
+                        <div class="flex items-start sm:items-center gap-2.5">
+                            <i class="fas fa-info-circle text-amber-600 text-base mt-0.5 sm:mt-0 shrink-0"></i>
+                            <span><b>Catatan:</b> Kelas ini sudah diabsen hari ini (${jumlahSudahAbsen}/${santriKelas.length} santri tercatat). Anda tetap dapat mengubah pilihan status kehadiran di bawah lalu klik <b>Perbarui Absensi</b> untuk menyimpan perubahan.</span>
+                        </div>
+                    </td>
+                </tr>`;
+            }
+
+            const btnSimpanMassal = wadahAksi ? wadahAksi.querySelector('button') : null;
+            if (btnSimpanMassal) {
+                btnSimpanMassal.innerHTML = sudahAdaAbsenKelas
+                    ? '<i class="fas fa-sync-alt text-lg"></i> Perbarui Absensi'
+                    : '<i class="fas fa-save text-lg"></i> Simpan Semua';
+            }
             
             santriKelas.forEach((s, i) => {
                 const statusTersimpan = absenHariIni[s.nis];
                 const isTersimpan = !!statusTersimpan; 
                 
-                const classRow = isTersimpan ? 'bg-gray-50 opacity-60' : 'hover:bg-emerald-50/50';
-                const disableSelect = isTersimpan ? 'disabled' : '';
-                const bgSelect = isTersimpan ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-gray-50 text-gray-700 cursor-pointer focus:ring-2 focus:ring-emerald-500';
+                const classRow = isTersimpan ? 'bg-emerald-50/30 hover:bg-emerald-50/60' : 'hover:bg-emerald-50/50';
+                const bgSelect = isTersimpan ? 'bg-white border-emerald-300 text-gray-800 cursor-pointer focus:ring-2 focus:ring-emerald-500' : 'bg-gray-50 border-gray-200 text-gray-700 cursor-pointer focus:ring-2 focus:ring-emerald-500';
+                const badgeTercatat = isTersimpan ? `<span class="inline-block ml-1.5 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[9px] font-bold"><i class="fas fa-check-circle mr-0.5"></i>Tercatat</span>` : '';
                 
                 tbody.innerHTML += `
                 <tr id="baris_${s.nis}" class="${classRow} transition-all border-b border-gray-100 last:border-none">
                     <td class="p-4 text-center border-r border-gray-100 text-gray-500 font-medium">${i + 1}</td>
                     <td class="p-4 border-r border-gray-100">
                         <p class="font-bold text-sm text-gray-800">${s.nama}</p>
-                        <p class="text-[10px] text-gray-500 mt-0.5">NIS: ${s.nis}</p>
+                        <p class="text-[10px] text-gray-500 mt-0.5">NIS: ${s.nis} ${badgeTercatat}</p>
                     </td>
                     <td class="p-3 text-center align-middle">
-                        <select id="status_${s.nis}" onchange="hitungRekapRealtime()" ${disableSelect} class="w-full min-w-[110px] p-2.5 border border-gray-200 rounded-xl text-xs sm:text-sm outline-none font-semibold text-center transition-all ${bgSelect}">
+                        <select id="status_${s.nis}" onchange="hitungRekapRealtime()" class="w-full min-w-[110px] p-2.5 border rounded-xl text-xs sm:text-sm outline-none font-semibold text-center transition-all ${bgSelect}">
                             <option value="" ${!isTersimpan ? 'selected' : ''} disabled>- Status -</option>
                             <option value="Hadir" ${statusTersimpan === 'Hadir' ? 'selected' : ''}>✅ Hadir</option>
                             <option value="Izin" ${statusTersimpan === 'Izin' ? 'selected' : ''}>✉️ Izin</option>
@@ -649,7 +670,24 @@
                 return; 
             }
 
-            showLoading(true, `Menyimpan absensi Kelas ${kelas}...`);
+            const absenHariIni = window.ABSEN_HARI_INI || {};
+            const sudahAdaAbsenKelas = santriKelas.some(s => !!absenHariIni[s.nis]);
+
+            if (sudahAdaAbsenKelas) {
+                const konfirmasi = await Swal.fire({
+                    icon: 'question',
+                    title: 'Perbarui Data Absensi?',
+                    html: `Kelas <b>${kelas}</b> sudah diabsen hari ini.<br>Apakah Anda yakin ingin menyimpan dan memperbarui perubahan data kehadiran ini?`,
+                    showCancelButton: true,
+                    confirmButtonColor: '#059669',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Ya, Perbarui',
+                    cancelButtonText: 'Batal'
+                });
+                if (!konfirmasi.isConfirmed) return;
+            }
+
+            showLoading(true, sudahAdaAbsenKelas ? `Memperbarui absensi Kelas ${kelas}...` : `Menyimpan absensi Kelas ${kelas}...`);
 
             const fd = new URLSearchParams();
             fd.append('action', 'simpanAbsenMassal'); 
@@ -663,17 +701,28 @@
                 showLoading(false);
                 
                 if (res.status === 'success') {
-                    santriKelas.forEach(s => {
-                        document.getElementById('baris_' + s.nis).classList.add('bg-gray-50', 'opacity-60');
+                    if (!window.ABSEN_HARI_INI) window.ABSEN_HARI_INI = {};
+                    paketDataAbsen.forEach(item => {
+                        window.ABSEN_HARI_INI[item.nis] = item.status;
                     });
 
-                    if (res.dilewati > 0) {
-                        Swal.fire({ icon: 'warning', title: 'Selesai dengan Catatan', text: `Sebagian data berhasil disimpan, namun ada ${res.dilewati} santri yang dilewati (sudah diabsen sebelumnya).` });
+                    renderTabelManual();
+
+                    if (sudahAdaAbsenKelas || res.diperbarui > 0) {
+                        Swal.fire({ 
+                            icon: 'success', 
+                            title: 'Berhasil Diperbarui!', 
+                            text: `Catatan: Kelas ${kelas} sudah diabsen hari ini, dan perubahan data kehadiran telah berhasil diperbarui.` 
+                        });
                     } else {
-                        Swal.fire({ icon: 'success', title: 'Berhasil!', text: `Seluruh data absensi Kelas ${kelas} berhasil disimpan.` });
+                        Swal.fire({ 
+                            icon: 'success', 
+                            title: 'Berhasil Disimpan!', 
+                            text: `Seluruh data absensi Kelas ${kelas} untuk hari ini berhasil disimpan.` 
+                        });
                     }
                 } else {
-                    Swal.fire({ icon: 'error', title: 'Data Sudah Tercatat', text: `Absensi untuk Kelas ${kelas} sepertinya sudah terekam penuh di database hari ini.` });
+                    Swal.fire({ icon: 'error', title: 'Gagal Menyimpan', text: res.message || `Terjadi kendala saat menyimpan absensi Kelas ${kelas}.` });
                 }
             } catch (error) {
                 showLoading(false);
