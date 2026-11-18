@@ -51,7 +51,7 @@
             body { padding: 0 !important; background-color: white !important; }
             .no-print { display: none !important; }
             
-            body.print-kartu #areaDaftarHadir, body.print-kartu #areaDenah, body.print-kartu #gridKartuWali, body.print-kartu #gridLabelRaport { display: none !important; }
+            body.print-kartu #areaDaftarHadir, body.print-kartu #areaDenah, body.print-kartu #gridKartuWali, body.print-kartu #gridLabelRaport, body.print-kartu #areaDaftarHadirRaport, body.print-kartu #areaDaftarPembayaran, body.print-kartu #areaFotoSantri, body.print-kartu #areaSertifikat { display: none !important; }
             body.print-kartu #gridKartu {
                 display: block !important;
                 text-align: center !important;
@@ -60,7 +60,7 @@
                 width: 100% !important;
             }
             
-            body.print-wali #areaDaftarHadir, body.print-wali #areaDenah, body.print-wali #gridKartu, body.print-wali #gridLabelRaport { display: none !important; }
+            body.print-wali #areaDaftarHadir, body.print-wali #areaDenah, body.print-wali #gridKartu, body.print-wali #gridLabelRaport, body.print-wali #areaDaftarHadirRaport, body.print-wali #areaDaftarPembayaran, body.print-wali #areaFotoSantri, body.print-wali #areaSertifikat { display: none !important; }
             body.print-wali #gridKartuWali {
                 display: block !important;
                 text-align: center !important;
@@ -69,31 +69,104 @@
                 width: 100% !important;
             }
 
-            body.print-absen #gridKartu, body.print-absen #areaDenah, body.print-absen #gridKartuWali, body.print-absen #gridLabelRaport { display: none !important; }
+            body.print-absen #gridKartu, body.print-absen #areaDenah, body.print-absen #gridKartuWali, body.print-absen #gridLabelRaport, body.print-absen #areaDaftarHadirRaport, body.print-absen #areaDaftarPembayaran, body.print-absen #areaFotoSantri, body.print-absen #areaSertifikat { display: none !important; }
             body.print-absen #areaDaftarHadir { display: block !important; width: 100% !important; }
 
-            body.print-denah #gridKartu, body.print-denah #areaDaftarHadir, body.print-denah #gridKartuWali, body.print-denah #gridLabelRaport { display: none !important; }
+            body.print-denah #gridKartu, body.print-denah #areaDaftarHadir, body.print-denah #gridKartuWali, body.print-denah #gridLabelRaport, body.print-denah #areaDaftarHadirRaport, body.print-denah #areaDaftarPembayaran, body.print-denah #areaFotoSantri, body.print-denah #areaSertifikat { display: none !important; }
             body.print-denah #areaDenah { display: block !important; width: 100% !important; }
 
            /* --- TAMBAHAN UNTUK LABEL RAPORT --- */
-            body.print-label #areaDaftarHadir, body.print-label #areaDenah, body.print-label #gridKartu, body.print-label #gridKartuWali { display: none !important; }
+            body.print-label #areaDaftarHadir, body.print-label #areaDenah, body.print-label #gridKartu, body.print-label #gridKartuWali, body.print-label #areaDaftarHadirRaport, body.print-label #areaDaftarPembayaran, body.print-label #areaFotoSantri, body.print-label #areaSertifikat { display: none !important; }
             body.print-label #gridLabelRaport {
-                display: block !important; /* PERBAIKAN: Diubah dari flex menjadi block */
-                text-align: center !important; /* Memastikan posisi label di tengah */
+                display: block !important;
+                text-align: center !important;
                 width: 100% !important;
                 margin: 0 auto !important;
                 padding: 0 !important;
             }
 			
 			/* --- TAMBAHAN UNTUK ABSEN RAPORT --- */
-            body.print-absen-raport #gridKartu, body.print-absen-raport #areaDenah, body.print-absen-raport #gridKartuWali, body.print-absen-raport #gridLabelRaport, body.print-absen-raport #areaDaftarHadir { display: none !important; }
+            body.print-absen-raport #gridKartu, body.print-absen-raport #areaDenah, body.print-absen-raport #gridKartuWali, body.print-absen-raport #gridLabelRaport, body.print-absen-raport #areaDaftarHadir, body.print-absen-raport #areaDaftarPembayaran, body.print-absen-raport #areaFotoSantri, body.print-absen-raport #areaSertifikat { display: none !important; }
             body.print-absen-raport #areaDaftarHadirRaport { display: block !important; width: 100% !important; }
+
+            /* --- TAMBAHAN UNTUK DAFTAR PEMBAYARAN --- */
+            body.print-pembayaran #gridKartu, body.print-pembayaran #areaDenah, body.print-pembayaran #gridKartuWali, body.print-pembayaran #gridLabelRaport, body.print-pembayaran #areaDaftarHadir, body.print-pembayaran #areaDaftarHadirRaport, body.print-pembayaran #areaFotoSantri, body.print-pembayaran #areaSertifikat { display: none !important; }
+            body.print-pembayaran #areaDaftarPembayaran { display: block !important; width: 100% !important; }
+
+            /* --- MODE PRINT FOTO 3x4 PER KELAS --- */
+            body.print-foto #gridKartu,
+            body.print-foto #areaDenah,
+            body.print-foto #gridKartuWali,
+            body.print-foto #gridLabelRaport,
+            body.print-foto #areaDaftarHadir,
+            body.print-foto #areaDaftarHadirRaport,
+            body.print-foto #areaDaftarPembayaran,
+            body.print-foto #areaSertifikat { display: none !important; }
+
+            body.print-foto #areaFotoSantri {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* --- MODE PRINT SERTIFIKAT (A4 LANDSCAPE) --- */
+            body.print-sertifikat #gridKartu,
+            body.print-sertifikat #areaDenah,
+            body.print-sertifikat #gridKartuWali,
+            body.print-sertifikat #gridLabelRaport,
+            body.print-sertifikat #areaDaftarHadir,
+            body.print-sertifikat #areaDaftarHadirRaport,
+            body.print-sertifikat #areaDaftarPembayaran,
+            body.print-sertifikat #areaFotoSantri { display: none !important; }
+
+            body.print-sertifikat #areaSertifikat {
+                display: block !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            body.print-sertifikat #kertasSertifikatWrapper {
+                transform: none !important;
+                margin: 0 !important;
+                width: 297mm !important;
+                min-width: auto !important;
+            }
+
+            .halaman-sertifikat {
+                width: 297mm !important;
+                height: 209mm !important;
+                margin: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                box-shadow: none !important;
+            }
+
+            .halaman-foto {
+                page-break-after: always !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 3mm !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .item-foto-3x4 {
+                display: inline-block !important;
+                vertical-align: top !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin: 2mm !important;
+            }
 			
            .label-page {
                 display: inline-block !important; 
                 vertical-align: top !important; 
-                width: 80mm !important;  /* BERUBAH: dari 90mm menjadi 70mm (7 cm) */
-                height: 40mm !important; /* TETAP: 35mm (3.5 cm) */
+                width: 80mm !important;
+                height: 40mm !important;
                 margin: 2mm !important;
                 border: 1.5px dashed #94a3b8 !important;
                 page-break-inside: avoid !important;
@@ -166,8 +239,8 @@
             .bg-teal-50\/30, .bg-teal-50 { background-color: #f0fdfa !important; }
             .bg-slate-50\/80 { background-color: #f8fafc !important; }
 			
-			#areaDaftarHadir, #areaDenah { height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; }
-            #kertasAbsenWrapper, #kertasDenahWrapper { transform: none !important; margin: 0 auto !important; width: 215.9mm !important; min-width: auto !important; }
+			#areaDaftarHadir, #areaDenah, #areaDaftarHadirRaport, #areaDaftarPembayaran { height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; }
+            #kertasAbsenWrapper, #kertasDenahWrapper, #kertasAbsenRaportWrapper, #kertasPembayaranWrapper { transform: none !important; margin: 0 auto !important; width: 215.9mm !important; min-width: auto !important; }
         }
 		
         .tabel-absen { border-collapse: collapse !important; width: 100% !important; }
@@ -309,50 +382,78 @@
                         </div>
                     </div>
 
-                   <div class="lg:col-span-12 md:col-span-2 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-8 gap-2 md:gap-3 mt-4 pt-5 border-t border-emerald-100/60 w-full">
-                        <button onclick="tarikDataSantri()" id="btnTarik" class="bg-white border-2 border-emerald-700 text-emerald-800 hover:bg-emerald-50 py-3.5 px-2 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2">
-                            <svg class="w-4 h-4 flex-none text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            <span id="txtTarik" class="whitespace-nowrap text-xs md:text-sm">Tarik Data</span>
-                            <div id="loading" class="loader flex-none !border-emerald-200 !border-t-emerald-800"></div>
-                        </button>
+                  <div class="lg:col-span-12 md:col-span-2 mt-4 pt-5 border-t border-emerald-100/80 w-full space-y-4">
+    
+    <!-- BARIS 1: AKSI UTAMA (TARIK DATA & PROSES) -->
+    <div class="grid grid-cols-1 min-[320px]:grid-cols-2 gap-2.5 md:gap-3">
+        <button onclick="tarikDataSantri()" id="btnTarik" class="bg-white border-2 border-emerald-700 text-emerald-800 hover:bg-emerald-50 py-3 px-4 rounded-xl font-bold shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2">
+            <svg class="w-4 h-4 flex-none text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            <span id="txtTarik" class="text-xs sm:text-sm">Tarik Data</span>
+            <div id="loading" class="loader flex-none !border-emerald-200 !border-t-emerald-800"></div>
+        </button>
 
-                        <button onclick="generateData()" id="btnGenerate" class="bg-gradient-to-r from-emerald-700 to-emerald-600 text-white py-3.5 px-2 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:hover:translate-y-0 disabled:active:scale-100" disabled>
-                            <svg id="iconGenerate" class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                            <span id="txtGenerate" class="whitespace-nowrap text-xs md:text-sm">Proses</span>
-                            <div id="loadingGenerate" class="loader flex-none !border-white/30 !border-t-white"></div>
-                        </button>
-                        
-                        <button onclick="cetakKartu()" id="btnCetakKartu" class="bg-[#D4AF37] text-yellow-950 border border-[#b8952b] py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-[#F2C94C] transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
-                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
-                            <span class="whitespace-nowrap text-xs md:text-sm">Kartu Ujian</span>
-                        </button>
+        <button onclick="generateData()" id="btnGenerate" class="bg-gradient-to-r from-emerald-700 to-emerald-600 text-white py-3 px-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:hover:translate-y-0 disabled:active:scale-100" disabled>
+            <svg id="iconGenerate" class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+            <span id="txtGenerate" class="text-xs sm:text-sm">Proses Data</span>
+            <div id="loadingGenerate" class="loader flex-none !border-white/30 !border-t-white"></div>
+        </button>
+    </div>
 
-                        <button onclick="cetakAbsen()" id="btnCetakAbsen" class="bg-indigo-600 text-white border border-indigo-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-indigo-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
-                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                            <span class="whitespace-nowrap text-xs md:text-sm">Absen Ujian</span>
-                        </button>
+    <!-- BARIS 2: MENU CETAK DOKUMEN (RESPONSIVE GRID) -->
+    <div>
+        <p class="text-[10px] font-bold text-emerald-800/70 uppercase tracking-widest mb-2">Menu Cetak Dokumen</p>
+        <div class="grid grid-cols-1 min-[320px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 md:gap-3">
+            
+            <button onclick="cetakKartu()" id="btnCetakKartu" class="bg-[#D4AF37] text-yellow-950 border border-[#b8952b] py-3 px-3.5 rounded-xl font-black shadow-md hover:bg-[#F2C94C] transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg>
+                <span class="text-xs sm:text-sm">Kartu Ujian</span>
+            </button>
 
-                        <!-- TOMBOL BARU: CETAK ABSEN RAPORT -->
-                        <button onclick="cetakAbsenRaport()" id="btnCetakAbsenRaport" class="bg-sky-600 text-white border border-sky-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-sky-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
-                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            <span class="whitespace-nowrap text-xs md:text-sm">Absen Raport</span>
-                        </button>
+            <button onclick="cetakAbsen()" id="btnCetakAbsen" class="bg-indigo-600 text-white border border-indigo-700 py-3 px-3.5 rounded-xl font-bold shadow-md hover:bg-indigo-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                <span class="text-xs sm:text-sm">Absen Ujian</span>
+            </button>
 
-                        <button onclick="cetakDenah()" id="btnCetakDenah" class="bg-blue-600 text-white border border-blue-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-blue-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
-                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                            <span class="whitespace-nowrap text-xs md:text-sm">Denah</span>
-                        </button>
-                        
-                        <button onclick="cetakKartuWali()" id="btnCetakWali" class="bg-teal-600 text-white border border-teal-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-teal-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
-                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.252a1 1 0 01.293-.707l8.96-8.96A6 6 0 0115 7z"></path></svg>
-                            <span class="whitespace-nowrap text-xs md:text-sm">Akun Wali</span>
-                        </button>
+            <button onclick="cetakAbsenRaport()" id="btnCetakAbsenRaport" class="bg-sky-600 text-white border border-sky-700 py-3 px-3.5 rounded-xl font-bold shadow-md hover:bg-sky-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <span class="text-xs sm:text-sm">Absen Raport</span>
+            </button>
 
-                        <button onclick="cetakLabelRaport()" id="btnCetakLabel" class="bg-rose-600 text-white border border-rose-700 py-3.5 px-2 rounded-xl font-black shadow-lg hover:bg-rose-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
-                            <svg class="w-4 h-4 md:w-5 md:h-5 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
-                            <span class="whitespace-nowrap text-xs md:text-sm">Label Raport</span>
-                        </button>
-                    </div>
+            <button onclick="cetakDenah()" id="btnCetakDenah" class="bg-blue-600 text-white border border-blue-700 py-3 px-3.5 rounded-xl font-bold shadow-md hover:bg-blue-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                <span class="text-xs sm:text-sm">Denah Ruang</span>
+            </button>
+            
+            <button onclick="cetakKartuWali()" id="btnCetakWali" class="bg-teal-600 text-white border border-teal-700 py-3 px-3.5 rounded-xl font-bold shadow-md hover:bg-teal-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4v-3.252a1 1 0 01.293-.707l8.96-8.96A6 6 0 0115 7z"></path></svg>
+                <span class="text-xs sm:text-sm">Akun Wali</span>
+            </button>
+
+            <button onclick="cetakLabelRaport()" id="btnCetakLabel" class="bg-rose-600 text-white border border-rose-700 py-3 px-3.5 rounded-xl font-bold shadow-md hover:bg-rose-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path></svg>
+                <span class="text-xs sm:text-sm">Label Raport</span>
+            </button>
+
+            <button onclick="bukaModalPembayaran()" id="btnCetakPembayaran" class="bg-amber-600 text-white border border-amber-700 py-3 px-3.5 rounded-xl font-bold shadow-md hover:bg-amber-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                <span class="text-xs sm:text-sm">Daftar Bayar</span>
+            </button>
+
+            <button onclick="cetakFotoSantri()" id="btnCetakFoto" class="bg-purple-600 text-white border border-purple-700 py-3 px-3.5 rounded-xl font-bold shadow-md hover:bg-purple-500 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 disabled:opacity-50 disabled:active:scale-100" disabled>
+                <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                <span class="text-xs sm:text-sm">Foto 3x4</span>
+            </button>
+
+            <!-- TOMBOL BARU: CETAK SERTIFIKAT RANKING & BINTANG PELAJAR -->
+            <button onclick="bukaModalSertifikat()" id="btnCetakSertifikat" class="bg-emerald-800 text-amber-300 border border-amber-400/60 py-3 px-3.5 rounded-xl font-black shadow-md hover:bg-emerald-700 transition-all hover:-translate-y-0.5 active:scale-95 flex justify-center items-center gap-2 col-span-1 min-[320px]:col-span-2 sm:col-span-3 lg:col-span-4">
+                <svg class="w-4 h-4 flex-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                <span class="text-xs sm:text-sm">Cetak Sertifikat (Ranking 1-3 &amp; Bintang Pelajar)</span>
+            </button>
+
+        </div>
+    </div>
+
+</div>
 					
                 </div>
                 
@@ -372,10 +473,10 @@
         </div>
     </div>
 
-    <!-- AREA KARTU WALI SANTRI (BARU) -->
+    <!-- AREA KARTU WALI SANTRI -->
     <div id="gridKartuWali" class="hidden max-w-6xl mx-auto flex-wrap gap-5 justify-center relative z-10 pb-10 px-4 md:px-0 mt-6 md:mt-0 flex"></div>
 
-    <!-- AREA LABEL RAPORT (BARU) -->
+    <!-- AREA LABEL RAPORT -->
     <div id="gridLabelRaport" class="hidden max-w-6xl mx-auto flex-wrap gap-5 justify-center relative z-10 pb-10 px-4 md:px-0 mt-6 md:mt-0 flex"></div>
 
     <div id="areaDaftarHadir" class="hidden relative z-10 pb-10 mt-6 md:mt-0 w-full overflow-visible">
@@ -389,9 +490,114 @@
         </div>
     </div>
 
-    <!-- AREA DAFTAR HADIR RAPORT (BARU) -->
+    <!-- AREA DAFTAR HADIR RAPORT -->
     <div id="areaDaftarHadirRaport" class="hidden relative z-10 pb-10 mt-6 md:mt-0 w-full overflow-visible">
         <div id="kertasAbsenRaportWrapper" class="flex flex-col transition-transform duration-300 shrink-0" style="width: 215.9mm; min-width: 215.9mm;">
+        </div>
+    </div>
+
+    <!-- AREA DAFTAR PEMBAYARAN PER KELAS -->
+    <div id="areaDaftarPembayaran" class="hidden relative z-10 pb-10 mt-6 md:mt-0 w-full overflow-visible">
+        <div id="kertasPembayaranWrapper" class="flex flex-col transition-transform duration-300 shrink-0" style="width: 215.9mm; min-width: 215.9mm;">
+        </div>
+    </div>
+	
+	<!-- AREA CETAK FOTO 3x4 PER KELAS -->
+    <div id="areaFotoSantri" class="hidden max-w-6xl mx-auto relative z-10 pb-10 px-4 md:px-0 mt-6 md:mt-0"></div>
+
+    <!-- AREA CETAK SERTIFIKAT (A4 LANDSCAPE) -->
+    <div id="areaSertifikat" class="hidden relative z-10 pb-10 mt-6 md:mt-0 w-full overflow-visible">
+        <div id="kertasSertifikatWrapper" class="flex flex-col gap-6 transition-transform duration-300 shrink-0" style="width: 297mm; min-width: 297mm;"></div>
+    </div>
+
+    <!-- MODAL PENGATURAN DAFTAR PEMBAYARAN (SUPPORT BACK BUTTON HP) -->
+    <div id="modalPembayaranWrapper" class="hidden fixed inset-0 z-[120] no-print flex items-end md:items-center justify-center">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px]" onclick="closeAllPanels()"></div>
+        <div class="relative z-[121] bg-white w-full md:max-w-md rounded-t-3xl md:rounded-2xl shadow-2xl p-5 md:p-6 mobile-bottom-sheet md:!animate-none border border-emerald-100">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <div>
+                    <h3 class="text-base font-black text-emerald-900 uppercase tracking-wide">Daftar Pembayaran Per Kelas</h3>
+                    <p class="text-[11px] text-slate-500">Pilih jenis pembayaran sebelum preview / cetak</p>
+                </div>
+                <button type="button" onclick="closeAllPanels()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center font-bold">✕</button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[11px] font-bold text-emerald-800 uppercase tracking-wider mb-1.5">Jenis Pembayaran</label>
+                    <select id="pilihJenisBayar" onchange="toggleInputManualBayar()" class="w-full bg-slate-50 border-2 border-emerald-100 text-emerald-900 py-3 px-3 rounded-xl font-bold text-sm focus:outline-none focus:border-emerald-600 cursor-pointer">
+                        <option value="Uang Ujian">Uang Ujian</option>
+                        <option value="SPP Tahunan">SPP Tahunan</option>
+                        <option value="MANUAL">Kosong / Isi Manual...</option>
+                    </select>
+                </div>
+
+                <div id="wadahManualBayar" class="hidden">
+                    <label class="block text-[11px] font-bold text-emerald-800 uppercase tracking-wider mb-1.5">Nama Pembayaran (Opsional)</label>
+                    <input type="text" id="inputManualBayar" placeholder="Ketik nama, atau kosongkan untuk ditulis tangan" class="w-full bg-white border-2 border-emerald-200 text-slate-800 py-2.5 px-3 rounded-xl font-semibold text-sm focus:outline-none focus:border-emerald-600">
+                    <p class="text-[10px] text-slate-400 mt-1">*Jika dikosongkan, lembar cetak akan menyediakan garis titik-titik untuk diisi pulpen.</p>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-emerald-800 uppercase tracking-wider mb-1.5">Nominal Tagihan (Opsional)</label>
+                    <input type="text" id="inputNominalBayar" placeholder="Contoh: Rp 50.000 (kosongkan jika tidak tetap)" class="w-full bg-white border-2 border-emerald-100 text-slate-800 py-2.5 px-3 rounded-xl font-semibold text-sm focus:outline-none focus:border-emerald-600">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button type="button" onclick="terapkanPembayaran(false)" class="py-3 px-4 rounded-xl border-2 border-emerald-600 text-emerald-700 font-bold text-sm hover:bg-emerald-50 transition-all active:scale-95">
+                        Preview Saja
+                    </button>
+                    <button type="button" onclick="terapkanPembayaran(true)" class="py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-black text-sm shadow-md transition-all active:scale-95">
+                        Cetak / Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PENGATURAN SERTIFIKAT (SUPPORT BACK BUTTON HP) -->
+    <div id="modalSertifikatWrapper" class="hidden fixed inset-0 z-[120] no-print flex items-end md:items-center justify-center">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-[2px]" onclick="closeAllPanels()"></div>
+        <div class="relative z-[121] bg-white w-full md:max-w-md rounded-t-3xl md:rounded-2xl shadow-2xl p-5 md:p-6 mobile-bottom-sheet md:!animate-none border border-emerald-100">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                <div>
+                    <h3 class="text-base font-black text-emerald-900 uppercase tracking-wide">Cetak Sertifikat Prestasi</h3>
+                    <p class="text-[11px] text-slate-500">Tarik otomatis dari data Ranking &amp; Bintang Pelajar</p>
+                </div>
+                <button type="button" onclick="closeAllPanels()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:bg-rose-100 hover:text-rose-600 flex items-center justify-center font-bold">✕</button>
+            </div>
+
+            <div class="space-y-3.5">
+                <div>
+                    <label class="block text-[11px] font-bold text-emerald-800 uppercase tracking-wider mb-1">Kategori Sertifikat</label>
+                    <select id="pilihJenisSertifikat" class="w-full bg-slate-50 border-2 border-emerald-100 text-emerald-900 py-2.5 px-3 rounded-xl font-bold text-sm focus:outline-none focus:border-emerald-600 cursor-pointer">
+                        <option value="TOP3">Ranking Kelas (Peringkat 1, 2, dan 3)</option>
+                        <option value="BINTANG">Bintang Pelajar (Juara Umum Per Jenjang)</option>
+                    </select>
+                    <p class="text-[10px] text-slate-400 mt-1">*Jika kelas dicentang di panel atas, Ranking Kelas akan difilter sesuai kelas terpilih.</p>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-emerald-800 uppercase tracking-wider mb-1">Nomor Sertifikat (Opsional)</label>
+                    <input type="text" id="inputNoSertifikat" value="085/MD/PIAGAM/2026" class="w-full bg-white border-2 border-emerald-100 text-slate-800 py-2 px-3 rounded-xl font-semibold text-sm focus:outline-none focus:border-emerald-600">
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-emerald-800 uppercase tracking-wider mb-1">Tempat &amp; Tanggal</label>
+                    <input type="text" id="inputTglSertifikat" placeholder="Bangkalan, 19 November 2026" class="w-full bg-white border-2 border-emerald-100 text-slate-800 py-2 px-3 rounded-xl font-semibold text-sm focus:outline-none focus:border-emerald-600">
+                </div>
+
+              
+
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <button type="button" onclick="muatDanRenderSertifikat(false)" id="btnPreviewSertifikat" class="py-3 px-4 rounded-xl border-2 border-emerald-700 text-emerald-800 font-bold text-sm hover:bg-emerald-50 transition-all active:scale-95">
+                        Preview Saja
+                    </button>
+                    <button type="button" onclick="muatDanRenderSertifikat(true)" id="btnPrintSertifikat" class="py-3 px-4 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-amber-300 font-black text-sm shadow-md transition-all active:scale-95">
+                        Cetak / Print
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -432,6 +638,8 @@
             let closedSomething = false;
             const pKelas = document.getElementById('panelKelasWrapper');
             const pRuang = document.getElementById('panelRuangWrapper');
+            const pBayar = document.getElementById('modalPembayaranWrapper');
+            const pSertif = document.getElementById('modalSertifikatWrapper');
 
             if (!pKelas.classList.contains('hidden')) {
                 pKelas.classList.add('hidden');
@@ -440,6 +648,14 @@
             }
             if (!pRuang.classList.contains('hidden')) {
                 pRuang.classList.add('hidden');
+                closedSomething = true;
+            }
+            if (pBayar && !pBayar.classList.contains('hidden')) {
+                pBayar.classList.add('hidden');
+                closedSomething = true;
+            }
+            if (pSertif && !pSertif.classList.contains('hidden')) {
+                pSertif.classList.add('hidden');
                 closedSomething = true;
             }
 
@@ -555,7 +771,6 @@ async function tarikDataSantri(maksimalPercobaan = 3) {
     const txtTarik = document.getElementById('txtTarik');
     const loading = document.getElementById('loading');
     
-    // Tampilan loading diaktifkan sebelum loop dimulai
     btnTarik.disabled = true;
     txtTarik.textContent = "Menarik...";
     loading.style.display = "block";
@@ -563,23 +778,17 @@ async function tarikDataSantri(maksimalPercobaan = 3) {
     let percobaan = 0;
     let berhasil = false;
 
-    // Loop akan berjalan selama belum berhasil dan belum mencapai batas maksimal
     while (percobaan < maksimalPercobaan && !berhasil) {
-      
-
-try {
+        try {
             percobaan++;
             
-            // Ubah teks tombol jika ini adalah percobaan ulang
             if (percobaan > 1) {
                 txtTarik.textContent = `Menarik... (Coba ke-${percobaan})`;
             }
 
-            // PERBAIKAN: Gunakan URLSearchParams alih-alih FormData
             let f = new URLSearchParams(); 
             f.append('action', 'getSantri');
             
-            // PERBAIKAN: Tambahkan header Content-Type dan pastikan redirect diikuti
             const response = await fetch(urlGAS, { 
                 method: 'POST', 
                 body: f,
@@ -595,39 +804,34 @@ try {
             
             const result = await response.json();
 
-           // Jika respons dari GAS menyatakan sukses
             if (result.status === 'success') {
                 semuaSantri = result.data.filter(santri => {
                     if (!santri.nama || !santri.kelas) return false;
                     let kUpper = String(santri.kelas).toUpperCase();
                     let isAlumni = kUpper.includes('LULUS') || kUpper.includes('ALUMNI') || kUpper.includes('DIBERHENTIKAN');
-                    return !isAlumni; // Memblokir kelas yang mengandung kata Lulus/Alumni/DO
+                    return !isAlumni;
                 }); 
                 siapkanFilterKelas(semuaSantri);
 				
                 document.getElementById('btnGenerate').disabled = false;
                 showToast(`Sukses! ${semuaSantri.length} data ditarik.`, "success");
-                berhasil = true; // Menandai sukses agar keluar dari loop
+                berhasil = true;
             } else {
-                // Jika GAS merespons tapi memberikan pesan error logis
                 showToast(result.message || "Gagal mengambil data", "error");
-                berhasil = true; // Keluar dari loop agar tidak me-retry error dari database
+                berhasil = true;
             }
 
         } catch (error) {
             console.warn(`Percobaan ${percobaan} gagal:`, error);
             
             if (percobaan >= maksimalPercobaan) {
-                // Jika sudah melewati batas maksimal, tampilkan error ke pengguna
                 showToast("Koneksi server gagal setelah beberapa percobaan! Pastikan jaringan stabil.", "error");
             } else {
-                // Memberikan jeda 1 detik (1000 milidetik) sebelum mencoba ulang
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
         }
     }
 
-    // Mengembalikan tampilan tombol ke keadaan semula, baik setelah sukses maupun gagal total
     btnTarik.disabled = false;
     txtTarik.textContent = "Tarik Ulang";
     loading.style.display = "none";
@@ -774,16 +978,20 @@ try {
                 document.getElementById('btnCetakDenah').disabled = false;
                 document.getElementById('btnCetakWali').disabled = false;
                 document.getElementById('btnCetakLabel').disabled = false;
-                document.getElementById('btnCetakAbsenRaport').disabled = false; // Aktifkan tombol baru
+                document.getElementById('btnCetakAbsenRaport').disabled = false;
+                document.getElementById('btnCetakPembayaran').disabled = false;
+				document.getElementById('btnCetakFoto').disabled = false;
 
                 renderKartuHTML();
                 renderAbsenHTML();
                 renderDenahHTML();
                 renderKartuWaliHTML();
                 renderLabelRaportHTML();
-                renderAbsenRaportHTML(); // Render data untuk area absen raport
+                renderAbsenRaportHTML();
+                renderPembayaranHTML('Uang Ujian', '');
+                renderFotoSantriHTML();
 
-                txtGenerate.textContent = "Proses";
+                txtGenerate.textContent = "Proses Data";
                 iconGenerate.classList.remove('hidden');
                 loadingGenerate.style.display = "none";
                 btnGenerate.disabled = false; 
@@ -807,6 +1015,9 @@ try {
             document.getElementById('gridKartuWali').classList.add('hidden');
             document.getElementById('gridLabelRaport').classList.add('hidden');
             document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaDaftarPembayaran').classList.add('hidden');
+            document.getElementById('areaFotoSantri').classList.add('hidden');
+            document.getElementById('areaSertifikat').classList.add('hidden');
         }
         function switchToAbsen() {
             document.getElementById('gridKartu').classList.add('hidden');
@@ -814,6 +1025,9 @@ try {
             document.getElementById('gridKartuWali').classList.add('hidden');
             document.getElementById('gridLabelRaport').classList.add('hidden');
             document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaDaftarPembayaran').classList.add('hidden');
+            document.getElementById('areaFotoSantri').classList.add('hidden');
+            document.getElementById('areaSertifikat').classList.add('hidden');
             document.getElementById('areaDaftarHadir').classList.remove('hidden');
 			setTimeout(sesuaikanSkalaCetak, 100);
         }
@@ -823,6 +1037,9 @@ try {
             document.getElementById('gridKartuWali').classList.add('hidden');
             document.getElementById('gridLabelRaport').classList.add('hidden');
             document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDaftarPembayaran').classList.add('hidden');
+            document.getElementById('areaFotoSantri').classList.add('hidden');
+            document.getElementById('areaSertifikat').classList.add('hidden');
             document.getElementById('areaDaftarHadirRaport').classList.remove('hidden');
 			setTimeout(sesuaikanSkalaCetak, 100);
         }
@@ -832,6 +1049,9 @@ try {
             document.getElementById('gridKartuWali').classList.add('hidden');
             document.getElementById('gridLabelRaport').classList.add('hidden');
             document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaDaftarPembayaran').classList.add('hidden');
+            document.getElementById('areaFotoSantri').classList.add('hidden');
+            document.getElementById('areaSertifikat').classList.add('hidden');
             document.getElementById('areaDenah').classList.remove('hidden');
 			setTimeout(sesuaikanSkalaCetak, 100);
         }
@@ -841,6 +1061,9 @@ try {
             document.getElementById('areaDenah').classList.add('hidden');
             document.getElementById('gridLabelRaport').classList.add('hidden');
             document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaDaftarPembayaran').classList.add('hidden');
+            document.getElementById('areaFotoSantri').classList.add('hidden');
+            document.getElementById('areaSertifikat').classList.add('hidden');
             document.getElementById('gridKartuWali').classList.remove('hidden');
         }
         function switchToLabel() {
@@ -849,18 +1072,53 @@ try {
             document.getElementById('areaDenah').classList.add('hidden');
             document.getElementById('gridKartuWali').classList.add('hidden');
             document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaDaftarPembayaran').classList.add('hidden');
+            document.getElementById('areaFotoSantri').classList.add('hidden');
+            document.getElementById('areaSertifikat').classList.add('hidden');
             document.getElementById('gridLabelRaport').classList.remove('hidden');
         }
+        function switchToPembayaran() {
+            document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
+            document.getElementById('gridKartuWali').classList.add('hidden');
+            document.getElementById('gridLabelRaport').classList.add('hidden');
+            document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaFotoSantri').classList.add('hidden');
+            document.getElementById('areaSertifikat').classList.add('hidden');
+            document.getElementById('areaDaftarPembayaran').classList.remove('hidden');
+            setTimeout(sesuaikanSkalaCetak, 100);
+        }
+        function switchToFoto() {
+            document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
+            document.getElementById('gridKartuWali').classList.add('hidden');
+            document.getElementById('gridLabelRaport').classList.add('hidden');
+            document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaDaftarPembayaran').classList.add('hidden');
+            document.getElementById('areaSertifikat').classList.add('hidden');
+            document.getElementById('areaFotoSantri').classList.remove('hidden');
+        }
+        function switchToSertifikat() {
+            document.getElementById('gridKartu').classList.add('hidden');
+            document.getElementById('areaDaftarHadir').classList.add('hidden');
+            document.getElementById('areaDenah').classList.add('hidden');
+            document.getElementById('gridKartuWali').classList.add('hidden');
+            document.getElementById('gridLabelRaport').classList.add('hidden');
+            document.getElementById('areaDaftarHadirRaport').classList.add('hidden');
+            document.getElementById('areaDaftarPembayaran').classList.add('hidden');
+            document.getElementById('areaFotoSantri').classList.add('hidden');
+            document.getElementById('areaSertifikat').classList.remove('hidden');
+            setTimeout(sesuaikanSkalaCetak, 100);
+        }
 
-       // FUNGSI BARU: Mengatur nama file dinamis berdasarkan kelas yang dicentang
+       // Mengatur nama file dinamis berdasarkan kelas yang dicentang
         function getNamaFileDinamis(prefix) {
             let checked = document.querySelectorAll('.kelas-checkbox:checked');
             if (checked.length === 0) return prefix;
             
-            // Ambil nama kelas, bersihkan karakter aneh
             let kelasTerpilih = Array.from(checked).map(cb => cb.value.replace(/[^a-zA-Z0-9 ]/g, "").replace(/\s+/g, "_"));
-            
-            // Jika kelas yang dipilih lebih dari 3, tambahkan "_DLL" agar nama file tidak terlalu panjang
             let teksKelas = kelasTerpilih.length > 3 ? kelasTerpilih.slice(0, 3).join("_") + "_DLL" : kelasTerpilih.join("_");
             
             return `${prefix}_${teksKelas}`;
@@ -868,7 +1126,7 @@ try {
 
         function cetakKartu() {
             switchToKartu();
-            document.body.classList.remove('print-absen', 'print-denah', 'print-wali', 'print-label', 'print-absen-raport');
+            document.body.classList.remove('print-absen', 'print-denah', 'print-wali', 'print-label', 'print-absen-raport', 'print-pembayaran', 'print-foto', 'print-sertifikat');
             document.body.classList.add('print-kartu');
             
             let originalTitle = document.title;
@@ -882,7 +1140,7 @@ try {
         
         function cetakAbsen() {
             switchToAbsen();
-            document.body.classList.remove('print-kartu', 'print-denah', 'print-wali', 'print-label', 'print-absen-raport');
+            document.body.classList.remove('print-kartu', 'print-denah', 'print-wali', 'print-label', 'print-absen-raport', 'print-pembayaran', 'print-foto', 'print-sertifikat');
             document.body.classList.add('print-absen');
             
             let originalTitle = document.title;
@@ -896,7 +1154,7 @@ try {
 
         function cetakAbsenRaport() {
             switchToAbsenRaport();
-            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali', 'print-label');
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali', 'print-label', 'print-pembayaran', 'print-foto', 'print-sertifikat');
             document.body.classList.add('print-absen-raport');
             
             let originalTitle = document.title;
@@ -910,7 +1168,7 @@ try {
 
         function cetakDenah() {
             switchToDenah();
-            document.body.classList.remove('print-kartu', 'print-absen', 'print-wali', 'print-label', 'print-absen-raport');
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-wali', 'print-label', 'print-absen-raport', 'print-pembayaran', 'print-foto', 'print-sertifikat');
             document.body.classList.add('print-denah');
             
             let originalTitle = document.title;
@@ -924,7 +1182,7 @@ try {
 
         function cetakKartuWali() {
             switchToWali();
-            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-label', 'print-absen-raport');
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-label', 'print-absen-raport', 'print-pembayaran', 'print-foto', 'print-sertifikat');
             document.body.classList.add('print-wali');
             
             let originalTitle = document.title;
@@ -938,7 +1196,7 @@ try {
 
         function cetakLabelRaport() {
             switchToLabel();
-            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali', 'print-absen-raport');
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali', 'print-absen-raport', 'print-pembayaran', 'print-foto', 'print-sertifikat');
             document.body.classList.add('print-label');
             
             let originalTitle = document.title;
@@ -950,7 +1208,585 @@ try {
             }, 150);
         }
 
-// FUNGSI BARU: MENGHASILKAN HTML DAFTAR HADIR RAPORT BERDASARKAN KELAS (DENGAN PAGINASI)
+        function cetakPembayaran(prefixNama = "Daftar_Pembayaran") {
+            switchToPembayaran();
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali', 'print-label', 'print-absen-raport', 'print-foto', 'print-sertifikat');
+            document.body.classList.add('print-pembayaran');
+
+            let originalTitle = document.title;
+            document.title = getNamaFileDinamis(prefixNama);
+
+            setTimeout(() => {
+                window.print();
+                document.title = originalTitle;
+            }, 150);
+        }
+
+        function cetakFotoSantri() {
+            switchToFoto();
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali', 'print-label', 'print-absen-raport', 'print-pembayaran', 'print-sertifikat');
+            document.body.classList.add('print-foto');
+
+            let originalTitle = document.title;
+            document.title = getNamaFileDinamis("Foto_3x4");
+
+            setTimeout(() => {
+                window.print();
+                document.title = originalTitle;
+            }, 200);
+        }
+
+        function cetakSertifikat(prefixNama = "Sertifikat_Prestasi") {
+            switchToSertifikat();
+            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali', 'print-label', 'print-absen-raport', 'print-pembayaran', 'print-foto');
+            document.body.classList.add('print-sertifikat');
+
+            // Suntikkan aturan kertas A4 Landscape sementara khusus saat print sertifikat
+            let styleLandscape = document.getElementById('printLandscapeOverride');
+            if (!styleLandscape) {
+                styleLandscape = document.createElement('style');
+                styleLandscape.id = 'printLandscapeOverride';
+                styleLandscape.innerHTML = '@media print { @page { size: A4 landscape; margin: 0; } }';
+                document.head.appendChild(styleLandscape);
+            }
+
+            const originalTitle = document.title;
+            document.title = getNamaFileDinamis(prefixNama);
+
+            setTimeout(() => {
+                window.print();
+                document.title = originalTitle;
+                if (styleLandscape) styleLandscape.remove();
+            }, 200);
+        }
+
+        // =========================================================
+        // FITUR BARU: MODAL & RENDER SERTIFIKAT (TOP 3 & BINTANG PELAJAR)
+        // =========================================================
+        function bukaModalSertifikat() {
+            const inputTgl = document.getElementById('inputTglSertifikat');
+            if (inputTgl && !inputTgl.value) {
+                const tglIndo = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                inputTgl.value = `Bangkalan, ${tglIndo}`;
+            }
+            openPanel('modalSertifikatWrapper', 'sertifikat');
+        }
+
+       function konversiUrlDriveSertif(url) {
+    if (!url || String(url).trim() === '') return '';
+    let finalUrl = String(url).trim();
+    if (finalUrl.includes('drive.google.com')) {
+        let fileId = '';
+        if (finalUrl.includes('id=')) fileId = finalUrl.split('id=')[1].split('&')[0];
+        else if (finalUrl.includes('/d/')) fileId = finalUrl.split('/d/')[1].split('/')[0];
+        if (fileId) finalUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w600`;
+    }
+    return finalUrl;
+}
+
+async function muatDanRenderSertifikat(langsungCetak) {
+    const urlGAS = typeof GAS_URL !== 'undefined' ? GAS_URL : null;
+    const token = sessionStorage.getItem('tokenMadasa') || '';
+
+    if (!urlGAS) return showToast("URL Web App tidak ditemukan!", "error");
+    if (!token) return showToast("Sesi login tidak ditemukan. Buka halaman ini dari Dashboard setelah login.", "error");
+
+    const jenis = document.getElementById('pilihJenisSertifikat').value;
+    const action = jenis === 'BINTANG' ? 'getBintangPelajar' : 'getRekapTop3';
+
+    const btnPrev = document.getElementById('btnPreviewSertifikat');
+    const btnPrt = document.getElementById('btnPrintSertifikat');
+    btnPrev.disabled = true;
+    btnPrt.disabled = true;
+    btnPrt.textContent = "Memuat...";
+
+    try {
+        const f = new URLSearchParams();
+        f.append('action', action);
+        f.append('token', token);
+
+        const res = await fetch(urlGAS, {
+            method: 'POST',
+            body: f,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            redirect: 'follow'
+        });
+        if (!res.ok) throw new Error("Gagal terhubung ke server.");
+        const json = await res.json();
+
+        if (json.status !== 'success' || !Array.isArray(json.data) || json.data.length === 0) {
+            showToast(json.message || "Belum ada data juara yang memenuhi syarat.", "error");
+            return;
+        }
+
+        let daftarPenerima = [];
+
+        if (jenis === 'TOP3') {
+            const kelasDicentang = Array.from(document.querySelectorAll('.kelas-checkbox:checked')).map(cb => cb.value);
+            let data = json.data;
+            if (kelasDicentang.length > 0) {
+                data = data.filter(s => kelasDicentang.includes(s.kelas));
+            }
+            if (data.length === 0) {
+                showToast("Tidak ada data Ranking 1-3 pada kelas yang dicentang.", "error");
+                return;
+            }
+            data.sort((a, b) => {
+                if (a.kelas !== b.kelas) return String(a.kelas).localeCompare(String(b.kelas), undefined, { numeric: true });
+                return (a.rank || 99) - (b.rank || 99);
+            });
+            daftarPenerima = data.map(s => ({
+                ...s,
+                predikatUtama: `PERINGKAT ${s.rank} (BINTANG KELAS)`,
+                keteranganPrestasi: `Atas prestasi akademik gemilang sebagai <b>Peringkat Ke-${s.rank}</b> di Kelas <b>${s.kelas}</b> dengan perolehan rata-rata nilai <b>${parseFloat(s.rata_asli ?? s.rata ?? 0).toFixed(2)}</b>.`
+            }));
+        } else {
+            const upper = v => String(v || '').toUpperCase();
+            const urut = arr => arr.sort((a, b) => {
+                const rB = parseFloat(b.rata_asli ?? b.rata ?? 0), rA = parseFloat(a.rata_asli ?? a.rata ?? 0);
+                if (rB !== rA) return rB - rA;
+                return parseFloat(b.total || 0) - parseFloat(a.total || 0);
+            });
+
+            const kategori = [
+                { label: 'Tingkat TK / RA', data: json.data.filter(s => /(^|\s|-)TK|TPQ|RA/.test(upper(s.kelas)) && parseFloat(s.total || 0) > 0) },
+                { label: 'Tingkat Madrasah Ibtidaiyah', data: json.data.filter(s => /IBT|IBTIDAIYAH|\bMI\b|\bSD\b/.test(upper(s.kelas)) && parseFloat(s.total || 0) > 0) },
+                { label: 'Tingkat Madrasah Sanawiyah & Aliyah', data: json.data.filter(s => /SANA|TSANAW|MTS|ALIYAH|\bMA\b/.test(upper(s.kelas)) && parseFloat(s.total || 0) > 0) }
+            ];
+
+            kategori.forEach(kat => {
+                if (kat.data.length === 0) return;
+                urut(kat.data);
+                const topRata = parseFloat(kat.data[0].rata_asli ?? kat.data[0].rata ?? 0);
+                const topTotal = parseFloat(kat.data[0].total || 0);
+                kat.data.forEach(s => {
+                    const r = parseFloat(s.rata_asli ?? s.rata ?? 0);
+                    const t = parseFloat(s.total || 0);
+                    if (r === topRata && t === topTotal) {
+                        daftarPenerima.push({
+                            ...s,
+                            predikatUtama: `BINTANG PELAJAR (JUARA UMUM)`,
+                            keteranganPrestasi: `Atas prestasi akademik terbaik sebagai <b>Bintang Pelajar (Juara Umum)</b> pada <b>${kat.label}</b> (Kelas ${s.kelas}) dengan nilai rata-rata <b>${r.toFixed(2)}</b>.`
+                        });
+                    }
+                });
+            });
+
+            if (daftarPenerima.length === 0) {
+                showToast("Belum ada kandidat Bintang Pelajar yang tersedia.", "error");
+                return;
+            }
+        }
+
+        // TARIK OTOMATIS TTD, STEMPEL, & NAMA KEPALA PER KELAS DARI SETTING_RAPOR
+        btnPrt.textContent = "Tarik TTD...";
+        const kelasUnik = [...new Set(daftarPenerima.map(s => s.kelas).filter(Boolean))];
+        const mapSettingKelas = {};
+
+        await Promise.all(kelasUnik.map(async (kls) => {
+            try {
+                const fdSet = new URLSearchParams();
+                fdSet.append('action', 'getPengaturan');
+                fdSet.append('kelas', kls);
+                const rSet = await fetch(urlGAS, {
+                    method: 'POST',
+                    body: fdSet,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    redirect: 'follow'
+                });
+                if (rSet.ok) {
+                    const jSet = await rSet.json();
+                    if (jSet.status === 'success' && jSet.umum) {
+                        mapSettingKelas[kls] = jSet.umum;
+                    }
+                }
+            } catch (e) {
+                console.warn("Gagal tarik setting rapor kelas:", kls);
+            }
+        }));
+
+        renderSertifikatHTML(daftarPenerima, jenis, mapSettingKelas);
+        closeAllPanels();
+        switchToSertifikat();
+        showToast(`Berhasil menyiapkan ${daftarPenerima.length} sertifikat (TTD & Stempel otomatis).`, "success");
+
+        if (langsungCetak) {
+            setTimeout(() => cetakSertifikat(jenis === 'BINTANG' ? 'Sertifikat_Bintang_Pelajar' : 'Sertifikat_Ranking_Kelas'), 600);
+        }
+    } catch (err) {
+        console.error(err);
+        showToast("Gagal menarik data juara dari server.", "error");
+    } finally {
+        btnPrev.disabled = false;
+        btnPrt.disabled = false;
+        btnPrt.textContent = "Cetak / Print";
+    }
+}
+
+function renderSertifikatHTML(daftar, jenis, mapSettingKelas = {}) {
+    const wrapper = document.getElementById('kertasSertifikatWrapper');
+    wrapper.innerHTML = '';
+
+    const strSemester = document.getElementById('inputSemester').value;
+    const strTahun = document.getElementById('inputTahunAjaran').value;
+    const noSertif = document.getElementById('inputNoSertifikat').value.trim();
+    const tglDefault = document.getElementById('inputTglSertifikat').value.trim() || 'Bangkalan, ..........................';
+    const kepalaDefault = '( ............................................ )';
+    const waliDefault = '( ............................................ )';
+
+    const warnaAksen = jenis === 'BINTANG' ? '#b45309' : '#065f46';
+
+    daftar.forEach((s, idx) => {
+        const nomorUrut = noSertif ? `${String(idx + 1).padStart(2, '0')}/${noSertif}` : '';
+        const setting = mapSettingKelas[s.kelas] || {};
+
+        // Bedakan logo, lembaga, & jabatan otomatis antara TK/RA dan Ibtidaiyah/Sanawiyah
+        const isTK = /(^|\s|-)TK|TPQ|RA/i.test(String(s.kelas || ''));
+        const logoSertifikat = isTK ? '../asset/logotk.png' : '../asset/logo.png';
+        const namaLembaga = isTK ? 'TK / RA Darussalam' : 'Madrasah Diniyah Darussalam';
+        const alamatLembaga = 'Bhetoran Batukessel Bandang Laok Kokop Bangkalan';
+        const jabatanKepala = isTK ? 'Kepala TK / RA Darussalam,' : 'Kepala Madrasah Darussalam,';
+
+        const namaKepala = (setting.kepala && String(setting.kepala).trim() !== '') ? setting.kepala : kepalaDefault;
+        const namaWali = (setting.wali && String(setting.wali).trim() !== '')
+            ? setting.wali
+            : (s.wali && s.wali !== 'Belum Diatur' ? s.wali : waliDefault);
+        const tglSertif = (setting.tanggal && String(setting.tanggal).trim() !== '') ? setting.tanggal : tglDefault;
+
+        const urlTtdKepala = konversiUrlDriveSertif(setting.url_kepala);
+        const urlStempel = konversiUrlDriveSertif(setting.url_stempel);
+        const urlTtdWali = konversiUrlDriveSertif(setting.url_wali);
+
+        const htmlStempel = urlStempel
+            ? `<img src="${urlStempel}" referrerpolicy="no-referrer" alt="Stempel" class="absolute left-4 -top-2 w-24 h-24 object-contain opacity-85 mix-blend-multiply pointer-events-none z-10" onerror="this.style.display='none'">`
+            : '';
+        const htmlTtdKepala = urlTtdKepala
+            ? `<img src="${urlTtdKepala}" referrerpolicy="no-referrer" alt="TTD Kepala" class="relative z-20 h-24 max-w-[220px] mx-auto object-contain mix-blend-multiply" onerror="this.style.display='none'">`
+            : '';
+        const htmlTtdWali = urlTtdWali
+            ? `<img src="${urlTtdWali}" referrerpolicy="no-referrer" alt="TTD Wali Kelas" class="relative z-20 h-24 max-w-[220px] mx-auto object-contain mix-blend-multiply" onerror="this.style.display='none'">`
+            : '';
+
+        wrapper.innerHTML += `
+        <div class="halaman-sertifikat relative bg-white mx-auto shadow-xl overflow-hidden flex flex-col justify-between p-[12mm]" style="width: 297mm; height: 209mm; box-sizing: border-box;">
+            
+
+
+
+<!-- BINGKAI DI SINI-->
+
+
+
+
+
+
+
+
+            <!-- POJOK KIRI ATAS: INFO NIS & KELAS -->
+            <div class="absolute top-[13mm] left-[14mm] z-20 text-left">
+                <p class="text-[10px] font-bold text-slate-700 leading-tight">NIS: ${s.nis}</p>
+                <p class="text-[10px] font-semibold text-slate-600 leading-tight mt-0.5">${s.kelas}</p>
+            </div>
+
+            <!-- HEADER -->
+            <div class="relative z-20 text-center pt-2">
+                <img src="${logoSertifikat}" alt="Logo" class="h-16 w-auto mx-auto object-contain mb-1" onerror="this.src='../asset/logo.png'">
+                <p class="text-[36px] text-[#064e3b] leading-none" style="font-family: 'Diwani Jali', serif;" dir="rtl">مدرسة دينية دار السلام</p>
+                <p class="text-xs font-bold tracking-[0.2em] text-slate-700 uppercase mt-1">${namaLembaga}</p>
+                <p class="text-[10px] font-semibold tracking-wider text-slate-500 mt-0.5">${alamatLembaga}</p>
+                
+                <h1 class="text-4xl font-black tracking-[0.18em] uppercase mt-3" style="color: ${warnaAksen};">PIAGAM PENGHARGAAN</h1>
+                ${nomorUrut ? `<p class="text-[11px] font-bold text-slate-500 tracking-widest mt-1">Nomor: ${nomorUrut}</p>` : ''}
+            </div>
+
+            <!-- KONTEN UTAMA -->
+            <div class="relative z-20 text-center px-16 my-auto">
+                <p class="text-sm font-medium text-slate-600 italic">Diberikan dengan penuh rasa bangga kepada:</p>
+                
+                <h2 class="text-3xl font-black text-slate-900 uppercase tracking-wide mt-2 mb-1">${s.nama}</h2>
+                <div class="w-72 h-[2px] bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent mx-auto mb-3"></div>
+
+                <div class="inline-block px-6 py-1.5 rounded-full text-white text-xs font-black tracking-[0.2em] uppercase mb-3" style="background-color: ${warnaAksen};">
+                    ${s.predikatUtama}
+                </div>
+
+                <p class="text-sm text-slate-700 leading-relaxed max-w-2xl mx-auto">
+                    ${s.keteranganPrestasi}<br>
+                    Pada Evaluasi Belajar <b>Semester ${strSemester} Tahun Ajaran ${strTahun}</b>.
+                </p>
+                <p class="text-xs text-slate-500 italic mt-2">
+                    Semoga ilmu yang diraih senantiasa berkah, bermanfaat, dan menjadi motivasi untuk terus berprestasi.
+                </p>
+            </div>
+
+            <!-- FOOTER TANDA TANGAN WALI KELAS (KIRI) & KEPALA + STEMPEL (KANAN) -->
+            <div class="relative z-20 flex justify-between items-end px-16 pb-4">
+                <!-- Kiri: Wali Kelas -->
+                <div class="text-center min-w-[230px]">
+                    <p class="text-xs font-semibold text-transparent select-none">.</p>
+                    <p class="text-xs font-bold text-slate-900 mt-0.5">Wali Kelas,</p>
+                    <div class="relative h-20 flex items-center justify-center my-1">
+                        ${htmlTtdWali}
+                    </div>
+                    <p class="text-sm font-black text-slate-900 underline underline-offset-4 uppercase">${namaWali}</p>
+                </div>
+
+                <!-- Kanan: Kepala Madrasah / TK + Stempel -->
+                <div class="text-center min-w-[230px]">
+                    <p class="text-xs font-semibold text-slate-700">${tglSertif}</p>
+                    <p class="text-xs font-bold text-slate-900 mt-0.5">${jabatanKepala}</p>
+                    <div class="relative h-20 flex items-center justify-center my-1">
+                        ${htmlStempel}
+                        ${htmlTtdKepala}
+                    </div>
+                    <p class="text-sm font-black text-slate-900 underline underline-offset-4 uppercase">${namaKepala}</p>
+                </div>
+            </div>
+        </div>`;
+    });
+}
+
+        // =========================================================
+        // FITUR RENDER FOTO 3x4 PER KELAS
+        // =========================================================
+        function renderFotoSantriHTML() {
+            const area = document.getElementById('areaFotoSantri');
+            area.innerHTML = '';
+
+            const strSemester = document.getElementById('inputSemester').value;
+            const strTahun = document.getElementById('inputTahunAjaran').value;
+
+            const mapKelas = {};
+            dataGlobalCetak.forEach(s => {
+                if (!mapKelas[s.kelas]) mapKelas[s.kelas] = [];
+                mapKelas[s.kelas].push(s);
+            });
+
+            const sortedKelas = Object.keys(mapKelas).sort((a, b) =>
+                a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+            );
+
+            sortedKelas.forEach(kelasNama => {
+                const santriKelas = mapKelas[kelasNama].sort((a, b) => a.nama.localeCompare(b.nama));
+                let itemsHTML = '';
+
+                santriKelas.forEach(s => {
+                    let fotoUrl = s.foto ? String(s.foto).trim() : '';
+                    if (fotoUrl && fotoUrl.includes('drive.google.com')) {
+                        let fileId = '';
+                        if (fotoUrl.includes('id=')) fileId = fotoUrl.split('id=')[1].split('&')[0];
+                        else if (fotoUrl.includes('/d/')) fileId = fotoUrl.split('/d/')[1].split('/')[0];
+                        if (fileId) fotoUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
+                    }
+
+                    const fallbackHTML = `<div class=&quot;w-full h-full flex flex-col items-center justify-center bg-slate-100 text-slate-400&quot;><i class=&quot;fas fa-user text-2xl mb-1&quot;></i><span class=&quot;text-[8px] font-bold uppercase&quot;>Belum Ada Foto</span></div>`;
+
+                    const imgTag = fotoUrl
+                        ? `<img src="${fotoUrl}" referrerpolicy="no-referrer" alt="${s.nama}" class="w-full h-full object-cover object-top" onerror="this.outerHTML='${fallbackHTML}'">`
+                        : `<div class="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-slate-400"><i class="fas fa-user text-2xl mb-1"></i><span class="text-[8px] font-bold uppercase">Belum Ada Foto</span></div>`;
+
+                    itemsHTML += `
+                        <div class="item-foto-3x4 inline-block align-top text-center m-2">
+                            <!-- UKURAN PRESISI 3x4 CM (30mm x 40mm) -->
+                            <div class="w-[30mm] h-[40mm] border border-dashed border-slate-400 bg-white overflow-hidden mx-auto" style="box-sizing: border-box;">
+                                ${imgTag}
+                            </div>
+                            <p class="w-[30mm] text-[7.5px] font-bold text-slate-800 uppercase leading-tight mt-1 line-clamp-2 mx-auto">${s.nama}</p>
+                            <p class="w-[30mm] text-[6.5px] font-semibold text-slate-500 leading-none mt-0.5 mx-auto">${s.nis}</p>
+                        </div>
+                    `;
+                });
+
+                area.innerHTML += `
+                    <div class="halaman-foto bg-white sm:shadow-md rounded-2xl mb-8 p-5 border border-slate-200">
+                        <div class="flex justify-between items-center border-b-2 border-emerald-800 pb-2 mb-4">
+                            <div>
+                                <h2 class="text-base md:text-lg font-black uppercase text-emerald-900 tracking-wide">Pas Foto 3×4 cm — ${kelasNama}</h2>
+                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Madrasah Diniyah Darussalam • Semester ${strSemester} ${strTahun}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-lg">${santriKelas.length} Santri</span>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            ${itemsHTML}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // =========================================================
+        // FITUR MODAL & RENDER DAFTAR PEMBAYARAN PER KELAS
+        // =========================================================
+        function bukaModalPembayaran() {
+            openPanel('modalPembayaranWrapper', 'pembayaran');
+        }
+
+        function toggleInputManualBayar() {
+            const jenis = document.getElementById('pilihJenisBayar').value;
+            const wadah = document.getElementById('wadahManualBayar');
+            if (jenis === 'MANUAL') {
+                wadah.classList.remove('hidden');
+                document.getElementById('inputManualBayar').focus();
+            } else {
+                wadah.classList.add('hidden');
+            }
+        }
+
+        function terapkanPembayaran(langsungCetak) {
+            const jenis = document.getElementById('pilihJenisBayar').value;
+            const manual = document.getElementById('inputManualBayar').value.trim();
+            const nominal = document.getElementById('inputNominalBayar').value.trim();
+
+            const namaPembayaran = (jenis === 'MANUAL') ? manual : jenis;
+
+            renderPembayaranHTML(namaPembayaran, nominal);
+            closeAllPanels();
+            switchToPembayaran();
+
+            if (langsungCetak) {
+                const slugNama = namaPembayaran
+                    ? 'Pembayaran_' + namaPembayaran.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s+/g, '_')
+                    : 'Daftar_Pembayaran';
+                setTimeout(() => cetakPembayaran(slugNama), 200);
+            }
+        }
+
+        function renderPembayaranHTML(namaPembayaran = '', nominalTagihan = '') {
+            const area = document.getElementById('kertasPembayaranWrapper');
+            area.innerHTML = '';
+
+            const strSemester = document.getElementById('inputSemester').value;
+            const strTahun = document.getElementById('inputTahunAjaran').value;
+
+            const judulHeader = namaPembayaran
+                ? `Daftar Pembayaran ${namaPembayaran}`
+                : `Daftar Pembayaran ..............................`;
+            const teksJenis = namaPembayaran
+                ? `<span class="font-bold text-black uppercase">${namaPembayaran}</span>`
+                : `<span class="inline-block w-48 border-b border-gray-500 border-dotted">&nbsp;</span>`;
+            const teksNominal = nominalTagihan
+                ? `<span class="font-bold text-black">${nominalTagihan}</span>`
+                : `Rp <span class="inline-block w-40 border-b border-gray-500 border-dotted">&nbsp;</span>`;
+
+            const mapKelas = {};
+            dataGlobalCetak.forEach(s => {
+                if (!mapKelas[s.kelas]) mapKelas[s.kelas] = [];
+                mapKelas[s.kelas].push(s);
+            });
+
+            const sortedKelas = Object.keys(mapKelas).sort((a, b) =>
+                a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+            );
+
+            sortedKelas.forEach(kelasNama => {
+                const santriKelas = mapKelas[kelasNama].sort((a, b) => a.nama.localeCompare(b.nama));
+                const MAX_BARIS = 35;
+                const totalPages = Math.ceil(santriKelas.length / MAX_BARIS);
+
+                for (let page = 0; page < totalPages; page++) {
+                    const startIdx = page * MAX_BARIS;
+                    const chunk = santriKelas.slice(startIdx, startIdx + MAX_BARIS);
+                    let barisTabel = '';
+
+                    chunk.forEach((s, chunkIdx) => {
+                        const idx = startIdx + chunkIdx;
+                        barisTabel += `
+                            <tr class="text-gray-900 border-b border-gray-400">
+                                <td class="text-center py-1.5 px-2 font-semibold">${idx + 1}</td>
+                                <td class="text-center py-1.5 px-2 tracking-wider">${s.nis}</td>
+                                <td class="py-1.5 px-3 font-bold uppercase">${s.nama}</td>
+                                <td class="py-1.5 px-2 text-left text-xs text-gray-500">Rp</td>
+                                <td class="py-1.5 px-2"></td>
+                                <td class="py-1.5 px-2"></td>
+                            </tr>
+                        `;
+                    });
+
+                    let footerHalaman = '';
+                    if (page === totalPages - 1) {
+                        footerHalaman = `
+                            <div class="mt-3 flex justify-between items-start px-2 text-sm font-semibold text-gray-900 area-ttd">
+                                <div class="border border-black rounded-lg p-2.5 text-xs bg-gray-50 min-w-[230px]">
+                                    <p class="font-bold uppercase text-gray-700 mb-1">Rekapitulasi Kelas:</p>
+                                    <p class="mb-1">Total Santri : <b>${santriKelas.length} Orang</b></p>
+                                    <p>Total Terkumpul : Rp ..............................</p>
+                                </div>
+                                <div class="text-center pr-8">
+                                    <p>Bangkalan, .................................</p>
+                                    <p class="mt-0.5">Wali Kelas / Bendahara</p>
+                                    <div class="h-12"></div>
+                                    <p class="underline underline-offset-4">( .................................................... )</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    const infoHalaman = totalPages > 1
+                        ? `<span class="text-xs font-semibold text-emerald-700 block mt-1">(Hal ${page + 1} dari ${totalPages})</span>`
+                        : '';
+
+                    area.innerHTML += `
+                        <div class="halaman-absen bg-white sm:shadow-[0_0_15px_rgba(0,0,0,0.05)] mb-10 mx-auto w-full max-w-[215.9mm] py-4 border border-gray-300 relative" style="box-sizing: border-box;">
+                            <div class="border-b-[3px] border-double border-black pb-2 mb-3 flex justify-between items-center min-h-[50px]">
+                                <img src="../asset/logo.png" alt="Logo" class="w-14 h-14 object-contain flex-none">
+                                <div class="text-center flex-1 px-4">
+                                    <h1 class="text-lg md:text-xl font-black uppercase tracking-wider text-gray-900 leading-tight">${judulHeader}</h1>
+                                    <h2 class="text-sm md:text-base font-bold uppercase tracking-[0.2em] text-gray-800 mt-1">Madrasah Diniyah Darussalam</h2>
+                                    <p class="text-[10px] md:text-xs font-bold uppercase tracking-widest text-emerald-700 mt-1 border-t-2 border-emerald-100/50 inline-block pt-1">Semester ${strSemester} • Tahun Ajaran ${strTahun}</p>
+                                </div>
+                                <div class="w-14 flex-none"></div>
+                            </div>
+
+                            <div class="flex justify-between items-end mb-3">
+                                <table class="text-xs md:text-sm font-semibold text-gray-800 ml-2 mb-1">
+                                    <tr>
+                                        <td class="py-0.5 w-36">Jenis Pembayaran</td>
+                                        <td class="py-0.5 w-4 text-center">:</td>
+                                        <td class="py-0.5">${teksJenis}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0.5">Nominal / Tagihan</td>
+                                        <td class="py-0.5 text-center">:</td>
+                                        <td class="py-0.5">${teksNominal}</td>
+                                    </tr>
+                                </table>
+                                <div class="text-right mr-2">
+                                    <div class="border-[2px] border-black px-5 py-1.5 rounded-lg bg-gray-50 text-center min-w-[140px] inline-block">
+                                        <p class="text-[9px] uppercase font-bold text-gray-700 tracking-widest mb-0.5">Kelas</p>
+                                        <p class="text-lg md:text-xl font-black text-black leading-none truncate">${kelasNama}</p>
+                                    </div>
+                                    ${infoHalaman}
+                                </div>
+                            </div>
+
+                            <div class="w-full mb-2">
+                                <table class="tabel-absen text-xs md:text-sm border-2 border-gray-800 w-full">
+                                    <thead class="bg-gray-100 border-b-2 border-gray-800">
+                                        <tr class="font-bold uppercase tracking-wider text-gray-900 text-center text-[11px]">
+                                            <th class="py-1.5 px-2 w-10">No</th>
+                                            <th class="py-1.5 px-2 w-24">No. Induk</th>
+                                            <th class="py-1.5 px-3 text-left w-[34%]">Nama Peserta Didik</th>
+                                            <th class="py-1.5 px-2 w-[18%]">Jumlah Bayar</th>
+                                            <th class="py-1.5 px-2 w-[14%]">Tanggal</th>
+                                            <th class="py-1.5 px-2 w-[14%]">Paraf / Ket.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${barisTabel}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            ${footerHalaman}
+                        </div>
+                    `;
+                }
+            });
+        }
+
+// MENGHASILKAN HTML DAFTAR HADIR RAPORT BERDASARKAN KELAS (DENGAN PAGINASI)
         function renderAbsenRaportHTML() {
             const area = document.getElementById('kertasAbsenRaportWrapper');
             area.innerHTML = '';
@@ -958,7 +1794,6 @@ try {
             const strSemester = document.getElementById('inputSemester').value;
             const strTahun = document.getElementById('inputTahunAjaran').value;
 
-            // Dikelompokkan berdasarkan KELAS, bukan Ruang Ujian.
             const mapKelas = {};
             dataGlobalCetak.forEach(s => {
                 if(!mapKelas[s.kelas]) mapKelas[s.kelas] = [];
@@ -970,8 +1805,6 @@ try {
             sortedKelas.forEach(kelasNama => {
                 let santriKelas = mapKelas[kelasNama].sort((a,b) => a.nama.localeCompare(b.nama));
                 
-                // --- PERBAIKAN: BATAS MAKSIMAL BARIS DINAIKKAN MENJADI 35 ---
-                // Agar kelas dengan jumlah santri di bawah 35 bisa muat 1 lembar kertas Legal.
                 const MAX_BARIS = 35; 
                 const totalPages = Math.ceil(santriKelas.length / MAX_BARIS);
 
@@ -981,11 +1814,10 @@ try {
                     let barisTabel = '';
                     
                     chunk.forEach((s, chunkIdx) => {
-                        let idx = startIdx + chunkIdx; // Nomor urut global per kelas
+                        let idx = startIdx + chunkIdx;
                         let namaWali = (s.ayah && s.ayah.trim() !== '-' && s.ayah.trim() !== '') ? s.ayah : 
                                        ((s.ibu && s.ibu.trim() !== '-' && s.ibu.trim() !== '') ? s.ibu : '.......................');
 
-                        // PERBAIKAN: Mengurangi padding tabel (py-1.5) dan tinggi kolom (h-8) agar baris lebih rapat
                         barisTabel += `
                             <tr class="text-gray-900 border-b border-gray-400">
                                 <td class="text-center py-1.5 px-2 font-semibold border-r border-gray-400">${idx + 1}</td>
@@ -1002,7 +1834,6 @@ try {
                         `;
                     });
 
-                    // Tanda tangan HANYA dimunculkan di halaman terakhir dari kelas tersebut
                     let areaTandaTangan = '';
                     if (page === totalPages - 1) {
                         areaTandaTangan = `
@@ -1016,7 +1847,6 @@ try {
                         `;
                     }
 
-                    // Keterangan Halaman
                     let infoHalaman = totalPages > 1 ? `<span class="text-sm font-semibold text-emerald-700 ml-2 block mt-1">(Hal ${page + 1} dari ${totalPages})</span>` : '';
 
                     area.innerHTML += `
@@ -1080,79 +1910,6 @@ try {
             });
         }
 
-        function switchToKartu() {
-            document.getElementById('gridKartu').classList.remove('hidden');
-            document.getElementById('areaDaftarHadir').classList.add('hidden');
-            document.getElementById('areaDenah').classList.add('hidden');
-            document.getElementById('gridKartuWali').classList.add('hidden');
-            document.getElementById('gridLabelRaport').classList.add('hidden');
-        }
-        function switchToAbsen() {
-            document.getElementById('gridKartu').classList.add('hidden');
-            document.getElementById('areaDenah').classList.add('hidden');
-            document.getElementById('gridKartuWali').classList.add('hidden');
-            document.getElementById('gridLabelRaport').classList.add('hidden');
-            document.getElementById('areaDaftarHadir').classList.remove('hidden');
-			setTimeout(sesuaikanSkalaCetak, 100);
-        }
-        function switchToDenah() {
-            document.getElementById('gridKartu').classList.add('hidden');
-            document.getElementById('areaDaftarHadir').classList.add('hidden');
-            document.getElementById('gridKartuWali').classList.add('hidden');
-            document.getElementById('gridLabelRaport').classList.add('hidden');
-            document.getElementById('areaDenah').classList.remove('hidden');
-			setTimeout(sesuaikanSkalaCetak, 100);
-        }
-        function switchToWali() {
-            document.getElementById('gridKartu').classList.add('hidden');
-            document.getElementById('areaDaftarHadir').classList.add('hidden');
-            document.getElementById('areaDenah').classList.add('hidden');
-            document.getElementById('gridLabelRaport').classList.add('hidden');
-            document.getElementById('gridKartuWali').classList.remove('hidden');
-        }
-        function switchToLabel() {
-            document.getElementById('gridKartu').classList.add('hidden');
-            document.getElementById('areaDaftarHadir').classList.add('hidden');
-            document.getElementById('areaDenah').classList.add('hidden');
-            document.getElementById('gridKartuWali').classList.add('hidden');
-            document.getElementById('gridLabelRaport').classList.remove('hidden');
-        }
-
-        function cetakKartu() {
-            switchToKartu();
-            document.body.classList.remove('print-absen', 'print-denah', 'print-wali', 'print-label');
-            document.body.classList.add('print-kartu');
-            setTimeout(() => window.print(), 150);
-        }
-        
-        function cetakAbsen() {
-            switchToAbsen();
-            document.body.classList.remove('print-kartu', 'print-denah', 'print-wali', 'print-label');
-            document.body.classList.add('print-absen');
-            setTimeout(() => window.print(), 150);
-        }
-
-        function cetakDenah() {
-            switchToDenah();
-            document.body.classList.remove('print-kartu', 'print-absen', 'print-wali', 'print-label');
-            document.body.classList.add('print-denah');
-            setTimeout(() => window.print(), 150);
-        }
-
-        function cetakKartuWali() {
-            switchToWali();
-            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-label');
-            document.body.classList.add('print-wali');
-            setTimeout(() => window.print(), 150);
-        }
-
-        function cetakLabelRaport() {
-            switchToLabel();
-            document.body.classList.remove('print-kartu', 'print-absen', 'print-denah', 'print-wali');
-            document.body.classList.add('print-label');
-            setTimeout(() => window.print(), 150);
-        }
-
  function renderLabelRaportHTML() {
             const grid = document.getElementById('gridLabelRaport');
             grid.innerHTML = ''; 
@@ -1162,36 +1919,29 @@ try {
                 <div class="label-page relative overflow-hidden bg-white" style="box-sizing: border-box;">
                     
                     <!-- BINGKAI MAP HIJAU TUA & EMAS -->
-                    <!-- Bingkai Luar: Hijau Tua Pekat khas Map Raport -->
                     <div class="absolute inset-[3px] border-[2.5px] border-[#1A3626] pointer-events-none z-20"></div>
-                    <!-- Bingkai Dalam: Emas -->
                     <div class="absolute inset-[6.5px] border-[1px] border-[#D4AF37] pointer-events-none z-20"></div>
 
                     <!-- Efek Background Halus -->
                     <div class="absolute inset-0 bg-gradient-to-br from-[#1A3626]/5 to-transparent z-0"></div>
 
                     <!-- Konten Teks Label -->
-                    <!-- BERUBAH: px-5 diganti menjadi px-2 agar teks muat di lebar 7cm -->
                     <div class="relative z-10 flex flex-col justify-center items-center w-full h-full px-2 text-center">
                         
-                        <!-- Keterangan Atas -->
                         <span class="text-[8px] font-bold text-[#1A3626] tracking-[0.25em] uppercase mb-0.5">
                             Peserta Didik
                         </span>
                         
-                        <!-- Nama Santri -->
                         <h3 class="text-[11px] md:text-[12px] font-black text-gray-900 uppercase leading-[1.1] line-clamp-2 w-full mt-0.5">
                             ${santri.nama}
                         </h3>
                         
-                        <!-- Divider (Garis Hijau Tua & Berlian Emas) -->
                         <div class="flex items-center gap-1.5 my-1">
                             <div class="w-5 h-[1.5px] bg-[#1A3626]/30"></div>
                             <div class="w-1 h-1 rotate-45 bg-[#D4AF37]"></div>
                             <div class="w-5 h-[1.5px] bg-[#1A3626]/30"></div>
                         </div>
                         
-                        <!-- Nomor Induk -->
                         <p class="text-[9px] md:text-[10px] font-bold text-slate-500 tracking-[0.15em] uppercase">
                             NIS. <span class="text-[#1A3626] font-black">${santri.nis}</span>
                         </p>
@@ -1201,88 +1951,103 @@ try {
             });
         }
 
-        function renderKartuHTML() {
-            const grid = document.getElementById('gridKartu');
-            grid.innerHTML = ''; 
-            
-            const strSemester = document.getElementById('inputSemester').value;
-            const strTahun = document.getElementById('inputTahunAjaran').value;
+function renderKartuHTML() {
+    const grid = document.getElementById('gridKartu');
+    grid.innerHTML = ''; 
+    
+    const strSemester = document.getElementById('inputSemester').value;
+    const strTahun = document.getElementById('inputTahunAjaran').value;
 
-            const daftarQuotes = [
-                "Awali ujianmu dengan doa, iringi setiap jawaban dengan kejujuran, dan akhiri perjuanganmu dengan tawakal.",
-                "Menyontek mungkin memberimu nilai tinggi di atas kertas, namun kejujuranlah yang memberimu derajat tinggi di sisi Allah.",
-                "Ujian ini hanyalah jembatan kecil menuju mimpimu. Berjalanlah dengan doa, usaha, dan keyakinan.",
-                "Setiap tetes keringat belajarmu hari ini adalah investasi keberkahan untuk masa depanmu kelak.",
-                "Ilmu yang sejati tidak diukur dari seberapa besar nilaimu, melainkan dari seberapa besar kejujuran dan adabmu saat mencarinya.",
-                "Kerjakanlah sebatas kemampuan terbaikmu. Sisanya, biarkan Allah yang menyempurnakan hasil dari setiap ikhtiar tulusmu."
-            ];
-            
-            dataGlobalCetak.forEach((santri, index) => {
-                const strMeja = santri.nomorMeja.toString().padStart(2, '0');
-                const quoteSantri = daftarQuotes[index % daftarQuotes.length];
+    const daftarQuotes = [
+        "Awali ujianmu dengan doa, iringi setiap jawaban dengan kejujuran, dan akhiri perjuanganmu dengan tawakal.",
+        "Menyontek mungkin memberimu nilai tinggi di atas kertas, namun kejujuranlah yang memberimu derajat tinggi di sisi Allah.",
+        "Ujian ini hanyalah jembatan kecil menuju mimpimu. Berjalanlah dengan doa, usaha, dan keyakinan.",
+        "Setiap tetes keringat belajarmu hari ini adalah investasi keberkahan untuk masa depanmu kelak.",
+        "Ilmu yang sejati tidak diukur dari seberapa besar nilaimu, melainkan dari seberapa besar kejujuran dan adabmu saat mencarinya.",
+        "Kerjakanlah sebatas kemampuan terbaikmu. Sisanya, biarkan Allah yang menyempurnakan hasil dari setiap ikhtiar tulusmu."
+    ];
+    
+    dataGlobalCetak.forEach((santri, index) => {
+        const strMeja = santri.nomorMeja.toString().padStart(2, '0');
+        const quoteSantri = daftarQuotes[index % daftarQuotes.length];
 
-               grid.innerHTML += `
-                <div class="kartu-page kartu-b2 relative bg-white font-sans shadow-md flex flex-col border-[1.5px] border-emerald-800 overflow-hidden" style="box-sizing: border-box;">
-                    
-                    <div class="relative header-kartu text-white flex flex-col items-center pt-2.5 pb-2 flex-none border-b-[2px] border-[#D4AF37]">
-                        <div class="absolute inset-0 bg-[#022c22] opacity-[0.85] z-0" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
-                        <div class="absolute inset-0 opacity-10 z-0" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
-                        <img src="../asset/logo.png" alt="Logo" class="relative z-10 h-7 w-auto object-contain mb-1 drop-shadow-md">
-                        <h2 class="relative z-10 text-[16px] font-normal leading-none drop-shadow-sm mt-1" style="font-family: 'Diwani Jali', serif;" dir="rtl">مدرسة دينية دار السلام</h2>
-                     <h3 class="relative z-10 text-[10px] font-bold tracking-[0.2em] uppercase mt-1 opacity-90">KARTU UJIAN</h3>
-                        <p class="relative z-10 text-[5px] font-bold tracking-[0.1em] uppercase mt-0.5 text-[#F2C94C] drop-shadow-sm">Semester ${strSemester} - ${strTahun}</p>
-                    </div>
-
-              <div class="p-2 pb-6 flex-1 flex flex-col justify-center relative z-10">
-                        <div class="relative z-10 w-full">
-                            <div class="text-center bg-emerald-50/60 border border-emerald-100 py-1.5 px-1 mb-1.5 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                                <p class="text-[5px] font-bold text-emerald-700 uppercase tracking-widest mb-0.5">Nama Peserta</p>
-                                <p class="text-[9px] font-black text-gray-900 uppercase leading-tight line-clamp-2">${santri.nama}</p>
-                            </div>
-                            <div class="space-y-1.5 px-1 mt-1">
-                                <div class="flex justify-between items-end border-b border-gray-300 border-dotted pb-0.5">
-                                    <span class="text-[6px] font-bold text-gray-500 uppercase tracking-wider">No. Induk Santri</span>
-                                    <span class="text-[8px] font-bold text-gray-900">${santri.nis}</span>
-                                </div>
-                                <div class="flex justify-between items-end border-b border-gray-300 border-dotted pb-0.5">
-                                    <span class="text-[6px] font-bold text-gray-500 uppercase tracking-wider">Kelas</span>
-                                    <span class="text-[8px] font-bold text-gray-900">${santri.kelas}</span>
-                                </div>
-                            </div>
-                         <div class="flex gap-2 pt-1">
-                                <div class="flex-1 bg-gradient-to-b from-white to-emerald-50/50 border border-emerald-200 text-center py-1 shadow-sm relative overflow-hidden flex flex-col justify-center">
-                                    <div class="absolute top-0 left-0 w-full h-[2px] bg-emerald-600"></div>
-                                    <p class="text-[5px] text-emerald-700 uppercase font-bold tracking-wider">Ruang</p>
-                                    <p class="text-[13px] font-black text-emerald-800 leading-none mt-1 line-clamp-1 break-all" title="${santri.namaRuangan}">${santri.namaRuangan}</p>
-                                </div>
-                                <div class="flex-1 bg-gradient-to-b from-white to-[#FDFBF3] border border-[#EADDAC] text-center py-1 shadow-sm relative overflow-hidden flex flex-col justify-center">
-                                    <div class="absolute top-0 left-0 w-full h-[2px] bg-[#D4AF37]"></div>
-                                    <p class="text-[5px] text-yellow-700 uppercase font-bold tracking-wider">Meja</p>
-                                    <p class="text-[15px] font-black text-yellow-800 leading-none mt-1">${strMeja}</p>
-                                </div>
-                            </div>
-                           <div class="mt-1 text-center flex flex-col items-center">
-                                <div class="bg-white p-1 border border-gray-100 shadow-sm inline-block mx-auto mb-1 w-[95%]">
-                                   <svg class="barcode-ujian w-full h-6" jsbarcode-value="${santri.nis}" jsbarcode-format="CODE128" jsbarcode-displayvalue="false"></svg>
-                                </div>
-                                <div class="flex justify-center items-center gap-1 mb-0.5">
-                                    <div class="w-2 h-[0.5px] bg-emerald-700/50"></div>
-                                    <div class="w-1 h-1 rotate-45 border-[0.5px] border-emerald-700/70"></div>
-                                    <div class="w-2 h-[0.5px] bg-emerald-700/50"></div>
-                                </div>
-                                <p class="text-[6px] leading-[1.3] font-medium text-gray-700 italic px-1.5 mt-0.5 line-clamp-3">"${quoteSantri}"</p>
-                            </div>
-                        </div>
-                    </div>
-<div class="absolute bottom-0 left-0 w-full bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-900 text-center py-0.5 z-20">
-  <p class="relative z-10 text-[5px] font-semibold tracking-wider text-emerald-50 uppercase">WAJIB DIBAWA SAAT UJIAN, BILA MENEMUKAN KEMBALIKAN PADA PANITIA</p>
-</div>
-                </div>`;
-            });
-            JsBarcode(".barcode-ujian").init();
+        let fotoUrl = santri.foto ? String(santri.foto).trim() : '';
+        if (fotoUrl && fotoUrl.includes('drive.google.com')) {
+            let fileId = '';
+            if (fotoUrl.includes('id=')) fileId = fotoUrl.split('id=')[1].split('&')[0];
+            else if (fotoUrl.includes('/d/')) fileId = fotoUrl.split('/d/')[1].split('/')[0];
+            if (fileId) fotoUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
         }
 
+        const fallbackFotoHTML = `<div class=&quot;w-full h-full flex flex-col items-center justify-center bg-slate-100 text-slate-400&quot;><i class=&quot;fas fa-user text-base mb-0.5&quot;></i><span class=&quot;text-[5px] font-bold uppercase&quot;>Foto 3x4</span></div>`;
 
+       const elemenFoto = fotoUrl
+    ? `<img src="${fotoUrl}" referrerpolicy="no-referrer" alt="Foto ${santri.nama}" class="w-full h-full object-cover object-top" onerror="this.outerHTML='${fallbackFotoHTML}'">`
+    : `<div class="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-slate-400"><i class="fas fa-user text-base mb-0.5"></i><span class="text-[5px] font-bold uppercase">Foto 3x4</span></div>`;
+
+        grid.innerHTML += `
+        <div class="kartu-page kartu-b2 relative bg-white font-sans shadow-md flex flex-col border-[1.5px] border-emerald-800 overflow-hidden" style="box-sizing: border-box;">
+            
+            <div class="relative header-kartu text-white flex flex-col items-center pt-2 pb-1.5 flex-none border-b-[2px] border-[#D4AF37]">
+                <div class="absolute inset-0 bg-[#022c22] opacity-[0.85] z-0" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
+                <div class="absolute inset-0 opacity-10 z-0" style="-webkit-print-color-adjust: exact; print-color-adjust: exact;"></div>
+                <img src="../asset/logo.png" alt="Logo" class="relative z-10 h-6 w-auto object-contain mb-0.5 drop-shadow-md">
+                <h2 class="relative z-10 text-[15px] font-normal leading-none drop-shadow-sm mt-0.5" style="font-family: 'Diwani Jali', serif;" dir="rtl">مدرسة دينية دار السلام</h2>
+                <h3 class="relative z-10 text-[9.5px] font-bold tracking-[0.2em] uppercase mt-1 opacity-90">KARTU UJIAN</h3>
+                <p class="relative z-10 text-[5px] font-bold tracking-[0.1em] uppercase mt-0.5 text-[#F2C94C] drop-shadow-sm">Semester ${strSemester} - ${strTahun}</p>
+            </div>
+
+            <div class="p-2 pb-5 flex-1 flex flex-col justify-between relative z-10">
+                <div class="relative z-10 w-full">
+                    <div class="text-center bg-emerald-50/60 border border-emerald-100 py-1 px-1 mb-1 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                        <p class="text-[5px] font-bold text-emerald-700 uppercase tracking-widest mb-0.5">Nama Peserta</p>
+                        <p class="text-[8.5px] font-black text-gray-900 uppercase leading-tight line-clamp-2">${santri.nama}</p>
+                    </div>
+                    <div class="space-y-1 px-1 mt-1">
+                        <div class="flex justify-between items-end border-b border-gray-300 border-dotted pb-0.5">
+                            <span class="text-[6px] font-bold text-gray-500 uppercase tracking-wider">No. Induk Santri</span>
+                            <span class="text-[7.5px] font-bold text-gray-900">${santri.nis}</span>
+                        </div>
+                        <div class="flex justify-between items-end border-b border-gray-300 border-dotted pb-0.5">
+                            <span class="text-[6px] font-bold text-gray-500 uppercase tracking-wider">Kelas</span>
+                            <span class="text-[7.5px] font-bold text-gray-900">${santri.kelas}</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-1.5 pt-1">
+                        <div class="flex-1 bg-gradient-to-b from-white to-emerald-50/50 border border-emerald-200 text-center py-0.5 shadow-sm relative overflow-hidden flex flex-col justify-center">
+                            <div class="absolute top-0 left-0 w-full h-[2px] bg-emerald-600"></div>
+                            <p class="text-[5px] text-emerald-700 uppercase font-bold tracking-wider">Ruang</p>
+                            <p class="text-[12px] font-black text-emerald-800 leading-none mt-0.5 line-clamp-1 break-all" title="${santri.namaRuangan}">${santri.namaRuangan}</p>
+                        </div>
+                        <div class="flex-1 bg-gradient-to-b from-white to-[#FDFBF3] border border-[#EADDAC] text-center py-0.5 shadow-sm relative overflow-hidden flex flex-col justify-center">
+                            <div class="absolute top-0 left-0 w-full h-[2px] bg-[#D4AF37]"></div>
+                            <p class="text-[5px] text-yellow-700 uppercase font-bold tracking-wider">Meja</p>
+                            <p class="text-[13px] font-black text-yellow-800 leading-none mt-0.5">${strMeja}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PENGGANTI BARCODE: PAS FOTO SANTRI 3x4 + QUOTE -->
+                <div class="mt-1 flex items-center gap-1.5 px-0.5">
+                    <div class="w-[14mm] h-[18.5mm] shrink-0 border-[1.5px] border-emerald-800 bg-white p-[1px] shadow-sm overflow-hidden rounded-[2px]">
+                        ${elemenFoto}
+                    </div>
+                    <div class="flex-1 text-left">
+                        <div class="flex items-center gap-1 mb-0.5">
+                            <div class="w-1.5 h-1.5 rotate-45 border-[0.5px] border-emerald-700/70"></div>
+                            <div class="flex-1 h-[0.5px] bg-emerald-700/40"></div>
+                        </div>
+                        <p class="text-[5.5px] leading-[1.35] font-medium text-gray-700 italic line-clamp-5">"${quoteSantri}"</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="absolute bottom-0 left-0 w-full bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-900 text-center py-0.5 z-20">
+                <p class="relative z-10 text-[5px] font-semibold tracking-wider text-emerald-50 uppercase">WAJIB DIBAWA SAAT UJIAN, BILA MENEMUKAN KEMBALIKAN PADA PANITIA</p>
+            </div>
+        </div>`;
+    });
+}
 
 // FUNGSI RENDER KARTU WALI (DESAIN MODERN & CENTER - FIX PRINT SVG)
         function renderKartuWaliHTML() {
@@ -1290,7 +2055,6 @@ try {
             grid.innerHTML = ''; 
             
             dataGlobalCetak.forEach((santri) => {
-                // Ekstrak tanggal lahir dari field TTL secara lebih cerdas
                 let tglLahir = "BELUM DIATUR";
                 
                 if (santri.ttl && santri.ttl.trim() !== '' && santri.ttl.trim() !== '-') {
@@ -1306,7 +2070,6 @@ try {
                     }
                 }
 
-                // Konversi Nama Bulan Menjadi Angka (Format DD-MM-YYYY)
                 if (tglLahir !== "BELUM DIATUR") {
                     const bulanMap = {
                         'januari': '01', 'februari': '02', 'maret': '03', 'april': '04',
@@ -1324,7 +2087,6 @@ try {
                     }
                 }
 
-                // Ambil Nama Ayah & Ibu (Jika kosong diisi tanda strip)
                 let namaAyah = santri.ayah ? santri.ayah.trim() : '-';
                 let namaIbu = santri.ibu ? santri.ibu.trim() : '-';
 
@@ -1347,31 +2109,25 @@ try {
                         </div>
                     </div>
 
-<!-- Body Content -->
-                    <!-- PERBAIKAN: Menggunakan justify-start, pt-2, dan memadatkan padding vertikal (py-1) -->
+                    <!-- Body Content -->
                     <div class="flex-1 flex flex-col justify-start pt-2 px-3 pb-[22px] relative z-10 w-full">
                         
-                        <!-- Nama Santri & Keterangan Wali -->
                         <div class="text-center mb-[4px]">
                             <h3 class="text-[11.5px] font-black text-slate-800 uppercase leading-tight line-clamp-1" title="${santri.nama}">${santri.nama}</h3>
                             
                             <div class="inline-flex items-center justify-center gap-1.5 bg-teal-50 px-2.5 py-[2px] max-w-[95%] rounded-full border border-teal-200 mt-[2px]" style="background-color: #f0fdfa !important;">
-                                <!-- Ikon Users SVG -->
                                 <svg class="w-2.5 h-2.5 text-teal-600 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                                 <p class="text-[7px] font-bold text-teal-800 uppercase tracking-[0.05em] truncate">WALI: ${namaAyah} & ${namaIbu}</p>
                             </div>
                         </div>
 
-                        <!-- Box Kredensial Login -->
                         <div class="w-[90%] mx-auto bg-white rounded-lg border border-slate-200 shadow-[0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col relative z-10">
                             
                             <div class="absolute left-0 top-0 bottom-0 w-[3px] bg-teal-500" style="background-color: #14b8a6 !important;"></div>
                             
-                            <!-- Username Row (Padding diperkecil menjadi py-1) -->
                             <div class="flex items-center justify-center gap-3 border-b border-slate-100 py-1 bg-slate-50 pl-2" style="background-color: #f8fafc !important;">
                                 <div class="flex items-center gap-1.5 w-[65px] justify-start">
                                     <div class="w-[14px] h-[14px] rounded bg-teal-100 flex items-center justify-center shadow-inner shrink-0" style="background-color: #ccfbf1 !important;">
-                                        <!-- Ikon User SVG -->
                                         <svg class="w-2.5 h-2.5 text-teal-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
                                     </div>
                                     <span class="text-[6.5px] font-black text-slate-500 uppercase tracking-widest">Username</span>
@@ -1381,11 +2137,9 @@ try {
                                 </div>
                             </div>
                             
-                            <!-- Password Row (Padding diperkecil menjadi py-1) -->
                             <div class="flex items-center justify-center gap-3 py-1 bg-white pl-2">
                                 <div class="flex items-center gap-1.5 w-[65px] justify-start">
                                     <div class="w-[14px] h-[14px] rounded bg-rose-100 flex items-center justify-center shadow-inner shrink-0" style="background-color: #ffe4e6 !important;">
-                                        <!-- Ikon Lock SVG -->
                                         <svg class="w-2.5 h-2.5 text-rose-500" fill="currentColor" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
                                     </div>
                                     <span class="text-[6.5px] font-black text-slate-500 uppercase tracking-widest">Password</span>
@@ -1396,9 +2150,7 @@ try {
                             </div>
                         </div>
 
-                        <!-- Petunjuk Singkat -->
                         <div class="text-center mt-[4px] flex justify-center items-center gap-1">
-                            <!-- Ikon Info SVG -->
                             <svg class="w-2.5 h-2.5 text-teal-600" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                             <p class="text-[6.5px] leading-[1.3] text-gray-500 font-medium">
                                 Gunakan akses di atas untuk memantau rapor & absensi.
@@ -1406,10 +2158,8 @@ try {
                         </div>
                     </div>
 
-                    <!-- Footer Link (PERBAIKAN: Menggunakan absolute position agar tidak hilang) -->
                     <div class="absolute bottom-0 left-0 w-full text-center py-1.5 flex items-center justify-center z-20" style="background-color: #134e4a !important;">
                         <p class="text-[9px] font-black text-amber-400 tracking-widest flex items-center gap-1.5 leading-none drop-shadow-md" style="color: #fbbf24 !important;">
-                            <!-- Ikon Globe SVG -->
                             <svg class="w-2.5 h-2.5 text-white/90" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                             wali.madasa.ponpes.id
                         </p>
@@ -1539,7 +2289,6 @@ try {
             sortedRuang.forEach(ruangNama => {
                 let santriRuang = mapRuang[ruangNama].sort((a,b) => a.nomorMeja - b.nomorMeja);
                 
-                // Set maksimal 40 meja per halaman (4 kolom x 10 baris) agar pas di Legal Paper.
                 const MAX_MEJA = 40; 
                 const totalPages = Math.ceil(santriRuang.length / MAX_MEJA);
 
@@ -1560,7 +2309,6 @@ try {
                         `;
                     });
 
-                    // Pad with empty desks to keep layout solid on last page
                     let padTo = Math.ceil(chunk.length / 4) * 4;
                     for(let i=chunk.length; i<padTo; i++) {
                          mejaHTML += `
@@ -1574,7 +2322,6 @@ try {
                     area.innerHTML += `
                         <div class="halaman-denah bg-white sm:shadow-[0_0_15px_rgba(0,0,0,0.05)] mb-10 mx-auto w-full max-w-[215.9mm] py-6 px-8 border border-gray-300 flex flex-col relative overflow-hidden" style="min-height: 330mm;">
                             
-                            <!-- Header -->
                             <div class="border-b-[3px] border-double border-black pb-3 mb-4 flex justify-between items-center shrink-0">
                                 <img src="../asset/logo.png" alt="Logo" class="w-14 h-14 object-contain flex-none">
                                 <div class="text-center flex-1 px-4">
@@ -1585,7 +2332,6 @@ try {
                                 <div class="w-14 flex-none"></div>
                             </div>
 
-                            <!-- Ruang Info -->
                             <div class="flex justify-between items-end mb-6 shrink-0">
                                 <div>
                                     <p class="text-sm font-bold text-gray-600 uppercase tracking-widest">Ruang Ujian</p>
@@ -1598,19 +2344,16 @@ try {
                                 </div>
                             </div>
 
-                            <!-- Meja Pengawas -->
                             <div class="flex justify-center mb-6 shrink-0">
                                 <div class="border-2 border-gray-800 bg-gray-100 rounded-lg px-12 py-3 text-center shadow-sm w-2/3">
                                     <p class="text-sm font-black uppercase tracking-widest text-gray-800">Meja Pengawas / Papan Tulis</p>
                                 </div>
                             </div>
 
-                            <!-- Grid Denah (Main Content 4 Kolom) -->
                             <div class="grid grid-cols-4 gap-3 flex-1 content-start">
                                 ${mejaHTML}
                             </div>
                             
-                            <!-- Footer Identitas -->
                             <div class="absolute bottom-4 left-0 w-full text-center text-[10px] text-gray-400 font-medium tracking-widest uppercase">
                                 Dicetak dari Sistem Ujian &bull; Denah Ruang ${ruangNama}
                             </div>
@@ -1624,8 +2367,7 @@ try {
         // FUNGSI ZOOM OTOMATIS (PRESISI TENGAH)
         // ==========================================
         function sesuaikanSkalaCetak() {
-            function applyZoom(wadah, kertas) {
-                const lebarKertasAsli = 816; // Approx Legal width in pixels
+            function applyZoom(wadah, kertas, lebarKertasAsli = 816) {
                 const lebarLayar = window.innerWidth;
                 
                 if (lebarLayar < lebarKertasAsli) {
@@ -1657,9 +2399,17 @@ try {
             const kertasAbsenRaport = document.getElementById('kertasAbsenRaportWrapper');
             if (!wadahAbsenRaport.classList.contains('hidden')) applyZoom(wadahAbsenRaport, kertasAbsenRaport);
 
+            const wadahBayar = document.getElementById('areaDaftarPembayaran');
+            const kertasBayar = document.getElementById('kertasPembayaranWrapper');
+            if (wadahBayar && !wadahBayar.classList.contains('hidden')) applyZoom(wadahBayar, kertasBayar);
+
             const wadahDenah = document.getElementById('areaDenah');
             const kertasDenah = document.getElementById('kertasDenahWrapper');
             if (!wadahDenah.classList.contains('hidden')) applyZoom(wadahDenah, kertasDenah);
+
+            const wadahSertif = document.getElementById('areaSertifikat');
+            const kertasSertif = document.getElementById('kertasSertifikatWrapper');
+            if (wadahSertif && !wadahSertif.classList.contains('hidden')) applyZoom(wadahSertif, kertasSertif, 1122);
         }
 
         window.addEventListener('resize', () => {
