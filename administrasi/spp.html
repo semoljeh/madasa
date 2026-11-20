@@ -173,39 +173,77 @@
             </div>
         </div>
 		
-        <!-- Info Ketetapan SPP Dinamis -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mb-6">
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 border-b pb-3">
-                <h3 class="font-bold text-gray-700"><i class="fas fa-cog text-gray-400 mr-2"></i>Pengaturan Ketetapan SPP</h3>
-                <div class="flex gap-2 mt-3 sm:mt-0">
-                    <button onclick="clearSettingSpp()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-lg text-xs transition-all"><i class="fas fa-undo mr-1"></i> Bersihkan</button>
-                    <button onclick="simpanSettingSpp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition-all shadow-sm"><i class="fas fa-save mr-1"></i> Simpan Pengaturan</button>
-                </div>
-            </div>
+<!-- Info Ketetapan SPP Dinamis -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6">
             
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-xl flex-shrink-0"><i class="fas fa-money-bill-wave"></i></div>
-                    <div class="w-full">
-                        <label class="text-xs text-gray-500 font-bold block mb-1">Nominal per Bulan (Rp)</label>
-                        <input type="text" id="input_tarif_spp" oninput="formatInputRupiah(this); kalkulasiTotalSppUi()" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-gray-800" placeholder="Contoh: 15.000">
+            <!-- Header Kartu -->
+            <div class="p-4 sm:p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <i class="fas fa-sliders-h text-base"></i>
                     </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xl flex-shrink-0"><i class="fas fa-calendar-check"></i></div>
-                    <div class="w-full">
-                        <label class="text-xs text-gray-500 font-bold block mb-1">Target Waktu (Bulan)</label>
-                        <input type="number" id="input_bulan_spp" oninput="kalkulasiTotalSppUi()" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none font-bold text-gray-800" placeholder="Contoh: 11">
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-xl flex-shrink-0"><i class="fas fa-file-invoice-dollar"></i></div>
                     <div>
-                        <p class="text-xs text-gray-500 font-bold">Total Tagihan 1 Tahun</p>
-                        <h3 class="text-lg font-bold text-gray-800 mt-1" id="info_spp_total">Rp 0</h3>
+                        <h3 class="font-heading font-bold text-gray-800 text-sm sm:text-base leading-tight">Pengaturan Ketetapan SPP</h3>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Atur tarif bulanan dan target waktu pembayaran</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
+                    <button onclick="clearSettingSpp()" class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5">
+                        <i class="fas fa-undo"></i> Bersihkan
+                    </button>
+                    <button onclick="simpanSettingSpp()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-1.5">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Isi Form 3 Kolom Responsive -->
+            <div class="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Nominal per Bulan -->
+                <div class="bg-gray-50/70 p-3.5 rounded-xl border border-gray-100 flex items-center gap-3.5">
+                    <div class="w-11 h-11 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-lg shrink-0">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="w-full min-w-0">
+                        <label for="input_tarif_spp" class="text-[11px] text-gray-500 font-bold uppercase tracking-wide block mb-1">Nominal / Bulan (Rp)</label>
+                        <input type="text" id="input_tarif_spp" oninput="formatInputRupiah(this); kalkulasiTotalSppUi()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none font-bold text-gray-800 text-sm" placeholder="Contoh: 15.000">
+                    </div>
+                </div>
+
+                <!-- Target Waktu -->
+                <div class="bg-gray-50/70 p-3.5 rounded-xl border border-gray-100 flex items-center gap-3.5">
+                    <div class="w-11 h-11 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-lg shrink-0">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="w-full min-w-0">
+                        <label for="input_bulan_spp" class="text-[11px] text-gray-500 font-bold uppercase tracking-wide block mb-1">Target Waktu (Bulan)</label>
+                        <input type="number" id="input_bulan_spp" oninput="kalkulasiTotalSppUi()" class="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-bold text-gray-800 text-sm" placeholder="Contoh: 11">
+                    </div>
+                </div>
+
+                <!-- Total Tagihan 1 Tahun -->
+                <div class="bg-gradient-to-br from-rose-50 to-orange-50/60 p-3.5 rounded-xl border border-rose-100 flex items-center gap-3.5">
+                    <div class="w-11 h-11 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center text-lg shrink-0">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[11px] text-rose-500 font-bold uppercase tracking-wide">Total Tagihan 1 Tahun</p>
+                        <h3 class="text-lg sm:text-xl font-black text-gray-800 mt-0.5 truncate" id="info_spp_total">Rp 0</h3>
                     </div>
                 </div>
             </div>
+
+            <!-- Footer Strip Khusus Reset Periode (Aman dari salah klik) -->
+            <div class="px-4 sm:px-5 py-3 bg-red-50/60 border-t border-red-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <p class="text-[11px] text-red-700/90 flex items-center gap-2 leading-snug">
+                    <i class="fas fa-exclamation-triangle text-red-500 shrink-0"></i>
+                    <span>Pergantian tahun ajaran? Pastikan semua laporan SPP & Buku Kas sudah dicetak sebelum reset.</span>
+                </p>
+                <button onclick="resetDataSpp()" class="w-full sm:w-auto shrink-0 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition-all shadow-sm flex items-center justify-center gap-1.5">
+                    <i class="fas fa-trash-alt"></i> Reset Data SPP
+                </button>
+            </div>
+
         </div>
 
         <!-- Area Kontrol -->

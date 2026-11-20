@@ -1861,3 +1861,130 @@ function cetakLaporanBulananKelas() {
     `);
     printWindow.document.close();
 }
+
+// =========================================================
+// FUNGSI RESET DATA SPP (PRESISI, RAPAT & RESPONSIVE)
+// =========================================================
+function resetDataSpp() {
+    window.history.pushState({ popup: 'resetSpp' }, "", "#resetSpp");
+
+    Swal.fire({
+        padding: '16px',
+        html: `
+            <div class="text-left">
+                <!-- Header Kompak -->
+                <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-3">
+                    <div class="w-9 h-9 bg-red-100 text-red-600 rounded-xl flex items-center justify-center text-base shrink-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-sm sm:text-base font-heading font-bold text-gray-800 leading-tight m-0">Peringatan Reset SPP</h3>
+                        <p class="text-[11px] text-red-500 font-medium m-0 mt-0.5">Tindakan ini tidak dapat dibatalkan</p>
+                    </div>
+                </div>
+
+                <!-- Isi Konten -->
+                <div class="text-xs text-gray-600 space-y-2.5 max-h-[55vh] overflow-y-auto pr-1">
+                    <p class="leading-relaxed m-0">
+                        Seluruh <b>riwayat pembayaran SPP</b> akan dikosongkan. Pengaturan tarif bulanan tetap aman.
+                    </p>
+
+                    <div class="bg-red-50 border border-red-200 p-2.5 rounded-xl text-red-800">
+                        <p class="font-bold text-[11px] m-0 mb-1 flex items-center gap-1.5">
+                            <i class="fas fa-clipboard-check"></i> SYARAT WAJIB SEBELUM RESET:
+                        </p>
+                        <ul class="list-disc pl-4 m-0 space-y-0.5 text-[11px] leading-snug">
+                            <li>Seluruh <b>Laporan SPP per Kelas</b> sudah dicetak/disimpan PDF.</li>
+                            <li>Laporan <b>Buku Kas Umum</b> sudah dicetak sebagai arsip.</li>
+                            <li>Sudah membuat salinan backup di Google Sheets.</li>
+                        </ul>
+                    </div>
+
+                    <label class="flex items-start gap-2.5 p-2.5 bg-amber-50 border border-amber-200 rounded-xl cursor-pointer hover:bg-amber-100/60 transition-colors">
+                        <input type="checkbox" id="cekSudahCetakSpp" class="mt-0.5 w-4 h-4 shrink-0 text-emerald-600 rounded cursor-pointer">
+                        <span class="text-[11px] font-bold text-amber-900 leading-snug">Saya menyatakan seluruh catatan/laporan SPP & Buku Kas sudah dicetak.</span>
+                    </label>
+
+                    <label class="flex items-start gap-2.5 p-2.5 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors">
+                        <input type="checkbox" id="cekHapusPengeluaran" class="mt-0.5 w-4 h-4 shrink-0 text-red-600 rounded cursor-pointer">
+                        <span class="text-[11px] font-semibold text-gray-700 leading-snug">Ikut bersihkan data <b>Pengeluaran (Buku Kas)</b> agar saldo mulai dari Rp 0.</span>
+                    </label>
+
+                    <div class="pt-1">
+                        <label for="inputKonfirmasiResetSpp" class="block text-[11px] font-bold text-center text-gray-600 mb-1">
+                            Ketik <span class="text-red-600">RESET SPP</span> untuk melanjutkan:
+                        </label>
+                        <input type="text" id="inputKonfirmasiResetSpp" autocomplete="off" placeholder="Ketik RESET SPP di sini..." class="w-full px-3 py-2 text-center text-xs sm:text-sm font-bold text-red-600 bg-white border-2 border-gray-200 focus:border-red-500 focus:ring-2 focus:ring-red-200 rounded-xl outline-none transition-all">
+                    </div>
+                </div>
+            </div>
+        `,
+        showCancelButton: true,
+        buttonsStyling: false,
+        confirmButtonText: '<i class="fas fa-trash-alt mr-1.5"></i> Eksekusi Reset',
+        cancelButtonText: 'Batal',
+        customClass: {
+            popup: '!w-[94%] !max-w-md !rounded-2xl !shadow-2xl border border-gray-100',
+            htmlContainer: '!m-0 !p-0',
+            actions: '!mt-3 !w-full flex flex-col-reverse sm:flex-row gap-2',
+            confirmButton: 'w-full sm:flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-sm text-xs sm:text-sm transition-all cursor-pointer',
+            cancelButton: 'w-full sm:flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs sm:text-sm transition-all cursor-pointer',
+            validationMessage: '!mt-2 !mx-0 text-[11px] font-semibold rounded-xl bg-red-50 text-red-600 border border-red-200 py-2 px-3'
+        },
+        didClose: () => {
+            if (window.location.hash === "#resetSpp") {
+                window.history.back();
+            }
+        },
+        preConfirm: () => {
+            const sudahCetak = document.getElementById('cekSudahCetakSpp').checked;
+            const inputValue = (document.getElementById('inputKonfirmasiResetSpp').value || '').trim();
+
+            if (!sudahCetak) {
+                Swal.showValidationMessage('Centang pernyataan bahwa laporan sudah dicetak terlebih dahulu!');
+                return false;
+            }
+            if (inputValue !== 'RESET SPP') {
+                Swal.showValidationMessage('Teks tidak sesuai. Ketik RESET SPP dengan huruf besar!');
+                return false;
+            }
+            return {
+                hapusPengeluaran: document.getElementById('cekHapusPengeluaran').checked
+            };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            showLoading(true, "Membersihkan Data SPP...");
+
+            const fd = new URLSearchParams();
+            fd.append('action', 'resetDataSpp');
+            fd.append('token', sessionStorage.getItem('tokenMadasa'));
+            fd.append('hapus_pengeluaran', result.value.hapusPengeluaran ? 'ya' : 'tidak');
+
+            gasFetch({ method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(res => {
+                showLoading(false);
+                if (res.status === 'success') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Reset Berhasil!',
+                        text: res.message,
+                        confirmButtonColor: '#059669',
+                        customClass: { popup: '!w-[92%] !max-w-sm !rounded-2xl', confirmButton: 'rounded-xl' }
+                    });
+                    loadBukuKas();
+                    if (document.getElementById('filterKelasSpp').value) {
+                        loadDataSpp();
+                    }
+                } else {
+                    Swal.fire('Gagal', res.message, 'error');
+                }
+            })
+            .catch(e => {
+                showLoading(false);
+                Swal.fire('Error', 'Koneksi ke server gagal. Periksa jaringan Anda.', 'error');
+            });
+        }
+    });
+}
